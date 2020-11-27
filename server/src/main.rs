@@ -1,6 +1,8 @@
 mod admin;
 mod db;
 mod file;
+mod passwordless;
+mod project;
 mod user;
 
 #[macro_use]
@@ -23,8 +25,7 @@ fn index() -> &'static str {
 async fn main() {
     let matches = App::new("Auth")
         .version("1.0")
-        .author("Kevin K. <kbknapp@gmail.com>")
-        .about("Does awesome things")
+        .author("Michael Riezler. <michael@riezler.co>")
         .arg(
             Arg::new("server")
                 .short('s')
@@ -40,6 +41,7 @@ async fn main() {
             .mount("/", routes![index])
             .mount("/admin", admin::routes())
             .mount("/user", user::routes())
+            .mount("/passwordless", passwordless::routes())
             .launch()
             .await;
     }
