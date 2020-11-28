@@ -1,8 +1,10 @@
 mod admin;
 mod db;
+mod error;
 mod file;
 mod passwordless;
 mod project;
+mod template;
 mod user;
 
 #[macro_use]
@@ -11,14 +13,16 @@ extern crate rocket;
 use include_dir::{include_dir, Dir};
 
 use crate::db::AuthDb;
+use crate::error::ApiError;
+
 use clap::{App, Arg};
 
 const SQL: Dir = include_dir!("./src/sql");
 const ADMIN_CLIENT: Dir = include_dir!("../admin/build");
 
 #[get("/")]
-fn index() -> &'static str {
-    "Hello, Michael!"
+fn index() -> Result<String, ApiError> {
+    Err(ApiError::Test(Some("message".to_string())))
 }
 
 #[rocket::main]

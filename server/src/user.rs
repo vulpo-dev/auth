@@ -1,6 +1,6 @@
 use crate::db::get_query;
+use crate::error::ApiError;
 use rocket::http::RawStr;
-use rocket::http::Status;
 use rocket::request::FromParam;
 use rocket::Route;
 use rocket_contrib::json::Json;
@@ -30,7 +30,7 @@ pub struct User {
 }
 
 #[get("/<id>")]
-async fn get_user(conn: AuthDb, id: Uuid) -> Result<Json<User>, Status> {
+async fn get_user(conn: AuthDb, id: Uuid) -> Result<Json<User>, ApiError> {
     let query = get_query("user/get.sql")?;
     let Uuid(id) = id;
     let row = conn.run(move |c| c.query_one(query, &[&id])).await;
@@ -38,11 +38,11 @@ async fn get_user(conn: AuthDb, id: Uuid) -> Result<Json<User>, Status> {
     match row {
         Ok(user) => Ok(Json(User {
             id: user.get("id"),
-            display_name: "michael".to_string(),
-            email: "michael@riezler.co".to_string(),
+            display_name: user.get("display_name"),
+            email: user.get("email"),
         })),
 
-        Err(_) => Err(Status::NotFound),
+        Err(_) => Err(ApiError::NotFound),
     }
 }
 
