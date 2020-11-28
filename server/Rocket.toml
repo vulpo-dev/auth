@@ -1,2 +1,2 @@
 [global.databases]
-auth = { url = "postgres://postgres:postgres@localhost/bento_auth" }
+auth = { url = "postgres://postgres:postgres@localhost/auth" }

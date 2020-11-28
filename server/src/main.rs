@@ -2,6 +2,7 @@ mod admin;
 mod db;
 mod error;
 mod file;
+mod migration;
 mod passwordless;
 mod project;
 mod template;
@@ -9,6 +10,9 @@ mod user;
 
 #[macro_use]
 extern crate rocket;
+
+#[macro_use]
+extern crate diesel_migrations;
 
 use include_dir::{include_dir, Dir};
 
@@ -51,6 +55,12 @@ async fn main() {
     }
 
     if matches.is_present("migrate") {
-        println!("migrate yoo");
+        match migration::run() {
+            Ok(_) => println!("Migrations done"),
+            Err(err) => {
+                println!("Migration Error");
+                println!("{:?}", err);
+            }
+        }
     }
 }
