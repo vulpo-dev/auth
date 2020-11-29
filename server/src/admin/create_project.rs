@@ -1,12 +1,11 @@
+use crate::admin::Admin;
 use crate::db::get_query;
 use crate::db::AuthDb;
 use crate::error::ApiError;
-
 use rocket;
+use rocket_contrib::databases::postgres::error::SqlState;
 use rocket_contrib::json::Json;
 use serde::Deserialize;
-
-use rocket_contrib::databases::postgres::error::SqlState;
 use uuid::Uuid;
 
 #[derive(Debug, Deserialize)]
@@ -36,7 +35,11 @@ pub async fn create(conn: &AuthDb, body: NewProject) -> Result<Uuid, ApiError> {
 }
 
 #[post("/__/create_project", data = "<body>")]
-pub async fn handler(conn: AuthDb, body: Json<NewProject>) -> Result<Json<[Uuid; 1]>, ApiError> {
+pub async fn handler(
+    conn: AuthDb,
+    body: Json<NewProject>,
+    _admin: Admin,
+) -> Result<Json<[Uuid; 1]>, ApiError> {
     let id = create(&conn, body.into_inner()).await?;
     Ok(Json([id]))
 }

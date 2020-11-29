@@ -1,3 +1,4 @@
+use crate::admin::Admin;
 use crate::db::get_query;
 use crate::db::AuthDb;
 use crate::error::ApiError;
@@ -78,7 +79,11 @@ pub async fn create(conn: &AuthDb, body: NewUser) -> Result<Uuid, ApiError> {
 }
 
 #[post("/__/create_user", data = "<body>")]
-pub async fn handler(conn: AuthDb, body: Json<NewUser>) -> Result<Json<[Uuid; 1]>, ApiError> {
+pub async fn handler(
+    conn: AuthDb,
+    body: Json<NewUser>,
+    _admin: Admin,
+) -> Result<Json<[Uuid; 1]>, ApiError> {
     let id = create(&conn, body.into_inner()).await?;
     Ok(Json([id]))
 }

@@ -16,17 +16,38 @@ pub enum ApiError {
     #[serde(rename = "internal_error")]
     InternalServerError,
 
+    #[serde(rename = "bad_request")]
+    BadRequest,
+
     #[serde(rename = "not_found")]
     NotFound,
 
     #[serde(rename = "project/name_exists")]
     ProjectNameExists,
 
+    #[serde(rename = "project/not_found")]
+    ProjectNotFound,
+
     #[serde(rename = "user/exists")]
     UserExists,
 
     #[serde(rename = "user/invalid_project")]
     UserInvalidProject,
+
+    #[serde(rename = "admin/has_admin")]
+    AdminHasAdmin,
+
+    #[serde(rename = "admin/admin_project_exists")]
+    AdminProjectExists,
+
+    #[serde(rename = "admin/auth")]
+    AdminAuth,
+
+    #[serde(rename = "admin/exits")]
+    AdminExists,
+
+    #[serde(rename = "auth/token_missing")]
+    AuthTokenMissing,
 }
 
 impl ApiError {

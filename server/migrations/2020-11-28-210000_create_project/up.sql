@@ -5,6 +5,7 @@ create table if not exists projects
 	, name text unique not null
 	, created_at timestamptz not null default now()
 	, updated_at timestamptz not null default now()
+	, is_admin boolean not null default False
 	);
 
 select diesel_manage_updated_at('projects');
