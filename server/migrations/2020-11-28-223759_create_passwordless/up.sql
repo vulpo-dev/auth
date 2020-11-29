@@ -9,3 +9,7 @@ create table if not exists passwordless
 	, is_valid boolean not null default True
 	, project_id uuid references projects(id) on delete cascade
 	);
+
+create index passwordless_project_idx on passwordless(project_id);
+create index passwordless_email_idx on passwordless(email);
+create index passwordless_user_idx on passwordless(user_id);

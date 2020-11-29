@@ -2,7 +2,7 @@ use handlebars::Handlebars;
 use include_dir::{include_dir, Dir};
 use serde_json::json;
 
-const TEMPLATE: Dir = include_dir!("./src/template");
+const TEMPLATE: Dir = include_dir!("./template");
 
 struct File {
     pub path: &'static str,

@@ -1465,6 +1465,8 @@ dependencies = [
  "bytes 0.5.6",
  "fallible-iterator",
  "postgres-protocol",
+ "serde",
+ "serde_json",
  "uuid",
 ]
 

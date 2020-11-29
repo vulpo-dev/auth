@@ -19,34 +19,23 @@ use include_dir::{include_dir, Dir};
 use crate::db::AuthDb;
 use crate::error::ApiError;
 
-use clap::{App, Arg};
+use clap::App;
 
-const SQL: Dir = include_dir!("./src/sql");
+const SQL: Dir = include_dir!("./sql");
 const ADMIN_CLIENT: Dir = include_dir!("../admin/build");
-
-#[get("/")]
-fn index() -> Result<String, ApiError> {
-    Err(ApiError::Test(Some("message".to_string())))
-}
 
 #[rocket::main]
 async fn main() {
     let matches = App::new("Auth")
         .version("1.0")
         .author("Michael Riezler. <michael@riezler.co>")
-        .arg(
-            Arg::new("server")
-                .short('s')
-                .long("server")
-                .about("start server"),
-        )
-        .arg(Arg::new("migrate").about("run migrations").long("migrate"))
+        .subcommand(App::new("server").about("start server"))
+        .subcommand(App::new("migrate").about("run migrations"))
         .get_matches();
 
     if matches.is_present("server") {
         let _ = rocket::ignite()
             .attach(AuthDb::fairing())
-            .mount("/", routes![index])
             .mount("/admin", admin::routes())
             .mount("/user", user::routes())
             .mount("/passwordless", passwordless::routes())

@@ -7,55 +7,34 @@ use serde_json;
 use std::io::Cursor;
 
 #[derive(Debug, Serialize)]
-pub enum ErrorCode {
-    #[serde(rename = "test")]
-    Test,
+pub struct Message {
+    pub code: ApiError,
+}
 
+#[derive(Debug, Serialize)]
+pub enum ApiError {
     #[serde(rename = "internal_error")]
     InternalServerError,
 
     #[serde(rename = "not_found")]
     NotFound,
-}
 
-#[derive(Debug, Serialize)]
-pub struct Message<'a> {
-    pub code: ErrorCode,
-    pub message: &'a Option<String>,
-}
+    #[serde(rename = "project/name_exists")]
+    ProjectNameExists,
 
-#[derive(Debug)]
-pub enum ApiError {
-    Test(Option<String>),
-    InternalServerError,
-    NotFound,
+    #[serde(rename = "user/exists")]
+    UserExists,
+
+    #[serde(rename = "user/invalid_project")]
+    UserInvalidProject,
 }
 
 impl ApiError {
     fn get_status(&self) -> Status {
         match self {
-            ApiError::Test(_) => Status::InternalServerError,
             ApiError::InternalServerError => Status::InternalServerError,
             ApiError::NotFound => Status::NotFound,
-        }
-    }
-
-    fn get_body(&self) -> Message {
-        match self {
-            ApiError::Test(message) => Message {
-                code: ErrorCode::Test,
-                message,
-            },
-
-            ApiError::InternalServerError => Message {
-                code: ErrorCode::InternalServerError,
-                message: &None,
-            },
-
-            ApiError::NotFound => Message {
-                code: ErrorCode::NotFound,
-                message: &None,
-            },
+            _ => Status::BadRequest,
         }
     }
 }
@@ -63,7 +42,7 @@ impl ApiError {
 impl<'r> Responder<'r, 'static> for ApiError {
     fn respond_to(self, _: &'r Request<'_>) -> response::Result<'static> {
         let status = self.get_status();
-        let body = self.get_body();
+        let body = Message { code: self };
         let body = match serde_json::to_string(&body) {
             Ok(json) => json,
             Err(_) => return Response::build().status(Status::InternalServerError).ok(),

@@ -3,6 +3,10 @@ use crate::ADMIN_CLIENT;
 use rocket::Route;
 use std::path::PathBuf;
 
+mod create;
+mod create_project;
+mod create_user;
+
 #[get("/<path..>")]
 fn files(path: Option<PathBuf>) -> Option<File> {
     let file = match path {
@@ -32,5 +36,11 @@ fn admin_index() -> Option<File> {
 }
 
 pub fn routes() -> Vec<Route> {
-    routes![files, admin_index]
+    routes![
+        files,
+        admin_index,
+        create::handler,
+        create_user::handler,
+        create_project::handler
+    ]
 }
