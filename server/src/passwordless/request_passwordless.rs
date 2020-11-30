@@ -1,3 +1,4 @@
+use crate::data::user::User;
 use crate::db::{get_query, AuthDb};
 use crate::project::Project;
 use crate::template::Template;
@@ -5,7 +6,6 @@ use crate::ApiError;
 use bcrypt::{hash, DEFAULT_COST};
 use reqwest;
 
-use rocket_contrib::databases::postgres::Row;
 use rocket_contrib::json::Json;
 use serde::Deserialize;
 
@@ -23,14 +23,13 @@ pub async fn request_passwordless(
     body: Json<RequestPasswordless>,
 ) -> Result<Json<[Uuid; 1]>, ApiError> {
     let email = body.email.clone();
-    let user = get_user(&conn, email, project.id).await?;
+    let user = User::get_by_email(&conn, email, project.id).await?;
 
     let token = get_token();
     let verification_token = hash_token(&token)?;
 
-    let id: Uuid = user.get("id");
     let email = body.email.clone();
-    let id = create_token(&conn, id, email, verification_token, project.id).await?;
+    let id = create_token(&conn, user.id, email, verification_token, project.id).await?;
 
     let base_url = "http://localhost:3000".to_string();
     let link: String = format!("{}?email={}&token={}", base_url, body.email, token);
@@ -51,19 +50,6 @@ fn hash_token(token: &String) -> Result<String, ApiError> {
     match hash(token.clone(), DEFAULT_COST) {
         Err(_) => Err(ApiError::InternalServerError),
         Ok(hashed) => Ok(hashed),
-    }
-}
-
-async fn get_user(conn: &AuthDb, email: String, project: Uuid) -> Result<Row, ApiError> {
-    let query = get_query("user/get_by_email")?;
-
-    let row = conn
-        .run(move |c| c.query_one(query, &[&email, &project]))
-        .await;
-
-    match row {
-        Err(_) => Err(ApiError::NotFound),
-        Ok(user) => Ok(user),
     }
 }
 

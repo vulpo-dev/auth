@@ -16,7 +16,6 @@ clap = "3.0.0-beta.2"
 rand = "0.7.3"
 bcrypt = "0.9.0"
 handlebars = "3.5.1"
-lettre = { version = "0.10.0-alpha.4", features = ["rustls-tls", "smtp-transport"] }
 rustls = "0.19.0"
 reqwest = { version = "0.10.9", features = ["json"] }
 dotenv = "0.15.0"
@@ -29,7 +28,7 @@ chrono = { verion = "0.4.19", features = ["serde"] }
 [dependencies.rocket_contrib]
 git = "https://github.com/SergioBenitez/Rocket"
 branch = "master"
-features = ["postgres_pool"]
+features = ["postgres_pool", "uuid"]
 
 [dependencies.postgres]
 version = "0.18.1"

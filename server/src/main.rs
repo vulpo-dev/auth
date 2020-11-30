@@ -20,7 +20,6 @@ use include_dir::{include_dir, Dir};
 
 use crate::db::AuthDb;
 use crate::response::error::ApiError;
-
 use clap::App;
 
 const SQL: Dir = include_dir!("./sql");

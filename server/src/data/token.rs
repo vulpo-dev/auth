@@ -9,9 +9,9 @@ use time::{Duration, OffsetDateTime};
 use uuid::Uuid;
 
 #[derive(Deserialize, Serialize)]
-struct Claims {
-    user: User,
-    exp: i64,
+pub struct Claims {
+    pub user: User,
+    pub exp: i64,
 }
 
 pub struct Token;

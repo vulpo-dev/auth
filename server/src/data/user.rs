@@ -34,7 +34,7 @@ impl User {
 
         User {
             id: row.get("id"),
-            password: password,
+            password,
             display_name: row.get("display_name"),
             email: row.get("email"),
             email_verified: row.get("email_verified"),
@@ -44,6 +44,23 @@ impl User {
             provider_id: row.get("provider_id"),
             created_at: row.get("created_at"),
             updated_at: row.get("updated_at"),
+        }
+    }
+
+    pub async fn get_by_email(
+        conn: &AuthDb,
+        email: String,
+        project: Uuid,
+    ) -> Result<User, ApiError> {
+        let query = get_query("user/get_by_email")?;
+
+        let row = conn
+            .run(move |c| c.query_one(query, &[&email, &project]))
+            .await;
+
+        match row {
+            Err(_) => Err(ApiError::NotFound),
+            Ok(user) => Ok(User::from_row(user)),
         }
     }
 

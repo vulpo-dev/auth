@@ -1,13 +1,14 @@
+use crate::data::token::Claims;
+use crate::data::user::User;
 use crate::file::File;
 use crate::response::error::ApiError;
-use crate::user::User;
 use crate::ADMIN_CLIENT;
 use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation};
 use rocket::http::Status;
 use rocket::request::Outcome;
 use rocket::request::{self, FromRequest, Request};
 use rocket::Route;
-use serde::Deserialize;
+
 use std::path::PathBuf;
 
 mod create;
@@ -58,11 +59,6 @@ pub fn routes() -> Vec<Route> {
     ]
 }
 
-#[derive(Deserialize)]
-struct Claim {
-    user: User,
-}
-
 #[derive(Debug)]
 pub struct Admin(User);
 
@@ -80,7 +76,7 @@ impl<'a, 'r> FromRequest<'a, 'r> for Admin {
         let start = "Bearer ".len();
         let token = &token_string[start..end];
 
-        let token_data = match decode::<Claim>(
+        let token_data = match decode::<Claims>(
             &token,
             &DecodingKey::from_secret("secret".as_ref()),
             &Validation::new(Algorithm::HS256),
