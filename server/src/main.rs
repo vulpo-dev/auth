@@ -8,6 +8,7 @@ mod passwordless;
 mod project;
 mod response;
 mod template;
+mod token;
 mod user;
 
 #[macro_use]
@@ -41,6 +42,7 @@ async fn main() {
             .mount("/user", user::routes())
             .mount("/passwordless", passwordless::routes())
             .mount("/password", password::routes())
+            .mount("/token", token::routes())
             .launch()
             .await;
     }

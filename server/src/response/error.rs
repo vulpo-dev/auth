@@ -52,6 +52,15 @@ pub enum ApiError {
     #[serde(rename = "auth/password_length")]
     AuthPasswordLength,
 
+    #[serde(rename = "auth/refresh_token_missing")]
+    AuthRefreshTokenMissing,
+
+    #[serde(rename = "auth/refresh_token_not_found")]
+    AuthRefreshTokenNotFound,
+
+    #[serde(rename = "auth/refresh_token_invalid_format")]
+    AuthRefreshTokenInvalidFormat,
+
     #[serde(rename = "auth/invalid_email_password")]
     UserNotFound,
 

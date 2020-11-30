@@ -64,6 +64,19 @@ impl User {
         }
     }
 
+    pub async fn get_by_id(conn: &AuthDb, id: Uuid, project: Uuid) -> Result<User, ApiError> {
+        let query = get_query("user/get_by_id")?;
+
+        let row = conn
+            .run(move |c| c.query_one(query, &[&id, &project]))
+            .await;
+
+        match row {
+            Err(_) => Err(ApiError::NotFound),
+            Ok(user) => Ok(User::from_row(user)),
+        }
+    }
+
     pub async fn password(conn: &AuthDb, email: String, project: Uuid) -> Result<User, ApiError> {
         let query = get_query("user/get_password")?;
 

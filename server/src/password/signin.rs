@@ -1,4 +1,4 @@
-use crate::data::token::Token as Jwt;
+use crate::data::token::{RefreshToken, Token as Jwt};
 use crate::data::user::User;
 use crate::db::AuthDb;
 use crate::project::Project;
@@ -6,7 +6,6 @@ use crate::response::error::ApiError;
 use crate::response::token::Token;
 
 use bcrypt::verify;
-use chrono::{Duration, Utc};
 use rocket_contrib::json::Json;
 use serde::Deserialize;
 
@@ -39,8 +38,10 @@ pub async fn sign_in(
     };
 
     let token = Jwt::access_token(&user)?;
-    let expire = Utc::now() + Duration::days(90);
-    let refresh_token = Jwt::refresh_token(&conn, user.id, expire, project.id).await?;
+    let expire = RefreshToken::expire();
+    let refresh_token = conn
+        .run(move |client| RefreshToken::create(client, user.id, expire, project.id))
+        .await?;
 
     Ok(Token {
         access_token: token,

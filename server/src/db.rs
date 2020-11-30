@@ -3,6 +3,10 @@ use crate::SQL;
 
 use rocket_contrib::database;
 use rocket_contrib::databases::postgres;
+use rocket_contrib::databases::postgres::error::Error;
+use rocket_contrib::databases::postgres::types::ToSql;
+use rocket_contrib::databases::postgres::Row;
+use rocket_contrib::databases::postgres::ToStatement;
 
 #[database("auth")]
 pub struct AuthDb(postgres::Client);
@@ -23,5 +27,33 @@ pub fn get_query(path: &str) -> Result<&str, ApiError> {
     match file.contents_utf8() {
         Some(content) => Ok(content),
         None => return Err(ApiError::InternalServerError),
+    }
+}
+
+pub trait GenericClient {
+    fn query_one<T: ?Sized + ToStatement>(
+        &mut self,
+        query: &T,
+        params: &[&(dyn ToSql + Sync)],
+    ) -> Result<Row, Error>;
+}
+
+impl GenericClient for postgres::Client {
+    fn query_one<T: ?Sized + ToStatement>(
+        &mut self,
+        query: &T,
+        params: &[&(dyn ToSql + Sync)],
+    ) -> Result<Row, Error> {
+        self.query_one(query, params)
+    }
+}
+
+impl GenericClient for postgres::Transaction<'_> {
+    fn query_one<T: ?Sized + ToStatement>(
+        &mut self,
+        query: &T,
+        params: &[&(dyn ToSql + Sync)],
+    ) -> Result<Row, Error> {
+        self.query_one(query, params)
     }
 }
