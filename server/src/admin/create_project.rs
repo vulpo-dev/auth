@@ -1,7 +1,7 @@
 use crate::admin::Admin;
 use crate::db::get_query;
 use crate::db::AuthDb;
-use crate::error::ApiError;
+use crate::response::error::ApiError;
 use rocket;
 use rocket_contrib::databases::postgres::error::SqlState;
 use rocket_contrib::json::Json;

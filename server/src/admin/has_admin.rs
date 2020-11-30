@@ -1,5 +1,5 @@
 use crate::db::{get_query, AuthDb};
-use crate::error::ApiError;
+use crate::response::error::ApiError;
 use rocket_contrib::json::Json;
 use serde::Serialize;
 

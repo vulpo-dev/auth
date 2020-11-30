@@ -1,6 +1,6 @@
 use crate::db::get_query;
 use crate::db::AuthDb;
-use crate::error::ApiError;
+use crate::response::error::ApiError;
 use bcrypt::{hash, DEFAULT_COST};
 
 use crate::admin::has_admin;
@@ -33,7 +33,6 @@ pub async fn create(conn: &AuthDb, body: NewAdmin, project: Uuid) -> Result<Uuid
     match row {
         Err(err) => {
             if let Some(db_error) = err.into_source().unwrap().downcast_ref::<DbError>() {
-                println!("{:?}", db_error);
                 return match db_error.constraint() {
                     Some("users_project_id_fkey") => Err(ApiError::ProjectNotFound),
                     Some("users_project_id_email_key") => Err(ApiError::AdminExists),

@@ -1,4 +1,4 @@
-use crate::error::ApiError;
+use crate::response::error::ApiError;
 use crate::SQL;
 
 use rocket_contrib::database;

@@ -1,10 +1,12 @@
 mod admin;
+mod data;
 mod db;
-mod error;
 mod file;
 mod migration;
+mod password;
 mod passwordless;
 mod project;
+mod response;
 mod template;
 mod user;
 
@@ -17,7 +19,7 @@ extern crate diesel_migrations;
 use include_dir::{include_dir, Dir};
 
 use crate::db::AuthDb;
-use crate::error::ApiError;
+use crate::response::error::ApiError;
 
 use clap::App;
 
@@ -39,6 +41,7 @@ async fn main() {
             .mount("/admin", admin::routes())
             .mount("/user", user::routes())
             .mount("/passwordless", passwordless::routes())
+            .mount("/password", password::routes())
             .launch()
             .await;
     }

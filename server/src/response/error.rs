@@ -48,6 +48,21 @@ pub enum ApiError {
 
     #[serde(rename = "auth/token_missing")]
     AuthTokenMissing,
+
+    #[serde(rename = "auth/password_length")]
+    AuthPasswordLength,
+
+    #[serde(rename = "auth/invalid_email_password")]
+    UserNotFound,
+
+    #[serde(rename = "auth/invalid_email_password")]
+    UserInvalidPassword,
+
+    #[serde(rename = "auth/invalid_email_password")]
+    UserDuplicate,
+
+    #[serde(rename = "token/generate")]
+    TokenGenerate,
 }
 
 impl ApiError {

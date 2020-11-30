@@ -1,6 +1,6 @@
 use crate::db::get_query;
 use crate::db::AuthDb;
-use crate::error::ApiError;
+use crate::response::error::ApiError;
 use rocket::http::RawStr;
 use rocket::request::FromParam;
 use rocket::Route;

@@ -51,6 +51,7 @@ name = "auth_server"
 version = "0.1.0"
 dependencies = [
  "bcrypt",
+ "chrono",
  "clap",
  "diesel",
  "diesel_migrations",
@@ -67,6 +68,7 @@ dependencies = [
  "rustls 0.19.0",
  "serde",
  "serde_json",
+ "time 0.2.23",
  "uuid",
 ]
 
@@ -227,6 +229,7 @@ dependencies = [
  "libc",
  "num-integer",
  "num-traits",
+ "serde",
  "time 0.1.44",
  "winapi 0.3.9",
 ]
@@ -1532,6 +1535,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cfc08a7d94a80665de4a83942fa8db2fdeaf2f123fc0535e384dc4fff251efae"
 dependencies = [
  "bytes 0.5.6",
+ "chrono",
  "fallible-iterator",
  "postgres-protocol",
  "serde",
