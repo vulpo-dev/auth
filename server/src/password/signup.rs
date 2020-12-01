@@ -1,6 +1,6 @@
-use crate::data::token::{RefreshToken, Token as Jwt};
+use crate::data::token::{AccessToken, RefreshToken};
 use crate::data::user::User;
-use crate::db::AuthDb;
+use crate::data::AuthDb;
 use crate::project::Project;
 use crate::response::error::ApiError;
 use crate::response::token::Token;
@@ -23,9 +23,18 @@ pub async fn sign_up(
         return Err(ApiError::AuthPasswordLength);
     }
 
-    let user = User::create(&conn, body.email.clone(), body.password.clone(), project.id).await?;
+    let user = conn
+        .run(move |client| {
+            User::create(
+                client,
+                body.email.clone(),
+                body.password.clone(),
+                project.id,
+            )
+        })
+        .await?;
 
-    let token = Jwt::access_token(&user)?;
+    let token = AccessToken::create(&user)?;
     let expire = RefreshToken::expire();
     let refresh_token = conn
         .run(move |client| RefreshToken::create(client, user.id, expire, project.id))

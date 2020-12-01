@@ -1,14 +1,7 @@
-use crate::data::token::Claims;
-use crate::data::user::User;
 use crate::file::File;
-use crate::response::error::ApiError;
 use crate::ADMIN_CLIENT;
-use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation};
-use rocket::http::Status;
-use rocket::request::Outcome;
-use rocket::request::{self, FromRequest, Request};
-use rocket::Route;
 
+use rocket::Route;
 use std::path::PathBuf;
 
 mod create;
@@ -57,40 +50,4 @@ pub fn routes() -> Vec<Route> {
         project::has,
         project::create
     ]
-}
-
-#[derive(Debug)]
-pub struct Admin(User);
-
-#[rocket::async_trait]
-impl<'a, 'r> FromRequest<'a, 'r> for Admin {
-    type Error = ApiError;
-
-    async fn from_request(req: &'a Request<'r>) -> request::Outcome<Self, Self::Error> {
-        let token_string = match req.headers().get_one("Authorization") {
-            None => return Outcome::Failure((Status::BadRequest, ApiError::AuthTokenMissing)),
-            Some(token) => token,
-        };
-
-        let end = token_string.len();
-        let start = "Bearer ".len();
-        let token = &token_string[start..end];
-
-        let token_data = match decode::<Claims>(
-            &token,
-            &DecodingKey::from_secret("secret".as_ref()),
-            &Validation::new(Algorithm::HS256),
-        ) {
-            Ok(token) => token,
-            Err(_) => return Outcome::Failure((Status::BadRequest, ApiError::BadRequest)),
-        };
-
-        let user = token_data.claims.user;
-
-        if !user.traits.contains(&String::from("Admin")) {
-            return Outcome::Failure((Status::BadRequest, ApiError::AdminAuth));
-        }
-
-        Outcome::Success(Admin(user))
-    }
 }

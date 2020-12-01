@@ -1,6 +1,6 @@
-use crate::data::token::{RefreshToken, Token as Jwt};
+use crate::data::token::{AccessToken, RefreshToken};
 use crate::data::user::User;
-use crate::db::AuthDb;
+use crate::data::AuthDb;
 use crate::project::Project;
 use crate::response::error::ApiError;
 use crate::response::token::Token;
@@ -21,7 +21,10 @@ pub async fn sign_in(
     body: Json<SignIn>,
     project: Project,
 ) -> Result<Token, ApiError> {
-    let user = User::password(&conn, body.email.clone(), project.id).await?;
+    let email = body.email.clone();
+    let user = conn
+        .run(move |client| User::password(client, email, project.id))
+        .await?;
 
     let password = match user.password {
         Some(ref password) => password,
@@ -37,7 +40,7 @@ pub async fn sign_in(
         return Err(ApiError::UserInvalidPassword);
     };
 
-    let token = Jwt::access_token(&user)?;
+    let token = AccessToken::create(&user)?;
     let expire = RefreshToken::expire();
     let refresh_token = conn
         .run(move |client| RefreshToken::create(client, user.id, expire, project.id))

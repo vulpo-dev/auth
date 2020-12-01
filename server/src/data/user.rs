@@ -1,4 +1,4 @@
-use crate::db::{get_query, AuthDb};
+use crate::data::{get_query, GenericClient};
 use crate::response::error::ApiError;
 
 use bcrypt::{hash, DEFAULT_COST};
@@ -47,16 +47,13 @@ impl User {
         }
     }
 
-    pub async fn get_by_email(
-        conn: &AuthDb,
+    pub fn get_by_email<C: GenericClient>(
+        client: &mut C,
         email: String,
         project: Uuid,
     ) -> Result<User, ApiError> {
         let query = get_query("user/get_by_email")?;
-
-        let row = conn
-            .run(move |c| c.query_one(query, &[&email, &project]))
-            .await;
+        let row = client.query_one(query, &[&email, &project]);
 
         match row {
             Err(_) => Err(ApiError::NotFound),
@@ -64,12 +61,13 @@ impl User {
         }
     }
 
-    pub async fn get_by_id(conn: &AuthDb, id: Uuid, project: Uuid) -> Result<User, ApiError> {
+    pub fn get_by_id<C: GenericClient>(
+        client: &mut C,
+        id: Uuid,
+        project: Uuid,
+    ) -> Result<User, ApiError> {
         let query = get_query("user/get_by_id")?;
-
-        let row = conn
-            .run(move |c| c.query_one(query, &[&id, &project]))
-            .await;
+        let row = client.query_one(query, &[&id, &project]);
 
         match row {
             Err(_) => Err(ApiError::NotFound),
@@ -77,12 +75,14 @@ impl User {
         }
     }
 
-    pub async fn password(conn: &AuthDb, email: String, project: Uuid) -> Result<User, ApiError> {
+    pub fn password<C: GenericClient>(
+        client: &mut C,
+        email: String,
+        project: Uuid,
+    ) -> Result<User, ApiError> {
         let query = get_query("user/get_password")?;
 
-        let row = conn
-            .run(move |c| c.query_one(query, &[&email, &project]))
-            .await;
+        let row = client.query_one(query, &[&email, &project]);
 
         let row = match row {
             Err(_) => return Err(ApiError::UserNotFound),
@@ -92,8 +92,8 @@ impl User {
         Ok(User::from_row(row))
     }
 
-    pub async fn create(
-        conn: &AuthDb,
+    pub fn create<C: GenericClient>(
+        client: &mut C,
         email: String,
         password: String,
         project: Uuid,
@@ -105,9 +105,7 @@ impl User {
             Ok(hashed) => hashed,
         };
 
-        let row = conn
-            .run(move |c| c.query_one(query, &[&email, &password, &project]))
-            .await;
+        let row = client.query_one(query, &[&email, &password, &project]);
 
         match row {
             Ok(user) => Ok(User::from_row(user)),

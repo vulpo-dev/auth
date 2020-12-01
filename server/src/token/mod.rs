@@ -1,6 +1,6 @@
-use crate::data::token::{RefreshToken, Token as Jwt};
+use crate::data::token::{AccessToken, RefreshToken};
 use crate::data::user::User;
-use crate::db::AuthDb;
+use crate::data::AuthDb;
 use crate::response::error::ApiError;
 use crate::response::token::Token;
 use chrono::{Duration, Utc};
@@ -48,8 +48,11 @@ pub async fn refresh(conn: AuthDb, cookies: &CookieJar<'_>) -> Result<Token, Api
         })
         .await?;
 
-    let user = User::get_by_id(&conn, refresh_token.user, refresh_token.project).await?;
-    let token = Jwt::access_token(&user)?;
+    let user = conn
+        .run(move |client| User::get_by_id(client, refresh_token.user, refresh_token.project))
+        .await?;
+
+    let token = AccessToken::create(&user)?;
 
     Ok(Token {
         access_token: token,

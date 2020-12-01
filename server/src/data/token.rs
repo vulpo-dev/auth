@@ -1,8 +1,8 @@
 use crate::data::user::User;
-use crate::db::get_query;
+use crate::data::{get_query, GenericClient};
 use crate::response::error::ApiError;
 
-use crate::db::GenericClient;
+use bcrypt::{hash, DEFAULT_COST};
 use chrono::{DateTime, Duration as CDuration, Utc};
 use jsonwebtoken::{encode, EncodingKey, Header};
 use serde::{Deserialize, Serialize};
@@ -68,10 +68,10 @@ impl RefreshToken {
     }
 }
 
-pub struct Token;
+pub struct AccessToken;
 
-impl Token {
-    pub fn access_token(user: &User) -> Result<String, ApiError> {
+impl AccessToken {
+    pub fn create(user: &User) -> Result<String, ApiError> {
         let exp = OffsetDateTime::now_utc() + Duration::minutes(15);
         let claims = Claims {
             user: user.clone(),
@@ -85,6 +85,38 @@ impl Token {
         ) {
             Ok(token) => Ok(token),
             Err(_) => Err(ApiError::InternalServerError),
+        }
+    }
+}
+
+#[derive(Debug)]
+pub struct Passwordless;
+
+impl Passwordless {
+    pub fn create_token<C: GenericClient>(
+        client: &mut C,
+        id: Uuid,
+        email: String,
+        verification_token: String,
+        project: Uuid,
+    ) -> Result<Uuid, ApiError> {
+        let query = get_query("passwordless/create")?;
+        let row = client.query_one(query, &[&id, &email, &verification_token, &project]);
+
+        match row {
+            Err(_) => Err(ApiError::InternalServerError),
+            Ok(result) => Ok(result.get("id")),
+        }
+    }
+
+    pub fn get_token() -> String {
+        Uuid::new_v4().to_string()
+    }
+
+    pub fn hash_token(token: &String) -> Result<String, ApiError> {
+        match hash(token.clone(), DEFAULT_COST) {
+            Err(_) => Err(ApiError::InternalServerError),
+            Ok(hashed) => Ok(hashed),
         }
     }
 }

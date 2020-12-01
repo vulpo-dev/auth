@@ -1,7 +1,7 @@
 mod admin;
 mod data;
-mod db;
 mod file;
+mod mail;
 mod migration;
 mod password;
 mod passwordless;
@@ -17,14 +17,12 @@ extern crate rocket;
 #[macro_use]
 extern crate diesel_migrations;
 
-use include_dir::{include_dir, Dir};
-
-use crate::db::AuthDb;
-use crate::response::error::ApiError;
 use clap::App;
+use include_dir::{include_dir, Dir};
 
 const SQL: Dir = include_dir!("./sql");
 const ADMIN_CLIENT: Dir = include_dir!("../admin/build");
+const TEMPLATE: Dir = include_dir!("./template");
 
 #[rocket::main]
 async fn main() {
@@ -37,7 +35,7 @@ async fn main() {
 
     if matches.is_present("server") {
         let _ = rocket::ignite()
-            .attach(AuthDb::fairing())
+            .attach(data::AuthDb::fairing())
             .mount("/admin", admin::routes())
             .mount("/user", user::routes())
             .mount("/passwordless", passwordless::routes())

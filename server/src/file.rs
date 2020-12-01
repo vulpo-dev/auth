@@ -1,10 +1,9 @@
-use std::io::Cursor;
-
 use include_dir::File as VirtualFile;
 use rocket::http::{ContentType, Status};
 use rocket::request::Request;
 use rocket::response::{self, Responder, Response};
 use std::ffi::OsStr;
+use std::io::Cursor;
 
 #[derive(Debug)]
 pub struct File(VirtualFile<'static>);
