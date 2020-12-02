@@ -52,10 +52,10 @@ pub async fn refresh(conn: AuthDb, cookies: &CookieJar<'_>) -> Result<Token, Api
         .run(move |client| User::get_by_id(client, refresh_token.user, refresh_token.project))
         .await?;
 
-    let token = AccessToken::create(&user)?;
+    let token = AccessToken::new(&user);
 
     Ok(Token {
-        access_token: token,
+        access_token: token.to_jwt()?,
         refresh_token: new_refresh_token.to_string(),
         created: false,
     })

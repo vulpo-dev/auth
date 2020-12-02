@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Document</title>
+
+	<style>
+
+		body {
+			display: flex;
+			justify-content: center;
+			column-gap: 100px;
+			padding-top: 100px;
+		}
+
+		form {
+			margin-bottom: 100px;
+		}
+	</style>
+
+</head>
+<body>
+
+	<h1>User: <span id="user"></span></h1>
+
+	<form id="signUp">
+		<h3>Sign Up</h3>
+		<section>
+			<label for="">Email</label>
+			<input name="email" type="text">
+		</section>
+		<section>
+			<label for="">Password</label>
+			<input name="password" type="password">
+		</section>
+		<button>Sign Up</button>
+	</form>
+
+	<form id="signIn">
+		<h3>Sign In</h3>
+		<section>
+			<label for="">Email</label>
+			<input name="email" type="text">
+		</section>
+		<section>
+			<label for="">Password</label>
+			<input name="password" type="password">
+		</section>
+		<button>Sign In</button>
+	</form>
+
+	<script src="/client.js"></script>
+	<script>
+		let auth = BentoAuth.create({
+			project: '2d973dd2-86b1-4d84-9a0e-8d49812f12d2',
+			baseURL: '/__/auth/'
+		})
+
+		let userNode = document.querySelector("#user")
+		auth.authStateChange((user) => {
+			if (user === undefined) {
+				userNode.innerText = '...loading'
+			}
+
+			if (user === null) {
+				userNode.innerText = 'No User'
+			}
+
+			if (user) {
+				userNode.innerText = user.email
+			}
+		})
+
+		let signUp = document.querySelector('#signUp')
+
+		signUp.addEventListener('submit', async (event) => {
+			event.preventDefault()
+			let email = signUp.querySelector("[name=email]")
+			let password = signUp.querySelector("[name=password]")
+
+			try {
+				let res = await auth.signUp(
+					email.value,
+					password.value
+				)
+
+				console.log({ res })
+			} catch (err) {
+				console.log({ err })
+			}
+		})
+
+
+		let signIn = document.querySelector('#signIn')
+
+		signIn.addEventListener('submit', async (event) => {
+			event.preventDefault()
+			let email = signIn.querySelector("[name=email]")
+			let password = signIn.querySelector("[name=password]")
+
+			try {
+				let res = await auth.signIn(
+					email.value,
+					password.value
+				)
+
+				console.log({ res })
+			} catch (err) {
+				console.log({ err })
+			}
+		})
+
+	</script>
+</body>
+</html>

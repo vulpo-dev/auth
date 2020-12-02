@@ -1,0 +1,28 @@
+{
+  "name": "auth",
+  "version": "0.0.1",
+  "description": "",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://riezler@dev.azure.com/riezler/Auth/_git/Auth"
+  },
+  "keywords": [],
+  "author": "Michael Riezler <michael@riezler.co> (https://riezler.co)",
+  "license": "MPL-2.0",
+  "devDependencies": {
+    "@babel/core": "^7.12.9",
+    "@babel/preset-env": "^7.12.7",
+    "@babel/preset-react": "^7.12.7",
+    "@babel/preset-typescript": "^7.12.7",
+    "babel-jest": "^26.6.3",
+    "babel-loader": "^8.2.2",
+    "babel-plugin-styled-components": "^1.12.0",
+    "ts-loader": "^8.0.11",
+    "typescript": "^4.1.2",
+    "webpack": "^5.9.0",
+    "webpack-cli": "^4.2.0"
+  }
+}

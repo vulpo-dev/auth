@@ -19,6 +19,8 @@ extern crate diesel_migrations;
 
 use clap::App;
 use include_dir::{include_dir, Dir};
+use rocket::http::Method;
+use rocket_cors::AllowedOrigins;
 
 const SQL: Dir = include_dir!("./sql");
 const ADMIN_CLIENT: Dir = include_dir!("../admin/build");
@@ -34,8 +36,24 @@ async fn main() {
         .get_matches();
 
     if matches.is_present("server") {
+        let allowed_origins = AllowedOrigins::all();
+
+        // You can also deserialize this
+        let cors = rocket_cors::CorsOptions {
+            allowed_origins,
+            allowed_methods: vec![Method::Get, Method::Post]
+                .into_iter()
+                .map(From::from)
+                .collect(),
+            allow_credentials: true,
+            ..Default::default()
+        }
+        .to_cors()
+        .unwrap();
+
         let _ = rocket::ignite()
             .attach(data::AuthDb::fairing())
+            .attach(cors)
             .mount("/admin", admin::routes())
             .mount("/user", user::routes())
             .mount("/passwordless", passwordless::routes())
@@ -52,6 +70,6 @@ async fn main() {
                 println!("Migration Error");
                 println!("{:?}", err);
             }
-        }
+        };
     }
 }

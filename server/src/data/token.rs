@@ -68,19 +68,23 @@ impl RefreshToken {
     }
 }
 
-pub struct AccessToken;
+pub struct AccessToken(Claims);
 
 impl AccessToken {
-    pub fn create(user: &User) -> Result<String, ApiError> {
+    pub fn new(user: &User) -> AccessToken {
         let exp = OffsetDateTime::now_utc() + Duration::minutes(15);
         let claims = Claims {
             user: user.clone(),
             exp: exp.unix_timestamp(),
         };
 
+        AccessToken(claims)
+    }
+
+    pub fn to_jwt(&self) -> Result<String, ApiError> {
         match encode(
             &Header::default(),
-            &claims,
+            &self.0,
             &EncodingKey::from_secret("secret".as_ref()),
         ) {
             Ok(token) => Ok(token),

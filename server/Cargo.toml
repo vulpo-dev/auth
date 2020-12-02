@@ -24,6 +24,7 @@ diesel = { version = "1.4.4", features = ["postgres"] }
 jsonwebtoken = "7.2.0"
 time = "0.2.23"
 chrono = { verion = "0.4.19", features = ["serde"] }
+rocket_cors = { git = "https://github.com/lawliet89/rocket_cors", branch = "master" }
 
 [dependencies.rocket_contrib]
 git = "https://github.com/SergioBenitez/Rocket"

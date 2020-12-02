@@ -15,10 +15,13 @@ pub struct Token {
 impl<'r> Responder<'r, 'static> for Token {
     fn respond_to(self, req: &'r Request<'_>) -> response::Result<'static> {
         let expire = OffsetDateTime::now_utc() + Duration::days(90);
+        let expires_in = 15 * 60; // 15 minutes
 
         let body = json!({
             "access_token": self.access_token,
-            "expire": expire.to_string(),
+            "type": "Bearer",
+            "expires_in": expires_in,
+            "refresh_token": self.refresh_token,
             "created": self.created,
         });
 
@@ -26,13 +29,13 @@ impl<'r> Responder<'r, 'static> for Token {
 
         let cookies = req.cookies();
 
-        cookies.add(
-            Cookie::build("refresh_token", self.refresh_token)
-                .http_only(true)
-                .same_site(SameSite::Strict)
-                .expires(expire)
-                .finish(),
-        );
+        let refresh_token = Cookie::build("refresh_token", self.refresh_token)
+            .http_only(true)
+            .same_site(SameSite::Strict)
+            .expires(expire)
+            .finish();
+
+        cookies.add(refresh_token);
 
         Response::build()
             .status(Status::Ok)

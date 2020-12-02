@@ -34,14 +34,14 @@ pub async fn sign_up(
         })
         .await?;
 
-    let token = AccessToken::create(&user)?;
+    let token = AccessToken::new(&user);
     let expire = RefreshToken::expire();
     let refresh_token = conn
         .run(move |client| RefreshToken::create(client, user.id, expire, project.id))
         .await?;
 
     Ok(Token {
-        access_token: token,
+        access_token: token.to_jwt()?,
         refresh_token: refresh_token.to_string(),
         created: true,
     })
