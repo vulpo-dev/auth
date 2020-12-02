@@ -57,6 +57,15 @@
 			baseURL: '/__/auth/'
 		})
 
+		Promise.all([
+			auth.getToken(),
+			auth.getToken(),
+			auth.getToken(),
+			auth.getToken(),
+		]).then(tokens => {
+			console.log(tokens)
+		})
+
 		let userNode = document.querySelector("#user")
 		auth.authStateChange((user) => {
 			if (user === undefined) {

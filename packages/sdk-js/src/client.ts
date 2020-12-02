@@ -38,7 +38,7 @@ type $AuthClient =
 	, _user: UserState
 	, _http: AxiosStatic
 	, _token: TokenResponse | null
-	, _inFlight: boolean
+	, _inFlight: Promise<String> | null
 	, _tokenListener: Array<{ resolve: (token: TokenResponse) => void; reject: (err: any) => any}>
 	, _getToken: () => void
 	, _userCallback: (token: TokenResponse) => User 
@@ -51,7 +51,7 @@ let AuthClient: $AuthClient =
 	, _user: undefined
 	, _http: Axios
 	, _token: null
-	, _inFlight: false
+	, _inFlight: null
 	, _tokenListener: []
 
 	, async signIn(email: string, password: string): Promise<ResultAsync<User, ApiError>> {
@@ -77,24 +77,18 @@ let AuthClient: $AuthClient =
 
 	, async getToken(): Promise<String> {
 
-			if (this._inFlight) {
-				let promise = new Promise((resolve, reject) => {
-					this._tokenListener.push({ resolve, reject })
-				})
-
-				return (promise as Promise<String>)
+			if (this._inFlight !== null) {
+				return this._inFlight
 			}
 
 			if (this._token === null) {
-				this._inFlight = true
-
-				let promise = new Promise((resolve, reject) => {
+				this._inFlight = new Promise((resolve, reject) => {
 					this._tokenListener.push({ resolve, reject })
 				})
 
 				this._getToken()
 
-				return (promise as Promise<String>)
+				return this._inFlight
 			}
 
 			return this._token.access_token
@@ -106,11 +100,11 @@ let AuthClient: $AuthClient =
 			this._token = data
 
 			this._tokenListener.forEach(promise => {
-				promise.resolve(data)
+				promise.resolve(data.access_token)
 			})
+
 			this._tokenListener = []
 			this._inFlight = false
-
 
 			this._userCallback(data)
 		}
