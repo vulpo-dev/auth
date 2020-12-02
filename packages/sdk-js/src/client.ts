@@ -33,15 +33,21 @@ type $AuthClient =
 	, authStateChange: (cb: AuthCallback) => Unsubscribe
 	, getToken: () => Promise<String>
 	, config: $Config
-	, _listener: Array<{ id: number, cb: AuthCallback }>
+	
 	, _getId: () => number
-	, _user: UserState
 	, _http: AxiosStatic
+	
+	, _user: UserState
+	, _listener: Array<{ id: number, cb: AuthCallback }>
+	, _userCallback: (token: TokenResponse) => User
+
 	, _token: TokenResponse | null
 	, _inFlight: Promise<String> | null
-	, _tokenListener: Array<{ resolve: (token: TokenResponse) => void; reject: (err: any) => any}>
+	, _tokenListener: Array<{ resolve: (token: String) => void; reject: (err: any) => any}>
 	, _getToken: () => void
-	, _userCallback: (token: TokenResponse) => User 
+	, _tokenExpire: Date
+	, _handleToken: (token: TokenResponse) => void
+
 	}
 
 let AuthClient: $AuthClient =
@@ -53,11 +59,12 @@ let AuthClient: $AuthClient =
 	, _token: null
 	, _inFlight: null
 	, _tokenListener: []
+	, _tokenExpire: new Date()
 
 	, async signIn(email: string, password: string): Promise<ResultAsync<User, ApiError>> {
 			let url = '/password/sign_in'
 			let { data } = await this._http.post<TokenResponse>(url, { email, password })
-			this._token = data
+			this._handleToken(data)
 			let user = this._userCallback(data)
 			return okAsync(user)
 		}
@@ -65,7 +72,7 @@ let AuthClient: $AuthClient =
 	, async signUp(email: string, password: string): Promise<ResultAsync<User, ApiError>> {
 			let url = '/password/sign_up'
 			let { data } = await this._http.post<TokenResponse>(url, { email, password })
-			this._token = data
+			this._handleToken(data)
 			let user = this._userCallback(data)
 			return okAsync(user)
 		}
@@ -76,12 +83,14 @@ let AuthClient: $AuthClient =
 		}
 
 	, async getToken(): Promise<String> {
+			let now = new Date()
+			let expired = this._tokenExpire < now
 
-			if (this._inFlight !== null) {
+			if (this._inFlight !== null && !expired) {
 				return this._inFlight
 			}
 
-			if (this._token === null) {
+			if (this._token === null || expired) {
 				this._inFlight = new Promise((resolve, reject) => {
 					this._tokenListener.push({ resolve, reject })
 				})
@@ -96,17 +105,29 @@ let AuthClient: $AuthClient =
 
 	, async _getToken(): Promise<void> {
 			let { data } = await this._http.post<TokenResponse>('/token/refresh')
-			
-			this._token = data
-
+	
 			this._tokenListener.forEach(promise => {
 				promise.resolve(data.access_token)
 			})
 
 			this._tokenListener = []
-			this._inFlight = false
+			this._inFlight = null
 
+			this._handleToken(data)
 			this._userCallback(data)
+		}
+
+	, authStateChange(cb) {
+			let id = this._getId()
+			this._listener.push({ id, cb })
+
+			cb(this._user)
+
+			return () => {
+				this._listener = this
+					._listener
+					.filter(entry => entry.id !== id)
+			}
 		}
 
 	, _userCallback(data: TokenResponse): User {
@@ -125,17 +146,16 @@ let AuthClient: $AuthClient =
  			return user
 		}
 
-	, authStateChange(cb) {
-			let id = this._getId()
-			this._listener.push({ id, cb })
+	, _handleToken(token: TokenResponse) {
+			this._token = token
 
-			cb(this._user)
+			let threshold = 30
+			let expires_in = new Date()
+			expires_in.setSeconds(
+				expires_in.getSeconds() + token.expire_in - threshold
+			)
 
-			return () => {
-				this._listener = this
-					._listener
-					.filter(entry => entry.id !== id)
-			}
+			this._tokenExpire = expires_in	
 		}
 	}
 
