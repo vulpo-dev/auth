@@ -5,7 +5,10 @@ use crate::response::error::ApiError;
 use bcrypt::{hash, DEFAULT_COST};
 use chrono::{DateTime, Duration as CDuration, Utc};
 use jsonwebtoken::{encode, EncodingKey, Header};
+
 use serde::{Deserialize, Serialize};
+use serde_json;
+use serde_json::Error;
 use time::{Duration, OffsetDateTime};
 use uuid::Uuid;
 
@@ -15,9 +18,25 @@ pub struct Claims {
     pub exp: i64,
 }
 
+#[derive(Deserialize, Serialize)]
+pub struct UserId {
+    pub user_id: Uuid,
+}
+
+impl UserId {
+    pub fn to_rows(ids: Vec<Uuid>) -> Result<serde_json::Value, Error> {
+        let rows: Vec<UserId> = ids
+            .iter()
+            .map(|user_id| UserId { user_id: *user_id })
+            .collect();
+
+        serde_json::to_value(&rows)
+    }
+}
+
 #[derive(Debug, Clone)]
 pub struct RefreshToken {
-    pub user: Uuid,
+    pub users: Vec<Uuid>,
     pub expire: DateTime<Utc>,
     pub project: Uuid,
     pub id: Uuid,
@@ -33,7 +52,7 @@ impl RefreshToken {
         };
 
         Ok(RefreshToken {
-            user: token.get("user_id"),
+            users: token.get("user_ids"),
             expire: token.get("expire"),
             project: token.get("project_id"),
             id: token.get("id"),
@@ -42,16 +61,24 @@ impl RefreshToken {
 
     pub fn create<C: GenericClient>(
         client: &mut C,
-        user: Uuid,
+        users: Vec<Uuid>,
         expire: DateTime<Utc>,
         project: Uuid,
     ) -> Result<Uuid, ApiError> {
         let query = get_query("token/create")?;
 
-        let row = client.query_one(query, &[&user, &expire, &project]);
+        let users = match UserId::to_rows(users) {
+            Ok(rows) => rows,
+            Err(_) => return Err(ApiError::InternalServerError),
+        };
+
+        let row = client.query_one(query, &[&expire, &project, &users]);
         match row {
-            Err(_) => Err(ApiError::TokenGenerate),
-            Ok(row) => Ok(row.get("id")),
+            Err(err) => {
+                println!("{:?}", err);
+                Err(ApiError::TokenGenerate)
+            }
+            Ok(row) => Ok(row.get("token_id")),
         }
     }
 
@@ -61,7 +88,7 @@ impl RefreshToken {
 
     pub fn set_expire<C: GenericClient>(client: &mut C, id: Uuid) -> Result<(), ApiError> {
         let query = get_query("token/expire")?;
-        match client.query_one(query, &[&id]) {
+        match client.query(query, &[&id]) {
             Err(_) => Err(ApiError::InternalServerError),
             Ok(_) => Ok(()),
         }

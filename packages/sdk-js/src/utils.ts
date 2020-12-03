@@ -1,5 +1,5 @@
 import jwtDecode from 'jwt-decode'
-import type { User } from './types'
+import type { User, Token } from './types'
 
 export let makeId = (): (() => number) => {
 	let id = 0
@@ -10,7 +10,13 @@ export let makeId = (): (() => number) => {
 	}
 }
 
-export function getUser(access_token: string): User {
-	let token = jwtDecode<{ user: User }>(access_token)
-	return token?.user
+export function getUsers(tokens: Array<Token>): Array<User> {
+	return tokens.map(value => {
+		let token = jwtDecode<{ user: User }>(value.access_token)
+		return token?.user
+	})
+}
+
+export function last<T>(arr: Array<T>): T | undefined {
+	return arr[arr.length - 1]
 }

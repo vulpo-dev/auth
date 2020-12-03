@@ -17,13 +17,28 @@
 		form {
 			margin-bottom: 100px;
 		}
+
+		#token {
+			width: 300px;
+			word-break: break-all;
+		}
+
+		.users li {
+			cursor: pointer;
+		}
+		
 	</style>
 
 </head>
 <body>
 
-	<h1>User: <span id="user"></span></h1>
+	<section>
+		<h1>User: <span id="user"></span></h1>
+		<div id="users"></div>
 
+		<div id="token"></div>
+		<button id="get-token">Get Token</button>
+	</section>
 	<form id="signUp">
 		<h3>Sign Up</h3>
 		<section>
@@ -55,7 +70,33 @@
 		let auth = BentoAuth.create({
 			project: '2d973dd2-86b1-4d84-9a0e-8d49812f12d2',
 			baseURL: '/__/auth/'
-		})
+		})	
+
+		let usersNode = document.querySelector('#users')
+		function renderUsers({ users }) {
+			usersNode.innerHTML = ''
+
+			let ul = document.createElement('ul')
+			ul.className = 'users'
+			let items = users.map(user => {
+				return `
+					<li data-id=${user.id}>
+						${user.email}
+					</li>
+				`
+			})
+			.join('')
+
+			ul.innerHTML = items
+
+			ul.addEventListener('click', (e) => {
+				auth.activate(e.target.dataset.id)
+			})
+
+			usersNode.appendChild(ul)
+		}
+
+		renderUsers(auth)
 
 		Promise.all([
 			auth.getToken(),
@@ -63,7 +104,7 @@
 			auth.getToken(),
 			auth.getToken(),
 		]).then(tokens => {
-			console.log(tokens)
+			console.log('Num token: ', tokens.length)
 		})
 
 		let userNode = document.querySelector("#user")
@@ -118,6 +159,22 @@
 			} catch (err) {
 				console.log({ err })
 			}
+		})
+
+
+		let tokenNode = document.querySelector('#token')
+
+		function setToken(token) {
+			tokenNode.innerText = token
+		} 
+
+		let getToken = document.querySelector('#get-token')
+
+		auth.getToken().then(setToken)
+
+		getToken.addEventListener('click', async () => {
+			let token = await auth.getToken()
+			setToken(token)
 		})
 
 	</script>

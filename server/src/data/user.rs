@@ -1,3 +1,4 @@
+use crate::data::token::UserId;
 use crate::data::{get_query, GenericClient};
 use crate::response::error::ApiError;
 
@@ -26,7 +27,7 @@ pub struct User {
 }
 
 impl User {
-    fn from_row(row: Row) -> User {
+    fn from_row(row: &Row) -> User {
         let password: Option<String> = match row.try_get("password") {
             Ok(password) => Some(password),
             Err(_) => None,
@@ -57,7 +58,7 @@ impl User {
 
         match row {
             Err(_) => Err(ApiError::NotFound),
-            Ok(user) => Ok(User::from_row(user)),
+            Ok(user) => Ok(User::from_row(&user)),
         }
     }
 
@@ -71,8 +72,37 @@ impl User {
 
         match row {
             Err(_) => Err(ApiError::NotFound),
-            Ok(user) => Ok(User::from_row(user)),
+            Ok(user) => Ok(User::from_row(&user)),
         }
+    }
+
+    pub fn get_ids<C: GenericClient>(
+        client: &mut C,
+        ids: Vec<Uuid>,
+        project: Uuid,
+    ) -> Result<Vec<User>, ApiError> {
+        let query = get_query("user/get_ids")?;
+
+        let users = match UserId::to_rows(ids) {
+            Ok(rows) => rows,
+            Err(_) => return Err(ApiError::InternalServerError),
+        };
+
+        println!("{:?}", users);
+        let rows = match client.query(query, &[&users, &project]) {
+            Err(err) => {
+                println!("{:?}", err);
+                return Err(ApiError::NotFound);
+            }
+            Ok(rows) => rows,
+        };
+
+        let users = rows
+            .iter()
+            .map(move |row| User::from_row(row))
+            .collect::<Vec<User>>();
+
+        Ok(users)
     }
 
     pub fn password<C: GenericClient>(
@@ -89,7 +119,7 @@ impl User {
             Ok(user) => user,
         };
 
-        Ok(User::from_row(row))
+        Ok(User::from_row(&row))
     }
 
     pub fn create<C: GenericClient>(
@@ -108,7 +138,7 @@ impl User {
         let row = client.query_one(query, &[&email, &password, &project]);
 
         match row {
-            Ok(user) => Ok(User::from_row(user)),
+            Ok(user) => Ok(User::from_row(&user)),
             Err(err) => match err.into_source() {
                 None => Err(ApiError::InternalServerError),
                 Some(source) => {

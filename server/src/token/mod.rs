@@ -38,7 +38,7 @@ pub async fn refresh(conn: AuthDb, cookies: &CookieJar<'_>) -> Result<Token, Api
             RefreshToken::set_expire(&mut trx, current_token.id)?;
             let expire = RefreshToken::expire();
             let token =
-                RefreshToken::create(&mut trx, current_token.user, expire, current_token.project)?;
+                RefreshToken::create(&mut trx, current_token.users, expire, current_token.project)?;
 
             if let Err(_) = trx.commit() {
                 return Err(ApiError::InternalServerError);
@@ -48,16 +48,23 @@ pub async fn refresh(conn: AuthDb, cookies: &CookieJar<'_>) -> Result<Token, Api
         })
         .await?;
 
-    let user = conn
-        .run(move |client| User::get_by_id(client, refresh_token.user, refresh_token.project))
+    let users = conn
+        .run(move |client| User::get_ids(client, refresh_token.users, refresh_token.project))
         .await?;
 
-    let token = AccessToken::new(&user);
+    let ids = users.iter().map(|u| u.id).collect::<Vec<Uuid>>();
+
+    let tokens = users
+        .iter()
+        .map(|user| AccessToken::new(&user))
+        .flat_map(|token| token.to_jwt())
+        .collect::<Vec<String>>();
 
     Ok(Token {
-        access_token: token.to_jwt()?,
+        access_tokens: tokens,
         refresh_token: new_refresh_token.to_string(),
         created: false,
+        users: ids,
     })
 }
 

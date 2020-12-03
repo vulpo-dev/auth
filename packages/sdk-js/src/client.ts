@@ -6,9 +6,11 @@ import type {
 	, AuthCallback
 	, Unsubscribe
 	, PasswordOptions
+	, Token
+	, TokenListener
 } from './types'
 
-import { makeId, getUser } from './utils'
+import { makeId, getUsers, last } from './utils'
 import { ApiError } from './types'
 import Storage from './storage'
 
@@ -27,23 +29,26 @@ let DefaultOptions: PasswordOptions =
 	}
 
 type $AuthClient =
-	{ signIn: (email: string, password: string, options?: PasswordOptions) => Promise<ResultAsync<User, ApiError>>
-	, signUp: (email: string, password: string, options?: PasswordOptions) => Promise<ResultAsync<User, ApiError>>
+	{ signIn: (email: string, password: string, options?: PasswordOptions) => Promise<ResultAsync<User | undefined, ApiError>>
+	, signUp: (email: string, password: string, options?: PasswordOptions) => Promise<ResultAsync<User | undefined, ApiError>>
 	, signOut: () => Promise<ResultAsync<void, ApiError>>
 	, authStateChange: (cb: AuthCallback) => Unsubscribe
-	, getToken: () => Promise<String>
+	, getToken: () => Promise<string | null>
 	, config: $Config
 	
 	, _getId: () => number
 	, _http: AxiosStatic
 	
 	, _user: UserState
+	, users: Array<User>
 	, _listener: Array<{ id: number, cb: AuthCallback }>
-	, _userCallback: (token: TokenResponse) => User
+	, _userCallback: (token: TokenResponse) => User | undefined
+	, active: string
+	, activate: (userId: string) => void
 
-	, _token: TokenResponse | null
-	, _inFlight: Promise<String> | null
-	, _tokenListener: Array<{ resolve: (token: String) => void; reject: (err: any) => any}>
+	, _tokens: Array<Token>
+	, _inFlight: Promise<string | null> | null
+	, _tokenListener: Array<{ resolve: (token: string | null) => void; reject: (err: any) => any}>
 	, _getToken: () => void
 	, _tokenExpire: Date
 	, _handleToken: (token: TokenResponse) => void
@@ -56,23 +61,31 @@ let AuthClient: $AuthClient =
 	, _listener: []
 	, _user: undefined
 	, _http: Axios
-	, _token: null
+	, _tokens: []
 	, _inFlight: null
 	, _tokenListener: []
 	, _tokenExpire: new Date()
+	, active: ''
+	, users: []
 
-	, async signIn(email: string, password: string): Promise<ResultAsync<User, ApiError>> {
+	, async signIn(email: string, password: string): Promise<ResultAsync<User | undefined, ApiError>> {
 			let url = '/password/sign_in'
 			let { data } = await this._http.post<TokenResponse>(url, { email, password })
 			this._handleToken(data)
+			let id = last(data.users)
+			this.active = id ? id : ''
+			Storage.setActive(id)
 			let user = this._userCallback(data)
 			return okAsync(user)
 		}
 
-	, async signUp(email: string, password: string): Promise<ResultAsync<User, ApiError>> {
+	, async signUp(email: string, password: string): Promise<ResultAsync<User | undefined, ApiError>> {
 			let url = '/password/sign_up'
 			let { data } = await this._http.post<TokenResponse>(url, { email, password })
 			this._handleToken(data)
+			let id = last(data.users)
+			this.active = id ? id : ''
+			Storage.setActive(id)
 			let user = this._userCallback(data)
 			return okAsync(user)
 		}
@@ -82,16 +95,16 @@ let AuthClient: $AuthClient =
 			return errAsync(ApiError.InternalServerError)
 		}
 
-	, async getToken(): Promise<String> {
+	, async getToken(): Promise<string | null> {
 			let now = new Date()
 			let expired = this._tokenExpire < now
 
-			if (this._inFlight !== null && !expired) {
+			if (this._inFlight !== null) {
 				return this._inFlight
 			}
 
-			if (this._token === null || expired) {
-				this._inFlight = new Promise((resolve, reject) => {
+			if (this._tokens.length === 0 || expired) {
+				this._inFlight = new Promise<string | null>((resolve, reject) => {
 					this._tokenListener.push({ resolve, reject })
 				})
 
@@ -100,14 +113,34 @@ let AuthClient: $AuthClient =
 				return this._inFlight
 			}
 
-			return this._token.access_token
+			let index = this.users.findIndex(user => {
+				return this.active === user.id
+			})
+
+			let token = this._tokens[index]
+
+			if (!token) {
+				return null
+			} 
+
+			return token.access_token
 		}
 
 	, async _getToken(): Promise<void> {
 			let { data } = await this._http.post<TokenResponse>('/token/refresh')
 	
 			this._tokenListener.forEach(promise => {
-				promise.resolve(data.access_token)
+				let index = this.users.findIndex(user => {
+					return this.active === user.id
+				})
+
+				let token = data.tokens[index]
+
+				if (!token) {
+					promise.resolve(null)
+				} else {
+					promise.resolve(token.access_token)
+				}
 			})
 
 			this._tokenListener = []
@@ -121,7 +154,11 @@ let AuthClient: $AuthClient =
 			let id = this._getId()
 			this._listener.push({ id, cb })
 
-			cb(this._user)
+			let user = this.users.find(user => {
+				return user.id === this.active
+			})
+
+			cb(user)
 
 			return () => {
 				this._listener = this
@@ -130,12 +167,34 @@ let AuthClient: $AuthClient =
 			}
 		}
 
-	, _userCallback(data: TokenResponse): User {
-			let user = getUser(data.access_token)
+	, activate(userId: string) {
+			this.active = userId
+
+			let user = this.users.find(user => {
+				return user.id === this.active
+			})
+
+			if (!shallowEqualObjects(this._user, user)) {
+				this._user = user
+				this._listener.forEach(entry => {
+					entry.cb(user)
+				})
+ 			}
+
+			Storage.setActive(userId)
+		}
+
+	, _userCallback(data: TokenResponse): User | undefined {
+			let users = getUsers(data.tokens)
+			this.users = users
 
 			if (this.config.offline) {
-				Storage.insert(user)
+				Storage.insert(users)
 			}
+
+			let user = users.find(user => {
+				return user.id === this.active
+			})
 
 			if (!shallowEqualObjects(this._user, user)) {
 				this._listener.forEach(entry => {
@@ -146,13 +205,17 @@ let AuthClient: $AuthClient =
  			return user
 		}
 
-	, _handleToken(token: TokenResponse) {
-			this._token = token
+	, _handleToken({ tokens }: TokenResponse) {
+			this._tokens = tokens
+
+			let [token] = tokens
+
+			let expire_in = token ? token.expire_in : 0
 
 			let threshold = 30
 			let expires_in = new Date()
 			expires_in.setSeconds(
-				expires_in.getSeconds() + token.expire_in - threshold
+				expires_in.getSeconds() + expire_in - threshold
 			)
 
 			this._tokenExpire = expires_in	
@@ -163,6 +226,7 @@ export let Auth = {
 	create(userConfig: $Config): $AuthClient {
 		let config = { ...DefaultConfig, ...userConfig }
 		let _getId = makeId()
+		
 		let _http = Axios.create(
 			{ baseURL: config.baseURL
 			, headers:
@@ -172,12 +236,16 @@ export let Auth = {
 			}
 		)
 
-		let userEntry = Storage.get()
-		let _user = userEntry ? userEntry : undefined
+		let active = Storage.getActive()
+		let userEntrys = Storage.get()
+		let users = userEntrys ? userEntrys : []
+		let _user = active === '' ? userEntrys[0] : userEntrys.find(user => {
+			return user.id === active
+		})
 
 		let client = Object.assign(
 				Object.create(AuthClient)
-			, { config, _getId, _http, _user }
+			, { config, _getId, _http, users, _user, active }
 		)
 
 		client.getToken()

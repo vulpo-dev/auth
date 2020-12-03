@@ -1,26 +1,42 @@
 import type { User } from './types'
 
-let Storage =
-	{ key: 'bento_auth::user'
-	, insert(u: User | null) {
-			let user = u ? JSON.stringify(u) : ""
-			localStorage.setItem(this.key, user)
+let Storage = {
+	key: 'bento_auth::user',
+	activeKey: 'bento_auth::active_user',
+	
+	insert(u: Array<User>) {
+		let user = JSON.stringify(u)
+		localStorage.setItem(this.key, user)
+	},
+
+	get(): Array<User> {
+		let entry = localStorage.getItem(this.key)
+		
+		if (!entry) {
+			return []
 		}
 
-	, get(): User | null {
-			let entry = localStorage.getItem(this.key)
-			
-			if (!entry) {
-				return null
-			}
+		let user = JSON.parse(entry)
+		return (user as Array<User>)
+	},
 
-			let user = JSON.parse(entry)
-			return (user as User)
+	remove(): void {
+		localStorage.removeItem(this.key)
+	},
+
+	getActive(): string | null {
+		let entry = localStorage.getItem(this.activeKey)
+
+		if (!entry) {
+			return ''
 		}
 
-	, remove(): void {
-			localStorage.removeItem(this.key)
-		}
+		return entry
+	},
+
+	setActive(userId: string) {
+		localStorage.setItem(this.activeKey, userId)
+	}
 }
 
 export default Storage

@@ -8,6 +8,7 @@
     "dev": "tsc --noEmit --watch",
     "types": "tsc --emitDeclarationOnly --declaration --declarationDir ./lib",
     "build": "webpack --mode production",
+    "build:dev": "webpack --mode development",
     "bundle": "npm run types && npm run build",
     "clean": "node ./scripts/cleanup.js",
     "server": "node ./scripts/server.js",

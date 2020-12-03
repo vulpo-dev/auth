@@ -10,6 +10,7 @@ module.exports = function createConfig (webpackEnv) {
     entry: {
       main: cwd + '/src/main.ts'
     },
+    devtool: isEnvDevelopment ? 'eval-source-map' : undefined,
     externals: {
         'styled-components': {
           commonjs: 'styled-components',
