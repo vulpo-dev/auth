@@ -59,6 +59,8 @@ dependencies = [
  "handlebars",
  "include_dir",
  "jsonwebtoken",
+ "openssl",
+ "openssl-sys",
  "postgres 0.18.1",
  "rand",
  "reqwest",
