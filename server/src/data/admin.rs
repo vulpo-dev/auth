@@ -1,10 +1,11 @@
-use crate::data::token::Claims;
+use crate::data::keys::ProjectKeys;
+use crate::data::token::AccessToken;
 use crate::data::user::User;
-use crate::data::{get_query, GenericClient};
+use crate::data::{get_query, AuthDb, GenericClient};
+use crate::project::Project;
 use crate::response::error::ApiError;
 
 use bcrypt::{hash, DEFAULT_COST};
-use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation};
 use rocket::http::Status;
 use rocket::request::Outcome;
 use rocket::request::{self, FromRequest, Request};
@@ -104,6 +105,30 @@ impl Admin {
         }
     }
 
+    pub fn create_admin_project<C: GenericClient>(
+        client: &mut C,
+        body: NewProject,
+    ) -> Result<Uuid, ApiError> {
+        let query = get_query("admin/create_project")?;
+
+        let name = body.name.clone();
+        let row = client.query_one(query, &[&name]);
+
+        match row {
+            Err(err) => match err.code() {
+                Some(sql_state) => {
+                    if sql_state == &SqlState::UNIQUE_VIOLATION {
+                        return Err(ApiError::ProjectNameExists);
+                    }
+
+                    Err(ApiError::InternalServerError)
+                }
+                None => Err(ApiError::InternalServerError),
+            },
+            Ok(row) => Ok(row.get("id")),
+        }
+    }
+
     pub fn get_project<C: GenericClient>(client: &mut C) -> Result<Option<Uuid>, ApiError> {
         let query = get_query("admin/has_project")?;
         let rows = client.query(query, &[]);
@@ -184,25 +209,44 @@ impl<'a, 'r> FromRequest<'a, 'r> for Admin {
             Some(token) => token,
         };
 
+        let project = match Project::from_request(req).await.succeeded() {
+            None => return Outcome::Failure((Status::BadRequest, ApiError::AuthTokenMissing)),
+            Some(project) => project,
+        };
+
+        let db = match AuthDb::from_request(req).await.succeeded() {
+            None => {
+                return Outcome::Failure((Status::ServiceUnavailable, ApiError::AuthTokenMissing))
+            }
+            Some(pool) => pool,
+        };
+
+        let row = db
+            .run(move |client| ProjectKeys::get_public_key(client, &project.id))
+            .await;
+
+        let key = match row {
+            Ok(key) => key,
+            Err(_) => {
+                return Outcome::Failure((Status::InternalServerError, ApiError::AuthTokenMissing));
+            }
+        };
+
         let end = token_string.len();
         let start = "Bearer ".len();
         let token = &token_string[start..end];
-
-        let token_data = match decode::<Claims>(
-            &token,
-            &DecodingKey::from_secret("secret".as_ref()),
-            &Validation::new(Algorithm::HS256),
-        ) {
+        let claims = match AccessToken::from_rsa(token.to_string(), &key) {
             Ok(token) => token,
-            Err(_) => return Outcome::Failure((Status::BadRequest, ApiError::BadRequest)),
+            Err(err) => {
+                println!("{:?}", err);
+                return Outcome::Failure((Status::BadRequest, ApiError::BadRequest));
+            }
         };
 
-        let user = token_data.claims.user;
-
-        if !user.traits.contains(&String::from("Admin")) {
+        if !claims.user.traits.contains(&String::from("Admin")) {
             return Outcome::Failure((Status::BadRequest, ApiError::AdminAuth));
         }
 
-        Outcome::Success(Admin(user))
+        Outcome::Success(Admin(claims.user))
     }
 }

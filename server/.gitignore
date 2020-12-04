@@ -1,3 +1,4 @@
 /target
 .ionide
 .env
+src/schema.rs

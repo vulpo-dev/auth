@@ -79,7 +79,7 @@ impl User {
     pub fn get_ids<C: GenericClient>(
         client: &mut C,
         ids: Vec<Uuid>,
-        project: Uuid,
+        project: &Uuid,
     ) -> Result<Vec<User>, ApiError> {
         let query = get_query("user/get_ids")?;
 

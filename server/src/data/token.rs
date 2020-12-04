@@ -4,15 +4,14 @@ use crate::response::error::ApiError;
 
 use bcrypt::{hash, DEFAULT_COST};
 use chrono::{DateTime, Duration as CDuration, Utc};
-use jsonwebtoken::{encode, EncodingKey, Header};
-
+use jsonwebtoken::{decode, encode, Algorithm, DecodingKey, EncodingKey, Header, Validation};
 use serde::{Deserialize, Serialize};
 use serde_json;
 use serde_json::Error;
 use time::{Duration, OffsetDateTime};
 use uuid::Uuid;
 
-#[derive(Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct Claims {
     pub user: User,
     pub exp: i64,
@@ -116,6 +115,44 @@ impl AccessToken {
         ) {
             Ok(token) => Ok(token),
             Err(_) => Err(ApiError::InternalServerError),
+        }
+    }
+
+    pub fn to_jwt_rsa(&self, key: &String) -> Result<String, ApiError> {
+        let key = key.as_bytes();
+        let encodeing_key = match EncodingKey::from_rsa_pem(key) {
+            Ok(key) => key,
+            Err(err) => {
+                println!("key error: {:?}", err);
+                return Err(ApiError::InternalServerError);
+            }
+        };
+
+        let header = Header::new(Algorithm::RS256);
+        match encode(&header, &self.0, &encodeing_key) {
+            Ok(token) => Ok(token),
+            Err(err) => {
+                println!("encode error: {:?}", err);
+                Err(ApiError::InternalServerError)
+            }
+        }
+    }
+
+    pub fn from_rsa(token: String, key: &String) -> Result<Claims, ApiError> {
+        let decodeing_key = match DecodingKey::from_rsa_pem(key.as_bytes()) {
+            Ok(key) => key,
+            Err(err) => {
+                println!("decoding key error: {:?}", err);
+                return Err(ApiError::InternalServerError);
+            }
+        };
+
+        match decode::<Claims>(&token, &decodeing_key, &Validation::new(Algorithm::RS256)) {
+            Ok(token_data) => Ok(token_data.claims),
+            Err(err) => {
+                println!("decoding error: {:?}", err);
+                return Err(ApiError::InternalServerError);
+            }
         }
     }
 }

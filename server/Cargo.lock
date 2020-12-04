@@ -56,6 +56,7 @@ dependencies = [
  "diesel",
  "diesel_migrations",
  "dotenv",
+ "futures",
  "handlebars",
  "include_dir",
  "jsonwebtoken",

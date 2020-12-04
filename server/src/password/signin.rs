@@ -1,6 +1,9 @@
-use crate::data::token::{AccessToken, RefreshToken};
 use crate::data::user::User;
 use crate::data::AuthDb;
+use crate::data::{
+    keys::ProjectKeys,
+    token::{AccessToken, RefreshToken},
+};
 use crate::project::Project;
 use crate::response::error::ApiError;
 use crate::response::token::Token;
@@ -43,19 +46,16 @@ pub async fn sign_in(
         return Err(ApiError::UserInvalidPassword);
     };
 
-    let refresh_token = match cookies.get("refresh_token") {
-        None => None,
-        Some(cookie) => match Uuid::parse_str(cookie.value()) {
-            Err(_) => None,
-            Ok(id) => {
-                let row = conn.run(move |client| RefreshToken::get(client, id)).await;
+    let refresh_token_id = cookies
+        .get("refresh_token")
+        .and_then(|cookie| Uuid::parse_str(cookie.value()).ok());
 
-                match row {
-                    Err(_) => None,
-                    Ok(refresh_token) => Some(refresh_token),
-                }
-            }
-        },
+    let refresh_token = match refresh_token_id {
+        None => None,
+        Some(id) => conn
+            .run(move |client| RefreshToken::get(client, id))
+            .await
+            .ok(),
     };
 
     let expire = RefreshToken::expire();
@@ -78,13 +78,17 @@ pub async fn sign_in(
         .await?;
 
     let users = conn
-        .run(move |client| User::get_ids(client, users, project.id))
+        .run(move |client| User::get_ids(client, users, &project.id))
+        .await?;
+
+    let private_key = conn
+        .run(move |client| ProjectKeys::get_private_key(client, &project.id))
         .await?;
 
     let tokens = users
         .iter()
         .map(|user| AccessToken::new(&user))
-        .flat_map(|token| token.to_jwt())
+        .flat_map(|token| token.to_jwt_rsa(&private_key))
         .collect::<Vec<String>>();
 
     Ok(Token {

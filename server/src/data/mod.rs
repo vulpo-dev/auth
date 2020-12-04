@@ -1,4 +1,5 @@
 pub mod admin;
+pub mod keys;
 pub mod token;
 pub mod user;
 

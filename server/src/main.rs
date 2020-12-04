@@ -20,11 +20,8 @@ extern crate openssl;
 
 use clap::App;
 use include_dir::{include_dir, Dir};
-use openssl::pkey::PKey;
-use openssl::rsa::Rsa;
 use rocket::http::Method;
 use rocket_cors::AllowedOrigins;
-use std::str;
 
 const SQL: Dir = include_dir!("./sql");
 const ADMIN_CLIENT: Dir = include_dir!("../admin/build");
@@ -77,18 +74,4 @@ async fn main() {
             }
         };
     }
-
-    if matches.is_present("init") {
-        generate_keys()
-    }
-}
-
-fn generate_keys() {
-    let rsa = Rsa::generate(2048).unwrap();
-    let pkey = PKey::from_rsa(rsa).unwrap();
-
-    let pub_key: Vec<u8> = pkey.public_key_to_pem().unwrap();
-    let key = pkey.private_key_to_pem_pkcs8().unwrap();
-    println!("PUBLIC {:?}", str::from_utf8(pub_key.as_slice()).unwrap());
-    println!("PRIVATE {:?}", str::from_utf8(key.as_slice()).unwrap());
 }

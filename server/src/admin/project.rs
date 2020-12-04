@@ -1,4 +1,5 @@
 use crate::data::admin::{Admin, NewProject};
+use crate::data::keys::ProjectKeys;
 use crate::data::AuthDb;
 use crate::response::error::ApiError;
 
@@ -28,8 +29,24 @@ pub async fn create(conn: AuthDb) -> Result<Json<Project>, ApiError> {
     let project = NewProject {
         name: "Admin".to_string(),
     };
-    let id: Uuid = conn
-        .run(move |client| Admin::create_project(client, project))
+
+    let id = conn
+        .run(|client| {
+            let mut trx = match client.transaction() {
+                Ok(trx) => trx,
+                Err(_) => return Err(ApiError::InternalServerError),
+            };
+
+            let id = Admin::create_admin_project(&mut trx, project)?;
+            let keys = ProjectKeys::create_keys(id, true, None);
+            ProjectKeys::insert(&mut trx, &keys)?;
+
+            if let Err(_) = trx.commit() {
+                return Err(ApiError::InternalServerError);
+            }
+
+            Ok(id)
+        })
         .await?;
 
     Ok(Json(Project { id: Some(id) }))

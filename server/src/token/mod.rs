@@ -49,7 +49,7 @@ pub async fn refresh(conn: AuthDb, cookies: &CookieJar<'_>) -> Result<Token, Api
         .await?;
 
     let users = conn
-        .run(move |client| User::get_ids(client, refresh_token.users, refresh_token.project))
+        .run(move |client| User::get_ids(client, refresh_token.users, &refresh_token.project))
         .await?;
 
     let ids = users.iter().map(|u| u.id).collect::<Vec<Uuid>>();
