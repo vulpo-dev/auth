@@ -24,7 +24,7 @@ app.get('/', async (req, res) => {
 })
 
 app.get('/client.js', async (req, res) => {
-	fs.readFile('./client.js', 'utf8', (err, data) => {
+	fs.readFile('./lib/main.js', 'utf8', (err, data) => {
 	  if (err) throw err;
 	  res.type('js').send(data)
 	})

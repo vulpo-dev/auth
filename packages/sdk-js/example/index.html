@@ -39,7 +39,7 @@
 		<div id="token"></div>
 		<button id="get-token">Get Token</button>
 	</section>
-	<form id="signUp">
+	<form id="signUp" method="post">
 		<h3>Sign Up</h3>
 		<section>
 			<label for="">Email</label>
@@ -52,7 +52,7 @@
 		<button>Sign Up</button>
 	</form>
 
-	<form id="signIn">
+	<form id="signIn" method="post">
 		<h3>Sign In</h3>
 		<section>
 			<label for="">Email</label>
@@ -68,12 +68,17 @@
 	<script src="/client.js"></script>
 	<script>
 		let auth = BentoAuth.create({
-			project: 'b1acde5f-270c-483d-b04f-6e936b7cd38d',
+			project: '39066bc5-d962-4369-b705-2e7294537700',
 			baseURL: '/__/auth/'
 		})	
 
 		let usersNode = document.querySelector('#users')
 		function renderUsers({ users }) {
+
+			if (!users) {
+				return
+			}
+
 			usersNode.innerHTML = ''
 
 			let ul = document.createElement('ul')
@@ -106,6 +111,7 @@
 		]).then(tokens => {
 			console.log('Num token: ', tokens.length)
 		})
+		.catch(err => console.log('Token error: ', err.code))
 
 		let userNode = document.querySelector("#user")
 		auth.authStateChange((user) => {
@@ -170,7 +176,9 @@
 
 		let getToken = document.querySelector('#get-token')
 
-		auth.getToken().then(setToken)
+		auth.getToken()
+			.then(setToken)
+			.catch(err => {})
 
 		getToken.addEventListener('click', async () => {
 			let token = await auth.getToken()

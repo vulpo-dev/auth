@@ -5,8 +5,13 @@ module.exports = function (_, argv) {
 
 	let config = createConfig(argv.mode || 'production')
 	
+
+	let entry = argv.mode === 'development'
+		? ['@babel/polyfill', process.cwd() + '/src/client']
+		: [process.cwd() + '/src/main']
+
 	config.entry = {
-		client: ['@babel/polyfill', process.cwd() + '/src/client']
+		main: entry
 	}
 
 	config.output = {
@@ -14,7 +19,7 @@ module.exports = function (_, argv) {
 		libraryExport: 'Auth',
     	globalObject: 'this',
      	filename: '[name].js',
-     	path: process.cwd(),
+     	path: process.cwd() + '/lib',
      	libraryTarget: 'umd'
     }
 

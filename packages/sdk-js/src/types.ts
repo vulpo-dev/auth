@@ -18,7 +18,7 @@ export type TokenResponse = {
 	users: Array<string>
 }
 
-export type $Config =
+export type Config =
 	{ baseURL: string
 	, offline?: boolean
 	, project: string
@@ -26,7 +26,7 @@ export type $Config =
 
 export type UserState = User | null | undefined
 export type AuthCallback = (u: UserState) => void
-export type Unsubscribe = () => void
+export type Unsubscribe = { unsubscribe: () => void }
 export type PasswordOptions =
 	{ remember: boolean
 	}

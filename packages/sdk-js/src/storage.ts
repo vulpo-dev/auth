@@ -1,4 +1,4 @@
-import type { User } from './types'
+import type { User } from 'types'
 
 let Storage = {
 	key: 'bento_auth::user',
@@ -20,7 +20,17 @@ let Storage = {
 		return (user as Array<User>)
 	},
 
-	remove(): void {
+	remove(id: string): void {
+		let users = this.get()
+
+		users = users.filter(user => {
+			return user.id !== id
+		})
+
+		localStorage.setItem(this.key, JSON.stringify(users))
+	},
+
+	removeAll() {
 		localStorage.removeItem(this.key)
 	},
 

@@ -1,4 +1,2 @@
 
-export default function main(): string {
-	return "OK"
-}
+export { Overview } from 'overview'

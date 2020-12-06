@@ -9,6 +9,7 @@ module.exports = function (api) {
 
   let plugins = 
     [ 'babel-plugin-styled-components'
+    , "@babel/plugin-proposal-class-properties"
     ]
 
   return {
