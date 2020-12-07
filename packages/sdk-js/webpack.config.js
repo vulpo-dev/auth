@@ -14,14 +14,16 @@ module.exports = function (_, argv) {
 		main: entry
 	}
 
-	config.output = {
-		library: 'BentoAuth',
-		libraryExport: 'Auth',
-    	globalObject: 'this',
-     	filename: '[name].js',
-     	path: process.cwd() + '/lib',
-     	libraryTarget: 'umd'
-    }
+	if (argv.mode === 'browser') {
+		config.output = {
+			library: 'BentoAuth',
+			libraryExport: 'Auth',
+	    	globalObject: 'this',
+	     	filename: '[name].js',
+	     	path: process.cwd() + '/lib',
+	     	libraryTarget: 'umd'
+	    }
+	}
 
     return config
 }

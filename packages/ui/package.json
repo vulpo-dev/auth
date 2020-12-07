@@ -6,7 +6,13 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "storybook": "start-storybook -p 6006",
-    "build-storybook": "build-storybook"
+    "build-storybook": "build-storybook",
+    "dev": "tsc --noEmit --watch",
+    "types": "tsc --emitDeclarationOnly --declaration --declarationDir ./lib",
+    "build": "webpack --config ../../webpack.config.js --mode production",
+    "build:dev": "webpack --config ../../webpack.config.js --mode development",
+    "bundle": "npm run build && npm run types",
+    "prepublish": "npm run bundle"
   },
   "keywords": [],
   "author": "Michael Riezler <michael@riezler.co> (https://riezler.co)",
@@ -17,13 +23,13 @@
     "@babel/preset-env": "^7.12.7",
     "@babel/preset-react": "^7.12.7",
     "@babel/preset-typescript": "^7.12.7",
-    "@riezler/auth-sdk": "0.0.1",
     "@storybook/addon-actions": "^6.1.10",
     "@storybook/addon-essentials": "^6.1.10",
     "@storybook/addon-links": "^6.1.10",
     "@storybook/react": "^6.1.10",
     "babel-loader": "^8.2.2",
     "babel-plugin-styled-components": "^1.12.0",
+    "core-js": "^3.8.1",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
     "react-router-dom": "^5.2.0",
@@ -41,10 +47,11 @@
     "styled-components": "^5.2.1"
   },
   "dependencies": {
-    "@biotic-ui/button": "^0.3.0",
-    "@biotic-ui/input": "^0.3.2",
-    "@biotic-ui/leptons": "^0.3.2",
+    "@biotic-ui/button": "^0.3.2",
+    "@biotic-ui/input": "^0.3.3",
+    "@biotic-ui/leptons": "^0.3.3",
     "@biotic-ui/std": "^0.3.0",
+    "@riezler/auth-sdk": "0.0.1",
     "@riezler/auth-react": "0.0.1",
     "@types/react-router-dom": "^5.1.6"
   }

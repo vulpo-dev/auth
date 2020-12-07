@@ -6,6 +6,7 @@ import { Password, Props } from 'password'
 import { Container } from 'component/layout'
 import { Translation, DefaultTranslation } from 'context/translation'
 import { AuthConfig, DefaultConfig } from 'context/config'
+import { ErrorCode } from '@riezler/auth-sdk'
 
 export default {
 	title: 'Password',
@@ -19,6 +20,25 @@ export default {
 	          'signin', 
 	          'signup',
 	        ]
+	  	}
+	  },
+	  loading: {
+	  	defaultValue: false,
+	  	control: {
+	  		type: 'boolean'
+	  	}
+	  },
+	  error: {
+	  	defaultValue: null,
+	  	control: {
+	  		type: 'select',
+	  		options: [
+	  			null,
+	  			ErrorCode.InternalServerError,
+	  			ErrorCode.InvalidEmailPassword,
+	  			ErrorCode.AuthPasswordLength,
+	  			ErrorCode.NotAllowed,
+	  		]
 	  	}
 	  },
 	  onSubmit: { action: 'handle form' },

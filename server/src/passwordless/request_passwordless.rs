@@ -1,3 +1,4 @@
+use crate::data::project::Flags;
 use crate::data::token::Passwordless;
 use crate::data::user::User;
 use crate::data::AuthDb;
@@ -21,6 +22,9 @@ pub async fn request_passwordless(
     project: Project,
     body: Json<RequestPasswordless>,
 ) -> Result<Json<[Uuid; 1]>, ApiError> {
+    conn.run(move |client| Flags::has_flags(client, &project.id, &[Flags::AuthenticationLink]))
+        .await?;
+
     let email = body.email.clone();
     let user = conn
         .run(move |client| User::get_by_email(client, email, project.id))

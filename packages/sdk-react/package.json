@@ -2,7 +2,7 @@
   "name": "@riezler/auth-react",
   "version": "0.0.1",
   "description": "",
-  "main": "index.js",
+  "main": "lib/main.js",
   "scripts": {
     "dev": "tsc --noEmit --watch",
     "types": "tsc --emitDeclarationOnly --declaration --declarationDir ./lib",

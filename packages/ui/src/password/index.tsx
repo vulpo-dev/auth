@@ -1,14 +1,16 @@
-import { SyntheticEvent } from 'react'
+import { SyntheticEvent, useState } from 'react'
 import styled from 'styled-components'
-import { Card } from 'component/card'
+import { Card, CardHeader, CardNav, CardTitle } from 'component/card'
 import { Input } from '@biotic-ui/input'
-import { useForm } from '@biotic-ui/std'
+import { useForm, useQueryParams } from '@biotic-ui/std'
 import { Button, IconButton } from '@biotic-ui/button'
-import { useTranslation } from 'context/translation'
+import { useTranslation, useError } from 'context/translation'
 import { useConfig } from 'context/config'
-import { useHistory, useRouteMatch } from 'react-router-dom'
+import { useHistory, useRouteMatch, Link, useLocation } from 'react-router-dom'
 import { Label } from 'component/text'
 import { Disclaimer } from 'component/disclaimer'
+import { ErrorCode } from '@riezler/auth-sdk'
+import { useAuth } from '@riezler/auth-react'
 
 type UserForm = {
 	email: string,
@@ -18,10 +20,12 @@ type UserForm = {
 export type Props = {
 	onBack: () => void;
 	onSubmit: (user: UserForm) => void;
-	ctx: 'signin' | 'signup'
+	ctx: 'signin' | 'signup';
+	loading: boolean;
+	error: null | ErrorCode;
 }
 
-export let Password = ({ onSubmit, onBack, ctx }: Props) => {
+export let Password = ({ onSubmit, onBack, ctx, loading, error }: Props) => {
 	let config = useConfig()
 
 	let [form, setForm] = useForm<UserForm>({
@@ -40,23 +44,26 @@ export let Password = ({ onSubmit, onBack, ctx }: Props) => {
 		? t.signin.label
 		: t.signup.label
 
+	let errorMessage = useError(error)
+
 	return (
 		<Card>
-			<Header>
-				<Nav>
+			<CardHeader>
+				<CardNav>
 					<IconButton onClick={() => onBack()}>
 						{ config.Arrow }
 					</IconButton>
 					<span>{button}</span>
-				</Nav>
-				<h3>{t.password.title}</h3>
-			</Header>
+				</CardNav>
+				<CardTitle>{t.password.title}</CardTitle>
+			</CardHeader>
 
 			<form onSubmit={handleSubmit}>
 				<Section>
 					<Label>{t.label.email}</Label>
 					<Input
 						name='email'
+						type='email'
 						value={form.email}
 						onChange={setForm}
 						required
@@ -72,11 +79,21 @@ export let Password = ({ onSubmit, onBack, ctx }: Props) => {
 						onChange={setForm}
 						required
 					/>
+					{	
+						ctx === 'signup' &&
+						<ForgotPassword to='/forgot-password'>
+							<small>{t.password.forgot}</small>
+						</ForgotPassword>
+					}
 				</PasswordSection>
 
 				<Section>
-					<Button>{button}</Button>
+					<Button loading={loading}>{button}</Button>
 				</Section>
+
+				{ error &&
+					<Error>{errorMessage}</Error>
+				}
 			</form>
 
 			<Divider />
@@ -90,15 +107,42 @@ export let Password = ({ onSubmit, onBack, ctx }: Props) => {
 
 let PasswordContainer = () => {
 	let history = useHistory()
+	let location = useLocation()
 
+	let query = useQueryParams(location.search)
+
+	let [error, setError] = useState<ErrorCode | null>(null)
+	let [loadig, setLoading] = useState<boolean>(false)
 	let match = useRouteMatch<{ type: 'signin' | 'signup' }>('/:type')
+	let auth = useAuth()
 
 	function handleBack() {
 		history.replace('/')
 	}
 
-	function handleSubmit(user: UserForm) {
-		console.log(user)
+	async function handleSubmit(user: UserForm) {
+		if (!match) {
+			return
+		}
+
+		setError(null)
+		setLoading(true)
+
+		let fn = match.params.type === 'signin'
+			? auth.signIn
+			: auth.signUp
+
+		let ref = query.get('ref') ?? '/'
+
+		fn(user.email, user.password)
+			.then(() => {
+				setLoading(false)
+				history.replace(ref)
+			})
+			.catch(err => {
+				setLoading(false)
+				setError(err.code)
+			})
 	}
 
 	return (
@@ -106,27 +150,13 @@ let PasswordContainer = () => {
 			onBack={handleBack}
 			onSubmit={handleSubmit}
 			ctx={match?.params?.type ?? 'signin'}
+			loading={false}
+			error={error}
 		/>
 	)
 }
 
-let Header = styled.header`
-	margin-bottom: var(--baseline-2);
-
-	h3 {
-		margin-bottom: 0;
-	}
-
-	${IconButton} {
-		margin-right: var(--baseline);
-	}
-`
-
-let Nav = styled.div`
-	display: flex;
-	align-items: center;
-	margin-bottom: var(--baseline);
-`
+export default PasswordContainer
 
 let StyledButton = styled(Button)`
 	margin-left: auto;
@@ -140,6 +170,12 @@ let Section = styled.section`
 
 let PasswordSection = styled.section`
 	margin-bottom: var(--baseline-3);
+	display: flex;
+	flex-direction: column;
+
+	input {
+		margin-bottom: var(--baseline-half);
+	}
 `
 
 let Footer = styled.footer`
@@ -153,4 +189,13 @@ let Divider = styled.hr`
 	margin-top: var(--baseline);
 	margin-bottom: var(--baseline-2);
 	background: var(--border-color);
+`
+
+let ForgotPassword = styled(Link)`
+	margin-left: auto;
+`
+
+let Error = styled.p`
+	text-align: center;
+	color: var(--red);
 `

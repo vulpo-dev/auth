@@ -1,4 +1,5 @@
 use crate::data::keys::ProjectKeys;
+use crate::data::project::Flags;
 use crate::data::token::{AccessToken, RefreshToken};
 use crate::data::user::User;
 use crate::data::AuthDb;
@@ -23,6 +24,15 @@ pub async fn sign_up(
     project: Project,
     cookies: &CookieJar<'_>,
 ) -> Result<Token, ApiError> {
+    conn.run(move |client| {
+        Flags::has_flags(
+            client,
+            &project.id,
+            &[Flags::SignUp, Flags::EmailAndPassword],
+        )
+    })
+    .await?;
+
     if body.password.len() < 8 {
         return Err(ApiError::AuthPasswordLength);
     }

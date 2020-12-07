@@ -1,3 +1,4 @@
+use crate::data::project::Flags;
 use crate::data::user::User;
 use crate::data::AuthDb;
 use crate::data::{
@@ -27,6 +28,15 @@ pub async fn sign_in(
     project: Project,
     cookies: &CookieJar<'_>,
 ) -> Result<Token, ApiError> {
+    conn.run(move |client| {
+        Flags::has_flags(
+            client,
+            &project.id,
+            &[Flags::SignIn, Flags::EmailAndPassword],
+        )
+    })
+    .await?;
+
     let email = body.email.clone();
     let user = conn
         .run(move |client| User::password(client, email, project.id))

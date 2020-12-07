@@ -22,6 +22,9 @@ pub enum ApiError {
     #[serde(rename = "not_found")]
     NotFound,
 
+    #[serde(rename = "forbidden")]
+    Forbidden,
+
     #[serde(rename = "project/name_exists")]
     ProjectNameExists,
 
@@ -79,6 +82,7 @@ impl ApiError {
         match self {
             ApiError::InternalServerError => Status::InternalServerError,
             ApiError::NotFound => Status::NotFound,
+            ApiError::Forbidden => Status::Forbidden,
             _ => Status::BadRequest,
         }
     }

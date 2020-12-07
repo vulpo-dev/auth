@@ -4,6 +4,7 @@ export enum ErrorCode {
 	InternalServerError = 'internal_error',
 	BadRequest = 'bad_request',
 	NotFound = 'not_found',
+	NotAllowed = 'forbidden',
 
 	AuthTokenMissing = 'auth/token_missing',
 	AuthPasswordLength = 'auth/password_length',
@@ -25,6 +26,7 @@ export class ApiError {
 			case ErrorCode.NotFound:
 			case ErrorCode.BadRequest:
 			case ErrorCode.InternalServerError:
+			case ErrorCode.NotAllowed:
 				return new HttpError(res.response.data.code)
 
 			case ErrorCode.AuthTokenMissing:
