@@ -47,7 +47,7 @@ export let User = ({ onSubmit }: Props) => {
 					/>
 				</Section>
 
-				<Button>Create Admin</Button>
+				<StyledButton>Create Admin</StyledButton>
 			</Form>
 		</div>
 	)
@@ -76,13 +76,13 @@ let UserContainer = () => {
 
 export default UserContainer
 
+let StyledButton = styled(Button)`
+	margin-left: auto;
+`
+
 let Form = styled.form`
 	display: flex;
 	flex-direction: column;
-
-	${Button} {
-		margin-left: auto;
-	}
 `
 
 let Section = styled.section`

@@ -40,6 +40,7 @@ type Translations = {
 		invalid_email_password: string;
 		generic: string;
 		not_allowed: string;
+		unavailable: string;
 	};
 }
 
@@ -83,7 +84,8 @@ export let DefaultTranslation = {
 		password_length: 'Your password sould be at least 8 characters long',
 		invalid_email_password: 'Invalid Email or Password',
 		generic: 'Something went wrong',
-		not_allowed: 'Not Allowed'
+		not_allowed: 'Not Allowed',
+		unavailable: 'Authentication Service Unavailable',
 	}
 }
 

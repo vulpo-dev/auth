@@ -1222,20 +1222,22 @@
   resolved "https://registry.yarnpkg.com/@bcoe/v8-coverage/-/v8-coverage-0.2.3.tgz#75a2e8b51cb758a7553d6804a5932d7aace75c39"
   integrity sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==
 
-"@biotic-ui/button@^0.3.0":
-  version "0.3.0"
-  resolved "https://registry.yarnpkg.com/@biotic-ui/button/-/button-0.3.0.tgz#d2e604cb0949e7d8af35ec1c20142f7037118e32"
-  integrity sha512-jSTTt12l+LQiww/gbEpwvC94PcuBvJHk6ZcmE83oH8PK6GWyf/IYMgnNvJmbKSJWJrtTkCkOieaLAlvqO0tD+w==
+"@biotic-ui/button@^0.3.4":
+  version "0.3.4"
+  resolved "https://registry.yarnpkg.com/@biotic-ui/button/-/button-0.3.4.tgz#81d3e4b6f2d8f4f4412828437b5ce4a55b8dd85e"
+  integrity sha512-ROwXpHWe6FEqaAEAt4uK1VxECoh6TSTqqEFlPt6tgIxuMDIOonlt3rD7/CuTOm+tXaz6LreHLsla54IiTrQlSQ==
+  dependencies:
+    "@biotic-ui/leptons" "^0.3.4"
 
-"@biotic-ui/input@^0.3.1":
-  version "0.3.1"
-  resolved "https://registry.yarnpkg.com/@biotic-ui/input/-/input-0.3.1.tgz#7f59815ade2c21ca18e7e423f0c30ab7e187f5d9"
-  integrity sha512-ZkLmPkbGhzXH8dY2STaof6IpPhZ5Oa5/tbwEiQGMFljtNFBcm2VvlT6kTbDx+6+udtfqVaDxhwgVHg63wgdcqg==
+"@biotic-ui/input@^0.3.4":
+  version "0.3.4"
+  resolved "https://registry.yarnpkg.com/@biotic-ui/input/-/input-0.3.4.tgz#3a5c4a900b99de89db62c997484305c00e9c600d"
+  integrity sha512-WJpXD2GY8H4hrTaN1tkgrXeU9ceeEgT8KE0RSkwnrkk1U6ZX+/jaMTLaj1X7SEuzseR8DEZvglfleMvzOwpLKA==
 
-"@biotic-ui/leptons@^0.3.1":
-  version "0.3.1"
-  resolved "https://registry.yarnpkg.com/@biotic-ui/leptons/-/leptons-0.3.1.tgz#1214e1879d8629a47b14b2c6404e946065b8adc3"
-  integrity sha512-Nrkw+ZnfC25UxfnkRVEyVDzIQ0RgvSqIrCJeKOSIcjiA87d8wdK1bdw8uzBGmzTaTF94czZu9wAaEaEzdKn+6Q==
+"@biotic-ui/leptons@^0.3.4":
+  version "0.3.4"
+  resolved "https://registry.yarnpkg.com/@biotic-ui/leptons/-/leptons-0.3.4.tgz#3525e16c1a5876dbec2b66f09ba30136c3dfa891"
+  integrity sha512-Eyv/mg7uYGL6gnIXPz8Zdqsgw5orHYMgdLjIi7Vr6Df72XKQSRsadmPnDJitGbaRe0KsMyhESVAjD001vFoZLQ==
   dependencies:
     "@riezler/react-utils" "^0.1.1"
 

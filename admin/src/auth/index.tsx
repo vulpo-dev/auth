@@ -1,6 +1,19 @@
+import {
+	DefaultConfig,
+	AuthConfig,
+	DefaultTranslation,
+	Translation,
+	Password
+} from '@riezler/auth-ui'
 
-let Auth = () => {
-	return <p>Auth</p>
+export let Auth = () => {
+	return (
+		<AuthConfig.Provider value={DefaultConfig}>
+			<Translation.Provider value={DefaultTranslation}>
+				<Password />	
+			</Translation.Provider>
+		</AuthConfig.Provider>
+	)
 }
 
 export default Auth

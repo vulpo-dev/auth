@@ -12,7 +12,7 @@ let Bootstrap = () => {
 	useEffect(() => {
 		let isSetup = window.location.pathname.startsWith('/setup')
 		if (project === null && !isSetup) {
-			history.replace('/setup')
+			history.replace('/auth')
 		}
 
 		if (project) {

@@ -1002,22 +1002,22 @@
   resolved "https://registry.yarnpkg.com/@base2/pretty-print-object/-/pretty-print-object-1.0.0.tgz#860ce718b0b73f4009e153541faff2cb6b85d047"
   integrity sha512-4Th98KlMHr5+JkxfcoDT//6vY8vM+iSPrLNpHhRyLx2CFYi8e2RfqPLdpbnpo0Q5lQC5hNB79yes07zb02fvCw==
 
-"@biotic-ui/button@^0.3.2":
-  version "0.3.2"
-  resolved "https://registry.yarnpkg.com/@biotic-ui/button/-/button-0.3.2.tgz#8e208958591780b8099ab9e40883dac9398acbac"
-  integrity sha512-OclR1igy/5Os6nNP8wL0J6d0yppZ0zeRD3ENsrcO+mh4gNamPD8si6qdDIrZs3mhzvXRbP2DzMK3rBO35JjdPA==
+"@biotic-ui/button@^0.3.4":
+  version "0.3.4"
+  resolved "https://registry.yarnpkg.com/@biotic-ui/button/-/button-0.3.4.tgz#81d3e4b6f2d8f4f4412828437b5ce4a55b8dd85e"
+  integrity sha512-ROwXpHWe6FEqaAEAt4uK1VxECoh6TSTqqEFlPt6tgIxuMDIOonlt3rD7/CuTOm+tXaz6LreHLsla54IiTrQlSQ==
   dependencies:
-    "@biotic-ui/leptons" "^0.3.3"
+    "@biotic-ui/leptons" "^0.3.4"
 
-"@biotic-ui/input@^0.3.3":
-  version "0.3.3"
-  resolved "https://registry.yarnpkg.com/@biotic-ui/input/-/input-0.3.3.tgz#e1a3e97da4a007fc5f95b473ed903782e44e83a9"
-  integrity sha512-srbb2HEM90ZiWqPlK5AK8Phfy6sf65swwcGMXoyFl7J5ODuhRunBIhjmfQJiv2ola330zzsVgrODtODGyba4eQ==
+"@biotic-ui/input@^0.3.4":
+  version "0.3.4"
+  resolved "https://registry.yarnpkg.com/@biotic-ui/input/-/input-0.3.4.tgz#3a5c4a900b99de89db62c997484305c00e9c600d"
+  integrity sha512-WJpXD2GY8H4hrTaN1tkgrXeU9ceeEgT8KE0RSkwnrkk1U6ZX+/jaMTLaj1X7SEuzseR8DEZvglfleMvzOwpLKA==
 
-"@biotic-ui/leptons@^0.3.3":
-  version "0.3.3"
-  resolved "https://registry.yarnpkg.com/@biotic-ui/leptons/-/leptons-0.3.3.tgz#cc956652f4b07f3bc529f6085121fa2accb2f1f1"
-  integrity sha512-M5V3TXrkMeVIfteD2DW+Yi8gCHlfbQYZDjcmbqyOR9LLpOgPtvhg8lRBiwusqps8nFuqxn5E/Q00btJ3ZQD14Q==
+"@biotic-ui/leptons@^0.3.4":
+  version "0.3.4"
+  resolved "https://registry.yarnpkg.com/@biotic-ui/leptons/-/leptons-0.3.4.tgz#3525e16c1a5876dbec2b66f09ba30136c3dfa891"
+  integrity sha512-Eyv/mg7uYGL6gnIXPz8Zdqsgw5orHYMgdLjIi7Vr6Df72XKQSRsadmPnDJitGbaRe0KsMyhESVAjD001vFoZLQ==
   dependencies:
     "@riezler/react-utils" "^0.1.1"
 

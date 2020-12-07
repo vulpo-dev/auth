@@ -38,6 +38,7 @@ export default {
 	  			ErrorCode.InvalidEmailPassword,
 	  			ErrorCode.AuthPasswordLength,
 	  			ErrorCode.NotAllowed,
+	  			ErrorCode.Unavailable,
 	  		]
 	  	}
 	  },

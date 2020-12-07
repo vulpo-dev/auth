@@ -5,6 +5,7 @@ export enum ErrorCode {
 	BadRequest = 'bad_request',
 	NotFound = 'not_found',
 	NotAllowed = 'forbidden',
+	Unavailable = 'unavailable',
 
 	AuthTokenMissing = 'auth/token_missing',
 	AuthPasswordLength = 'auth/password_length',
@@ -22,6 +23,11 @@ type ErrorResponse = {
 export class ApiError {
 
 	fromResponse(res: AxiosError<ErrorResponse>) {
+
+		if (res.response?.status === 503) {
+			return new HttpError(ErrorCode.Unavailable)
+		}
+
 		switch(res.response?.data?.code) {
 			case ErrorCode.NotFound:
 			case ErrorCode.BadRequest:
