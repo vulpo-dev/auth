@@ -1,4 +1,7 @@
+import { Fragment } from 'react'
+import styled from 'styled-components'
 import { HashRouter } from 'react-router-dom'
+import { Header } from 'component/layout'
 
 import {
 	DefaultConfig,
@@ -10,12 +13,26 @@ import {
 
 export let Auth = () => {
 	return (
-		<AuthConfig.Provider value={DefaultConfig}>
-			<Translation.Provider value={DefaultTranslation}>
-				<Password />	
-			</Translation.Provider>
-		</AuthConfig.Provider>
+		<HashRouter>
+			<Header>
+				<h1>Authentication</h1>
+			</Header>
+			<Wrapper>
+				<AuthConfig.Provider value={DefaultConfig}>
+					<Translation.Provider value={DefaultTranslation}>
+						<Password />	
+					</Translation.Provider>
+				</AuthConfig.Provider>
+			</Wrapper>
+		</HashRouter>
 	)
 }
 
 export default Auth
+
+let Wrapper = styled.div`
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	height: 100%;
+`

@@ -12,7 +12,7 @@ let Bootstrap = () => {
 	useEffect(() => {
 		let isSetup = window.location.pathname.startsWith('/setup')
 		if (project === null && !isSetup) {
-			history.replace('/auth')
+			history.replace('/setup')
 		}
 
 		if (project) {
@@ -29,7 +29,7 @@ let Bootstrap = () => {
 
 let BootstrapContainer = () => (
 	<RecoilRoot>		
-		<BrowserRouter basename={process.env.PUBLIC_URL}>
+		<BrowserRouter basename='/admin'>
 			<Bootstrap />
 		</BrowserRouter>
 	</RecoilRoot>

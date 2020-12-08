@@ -4,7 +4,7 @@ import { useMounted } from 'utils/hook'
 import { atom, useSetRecoilState } from 'recoil'
 
 let axios = Axios.create({
-	baseURL: process.env.REACT_APP_SERVER
+	baseURL: '/'
 })
 
 type HasResponse = { id: null | string }

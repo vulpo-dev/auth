@@ -65,7 +65,7 @@ let UserContainer = () => {
 
 		try {
 			await createAdmin(user, project)
-			history.replace('/auth')
+			history.replace('/auth/#/signin')
 		} catch (err) {
 			console.log(err)
 		}

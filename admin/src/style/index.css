@@ -16,7 +16,7 @@ body {
 	margin: 0;
 	padding: 0;
 	background: var(--color-background);
-	background:  radial-gradient(circle, var(--color-background) 80%, #262543 100%);;
+	background:  radial-gradient(circle, var(--color-background) 80%, #262543 100%);
 }
 
 code {
