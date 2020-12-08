@@ -1,3 +1,5 @@
+import { HashRouter } from 'react-router-dom'
+
 import {
 	DefaultConfig,
 	AuthConfig,

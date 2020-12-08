@@ -3,7 +3,9 @@ module.exports = function (api) {
 
   let presets =
     [ '@babel/typescript'
-    , [ '@babel/preset-react', { 'development': true }]
+    , [ '@babel/preset-react', {
+        "runtime": "automatic"
+      }]
     , [ '@babel/preset-env'
       , {
           "targets": "last 2 versions"

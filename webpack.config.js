@@ -28,6 +28,11 @@ module.exports = function createConfig (webpackEnv) {
           commonjs2: 'react-dom',
           amd: 'react-dom'
         },
+        'react-router-dom': {
+          commonjs: 'react-router-dom',
+          commonjs2: 'react-router-dom',
+          amd: 'react-router-dom'
+        },
         'framer-motion': {
           commonjs: 'framer-motion',
           commonjs2: 'framer-motion',
