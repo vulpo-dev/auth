@@ -5,12 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "webpack --mode production",
-    "build:dev": "webpack --mode development",
-    "build:watch": "webpack --mode development --watch",
-    "start": "webpack serve --mode development",
-    "server": "node server/index.js",
-    "server:watch": "nodemon --ignore './src/' server/index.js",
-    "bs:start": "browser-sync start --files build/client --proxy http://localhost:8080 --port 8081 --watch"
+    "start": "webpack serve --mode development"
   },
   "keywords": [],
   "author": "Michael Riezler <michael@riezler.co> (https://riezler.co)",
@@ -38,6 +33,7 @@
     "mini-css-extract-plugin": "^1.3.2",
     "postcss-loader": "^4.1.0",
     "postcss-preset-env": "^6.7.0",
+    "react-dev-utils": "^11.0.1",
     "react-refresh": "^0.9.0",
     "style-loader": "^2.0.0",
     "ts-loader": "^8.0.11",
@@ -54,6 +50,7 @@
     "@biotic-ui/std": "^0.3.0",
     "@riezler/auth-react": "0.0.1",
     "@riezler/auth-ui": "0.0.1",
+    "@riezler/auth-sdk": "0.0.1",
     "axios": "^0.21.0",
     "core-js": "^3.8.1",
     "optimize-css-assets-webpack-plugin": "^5.0.4",

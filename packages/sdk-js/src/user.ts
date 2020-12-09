@@ -85,6 +85,7 @@ export class User {
 		})
 
 		if (!shallowEqualObjects(this.current, user)) {
+			this.current = user
 			this.listener.forEach(entry => {
 				entry.cb(user)
 			})
@@ -95,5 +96,12 @@ export class User {
 
 	remove(userId: string) {
 		Storage.remove(userId)
+	}
+
+	setCurrent(user: UserState) {
+		this.current = user
+		this.listener.forEach(entry => {
+			entry.cb(user)
+		})
 	}
 }

@@ -80,7 +80,7 @@ export let Password = ({ onSubmit, onBack, ctx, loading, error }: Props) => {
 						required
 					/>
 					{	
-						ctx === 'signup' &&
+						ctx === 'signin' &&
 						<ForgotPassword to='/forgot-password'>
 							<small>{t.password.forgot}</small>
 						</ForgotPassword>
@@ -112,7 +112,7 @@ let PasswordContainer = () => {
 	let query = useQueryParams(location.search)
 
 	let [error, setError] = useState<ErrorCode | null>(null)
-	let [loadig, setLoading] = useState<boolean>(false)
+	let [loading, setLoading] = useState<boolean>(false)
 	let match = useRouteMatch<{ type: 'signin' | 'signup' }>('/:type')
 	let auth = useAuth()
 
@@ -150,7 +150,7 @@ let PasswordContainer = () => {
 			onBack={handleBack}
 			onSubmit={handleSubmit}
 			ctx={match?.params?.type ?? 'signin'}
-			loading={false}
+			loading={loading}
 			error={error}
 		/>
 	)

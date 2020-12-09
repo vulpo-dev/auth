@@ -8,7 +8,7 @@ import type {
 
 import { User as User } from 'user'
 import { Tokens } from 'tokens'
-import { ApiError } from 'error'
+import { ApiError, ErrorCode } from 'error'
 
 import Axios, { AxiosInstance } from 'axios'
 import { shallowEqualObjects } from 'shallow-equal'
@@ -80,17 +80,21 @@ export class AuthClient {
 	async getToken(): Promise<string | null> {
 		return this.tokens
 			.getToken()
-			.catch(res => Promise
-				.reject(this.error.fromResponse(res))
-			)
+			.catch(res => {
+				let err = this.error.fromResponse(res)
+
+				if (err.code === ErrorCode.AuthRefreshTokenMissing) {
+					this.user.setCurrent(null)
+				}
+
+				return Promise.reject(err)
+			})
 	}
 
 	authStateChange(cb: AuthCallback): Unsubscribe {
 		let sub = this.user.subscribe(cb)
 
-		let user = this.user.users.find(user => {
-			return user.id === this.user.active
-		})
+		let user = this.user.current
 
 		cb(user)
 

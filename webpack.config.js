@@ -43,6 +43,11 @@ module.exports = function createConfig (webpackEnv) {
           commonjs2: 'recoil',
           amd: 'recoil'
         },
+        '@riezler/auth-react': {
+          commonjs: '@riezler/auth-react',
+          commonjs2: '@riezler/auth-react',
+          amd: '@riezler/auth-react'
+        },
      },
     output: {
       globalObject: 'this',

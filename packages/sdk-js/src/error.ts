@@ -6,6 +6,7 @@ export enum ErrorCode {
 	NotFound = 'not_found',
 	NotAllowed = 'forbidden',
 	Unavailable = 'unavailable',
+	GenericError = 'generic_error',
 
 	AuthTokenMissing = 'auth/token_missing',
 	AuthPasswordLength = 'auth/password_length',
@@ -45,7 +46,7 @@ export class ApiError {
 				return new AuthError(res.response.data.code)
 
 			default:
-				return new Error(res.response?.statusText)
+				return new GenericError(res.response?.statusText)
 		}
 	}
 }
@@ -69,3 +70,15 @@ export class AuthError extends Error {
 		this.code = code
 	}
 }
+
+
+export class GenericError extends Error {
+	code: ErrorCode;
+
+	constructor(message?: string) {
+		super(message)
+		this.name = 'GenericError'
+		this.code = ErrorCode.GenericError
+	}
+}
+

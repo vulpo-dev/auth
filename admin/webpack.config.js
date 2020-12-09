@@ -7,6 +7,14 @@ let TerserPlugin = require('terser-webpack-plugin')
 let OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin')
 let safePostCssParser = require('postcss-safe-parser')
 
+let webpackDevClientEntry = require.resolve(
+  'react-dev-utils/webpackHotDevClient'
+)
+
+let reactRefreshOverlayEntry = require.resolve(
+  'react-dev-utils/refreshOverlayInterop'
+)
+
 let path = require('path')
 
 let cwd = process.cwd()
@@ -28,7 +36,9 @@ module.exports = function createConfig (_, argv) {
             }
         , publicPath: '/admin'
         , proxy: {
-            '/admin/__/': 'http://127.0.0.1:8000'
+            '/admin/__/': 'http://127.0.0.1:8000',
+            '/token/': 'http://127.0.0.1:8000',
+            '/password/': 'http://127.0.0.1:8000',
           }
         , hot: true
         }
@@ -54,7 +64,7 @@ module.exports = function createConfig (_, argv) {
             , 'react-router-dom': path.resolve('./node_modules/react-router-dom')
             , 'i18next': path.resolve('./node_modules/i18next')
             , 'react-i18next': path.resolve('./node_modules/react-i18next')
-            , 'recoil': path.resolve('./node_modules/recoil'),
+            , 'recoil': path.resolve('./node_modules/recoil')
             }
         }
 
@@ -116,7 +126,6 @@ module.exports = function createConfig (_, argv) {
         [ new CleanWebpackPlugin()
         , html(isDevelopment)
         , css(isDevelopment)
-        , isDevelopment && new ReactRefreshWebpackPlugin(),
         , new ForkTsCheckerWebpackPlugin({
             typescript: {
               diagnosticOptions: {

@@ -2,6 +2,7 @@ import { Fragment } from 'react'
 import styled from 'styled-components'
 import { HashRouter } from 'react-router-dom'
 import { Header } from 'component/layout'
+import { useAuth } from '@riezler/auth-react'
 
 import {
 	DefaultConfig,
@@ -12,6 +13,7 @@ import {
 } from '@riezler/auth-ui'
 
 export let Auth = () => {
+	let auth = useAuth()
 	return (
 		<HashRouter>
 			<Header>
