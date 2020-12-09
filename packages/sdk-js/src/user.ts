@@ -60,13 +60,13 @@ export class User {
 	subscribe(cb: AuthCallback): Unsubscribe {
 		let id = this.getId()
 		this.listener.push({ id, cb })
-		return {
-			unsubscribe: () => {
-				this.listener = this
+
+		let unsubscribe = () => 
+			this.listener = this
 					.listener
 					.filter(entry => entry.id !== id)
-			}
-		}
+
+		return { unsubscribe }
 	}
 
 	fromResponse(data: TokenResponse): UserId | undefined {

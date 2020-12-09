@@ -28,12 +28,18 @@ export class Tokens {
 	}
 
 	async getToken(): Promise<string | null> {
-		let now = new Date()
-		let expired = this.expireIn < now
-
+		/*
+		 * this means that we are already doing a call
+		 * to get a new access token, inFlight is holding
+		 * the promise that will be resolved once the
+		 * token call resolves/rejects
+		*/
 		if (this.inFlight !== null) {
 			return this.inFlight
 		}
+
+		let now = new Date()
+		let expired = this.expireIn < now
 
 		if (this.tokens.size === 0 || expired) {
 			this.inFlight = new Promise<string | null>((resolve, reject) => {
@@ -58,7 +64,7 @@ export class Tokens {
 		return token.access_token
 	}
 
-	async _getToken(): Promise<void> {
+	private async _getToken(): Promise<void> {
 		let { data } = await this.http.post<TokenResponse>('/token/refresh')
 
 		this.listener.forEach(promise => {
@@ -92,7 +98,7 @@ export class Tokens {
 
 		let expireIn = token ? token.expire_in : 0
 
-		let threshold = 30
+		let threshold = 30 //seconds
 		let expiresIn = new Date()
 		let now = expiresIn.getSeconds()
 		let expire = now + expireIn - threshold

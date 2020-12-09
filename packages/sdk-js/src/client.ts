@@ -112,7 +112,7 @@ export class AuthClient {
 
 export let Auth = {
 	create(userConfig: Config): AuthClient {
-		let config = { ...DefaultConfig, ...userConfig }		
+		let config = { ...DefaultConfig, ...userConfig }
 		
 		let http = Axios.create({
 			baseURL: config.baseURL,
