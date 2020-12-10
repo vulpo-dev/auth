@@ -9,7 +9,8 @@ export enum ErrorCode {
 	GenericError = 'generic_error',
 
 	AuthTokenMissing = 'auth/token_missing',
-	AuthPasswordLength = 'auth/password_length',
+	PasswordMinLength = 'password/min_length',
+	PasswordMaxLength = 'password/max_length',
 	AuthRefreshTokenMissing = 'auth/refresh_token_missing',
 	AuthRefreshTokenNotFound = 'auth/refresh_token_not_found',
 	AuthRefreshTokenInvalidFormat = 'auth/refresh_token_invalid_format',
@@ -37,7 +38,8 @@ export class ApiError {
 				return new HttpError(res.response.data.code)
 
 			case ErrorCode.AuthTokenMissing:
-			case ErrorCode.AuthPasswordLength:
+			case ErrorCode.PasswordMinLength:
+			case ErrorCode.PasswordMaxLength:
 			case ErrorCode.AuthRefreshTokenMissing:
 			case ErrorCode.AuthRefreshTokenNotFound:
 			case ErrorCode.AuthRefreshTokenInvalidFormat:

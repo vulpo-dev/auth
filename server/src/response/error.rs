@@ -52,8 +52,11 @@ pub enum ApiError {
     #[serde(rename = "auth/token_missing")]
     AuthTokenMissing,
 
-    #[serde(rename = "auth/password_length")]
-    AuthPasswordLength,
+    #[serde(rename = "password/min_length")]
+    PasswordMinLength,
+
+    #[serde(rename = "password/max_length")]
+    PasswordMaxLength,
 
     #[serde(rename = "auth/refresh_token_missing")]
     AuthRefreshTokenMissing,

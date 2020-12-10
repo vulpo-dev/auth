@@ -11,6 +11,19 @@ use rocket_contrib::json::Json;
 use serde::Deserialize;
 use uuid::Uuid;
 
+const MIN: usize = 8;
+
+/*
+    Some hashing algorithms such as Bcrypt have a maximum length for
+    the input, which is 72 characters for most implementations (there
+    are some reports that other implementations have lower maximum lengths,
+    but none have been identified at the time of writing). Where Bcrypt is
+    used, a maximum length of 64 characters should be enforced on the input,...
+
+    Link: https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html#maximum-password-lengths
+*/
+const MAX: usize = 64;
+
 #[derive(Deserialize)]
 pub struct SignUp {
     pub email: String,
@@ -33,8 +46,12 @@ pub async fn sign_up(
     })
     .await?;
 
-    if body.password.len() < 8 {
-        return Err(ApiError::AuthPasswordLength);
+    if body.password.len() < MIN {
+        return Err(ApiError::PasswordMinLength);
+    }
+
+    if body.password.len() > MAX {
+        return Err(ApiError::PasswordMaxLength);
     }
 
     let refresh_token_id = cookies

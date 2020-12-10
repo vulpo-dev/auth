@@ -36,7 +36,8 @@ type Translations = {
 	Disclaimer: FC<DisclaimerProps>;
 
 	error: {
-		password_length: string;
+		password_min_length: string;
+		password_max_length: string;
 		invalid_email_password: string;
 		generic: string;
 		not_allowed: string;
@@ -81,7 +82,8 @@ export let DefaultTranslation = {
 	},
 
 	error: {
-		password_length: 'Your password sould be at least 8 characters long',
+		password_min_length: 'Your password should be at least 8 characters long',
+		password_max_length: 'Your password cannot be longer than 64 characters',
 		invalid_email_password: 'Invalid Email or Password',
 		generic: 'Something went wrong',
 		not_allowed: 'Not Allowed',
@@ -103,8 +105,11 @@ export function useError(code: ErrorCode | null): string | null {
 		}
 
 		switch(code) {
-			case ErrorCode.AuthPasswordLength:
-				return t.error.password_length
+			case ErrorCode.PasswordMinLength:
+				return t.error.password_min_length
+
+			case ErrorCode.PasswordMaxLength:
+				return t.error.password_max_length
 
 			case ErrorCode.InvalidEmailPassword:
 				return t.error.invalid_email_password
