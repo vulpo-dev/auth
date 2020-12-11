@@ -63,7 +63,7 @@ impl Flags {
         }
     }
 
-    // TODO: do this automatically
+    // TODO do this automatically
     fn from_str(flag: &str) -> Option<Flags> {
         match flag {
             "auth::signin" => Some(Flags::SignIn),

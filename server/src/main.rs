@@ -1,4 +1,5 @@
 mod admin;
+mod config;
 mod data;
 mod file;
 mod mail;
@@ -19,8 +20,13 @@ extern crate diesel_migrations;
 extern crate openssl;
 
 use clap::App;
+use figment::{
+    providers::{Env, Format, Serialized, Toml},
+    Figment,
+};
 use include_dir::{include_dir, Dir};
 use rocket::http::Method;
+use rocket::Config;
 use rocket_cors::AllowedOrigins;
 
 const SQL: Dir = include_dir!("./sql");
@@ -36,6 +42,11 @@ async fn main() {
         .subcommand(App::new("migrate").about("run migrations"))
         .subcommand(App::new("init").about("init the server"))
         .get_matches();
+
+    let figment = Figment::from(rocket::Config::default())
+        .merge(Serialized::defaults(Config::default()))
+        .merge(Toml::file("Rocket.toml").nested())
+        .merge(Env::prefixed("AUTH_").global());
 
     if matches.is_present("server") {
         let allowed_origins = AllowedOrigins::all();
@@ -53,9 +64,10 @@ async fn main() {
         .to_cors()
         .unwrap();
 
-        let _ = rocket::ignite()
+        let _ = rocket::custom(figment)
             .attach(data::AuthDb::fairing())
             .attach(cors)
+            .attach(config::secrets::SecretConfig)
             .mount("/admin", admin::routes())
             .mount("/user", user::routes())
             .mount("/passwordless", passwordless::routes())

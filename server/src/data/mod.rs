@@ -17,7 +17,7 @@ use rocket_contrib::databases::postgres::ToStatement;
 #[database("auth")]
 pub struct AuthDb(postgres::Client);
 
-// TODO: Proper Error Response
+// TODO Proper Error Response
 pub fn get_query(path: &str) -> Result<&str, ApiError> {
     let mut path = String::from(path);
 

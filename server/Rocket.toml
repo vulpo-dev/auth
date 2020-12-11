@@ -3,3 +3,6 @@ auth = { url = "postgres://postgres:postgres@localhost/auth" }
 
 [global.jwt]
 secret = "secret"
+
+[global.secrets]
+passphrase = "password"

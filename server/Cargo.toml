@@ -27,6 +27,7 @@ chrono = { verion = "0.4.19", features = ["serde"] }
 rocket_cors = { git = "https://github.com/lawliet89/rocket_cors", branch = "master" }
 openssl-sys = "0.9"
 openssl = { version = "0.10" }
+figment = { version = "0.9.4", features= ["env"] }
 
 [dependencies.rocket_contrib]
 git = "https://github.com/SergioBenitez/Rocket"
