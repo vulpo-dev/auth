@@ -3,7 +3,6 @@ import { Fragment } from 'react'
 import styled from 'styled-components'
 import { HashRouter } from 'react-router-dom'
 import { Header } from 'component/layout'
-import { useAuth } from '@riezler/auth-react'
 
 import {
 	DefaultConfig,
@@ -14,7 +13,6 @@ import {
 } from '@riezler/auth-ui'
 
 export let Auth = () => {
-	let auth = useAuth()
 	return (
 		<HashRouter>
 			<Header>
@@ -35,7 +33,8 @@ export default Auth
 
 let Wrapper = styled.div`
 	display: flex;
+	padding-top: calc(var(--baseline) * 21 - var(--baseline-5));
 	justify-content: center;
-	align-items: center;
+	align-items: flex-start;
 	height: 100%;
 `

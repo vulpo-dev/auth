@@ -82,8 +82,11 @@ export class AuthClient {
 			.getToken()
 			.catch(res => {
 				let err = this.error.fromResponse(res)
-
-				if (err.code === ErrorCode.AuthRefreshTokenMissing) {
+				
+				if ( err.code === ErrorCode.AuthRefreshTokenMissing ||
+					 err.code === ErrorCode.AuthRefreshTokenNotFound ||
+					 err.code === ErrorCode.AuthRefreshTokenInvalidFormat
+				   ) {
 					this.user.setCurrent(null)
 				}
 

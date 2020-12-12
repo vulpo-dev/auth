@@ -45,12 +45,13 @@
   "dependencies": {
     "@babel/polyfill": "^7.12.1",
     "@biotic-ui/button": "^0.3.7",
-    "@biotic-ui/input": "^0.3.7",
+    "@biotic-ui/input": "^0.3.9",
     "@biotic-ui/leptons": "^0.3.7",
     "@biotic-ui/std": "^0.3.1",
+    "@biotic-ui/tabs": "^0.3.12",
     "@riezler/auth-react": "0.0.1",
-    "@riezler/auth-ui": "0.0.1",
     "@riezler/auth-sdk": "0.0.1",
+    "@riezler/auth-ui": "0.0.1",
     "axios": "^0.21.0",
     "core-js": "^3.8.1",
     "optimize-css-assets-webpack-plugin": "^5.0.4",
@@ -59,6 +60,7 @@
     "react-dom": "^17.0.1",
     "react-router-dom": "^5.2.0",
     "recoil": "^0.1.2",
+    "scheduler": "^0.20.1",
     "styled-components": "^5.2.1",
     "terser-webpack-plugin": "^5.0.3",
     "webpack-dev-server": "^3.11.0"

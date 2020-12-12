@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import Axios from 'axios'
 import { useMounted } from 'utils/hook'
-import { atom, useSetRecoilState } from 'recoil'
+import { atom, useSetRecoilState, useRecoilState } from 'recoil'
 
 let axios = Axios.create({
 	baseURL: '/'
@@ -15,17 +15,20 @@ type UseProject = {
 
 export function useProject(): UseProject {
 	let mounted = useMounted()
-	let [state, setState] = useState<UseProject>({ project: undefined })
+	let [loading, setLoading] = useState(true)
+	let [state, setState] = useRecoilState(projectIdAtom)
 
 	useEffect(() => {
 		axios.get<HasResponse>('/admin/__/project/has').then((res) => {
+			console.log(res.data)
 			if (mounted.current) {
-				setState({ project: res.data.id })
+				setState(res.data.id)
+				setLoading(false)
 			}
 		})
-	}, [setState, mounted])
+	}, [setState, setLoading, mounted])
 
-	return state
+	return { project: loading ? undefined : state }
 }
 
 export let projectIdAtom = atom<string | null>({
@@ -53,7 +56,6 @@ export function useCreateProject(): UseCreateProject {
 
 	useEffect(() => {
 		axios.post<CreateProject>('/admin/__/project/create').then(res => {
-			console.log(mounted, res.data)
 			if (mounted.current) {
 				let { id } = res.data
 				setState({ id, loading: false })

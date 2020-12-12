@@ -1,5 +1,5 @@
 import React from 'react'
-import { SyntheticEvent } from 'react'
+import { SyntheticEvent, useState } from 'react'
 import styled from 'styled-components'
 import { useHistory } from 'react-router-dom'
 import { Input } from '@biotic-ui/input'
@@ -10,9 +10,10 @@ import { projectIdAtom, createAdmin, CreateAdmin } from 'data/admin'
 
 export type Props = {
 	onSubmit: (user: CreateAdmin) => void;
+	loading?: boolean;
 }
 
-export let User = ({ onSubmit }: Props) => {
+export let User = ({ onSubmit, loading = false }: Props) => {
 	
 	let [form, setForm] = useForm<CreateAdmin>({
 		email: '',
@@ -48,7 +49,9 @@ export let User = ({ onSubmit }: Props) => {
 					/>
 				</Section>
 
-				<StyledButton>Create Admin</StyledButton>
+				<StyledButton loading={loading}>
+					Create Admin
+				</StyledButton>
 			</Form>
 		</div>
 	)
@@ -57,6 +60,7 @@ export let User = ({ onSubmit }: Props) => {
 let UserContainer = () => {
 	let history = useHistory()
 	let project = useRecoilValue(projectIdAtom)
+	let [loading, setLoading] = useState(false)
 
 	async function handleSubmit(user: CreateAdmin) {
 		// handle error
@@ -65,6 +69,7 @@ let UserContainer = () => {
 		}
 
 		try {
+			setLoading(true)
 			await createAdmin(user, project)
 			history.replace('/auth/#/signin')
 		} catch (err) {
@@ -72,7 +77,7 @@ let UserContainer = () => {
 		}
 	}
 
-	return <User onSubmit={handleSubmit} />
+	return <User loading={loading} onSubmit={handleSubmit} />
 }
 
 export default UserContainer

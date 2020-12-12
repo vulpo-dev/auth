@@ -2,21 +2,21 @@
 :root {
 	--color-background: #2D2B4F;
 	--color-header: #fff;
+	
+	--color-copy: var(--foreground);
 
 	--font-sans: 'Recursive Sans';
 	--font-mono: 'Recursive Mono';
 
 	--font-copy: var(--font-sans);
 	--font-headline: var(--font-mono);
-
-	--shadow-5: 0 19px 38px rgba(0,0,0,0.30), 0 15px 12px rgba(0,0,0,0.22);
 }
 
 body {
 	margin: 0;
 	padding: 0;
 	background: var(--color-background);
-	background:  radial-gradient(circle, var(--color-background) 80%, #262543 100%);
+	box-shadow: var(--basement);
 }
 
 code {

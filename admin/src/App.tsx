@@ -1,18 +1,19 @@
 import React from 'react'
 import { useState } from 'react'
-import { Switch, Route, useHistory } from 'react-router-dom'
-import { useAuthStateChange } from '@riezler/auth-react'
+import { Switch, Route, useHistory, useLocation } from 'react-router-dom'
+import { useAuthStateChange, useAuth } from '@riezler/auth-react'
 import { UserState } from '@riezler/auth-sdk'
 import { PageLoad } from 'component/loading'
 
-
-import Setup from 'setup'
 import Dashboard from 'dashboard'
 import Auth from 'auth'
 
 export default function App() {
 	let history = useHistory()
+	let location = useLocation()
+
 	let [user, setUser] = useState<UserState>()
+	let auth = useAuth()
 
 	useAuthStateChange((user: UserState) => {
 		setUser(user)
@@ -21,7 +22,10 @@ export default function App() {
 		}
 
 		if (user) {
-			history.replace({ pathname: '/', hash: '' })
+			history.replace({
+				pathname: '/',
+				hash: location.hash
+			})
 		}
 	})
 
@@ -31,10 +35,6 @@ export default function App() {
 
 	return (
 		<Switch>
-			<Route path='/setup'>
-				<Setup />
-			</Route>
-
 			<Route path='/auth'>
 				<Auth />
 			</Route>

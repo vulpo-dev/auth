@@ -1,12 +1,18 @@
 import React from 'react'
 import { useEffect, useMemo } from 'react'
-import { BrowserRouter, useHistory } from 'react-router-dom'
+import {
+	BrowserRouter,
+	useHistory,
+	Switch,
+	Route
+} from 'react-router-dom'
 import App from 'app'
 import { useProject, projectIdAtom } from 'data/admin'
 import { RecoilRoot, useSetRecoilState } from 'recoil'
 import { Auth as AuthCtx } from '@riezler/auth-react'
 import { Auth } from '@riezler/auth-sdk'
 import { GhostPage } from 'component/loading'
+import Setup from 'setup'
 
 let Bootstrap = () => {
 	let history = useHistory()
@@ -27,7 +33,7 @@ let Bootstrap = () => {
 	useEffect(() => {
 		let isSetup = window.location.pathname.startsWith('/setup')
 		if (project === null && !isSetup) {
-			history.replace('/setup')
+			history.replace('/setup/')
 		}
 
 		if (project) {
@@ -41,7 +47,16 @@ let Bootstrap = () => {
 
 	return (
 		<AuthCtx.Provider value={auth}>
-			<App />
+			<Switch>
+				<Route path='/setup'>
+					<Setup />
+				</Route>
+
+				
+				<Route path='/'>
+					<App />
+				</Route>
+			</Switch>
 		</AuthCtx.Provider>
 	)
 }
