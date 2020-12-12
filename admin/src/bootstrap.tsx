@@ -1,3 +1,4 @@
+import React from 'react'
 import { useEffect, useMemo } from 'react'
 import { BrowserRouter, useHistory } from 'react-router-dom'
 import App from 'app'

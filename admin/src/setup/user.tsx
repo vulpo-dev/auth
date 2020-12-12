@@ -1,3 +1,4 @@
+import React from 'react'
 import { SyntheticEvent } from 'react'
 import styled from 'styled-components'
 import { useHistory } from 'react-router-dom'

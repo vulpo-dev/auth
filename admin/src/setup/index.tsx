@@ -1,3 +1,4 @@
+import React from 'react'
 import { Switch, Route, Redirect } from 'react-router-dom'
 import styled from 'styled-components'
 import { Main, Header as HeaderWrapper } from 'component/layout'

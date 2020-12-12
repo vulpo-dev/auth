@@ -41,7 +41,7 @@ impl Fairing for SecretConfig {
     fn info(&self) -> Info {
         Info {
             name: "App Secrets",
-            kind: Kind::Launch,
+            kind: Kind::Attach,
         }
     }
 

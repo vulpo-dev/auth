@@ -49,10 +49,10 @@
     "styled-components": "^5.2.1"
   },
   "dependencies": {
-    "@biotic-ui/button": "^0.3.4",
-    "@biotic-ui/input": "^0.3.4",
-    "@biotic-ui/leptons": "^0.3.4",
-    "@biotic-ui/std": "^0.3.0",
+    "@biotic-ui/button": "^0.3.7",
+    "@biotic-ui/input": "^0.3.9",
+    "@biotic-ui/leptons": "^0.3.7",
+    "@biotic-ui/std": "^0.3.1",
     "@riezler/auth-sdk": "0.0.1",
     "@riezler/auth-react": "0.0.1",
     "@types/react-router-dom": "^5.1.6"

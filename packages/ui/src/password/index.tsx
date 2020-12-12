@@ -1,7 +1,8 @@
+import React from 'react'
 import { SyntheticEvent, useState } from 'react'
 import styled from 'styled-components'
 import { Card, CardHeader, CardNav, CardTitle } from 'component/card'
-import { Input } from '@biotic-ui/input'
+import { Input, Password as PasswordInput } from '@biotic-ui/input'
 import { useForm, useQueryParams } from '@biotic-ui/std'
 import { Button, IconButton } from '@biotic-ui/button'
 import { useTranslation, useError } from 'context/translation'
@@ -72,7 +73,7 @@ export let Password = ({ onSubmit, onBack, ctx, loading, error }: Props) => {
 
 				<PasswordSection>
 					<Label>{t.label.password}</Label>
-					<Input
+					<PasswordInput
 						name='password'
 						type='password'
 						value={form.password}

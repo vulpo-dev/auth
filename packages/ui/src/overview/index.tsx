@@ -1,3 +1,4 @@
+import React from 'react'
 import styled from 'styled-components'
 import { Card } from 'component/card'
 import { OutlineButton, Button } from '@biotic-ui/button'

@@ -1,3 +1,4 @@
+import React from 'react'
 import { Fragment } from 'react'
 import styled from 'styled-components'
 import { HashRouter } from 'react-router-dom'

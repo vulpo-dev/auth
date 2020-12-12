@@ -1,3 +1,4 @@
+import React from 'react'
 import { Auth } from 'auth'
 import { Auth as AuthClient } from '@riezler/auth-react'
 import { HashRouter, Route, Redirect, Switch } from 'react-router-dom'

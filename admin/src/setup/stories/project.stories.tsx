@@ -1,3 +1,4 @@
+import React from 'react'
 import { Project } from 'setup/project'
 import { Header, Wrapper, Content } from 'setup'
 import { Story, Meta } from '@storybook/react/types-6-0';

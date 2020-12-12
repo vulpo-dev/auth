@@ -1,3 +1,4 @@
+import React from 'react'
 import { User, Props } from 'setup/user'
 import { Header, Wrapper, Content } from 'setup'
 import { Story, Meta } from '@storybook/react/types-6-0';
