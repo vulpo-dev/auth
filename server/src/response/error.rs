@@ -1,5 +1,5 @@
-use rocket::http::ContentType;
 use rocket::http::Status;
+use rocket::http::{ContentType, Cookie};
 use rocket::request::Request;
 use rocket::response::{self, Responder, Response};
 use serde::Serialize;
@@ -11,7 +11,7 @@ pub struct Message {
     pub code: ApiError,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, PartialEq, Copy, Clone)]
 pub enum ApiError {
     #[serde(rename = "internal_error")]
     InternalServerError,
@@ -92,12 +92,20 @@ impl ApiError {
 }
 
 impl<'r> Responder<'r, 'static> for ApiError {
-    fn respond_to(self, _: &'r Request<'_>) -> response::Result<'static> {
+    fn respond_to(self, req: &'r Request<'_>) -> response::Result<'static> {
         let status = self.get_status();
         let body = Message { code: self };
         let body = match serde_json::to_string(&body) {
             Ok(json) => json,
             Err(_) => return Response::build().status(Status::InternalServerError).ok(),
+        };
+
+        let cookies = req.cookies();
+        if self == ApiError::AuthRefreshTokenMissing
+            || self == ApiError::AuthRefreshTokenInvalidFormat
+            || self == ApiError::AuthRefreshTokenNotFound
+        {
+            cookies.remove(Cookie::named("refresh_token"))
         };
 
         Response::build()

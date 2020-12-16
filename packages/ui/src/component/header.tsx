@@ -1,7 +1,9 @@
 import React from 'react'
 import { useMemo } from 'react'
+import styled from 'styled-components'
 import { useRouteMatch, Link } from 'react-router-dom'
 import { useTranslation } from 'context/translation'
+import { CardHeader, CardTitle } from 'component/card'
 
 type Props = {
 	title: string | null,
@@ -12,12 +14,12 @@ type Props = {
 
 export let Header = ({ title, info, link, to }: Props) => {
 	return (
-		<header>
-			{ title && <h3>{title}</h3>}
+		<StyledHeader>
+			{ title && <Title>{title}</Title>}
 			{ info &&
-				<p>{info} { link && <Link to={`/${to}`}>{link}</Link>}</p>
+				<Info>{info} { link && <Link to={`/${to}`}>{link}</Link>}</Info>
 			}
-		</header>
+		</StyledHeader>
 	)
 }
 
@@ -45,6 +47,20 @@ let HeaderContainer = () => {
 
 export default HeaderContainer
 
+
+let Title = styled(CardTitle)`
+	line-height: 1;
+	margin-top: calc(var(--baseline) * -0.375);
+	margin-bottom: calc(var(--baseline) * 1.75);
+`
+
+let StyledHeader = styled(CardHeader)`
+	margin-bottom: calc(var(--baseline) * 4.125);
+`
+
+let Info = styled.p`
+	margin-bottom: 0;
+`
 
 function useTitle(type: string): string | null {
 	let t = useTranslation()
@@ -109,3 +125,4 @@ function useTo(type: string): string {
 		}
 	}, [type])
 }
+

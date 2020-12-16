@@ -24,7 +24,10 @@ export let Overview = () => {
 }
 
 let LinkButton = styled(Button)`
-	margin-bottom: calc(var(--baseline) * 1.5);
+	margin-bottom: var(--baseline);
+	height: var(--baseline-4);
 `
 
-let StyledOutline = styled(OutlineButton)``
+let StyledOutline = styled(OutlineButton)`
+	height: var(--baseline-4);
+`

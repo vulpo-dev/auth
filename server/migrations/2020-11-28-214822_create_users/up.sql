@@ -16,6 +16,11 @@ create table if not exists users
 	, unique(project_id, email)
 	);
 
-create index user_email_project_idx on users(email, project_id);
+create index user_email_idx on users using btree(email);
+create index user_created_at_idx on users using btree(created_at);
+create index user_project_idx on users using btree(project_id);
+
+create index user_traits_idx on users using gin(traits);
+create index user_data_idx on users using gin(data);
 
 select diesel_manage_updated_at('users');

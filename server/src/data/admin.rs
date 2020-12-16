@@ -11,10 +11,16 @@ use rocket::request::Outcome;
 use rocket::request::{self, FromRequest, Request};
 use rocket_contrib::databases::postgres::error::DbError;
 use rocket_contrib::databases::postgres::error::SqlState;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use serde_json::json;
 use serde_json::value::Value;
 use uuid::Uuid;
+
+#[derive(Debug, Serialize)]
+pub struct PartialProject {
+    pub id: Uuid,
+    pub name: String,
+}
 
 #[derive(Debug, Deserialize)]
 pub struct NewProject {
@@ -102,6 +108,27 @@ impl Admin {
                 None => Err(ApiError::InternalServerError),
             },
             Ok(row) => Ok(row.get("id")),
+        }
+    }
+
+    pub fn project_list<C: GenericClient>(client: &mut C) -> Result<Vec<PartialProject>, ApiError> {
+        let query = get_query("project/list")?;
+
+        let rows = client.query(query, &[]);
+
+        match rows {
+            Err(_err) => Err(ApiError::InternalServerError),
+            Ok(rows) => {
+                let projects = rows
+                    .iter()
+                    .map(|row| PartialProject {
+                        id: row.get("id"),
+                        name: row.get("name"),
+                    })
+                    .collect();
+
+                Ok(projects)
+            }
         }
     }
 

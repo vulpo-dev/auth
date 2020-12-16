@@ -20,7 +20,6 @@ export function useProject(): UseProject {
 
 	useEffect(() => {
 		axios.get<HasResponse>('/admin/__/project/has').then((res) => {
-			console.log(res.data)
 			if (mounted.current) {
 				setState(res.data.id)
 				setLoading(false)
@@ -55,7 +54,7 @@ export function useCreateProject(): UseCreateProject {
 	let setProjectId = useSetRecoilState(projectIdAtom)
 
 	useEffect(() => {
-		axios.post<CreateProject>('/admin/__/project/create').then(res => {
+		axios.post<CreateProject>('/admin/__/project/create_admin').then(res => {
 			if (mounted.current) {
 				let { id } = res.data
 				setState({ id, loading: false })

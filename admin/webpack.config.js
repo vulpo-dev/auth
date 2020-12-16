@@ -5,7 +5,7 @@ let ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin')
 let ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin')
 let TerserPlugin = require('terser-webpack-plugin')
 let OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin')
-let safePostCssParser = require('postcss-safe-parser')
+let safePostCssParser = require('postcss-safe-parser')  
 
 let webpackDevClientEntry = require.resolve(
   'react-dev-utils/webpackHotDevClient'
@@ -23,8 +23,18 @@ let src = path.resolve(cwd, 'src')
 module.exports = function createConfig (_, argv) {
   let isDevelopment = isDev(argv)
   console.log({ isDevelopment })
+
+  if (isDevelopment) {
+    // set terminal title
+    process.stdout.write(
+      String.fromCharCode(27) + ']0;' + 'Admin:9000' + String.fromCharCode(7)
+    )
+  }
+
   return {
-      entry: ['@babel/polyfill', path.resolve(src, 'index.tsx')]
+      entry: [ '@babel/polyfill'
+             , path.resolve(src, 'index.tsx')
+             ]
     , bail: !isDev
     , devServer:
         { contentBase: path.join(__dirname, 'build')
@@ -82,10 +92,18 @@ module.exports = function createConfig (_, argv) {
               , use: 
                   { loader: 'babel-loader'
                   , options: {
-                      rootMode: 'upward'
-                      , plugins:
-                          [ isDevelopment && require.resolve('react-refresh/babel')
+                        plugins:
+                          [ 'babel-plugin-styled-components'
+                          , "@babel/plugin-proposal-class-properties"
+                          , isDevelopment && require.resolve('react-refresh/babel')
                           ].filter(Boolean)
+
+                      , presets:
+                          [ '@babel/typescript'
+                          , [ '@babel/preset-react', { "runtime": "automatic" }]
+                          , [ '@babel/preset-env', { "targets": "last 2 versions" }]
+                          ]
+
                       , cacheDirectory: true
                       , cacheCompression: true
                       , compact: !isDevelopment,
@@ -134,6 +152,7 @@ module.exports = function createConfig (_, argv) {
               },
             },
           })
+        , isDevelopment && new ReactRefreshWebpackPlugin()
         ].filter(Boolean)
     } 
 }

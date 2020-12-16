@@ -59,7 +59,7 @@ export let Password = ({ onSubmit, onBack, ctx, loading, error }: Props) => {
 				<CardTitle>{t.password.title}</CardTitle>
 			</CardHeader>
 
-			<form onSubmit={handleSubmit}>
+			<Form onSubmit={handleSubmit}>
 				<Section>
 					<Label>{t.label.email}</Label>
 					<Input
@@ -95,7 +95,7 @@ export let Password = ({ onSubmit, onBack, ctx, loading, error }: Props) => {
 				{ error &&
 					<Error>{errorMessage}</Error>
 				}
-			</form>
+			</Form>
 
 			<Divider />
 
@@ -170,7 +170,8 @@ let Section = styled.section`
 `
 
 let PasswordSection = styled.section`
-	margin-bottom: var(--baseline-3);
+	margin-top: calc(var(--baseline) * -0.25); 
+	margin-bottom: calc(var(--baseline) * 2.625);
 	display: flex;
 	flex-direction: column;
 
@@ -188,7 +189,7 @@ let Divider = styled.hr`
 	height: 1px;
 	width: 100%;
 	margin-top: var(--baseline);
-	margin-bottom: var(--baseline-2);
+	margin-bottom: calc(var(--baseline) * 1.625);
 	background: var(--border-color);
 `
 
@@ -199,4 +200,9 @@ let ForgotPassword = styled(Link)`
 let Error = styled.p`
 	text-align: center;
 	color: var(--red);
+	margin-bottom: calc(var(--baseline) * 1.125);
+`
+
+let Form = styled.form`
+	margin-top: calc(var(--baseline) * -0.625);
 `

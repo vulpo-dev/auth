@@ -53,6 +53,7 @@ export class AuthClient {
 			throw new Error('signIn')
 		}
 
+		this.user.activate(user.id)
 		return user
 	}
 
@@ -70,6 +71,7 @@ export class AuthClient {
 			throw new Error('signIn')
 		}
 
+		this.user.activate(user.id)
 		return user
 	}
 

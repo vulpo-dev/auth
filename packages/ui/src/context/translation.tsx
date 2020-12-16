@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom'
 import { ErrorCode } from '@riezler/auth-sdk'
 
 type DisclaimerProps = { tos: string, privacy: string }
+type ResetProps = { email: string | null }; 
 
 type Translations = {
 	signin: {
@@ -27,6 +28,18 @@ type Translations = {
 		label: string;
 		title: string;
 		forgot: string;
+	};
+
+	reset_password: {
+		title: string;
+		info: string;
+		button: string;
+	};
+
+	reset_check_mail: {
+		title: string;
+		description: FC<ResetProps>;
+		info: string;
 	};
 
 	label: {
@@ -72,6 +85,25 @@ export let DefaultTranslation = {
 		label: 'Email and Password',
 		title: 'Email and Password',
 		forgot: 'Forgot Password?',
+	},
+
+	reset_check_mail: {
+		title: 'Reset link sent',
+		info: '(It might take a couple of minutes for the link to arrive)',
+		description: ({ email }: ResetProps) => {
+
+			if (email === null || email.trim() === '') {
+				return <p>We have send you an authentication link to your inbox for you to reset your password.</p>
+			}
+
+			return <p>We have send you an authentication link to <strong>{email}</strong> for you to reset your password.</p>
+		}
+	},
+
+	reset_password: {
+		title: 'Reset Password',
+		info: 'Enter your email address and we will send you a link to reset your password.',
+		button: 'Send Reset Password Link',
 	},
 
 	Disclaimer: ({ tos, privacy }: DisclaimerProps) => {

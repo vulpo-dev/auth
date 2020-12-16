@@ -1,5 +1,5 @@
 import React from 'react'
-import { useEffect } from 'react'
+import { useEffect, Suspense } from 'react'
 import styled from 'styled-components'
 import {
 	HashRouter,
@@ -7,30 +7,44 @@ import {
 	Switch,
 	Route,
 	NavLink,
-	Redirect
+	Redirect,
+	useHistory
 } from 'react-router-dom'
 import { Tabs, TabBar, Tab } from 'component/tabs';
-
+import { useProjects } from 'data/project'
 
 function Dashboard() {
+	let history = useHistory()
+	let [projects] = useProjects()
+	let match = useRouteMatch<{ project: string }>('/:project')
+	let project = match?.params?.project ?? ''
+
+	useEffect(() => {
+		if (project !== '' || !projects) {
+			return
+		}
+
+		if (projects.length === 0) {
+			return
+		}
+
+		let [{ id }] = projects
+		history.replace(`/${id}`)
+	}, [project, projects])
+
 	return (
 		<Tabs>
 			<TabBar>
-				<Tab to='/one'>
-					<span>Project One</span>
-				</Tab>
-				<Tab to='/two'>
-					<span>Project Two</span>
-				</Tab>
-				<Tab to='/three'>
-					<span>Project Three</span>
-				</Tab>
-				<Tab to='/four'>
-					<span>Project Four</span>
-				</Tab>
+				{ projects && projects.map(project => 
+					<Tab key={project.id} to={`/${project.id}`}>
+						<span>{project.name}</span>
+					</Tab>
+				) }
 			</TabBar>
-
-			<Main />
+			
+			{ projects &&
+				<Main />
+			}
 		</Tabs>
 	)
 }
@@ -38,7 +52,9 @@ function Dashboard() {
 export default function DashboardContainer() {
 	return (
 		<HashRouter>
-			<Dashboard />
+			<Suspense fallback={<p>...loading</p>}>
+				<Dashboard />
+			</Suspense>
 		</HashRouter>
 	)
 }

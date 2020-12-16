@@ -96,14 +96,13 @@ export class Tokens {
 
 		let [token] = tokens
 
-		let expireIn = token ? token.expire_in : 0
+		let expireIn = token ? token.expires_in : 0
 
 		let threshold = 30 //seconds
 		let expiresIn = new Date()
 		let now = expiresIn.getSeconds()
 		let expire = now + expireIn - threshold
 		expiresIn.setSeconds(expire)
-
 		this.expireIn = expiresIn	
 	}
 }

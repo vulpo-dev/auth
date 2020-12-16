@@ -36,7 +36,8 @@ export default {
 	  			null,
 	  			ErrorCode.InternalServerError,
 	  			ErrorCode.InvalidEmailPassword,
-	  			ErrorCode.AuthPasswordLength,
+	  			ErrorCode.PasswordMinLength,
+	  			ErrorCode.PasswordMaxLength,
 	  			ErrorCode.NotAllowed,
 	  			ErrorCode.Unavailable,
 	  		]

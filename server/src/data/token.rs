@@ -107,17 +107,6 @@ impl AccessToken {
         AccessToken(claims)
     }
 
-    pub fn to_jwt(&self) -> Result<String, ApiError> {
-        match encode(
-            &Header::default(),
-            &self.0,
-            &EncodingKey::from_secret("secret".as_ref()),
-        ) {
-            Ok(token) => Ok(token),
-            Err(_) => Err(ApiError::InternalServerError),
-        }
-    }
-
     pub fn to_jwt_rsa(&self, key: &String) -> Result<String, ApiError> {
         let key = key.as_bytes();
         let encodeing_key = match EncodingKey::from_rsa_pem(key) {

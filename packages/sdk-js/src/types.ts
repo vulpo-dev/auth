@@ -10,7 +10,7 @@ export enum ApiError {
 export type Token = {
 	access_token: string,
 	refresh_token: string,
-	expire_in: number
+	expires_in: number
 }
 
 export type TokenResponse = {

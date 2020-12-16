@@ -5,7 +5,6 @@ use rocket::Route;
 use std::path::PathBuf;
 
 mod create;
-mod create_project;
 mod create_user;
 mod has_admin;
 mod project;
@@ -45,9 +44,10 @@ pub fn routes() -> Vec<Route> {
         create::handler,
         create::create_once,
         create_user::handler,
-        create_project::handler,
         has_admin::handler,
         project::has,
-        project::create
+        project::create_admin,
+        project::create,
+        project::list,
     ]
 }

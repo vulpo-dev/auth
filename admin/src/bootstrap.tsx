@@ -8,6 +8,7 @@ import {
 } from 'react-router-dom'
 import App from 'app'
 import { useProject, projectIdAtom } from 'data/admin'
+import { Http } from 'data/http'
 import { RecoilRoot, useSetRecoilState } from 'recoil'
 import { Auth as AuthCtx } from '@riezler/auth-react'
 import { Auth } from '@riezler/auth-sdk'
@@ -47,16 +48,18 @@ let Bootstrap = () => {
 
 	return (
 		<AuthCtx.Provider value={auth}>
-			<Switch>
-				<Route path='/setup'>
-					<Setup />
-				</Route>
+			<Http auth={auth} project={project}>
+				<Switch>
+					<Route path='/setup'>
+						<Setup />
+					</Route>
 
-				
-				<Route path='/'>
-					<App />
-				</Route>
-			</Switch>
+					
+					<Route path='/'>
+						<App />
+					</Route>
+				</Switch>
+			</Http>
 		</AuthCtx.Provider>
 	)
 }

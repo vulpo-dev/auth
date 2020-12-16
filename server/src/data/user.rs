@@ -8,6 +8,7 @@ use rocket_contrib::databases::postgres::error::DbError;
 use rocket_contrib::databases::postgres::Row;
 use serde::{Deserialize, Serialize};
 use serde_json::value::Value;
+use std::str::FromStr;
 use uuid::Uuid;
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
@@ -155,4 +156,128 @@ impl User {
             },
         }
     }
+
+    pub fn list<C: GenericClient>(
+        client: &mut C,
+        project: &Uuid,
+        order_by: &UserOrder,
+        direction: SortDirection,
+        offset: i64,
+        limit: i64,
+    ) -> Result<Vec<PartialUser>, ApiError> {
+        let query = get_query("user/list")?;
+        let direction = direction.to_string();
+        let query = query.replace(":direction", &direction);
+
+        let rows = client.query(
+            query.as_str(),
+            &[&project, &order_by.to_string(), &offset, &limit],
+        );
+
+        let rows = match rows {
+            Err(err) => {
+                println!("{:?}", err);
+                return Err(ApiError::InternalServerError);
+            }
+            Ok(rows) => rows,
+        };
+
+        let users: Vec<PartialUser> = rows
+            .iter()
+            .map(|row| PartialUser {
+                id: row.get("id"),
+                email: row.get("email"),
+                email_verified: row.get("email_verified"),
+                provider_id: row.get("provider_id"),
+                created_at: row.get("created_at"),
+            })
+            .collect();
+
+        Ok(users)
+    }
+
+    pub fn total<C: GenericClient>(client: &mut C, project: &Uuid) -> Result<TotalUsers, ApiError> {
+        let query = get_query("user/total")?;
+
+        let row = client.query_one(query, &[&project]);
+
+        let row = match row {
+            Err(_) => return Err(ApiError::InternalServerError),
+            Ok(count) => count,
+        };
+
+        Ok(TotalUsers {
+            total_users: row.get("total_users"),
+        })
+    }
+}
+
+pub enum SortDirection {
+    Asc,
+    Desc,
+}
+
+impl ToString for SortDirection {
+    fn to_string(&self) -> String {
+        match self {
+            SortDirection::Asc => String::from("asc"),
+            SortDirection::Desc => String::from("desc"),
+        }
+    }
+}
+
+impl FromStr for SortDirection {
+    type Err = ParamError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.trim() {
+            "asc" => Ok(SortDirection::Asc),
+            "desc" => Ok(SortDirection::Desc),
+            _ => Err(ParamError::InvalidOption),
+        }
+    }
+}
+
+pub enum UserOrder {
+    CreatedAt,
+    Email,
+}
+
+impl ToString for UserOrder {
+    fn to_string(&self) -> String {
+        match self {
+            UserOrder::CreatedAt => String::from("created_at"),
+            UserOrder::Email => String::from("email"),
+        }
+    }
+}
+
+impl FromStr for UserOrder {
+    type Err = ParamError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.trim() {
+            "created_at" => Ok(UserOrder::CreatedAt),
+            "email" => Ok(UserOrder::Email),
+            _ => Err(ParamError::InvalidOption),
+        }
+    }
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+pub struct PartialUser {
+    id: Uuid,
+    email: String,
+    email_verified: bool,
+    provider_id: String,
+    created_at: DateTime<Utc>,
+}
+
+pub enum ParamError {
+    InvalidOption,
+}
+
+#[derive(Serialize)]
+pub struct TotalUsers {
+    pub total_users: i64,
 }

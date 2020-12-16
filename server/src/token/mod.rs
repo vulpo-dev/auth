@@ -1,6 +1,8 @@
+use crate::data::keys::ProjectKeys;
 use crate::data::token::{AccessToken, RefreshToken};
 use crate::data::user::User;
 use crate::data::AuthDb;
+use crate::project::Project;
 use crate::response::error::ApiError;
 use crate::response::token::Token;
 use chrono::{Duration, Utc};
@@ -9,7 +11,11 @@ use rocket::Route;
 use uuid::Uuid;
 
 #[post("/refresh")]
-pub async fn refresh(conn: AuthDb, cookies: &CookieJar<'_>) -> Result<Token, ApiError> {
+pub async fn refresh(
+    conn: AuthDb,
+    project: Project,
+    cookies: &CookieJar<'_>,
+) -> Result<Token, ApiError> {
     let cookie = match cookies.get("refresh_token") {
         Some(token) => token,
         None => return Err(ApiError::AuthRefreshTokenMissing),
@@ -54,10 +60,14 @@ pub async fn refresh(conn: AuthDb, cookies: &CookieJar<'_>) -> Result<Token, Api
 
     let ids = users.iter().map(|u| u.id).collect::<Vec<Uuid>>();
 
+    let private_key = conn
+        .run(move |client| ProjectKeys::get_private_key(client, &project.id))
+        .await?;
+
     let tokens = users
         .iter()
         .map(|user| AccessToken::new(&user))
-        .flat_map(|token| token.to_jwt())
+        .flat_map(|token| token.to_jwt_rsa(&private_key))
         .collect::<Vec<String>>();
 
     Ok(Token {
