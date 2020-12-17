@@ -264,8 +264,7 @@ impl<'a, 'r> FromRequest<'a, 'r> for Admin {
         let token = &token_string[start..end];
         let claims = match AccessToken::from_rsa(token.to_string(), &key) {
             Ok(token) => token,
-            Err(err) => {
-                println!("{:?}", err);
+            Err(_) => {
                 return Outcome::Failure((Status::BadRequest, ApiError::BadRequest));
             }
         };

@@ -78,6 +78,18 @@ pub enum ApiError {
 
     #[serde(rename = "token/generate")]
     TokenGenerate,
+
+    #[serde(rename = "reset/invalid_token")]
+    ResetInvalidToken,
+
+    #[serde(rename = "reset/token_not_found")]
+    ResetTokenNotFound,
+
+    #[serde(rename = "reset/expired")]
+    ResetExpired,
+
+    #[serde(rename = "reset/password_mismatch")]
+    ResetPasswordMismatch,
 }
 
 impl ApiError {

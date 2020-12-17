@@ -3,7 +3,8 @@ import { IconButton } from '@biotic-ui/button'
 
 export let Card = styled.div`
 	background: var(--card-background, #fff);
-	width: calc(var(--baseline) * 50);
+	width: 25rem;
+	max-width: 98vw;
 	min-height: calc(var(--baseline) * 25);
 	border-radius: var(--baseline);
 	box-shadow: var(--shadow-4);

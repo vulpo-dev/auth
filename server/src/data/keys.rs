@@ -109,10 +109,7 @@ impl ProjectKeys {
         );
 
         match row {
-            Err(err) => {
-                println!("{:?}", err);
-                Err(ApiError::InternalServerError)
-            }
+            Err(_) => Err(ApiError::InternalServerError),
 
             Ok(row) => Ok(row.get("id")),
         }

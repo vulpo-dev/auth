@@ -89,10 +89,8 @@ impl User {
             Err(_) => return Err(ApiError::InternalServerError),
         };
 
-        println!("{:?}", users);
         let rows = match client.query(query, &[&users, &project]) {
-            Err(err) => {
-                println!("{:?}", err);
+            Err(_) => {
                 return Err(ApiError::NotFound);
             }
             Ok(rows) => rows,
@@ -157,6 +155,26 @@ impl User {
         }
     }
 
+    pub fn set_password<C: GenericClient>(
+        client: &mut C,
+        user_id: Uuid,
+        password: String,
+    ) -> Result<(), ApiError> {
+        let query = get_query("user/set_password")?;
+
+        let password = match hash(password.clone(), DEFAULT_COST) {
+            Err(_) => return Err(ApiError::InternalServerError),
+            Ok(hashed) => hashed,
+        };
+
+        let res = client.query(query, &[&user_id, &password]);
+
+        match res {
+            Err(_) => Err(ApiError::InternalServerError),
+            Ok(_) => Ok(()),
+        }
+    }
+
     pub fn list<C: GenericClient>(
         client: &mut C,
         project: &Uuid,
@@ -175,8 +193,7 @@ impl User {
         );
 
         let rows = match rows {
-            Err(err) => {
-                println!("{:?}", err);
+            Err(_) => {
                 return Err(ApiError::InternalServerError);
             }
             Ok(rows) => rows,

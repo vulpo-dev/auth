@@ -73,10 +73,7 @@ impl RefreshToken {
 
         let row = client.query_one(query, &[&expire, &project, &users]);
         match row {
-            Err(err) => {
-                println!("{:?}", err);
-                Err(ApiError::TokenGenerate)
-            }
+            Err(_) => Err(ApiError::TokenGenerate),
             Ok(row) => Ok(row.get("token_id")),
         }
     }
@@ -111,8 +108,7 @@ impl AccessToken {
         let key = key.as_bytes();
         let encodeing_key = match EncodingKey::from_rsa_pem(key) {
             Ok(key) => key,
-            Err(err) => {
-                println!("key error: {:?}", err);
+            Err(_) => {
                 return Err(ApiError::InternalServerError);
             }
         };
@@ -120,26 +116,21 @@ impl AccessToken {
         let header = Header::new(Algorithm::RS256);
         match encode(&header, &self.0, &encodeing_key) {
             Ok(token) => Ok(token),
-            Err(err) => {
-                println!("encode error: {:?}", err);
-                Err(ApiError::InternalServerError)
-            }
+            Err(_) => Err(ApiError::InternalServerError),
         }
     }
 
     pub fn from_rsa(token: String, key: &String) -> Result<Claims, ApiError> {
         let decodeing_key = match DecodingKey::from_rsa_pem(key.as_bytes()) {
             Ok(key) => key,
-            Err(err) => {
-                println!("decoding key error: {:?}", err);
+            Err(_) => {
                 return Err(ApiError::InternalServerError);
             }
         };
 
         match decode::<Claims>(&token, &decodeing_key, &Validation::new(Algorithm::RS256)) {
             Ok(token_data) => Ok(token_data.claims),
-            Err(err) => {
-                println!("decoding error: {:?}", err);
+            Err(_) => {
                 return Err(ApiError::InternalServerError);
             }
         }
