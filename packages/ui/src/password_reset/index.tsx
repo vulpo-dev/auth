@@ -3,7 +3,7 @@ import { SyntheticEvent } from 'react'
 import styled from 'styled-components'
 import { Card, CardHeader, CardNav, CardTitle } from 'component/card'
 import { Input } from '@biotic-ui/input'
-import { Label } from 'component/text'
+import { Label, Error } from 'component/text'
 import { useForm } from '@biotic-ui/std'
 import { useTranslation, useError } from 'context/translation'
 import { useConfig } from 'context/config'
@@ -86,11 +86,5 @@ let Title = styled(CardTitle)`
 `
 
 let Subtitle = styled.p`
-	margin-bottom: 0;
-`
-
-let Error = styled.p`
-	text-align: center;
-	color: var(--red);
 	margin-bottom: 0;
 `

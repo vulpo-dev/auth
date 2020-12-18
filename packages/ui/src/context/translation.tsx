@@ -7,6 +7,26 @@ import { ErrorCode } from '@riezler/auth-sdk'
 type DisclaimerProps = { tos: string, privacy: string }
 type ResetProps = { email: string | null }; 
 
+export type ErrorMessage = {
+	/* Sign Up */
+	password_min_length: string;
+	password_max_length: string;
+	
+	/* Password Reset */
+	password_mismatch: string;
+	reset_token_expire: string;
+	reset_token_invalid: string;
+	reset_token_not_found: string;
+
+	/* Sign In */
+	invalid_email_password: string;
+	
+	/* General */
+	generic: string;
+	not_allowed: string;
+	unavailable: string;
+}
+
 type Translations = {
 	signin: {
 		title: string;
@@ -36,6 +56,13 @@ type Translations = {
 		button: string;
 	};
 
+	set_password: {
+		title: string;
+		new_password: string;
+		repeat_password: string;
+		button_label: string;
+	};
+
 	reset_check_mail: {
 		title: string;
 		description: FC<ResetProps>;
@@ -49,14 +76,7 @@ type Translations = {
 
 	Disclaimer: FC<DisclaimerProps>;
 
-	error: {
-		password_min_length: string;
-		password_max_length: string;
-		invalid_email_password: string;
-		generic: string;
-		not_allowed: string;
-		unavailable: string;
-	};
+	error: ErrorMessage;
 }
 
 export let DefaultTranslation = {
@@ -106,6 +126,13 @@ export let DefaultTranslation = {
 		button: 'Send Reset Password Link',
 	},
 
+	set_password: {
+		title: 'Set New Password',
+		new_password: 'New Password',
+		repeat_password: 'Repeat Password',
+		button_label: 'Reset Password',
+	},
+
 	Disclaimer: ({ tos, privacy }: DisclaimerProps) => {
 		return (
 			<small>
@@ -117,10 +144,17 @@ export let DefaultTranslation = {
 	error: {
 		password_min_length: 'Your password should be at least 8 characters long',
 		password_max_length: 'Your password cannot be longer than 64 characters',
+		
+		password_mismatch: 'Repeated password does not match the entered password',
+		reset_token_expire: 'Reset Token is expired',
+		reset_token_invalid: 'Reset Token is invalid',
+		reset_token_not_found: 'Reset Token not found',
+
 		invalid_email_password: 'Invalid Email or Password',
+		
 		generic: 'Something went wrong',
 		not_allowed: 'Not Allowed',
-		unavailable: 'Authentication Service Unavailable',
+		unavailable: 'Authentication Service is Unavailable',
 	}
 }
 
@@ -149,6 +183,18 @@ export function useError(code: ErrorCode | null): string | null {
 
 			case ErrorCode.NotAllowed:
 				return t.error.not_allowed
+
+			case ErrorCode.ResetPasswordMismatch:
+				return t.error.password_mismatch
+
+			case ErrorCode.ResetInvalidToken:
+				return t.error.reset_token_invalid
+
+			case ErrorCode.ResetTokenNotFound:
+				return t.error.reset_token_not_found
+
+			case ErrorCode.ResetExpired:
+				return t.error.reset_token_expire
 
 			default:
 				return t.error.generic

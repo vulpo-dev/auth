@@ -1,6 +1,7 @@
 use crate::data::password_reset::PasswordReset;
 use crate::data::user::User;
 use crate::data::AuthDb;
+use crate::password::validate_password_length;
 use crate::project::Project;
 use crate::response::error::ApiError;
 
@@ -65,6 +66,8 @@ pub async fn password_reset(
     if body.password1 != body.password2 {
         return Err(ApiError::ResetPasswordMismatch);
     }
+
+    validate_password_length(&body.password1)?;
 
     let id = body.id;
     let reset = conn

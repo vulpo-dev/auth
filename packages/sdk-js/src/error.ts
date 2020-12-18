@@ -15,7 +15,12 @@ export enum ErrorCode {
 	AuthRefreshTokenNotFound = 'auth/refresh_token_not_found',
 	AuthRefreshTokenInvalidFormat = 'auth/refresh_token_invalid_format',
 	InvalidEmailPassword = 'auth/invalid_email_password',
-	TokenGenerate = 'token/generate'
+	TokenGenerate = 'token/generate',
+
+	ResetInvalidToken = 'reset/invalid_token',
+	ResetTokenNotFound = 'reset/token_not_found',
+	ResetExpired = 'reset/expired',
+	ResetPasswordMismatch = 'reset/password_mismatch',
 }
 
 type ErrorResponse = {
@@ -45,6 +50,10 @@ export class ApiError {
 			case ErrorCode.AuthRefreshTokenInvalidFormat:
 			case ErrorCode.TokenGenerate:
 			case ErrorCode.InvalidEmailPassword:
+			case ErrorCode.ResetInvalidToken:
+			case ErrorCode.ResetTokenNotFound:
+			case ErrorCode.ResetExpired:
+			case ErrorCode.ResetPasswordMismatch:
 				return new AuthError(res.response.data.code)
 
 			default:

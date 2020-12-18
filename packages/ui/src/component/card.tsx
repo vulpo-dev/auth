@@ -15,7 +15,7 @@ export let Card = styled.div`
 `
 
 export let CardHeader = styled.header`
-	margin-bottom: var(--baseline-2);
+	margin-bottom: calc(var(--baseline) * 2.375);
 `
 
 export let CardTitle = styled.h3`

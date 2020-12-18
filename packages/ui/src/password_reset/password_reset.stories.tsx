@@ -9,6 +9,7 @@ import { ErrorCode } from '@riezler/auth-sdk'
 
 import { PasswordReset, Props } from 'password_reset'
 import { CheckReset } from 'password_reset/check'
+import { SetPassword, Props as SetPasswordProps } from 'password_reset/set_password'
 
 export default {
 	title: 'Password Reset',
@@ -91,4 +92,53 @@ CheckEmail.argTypes = {
 			type: 'text'
 		}
 	},
+}
+
+let NewPassword: Story<SetPasswordProps> = (args) => {
+	return (
+		<AuthConfig.Provider value={DefaultConfig}>
+			<Translation.Provider value={DefaultTranslation}>
+				<HashRouter>
+					<Switch>
+
+						<Route path='/signin/set_password'>
+							<Container>
+								<SetPassword {...args} />
+							</Container>
+						</Route>
+
+						<Redirect to='/signin/set_password' />
+					</Switch>
+				</HashRouter>
+			</Translation.Provider>
+		</AuthConfig.Provider>
+	)
+}
+
+export let SetNewPassword = NewPassword.bind({})
+
+SetNewPassword.argTypes = {
+	error: {
+		defaultValue: null,
+		control: {
+			type: 'select',
+			options: [
+				null,
+				ErrorCode.InternalServerError,
+				ErrorCode.NotAllowed,
+				ErrorCode.Unavailable,
+				ErrorCode.ResetInvalidToken,
+				ErrorCode.ResetTokenNotFound,
+				ErrorCode.ResetExpired,
+				ErrorCode.ResetPasswordMismatch,
+			]
+		}
+	},
+	loading: {
+		defaultValue: false,
+		control: {
+			type: 'boolean'
+		}
+	},
+	onSubmit: { action: 'reset password' },
 }

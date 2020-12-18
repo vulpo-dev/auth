@@ -12,6 +12,7 @@ import { Label } from 'component/text'
 import { Disclaimer } from 'component/disclaimer'
 import { ErrorCode } from '@riezler/auth-sdk'
 import { useAuth } from '@riezler/auth-react'
+import { checkPasswordLength } from 'utils'
 
 type UserForm = {
 	email: string,
@@ -35,6 +36,12 @@ export let Password = ({ onSubmit, onBack, ctx, loading, error }: Props) => {
 	})
 
 	let t = useTranslation()
+
+	function setPassword(e: SyntheticEvent) {
+		let target = (e.target as HTMLInputElement)
+		checkPasswordLength(target, t.error)
+		setForm(e)
+	}
 
 	function handleSubmit(e: SyntheticEvent) {
 		e.preventDefault()
@@ -77,7 +84,7 @@ export let Password = ({ onSubmit, onBack, ctx, loading, error }: Props) => {
 						name='password'
 						type='password'
 						value={form.password}
-						onChange={setForm}
+						onChange={setPassword}
 						required
 					/>
 					{	
@@ -170,8 +177,7 @@ let Section = styled.section`
 `
 
 let PasswordSection = styled.section`
-	margin-top: calc(var(--baseline) * -0.25); 
-	margin-bottom: calc(var(--baseline) * 2.625);
+	margin-bottom: calc(var(--baseline) * 2.5);
 	display: flex;
 	flex-direction: column;
 
