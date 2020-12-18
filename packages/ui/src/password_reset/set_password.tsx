@@ -76,8 +76,9 @@ export let SetPassword: FC<Props> = ({
 
 			<form onSubmit={handleSubmit}>
 				<Section>
-					<Label>{t.set_password.new_password}</Label>
+					<Label htmlFor="password1">{t.set_password.new_password}</Label>
 					<Password
+						id="password1"
 						name='password1'
 						value={form.password1}
 						onChange={setPassword1}
@@ -86,8 +87,9 @@ export let SetPassword: FC<Props> = ({
 					/>
 				</Section>
 				<Section>
-					<Label>{t.set_password.repeat_password}</Label>
+					<Label htmlFor="password2">{t.set_password.repeat_password}</Label>
 					<Password
+						id="password2"
 						name='password2'
 						value={form.password2}
 						onChange={setPassword2}

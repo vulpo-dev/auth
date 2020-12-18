@@ -31,4 +31,8 @@ export let CardNav = styled.nav`
 	${IconButton} {
 		margin-right: var(--baseline);
 	}
+
+	label {
+		margin: 0;
+	}
 `

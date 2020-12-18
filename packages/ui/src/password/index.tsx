@@ -58,18 +58,19 @@ export let Password = ({ onSubmit, onBack, ctx, loading, error }: Props) => {
 		<Card>
 			<CardHeader>
 				<CardNav>
-					<IconButton onClick={() => onBack()}>
+					<IconButton id="back" aria-label={button} onClick={() => onBack()}>
 						{ config.Arrow }
 					</IconButton>
-					<span>{button}</span>
+					<label htmlFor="back">{button}</label>
 				</CardNav>
 				<CardTitle>{t.password.title}</CardTitle>
 			</CardHeader>
 
 			<Form onSubmit={handleSubmit}>
 				<Section>
-					<Label>{t.label.email}</Label>
+					<Label htmlFor="email">{t.label.email}</Label>
 					<Input
+						id="email"
 						name='email'
 						type='email'
 						value={form.email}
@@ -79,8 +80,9 @@ export let Password = ({ onSubmit, onBack, ctx, loading, error }: Props) => {
 				</Section>
 
 				<PasswordSection>
-					<Label>{t.label.password}</Label>
+					<Label htmlFor="password">{t.label.password}</Label>
 					<PasswordInput
+						id="password"
 						name='password'
 						type='password'
 						value={form.password}

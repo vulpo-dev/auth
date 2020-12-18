@@ -40,10 +40,10 @@ export let PasswordReset: React.FC<Props> = ({
 	return (
 		<Card>
 			<CardNav>
-				<IconButton onClick={() => onBack()}>
+				<IconButton id="back" aria-label={t.signin.label} onClick={() => onBack()}>
 					{ config.Arrow }
 				</IconButton>
-				<span>{t.signin.label}</span>
+				<label htmlFor="back">{t.signin.label}</label>
 			</CardNav>
 			<CardHeader>
 				<Title>{t.reset_password.title}</Title>
@@ -51,11 +51,12 @@ export let PasswordReset: React.FC<Props> = ({
 			</CardHeader>
 			<form onSubmit={handleSubmit}>
 				<Section>
-					<Label>{t.label.email}</Label>
+					<Label htmlFor="email">{t.label.email}</Label>
 					<Input
-						disabled={loading}
+						id="email"
 						name='email'
 						type='email'
+						disabled={loading}
 						value={form.email}
 						onChange={setForm}
 						required
