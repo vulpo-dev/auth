@@ -77,15 +77,15 @@ export let PasswordReset: React.FC<Props> = ({
 
 
 let Section = styled.section`
-	margin-bottom: var(--baseline-2);
+	margin-block-end: var(--baseline-2);
 	display: flex;
 	flex-direction: column;
 `
 
 let Title = styled(CardTitle)`
-	margin-bottom: calc(var(--baseline) * 0.625);
+	margin-block-end: calc(var(--baseline) * 0.625);
 `
 
 let Subtitle = styled.p`
-	margin-bottom: 0;
+	margin-block-end: 0;
 `

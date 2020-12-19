@@ -115,15 +115,15 @@ export let SetPassword: FC<Props> = ({
 
 let Title = styled(CardTitle)`
 	line-height: 1;
-	margin-top: calc(var(--baseline) * -0.375);
+	margin-block-start: calc(var(--baseline) * -0.375);
 `
 
 let Header = styled(CardHeader)`
-	margin-bottom: calc(var(--baseline) * 2.75);
+	margin-block-end: calc(var(--baseline) * 2.75);
 `
 
 let Section = styled.section`
-	margin-bottom: var(--baseline-2);
+	margin-block-end: var(--baseline-2);
 	display: flex;
 	flex-direction: column;
 `

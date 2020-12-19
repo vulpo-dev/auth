@@ -168,23 +168,20 @@ let PasswordContainer = () => {
 
 export default PasswordContainer
 
-let StyledButton = styled(Button)`
-	margin-left: auto;
-`
 
 let Section = styled.section`
-	margin-bottom: var(--baseline-2);
+	margin-block-end: var(--baseline-2);
 	display: flex;
 	flex-direction: column;
 `
 
 let PasswordSection = styled.section`
-	margin-bottom: calc(var(--baseline) * 2.5);
+	margin-block-end: calc(var(--baseline) * 2.5);
 	display: flex;
 	flex-direction: column;
 
 	input {
-		margin-bottom: var(--baseline-half);
+		margin-block-end: var(--baseline-half);
 	}
 `
 
@@ -196,21 +193,21 @@ let Divider = styled.hr`
 	border: 0;
 	height: 1px;
 	width: 100%;
-	margin-top: var(--baseline);
-	margin-bottom: calc(var(--baseline) * 1.625);
+	margin-block-start: var(--baseline);
+	margin-block-end: calc(var(--baseline) * 1.625);
 	background: var(--border-color);
 `
 
 let ForgotPassword = styled(Link)`
-	margin-left: auto;
+	margin-inline-start: auto;
 `
 
 let Error = styled.p`
 	text-align: center;
 	color: var(--red);
-	margin-bottom: calc(var(--baseline) * 1.125);
+	margin-block-end: calc(var(--baseline) * 1.125);
 `
 
 let Form = styled.form`
-	margin-top: calc(var(--baseline) * -0.625);
+	margin-block-start: calc(var(--baseline) * -0.625);
 `

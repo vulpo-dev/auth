@@ -50,16 +50,16 @@ export default HeaderContainer
 
 let Title = styled(CardTitle)`
 	line-height: 1;
-	margin-top: calc(var(--baseline) * -0.375);
-	margin-bottom: calc(var(--baseline) * 1.75);
+	margin-block-start: calc(var(--baseline) * -0.375);
+	margin-block-end: calc(var(--baseline) * 1.75);
 `
 
 let StyledHeader = styled(CardHeader)`
-	margin-bottom: calc(var(--baseline) * 4.125);
+	margin-block-end: calc(var(--baseline) * 4.125);
 `
 
 let Info = styled.p`
-	margin-bottom: 0;
+	margin-block-end: 0;
 `
 
 function useTitle(type: string): string | null {

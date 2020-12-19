@@ -24,10 +24,10 @@ export let Overview = () => {
 }
 
 let LinkButton = styled(Button)`
-	margin-bottom: var(--baseline);
-	height: var(--baseline-4);
+	margin-block-end: var(--baseline);
+	block-size: var(--baseline-4);
 `
 
 let StyledOutline = styled(OutlineButton)`
-	height: var(--baseline-4);
+	block-size: var(--baseline-4);
 `
