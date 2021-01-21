@@ -1,5 +1,5 @@
 import React from 'react'
-import { useEffect, Suspense } from 'react'
+import { useEffect, Suspense, useState } from 'react'
 import styled from 'styled-components'
 import {
 	HashRouter,
@@ -10,14 +10,23 @@ import {
 	Redirect,
 	useHistory
 } from 'react-router-dom'
-import { Tabs, TabBar, Tab } from 'component/tabs';
-import { useProjects } from 'data/project'
+import { Tabs, TabBar, Tab } from 'component/tabs'
+import { useProjects, PartialProject } from 'data/project'
+import { useUsers } from 'data/user'
+import { AddButton, CloseButton } from 'component/button'
+import CreateProject from 'component/create_project'
+import { Drawer } from '@biotic-ui/drawer'
+import { Scrollbar } from '@biotic-ui/leptons'
+
+import Users from 'dashboard/component/users'
 
 function Dashboard() {
 	let history = useHistory()
 	let [projects] = useProjects()
 	let match = useRouteMatch<{ project: string }>('/:project')
 	let project = match?.params?.project ?? ''
+
+	let [create, setCreate] = useState(false)
 
 	useEffect(() => {
 		if (project !== '' || !projects) {
@@ -32,19 +41,33 @@ function Dashboard() {
 		history.replace(`/${id}`)
 	}, [project, projects])
 
+
+	function handleProjectCreated(project: PartialProject) {
+		setCreate(false)
+		history.push(`/${project.id}`)
+	}
+
 	return (
 		<Tabs>
 			<TabBar>
-				{ projects && projects.map(project => 
-					<Tab key={project.id} to={`/${project.id}`}>
-						<span>{project.name}</span>
-					</Tab>
-				) }
+				<TabsWrapper>
+					{ projects && projects.map(project => 
+						<Tab key={project.id} to={`/${project.id}`}>
+							<span>{project.name}</span>
+						</Tab>
+					) }
+				</TabsWrapper>
+				<StyledAddButton onClick={() => setCreate(true)} />
 			</TabBar>
 			
 			{ projects &&
 				<Main />
 			}
+
+			<Drawer open={create} left={false} maxWidth={600} onClose={() => setCreate(false)}>
+				<StyledCloseButton onClick={() => setCreate(false) } />
+				<CreateProject onSuccess={handleProjectCreated} />
+			</Drawer>
 		</Tabs>
 	)
 }
@@ -64,27 +87,46 @@ let Main = () => {
 	let project = match?.params?.project ?? ''
 	let base = `/${project}`
 
+	useUsers(project)
+
 	return (
 		<Wrapper>
-			<div>
-				<Bar>				
-					<Switch>
-						<Route path={`${base}/users`}>
-							<h3>Users</h3>
-						</Route>
-						<Route path={`${base}/methods`}>
-							<h3>Sign In Methods</h3>
-						</Route>
-						<Route path={`${base}/templates`}>
-							<h3>Templates</h3>
-						</Route>
-						<Route path={`${base}/settings`}>
-							<h3>Settings</h3>
-						</Route>
-						<Redirect from={base} to={`${base}/users`} />
-					</Switch>
-				</Bar>
-			</div>
+			<Bar>				
+				<Switch>
+					<Route path={`${base}/users`}>
+						<h3>Users</h3>
+					</Route>
+					<Route path={`${base}/methods`}>
+						<h3>Sign In Methods</h3>
+					</Route>
+					<Route path={`${base}/templates`}>
+						<h3>Templates</h3>
+					</Route>
+					<Route path={`${base}/settings`}>
+						<h3>Settings</h3>
+					</Route>
+					<Redirect from={base} to={`${base}/users`} />
+				</Switch>
+			</Bar>
+
+			<Content>
+				<Switch>
+					<Route path={`${base}/users`}>
+						<Users />
+					</Route>
+					<Route path={`${base}/methods`}>
+						<h3>Sign In Methods</h3>
+					</Route>
+					<Route path={`${base}/templates`}>
+						<h3>Templates</h3>
+					</Route>
+					<Route path={`${base}/settings`}>
+						<h3>Settings</h3>
+					</Route>
+					<Redirect from={base} to={`${base}/users`} />
+				</Switch>
+			</Content>
+
 			<Nav>
 				<BottomLink to={`${base}/users`}>Users</BottomLink>
 				<BottomLink to={`${base}/methods`}>Sign In Methods</BottomLink>
@@ -97,7 +139,8 @@ let Main = () => {
 
 let Wrapper = styled.main`
 	display: inline-grid;
-	grid-template-rows: 1fr var(--baseline-5);
+	grid-template-rows: var(--baseline-5) auto var(--baseline-5);
+	height: calc(100vh - var(--baseline-4));
 `
 
 let Bar = styled.section`
@@ -131,4 +174,26 @@ let BottomLink = styled(NavLink)`
 		text-decoration: underline;
 		text-decoration-color: var(--pink);
 	}
+`
+
+let Content = styled.section`
+	height: 100%;
+	overflow: auto;
+	${Scrollbar}
+`
+
+let TabsWrapper = styled.div`
+	flex-grow: 1;
+	display: flex;
+`
+
+let StyledAddButton = styled(AddButton)`
+	width: var(--baseline-4);
+	justify-content: center;
+`
+
+let StyledCloseButton = styled(CloseButton)`
+	position: absolute;
+	top: var(--baseline);
+	right: var(--baseline);
 `

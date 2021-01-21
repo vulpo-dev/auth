@@ -45,6 +45,7 @@
   "dependencies": {
     "@babel/polyfill": "^7.12.1",
     "@biotic-ui/button": "^0.3.8",
+    "@biotic-ui/drawer": "^0.3.8",
     "@biotic-ui/input": "^0.3.10",
     "@biotic-ui/leptons": "^0.3.8",
     "@biotic-ui/std": "^0.3.2",
@@ -54,7 +55,9 @@
     "@riezler/auth-ui": "0.0.1",
     "axios": "^0.21.1",
     "core-js": "^3.8.2",
+    "framer-motion": "^3.2.1",
     "optimize-css-assets-webpack-plugin": "^5.0.4",
+    "phosphor-react": "^1.1.2",
     "postcss-safe-parser": "^5.0.2",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",

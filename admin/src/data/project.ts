@@ -1,9 +1,9 @@
-import { useEffect } from 'react'
-import { useHttp } from 'data/http'
-import { atom, useRecoilState, SetterOrUpdater } from 'recoil'
+import { useEffect, useCallback } from 'react'
+import { useHttp, getError } from 'data/http'
+import { atom, useRecoilState, SetterOrUpdater, useSetRecoilState } from 'recoil'
 import { AuthClient } from '@riezler/auth-sdk'
 
-type PartialProject = {
+export type PartialProject = {
 	id: string,
 	name: string,
 }
@@ -33,4 +33,30 @@ export function useProjects(): UseProjects {
 	}, [http, setProjects])
 
 	return [projects, setProjects]
+}
+
+export function useCreateProject() {
+	let http = useHttp()
+	let setProjects = useSetRecoilState(projectsAtom)
+
+	return useCallback(async (name: string): Promise<PartialProject> => {
+		try {
+			let { data } = await http
+				.post<[string]>('/admin/__/project/create', { name })
+
+			let project: PartialProject = {
+				id: data[0],
+				name: name,
+			}
+
+			setProjects((projects = []) => {
+				return [...projects, project]
+			})
+
+			return project
+
+		} catch (err) {
+			throw getError(err)
+		}
+	}, [http, setProjects])
 }
