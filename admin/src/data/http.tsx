@@ -26,14 +26,21 @@ export let Http: FC<Props> = ({ auth, project, children }) => {
 		})
 
 		instance.interceptors.request.use(async function (config) {
-			let token = await auth.getToken()
-			return {
-				...config,
-				headers: {
-					...config.headers,
-					'Authorization': `Bearer ${token}`,
-				}
-			};
+			try {
+				let token = await auth
+					.getToken()
+
+				return {
+					...config,
+					headers: {
+						...config.headers,
+						'Authorization': `Bearer ${token}`,
+					}
+				};
+			} catch (err) {
+				console.log('interceptor error: ', err, config)
+				throw new Axios.Cancel(err.message)
+			}
 		})
 
 		return instance

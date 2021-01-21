@@ -144,15 +144,15 @@ let PasswordContainer = () => {
 
 		let ref = query.get('ref') ?? '/'
 
-		fn(user.email, user.password)
-			.then(() => {
-				setLoading(false)
-				history.replace(ref)
-			})
-			.catch(err => {
-				setLoading(false)
-				setError(err.code)
-			})
+		try {
+			await fn(user.email, user.password)
+			setLoading(false)
+			history.replace(ref)
+		} catch (err) {
+			console.log({ err })
+			setLoading(false)
+			setError(err.code)
+		}
 	}
 
 	return (

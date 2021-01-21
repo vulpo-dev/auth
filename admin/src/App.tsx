@@ -40,7 +40,7 @@ export default function App() {
 			</Route>
 
 			<Route path='/'>
-				<Dashboard />
+				{ user === null ? <PageLoad /> : <Dashboard /> }
 			</Route>
 
 		</Switch>

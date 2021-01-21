@@ -29,7 +29,7 @@ type ErrorResponse = {
 
 export class ApiError {
 
-	fromResponse(res: AxiosError<ErrorResponse>) {
+	fromResponse(res: AxiosError<ErrorResponse>): HttpError | AuthError | GenericError {
 
 		if (res.response?.status === 503) {
 			return new HttpError(ErrorCode.Unavailable)
@@ -54,7 +54,7 @@ export class ApiError {
 			case ErrorCode.ResetTokenNotFound:
 			case ErrorCode.ResetExpired:
 			case ErrorCode.ResetPasswordMismatch:
-				return new AuthError(res.response.data.code)
+				return new AuthError(res.response?.data.code)
 
 			default:
 				return new GenericError(res.response?.statusText)
@@ -66,7 +66,7 @@ export class HttpError extends Error {
 	code: ErrorCode;
 
 	constructor(code: ErrorCode) {
-		super()
+		super(code)
 		this.name = 'HttpError'
 		this.code = code
 	}
@@ -76,7 +76,7 @@ export class AuthError extends Error {
 	code: ErrorCode;
 
 	constructor(code: ErrorCode) {
-		super()
+		super(code)
 		this.name = 'AuthError'
 		this.code = code
 	}

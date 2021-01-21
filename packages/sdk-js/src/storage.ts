@@ -32,6 +32,7 @@ let Storage = {
 
 	removeAll() {
 		localStorage.removeItem(this.key)
+		localStorage.removeItem(this.activeKey)
 	},
 
 	getActive(): string | null {

@@ -80,20 +80,21 @@ export class AuthClient {
 	}
 
 	async getToken(): Promise<string | null> {
-		return this.tokens
-			.getToken()
-			.catch(res => {
-				let err = this.error.fromResponse(res)
-				
-				if ( err.code === ErrorCode.AuthRefreshTokenMissing ||
-					 err.code === ErrorCode.AuthRefreshTokenNotFound ||
-					 err.code === ErrorCode.AuthRefreshTokenInvalidFormat
-				   ) {
-					this.user.setCurrent(null)
-				}
+		try {
+			return await this.tokens.getToken()
+		} catch (res) {
+			let err = this.error.fromResponse(res)
+			
+			if ( err.code === ErrorCode.AuthRefreshTokenMissing ||
+				 err.code === ErrorCode.AuthRefreshTokenNotFound ||
+				 err.code === ErrorCode.AuthRefreshTokenInvalidFormat
+			   ) {
+				this.user.setCurrent(null)
+				this.user.removeAll()
+			}
 
-				return Promise.reject(err)
-			})
+			throw err
+		}
 	}
 
 	authStateChange(cb: AuthCallback): Unsubscribe {
@@ -141,7 +142,8 @@ export let Auth = {
 		)
 
 		// Prefetch the token
-		client.getToken()
+		client
+			.getToken()
 			.catch(err => {})
 
 		return client

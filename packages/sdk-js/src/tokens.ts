@@ -40,7 +40,6 @@ export class Tokens {
 
 		let now = new Date()
 		let expired = this.expireIn < now
-
 		if (this.tokens.size === 0 || expired) {
 			this.inFlight = new Promise<string | null>((resolve, reject) => {
 				this.listener.push({ resolve, reject })
@@ -50,6 +49,8 @@ export class Tokens {
 				this.listener.forEach(promise => {
 					promise.reject(err)
 				})
+				this.listener = []
+				this.inFlight = null
 			})
 
 			return this.inFlight

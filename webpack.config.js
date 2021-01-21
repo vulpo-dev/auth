@@ -5,12 +5,14 @@ let src = path.resolve(cwd, 'src')
 module.exports = function createConfig (webpackEnv) {
   let isEnvDevelopment = webpackEnv === 'development'
   let isEnvProduction = webpackEnv === 'production'
+
+  console.log('Mode: ', webpackEnv)
   
   return {
     entry: {
       main: cwd + '/src/main.ts'
     },
-    devtool: isEnvDevelopment ? 'eval-source-map' : undefined,
+    devtool: isEnvDevelopment ? 'inline-source-map' : undefined,
     externals: {
         'styled-components': {
           commonjs: 'styled-components',

@@ -19,11 +19,11 @@ export let Auth = () => {
 				<h1>Authentication</h1>
 			</Header>
 			<Wrapper>
-				<AuthConfig.Provider value={DefaultConfig}>
-					<Translation.Provider value={DefaultTranslation}>
+				<Translation.Provider value={DefaultTranslation}>
+					<AuthConfig.Provider value={DefaultConfig}>
 						<Password />	
-					</Translation.Provider>
-				</AuthConfig.Provider>
+					</AuthConfig.Provider>
+				</Translation.Provider>
 			</Wrapper>
 		</HashRouter>
 	)

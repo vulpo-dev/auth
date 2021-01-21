@@ -29,6 +29,7 @@ export function useProjects(): UseProjects {
 			.then(async res => {
 				setProjects(res.data)
 			})
+			.catch(err => console.log(err))
 	}, [http, setProjects])
 
 	return [projects, setProjects]

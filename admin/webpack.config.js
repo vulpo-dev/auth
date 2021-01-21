@@ -95,7 +95,7 @@ module.exports = function createConfig (_, argv) {
                         plugins:
                           [ 'babel-plugin-styled-components'
                           , "@babel/plugin-proposal-class-properties"
-                          , isDevelopment && require.resolve('react-refresh/babel')
+                          // , isDevelopment && require.resolve('react-refresh/babel')
                           ].filter(Boolean)
 
                       , presets:
@@ -152,7 +152,7 @@ module.exports = function createConfig (_, argv) {
               },
             },
           })
-        , isDevelopment && new ReactRefreshWebpackPlugin()
+        // , isDevelopment && new ReactRefreshWebpackPlugin()
         ].filter(Boolean)
     } 
 }
