@@ -4,6 +4,8 @@ import { createContext, useContext, FC, useMemo, useEffect } from 'react'
 import Axios, { AxiosInstance, AxiosError, AxiosResponse } from 'axios'
 import { AuthClient } from '@riezler/auth-sdk'
 
+export let CancelToken = Axios.CancelToken
+
 let HttpCtx = createContext<AxiosInstance>(Axios)
 
 type Props = {

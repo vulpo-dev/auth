@@ -12,7 +12,6 @@ import {
 } from 'react-router-dom'
 import { Tabs, TabBar, Tab } from 'component/tabs'
 import { useProjects, PartialProject } from 'data/project'
-import { useUsers } from 'data/user'
 import { AddButton, CloseButton } from 'component/button'
 import CreateProject from 'component/create_project'
 import { Drawer } from '@biotic-ui/drawer'
@@ -87,8 +86,6 @@ let Main = () => {
 	let project = match?.params?.project ?? ''
 	let base = `/${project}`
 
-	useUsers(project)
-
 	return (
 		<Wrapper>
 			<Bar>				
@@ -112,7 +109,7 @@ let Main = () => {
 			<Content>
 				<Switch>
 					<Route path={`${base}/users`}>
-						<Users />
+						<Users project={project} />
 					</Route>
 					<Route path={`${base}/methods`}>
 						<h3>Sign In Methods</h3>
@@ -141,6 +138,7 @@ let Wrapper = styled.main`
 	display: inline-grid;
 	grid-template-rows: var(--baseline-5) auto var(--baseline-5);
 	height: calc(100vh - var(--baseline-4));
+	color: #fff;
 `
 
 let Bar = styled.section`

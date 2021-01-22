@@ -22,6 +22,10 @@ export let Tab = styled(NavLink)`
 	text-decoration: none;
 	font-size: 0.75em;
 
+	&:hover {
+		background: rgba(0,0,0, 0.1);
+	}
+
 	&.active {
 		background: #000;
 		color: #fff;

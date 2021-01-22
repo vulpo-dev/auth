@@ -5,8 +5,7 @@ import { Plus, X } from 'phosphor-react'
 
 export { Button } from '@biotic-ui/button'
 
-
-let IconButton = styled.button<{ disabled?: boolean }>`
+export let IconButton = styled.button<{ disabled?: boolean }>`
 	background: none;
 	border: none;
 	display: flex;
@@ -21,7 +20,7 @@ let IconButton = styled.button<{ disabled?: boolean }>`
 export let AddButton: FC<{ onClick?: () => void; }> = (props) => {
 	return (
 		<IconButton {...props}>
-			<Plus size={24} />
+			<Plus size={21} />
 		</IconButton>
 	)
 }
