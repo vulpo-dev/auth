@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useHttp, HttpError, CancelToken, getError } from 'data/http'
 import { atomFamily, useRecoilState } from 'recoil'
 import { useMounted } from '@biotic-ui/std'
@@ -15,13 +15,15 @@ function providerFromRequest(str: string) {
 	}
 }
 
-type User = {
+export type User = {
 	created_at: Date;
 	email: string;
 	email_verified: boolean;
 	id: string;
 	provider_id: Provider
 }
+
+export type Users = Array<User>
 
 type UserResponse = {
 	created_at: string;
@@ -68,16 +70,21 @@ type Filter = {
 	limit?: number;
 }
 
+type Reload = {
+	reload: () => void;
+}
+
 export function useUsers({
 	project,
 	orderBy = 'created_at',
 	sort = 'asc',
 	offset = 0,
 	limit = 50
-}: Filter): UsersState {
+}: Filter): UsersState & Reload {
 	let mounted = useMounted()
 	let http = useHttp()
-	
+	let [shouldReload, setReload] = useState<boolean>(false)
+
 	let key = {
 		project,
 		orderBy,
@@ -142,9 +149,12 @@ export function useUsers({
 		return () => {
 			source.cancel()
 		}
-	}, [project, orderBy, sort, offset, limit, http, setState])
+	}, [project, orderBy, sort, offset, limit, http, setState, shouldReload])
 
-	return state
+	return {
+		...state,
+		reload: () => setReload(state => !state)
+	}
 }
 
 
