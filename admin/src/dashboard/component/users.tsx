@@ -10,7 +10,8 @@ import {
 	ArrowClockwise,
 	Trash,
 	ClockClockwise,
-	ArchiveBox
+	ArchiveBox,
+	IdentificationCard
 } from 'phosphor-react'
 import { IconButton } from 'component/button'
 import { Pulse } from '@biotic-ui/leptons'
@@ -57,7 +58,7 @@ let Users: FC<Props> = ({ project }) => {
 				<h3>Users: { total?.value }</h3>
 				<LoadingWrapper>
 					{ users.loading && <Pulse /> }
-					<Tooltip content='Reload'>
+					<Tooltip content='Reload' delay={[500, null]}>
 						<IconButton onClick={users.reload}>
 							<ArrowClockwise size={20} weight='bold' />
 						</IconButton>
@@ -105,6 +106,10 @@ let Users: FC<Props> = ({ project }) => {
 				<ActionItem>
 					<ClockClockwise weight='bold' size={24} />
 					<ActionLabel>Reset Password</ActionLabel>
+				</ActionItem>
+				<ActionItem>
+					<IdentificationCard weight='bold' size={24} />
+					<ActionLabel>Send Email Verification</ActionLabel>
 				</ActionItem>
 				<ActionItem>
 					<Trash weight='bold' size={24} />

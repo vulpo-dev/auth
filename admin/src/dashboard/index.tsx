@@ -16,6 +16,7 @@ import { AddButton, CloseButton } from 'component/button'
 import CreateProject from 'component/create_project'
 import { Drawer } from '@biotic-ui/drawer'
 import { Scrollbar } from '@biotic-ui/leptons'
+import Tooltip from 'component/tooltip'
 
 import Users from 'dashboard/component/users'
 
@@ -52,7 +53,9 @@ function Dashboard() {
 				<TabsWrapper>
 					{ projects && projects.map(project => 
 						<Tab key={project.id} to={`/${project.id}`}>
-							<span>{project.name}</span>
+							<Tooltip content={project.name} delay={[1000, null]}>
+								<span>{project.name}</span>
+							</Tooltip>
 						</Tab>
 					) }
 				</TabsWrapper>

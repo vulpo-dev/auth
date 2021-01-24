@@ -15,12 +15,14 @@ export let TabBar = styled.header`
 
 export let Tab = styled(NavLink)`
 	height: 100%;
-	display: inline-flex;
+	display: flex;
 	align-items: center;
 	padding: 0 var(--baseline-2);
 	color: #000;
 	text-decoration: none;
 	font-size: 0.75em;
+	width: calc(var(--baseline) * 19);
+	border-right: 1px solid #000;
 
 	&:hover {
 		background: rgba(0,0,0, 0.1);
@@ -29,5 +31,13 @@ export let Tab = styled(NavLink)`
 	&.active {
 		background: #000;
 		color: #fff;
+	}
+
+	> * {
+		display: block;
+		text-overflow: ellipsis;
+		overflow: hidden;
+		white-space: nowrap;
+		cursor: pointer;
 	}
 `

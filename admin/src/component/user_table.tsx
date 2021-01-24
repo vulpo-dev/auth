@@ -12,6 +12,7 @@ export let Wrapper = styled.div`
 	display: inline-grid;
 	grid-template-rows: var(--baseline-5) auto;
 	max-width: 1000px;
+	width: 100%;
 `
 
 let columns = `
