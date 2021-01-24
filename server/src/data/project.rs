@@ -13,6 +13,8 @@ pub enum Flags {
     SignUp,
     #[serde(rename = "action::password_reset")]
     PasswordReset,
+    #[serde(rename = "action::verify_email")]
+    VerifyEmail,
     #[serde(rename = "method::email_password")]
     EmailAndPassword,
     #[serde(rename = "method::authentication_link")]
@@ -43,6 +45,24 @@ impl Flags {
         Ok(flags)
     }
 
+    pub fn set_flags<C: GenericClient>(
+        client: &mut C,
+        project: &Uuid,
+        flags: &[Flags],
+    ) -> Result<(), ApiError> {
+        let flags = flags
+            .into_iter()
+            .map(|flag| flag.to_string())
+            .filter(|flag| flag.is_empty() == false)
+            .collect::<Vec<String>>();
+
+        let query = get_query("project/set_flags")?;
+        match client.query(query, &[&project, &flags]) {
+            Ok(_) => Ok(()),
+            Err(_) => Err(ApiError::InternalServerError),
+        }
+    }
+
     pub fn has_flags<C: GenericClient>(
         c: &mut C,
         project: &Uuid,
@@ -71,7 +91,21 @@ impl Flags {
             "action::password_reset" => Some(Flags::PasswordReset),
             "method::email_password" => Some(Flags::EmailAndPassword),
             "method::authentication_link" => Some(Flags::AuthenticationLink),
+            "action::verify_email" => Some(Flags::VerifyEmail),
             _ => None,
+        }
+    }
+}
+
+impl ToString for Flags {
+    fn to_string(&self) -> String {
+        match self {
+            Flags::SignIn => "auth::signin".to_string(),
+            Flags::SignUp => "auth::signup".to_string(),
+            Flags::PasswordReset => "action::password_reset".to_string(),
+            Flags::EmailAndPassword => "method::email_password".to_string(),
+            Flags::AuthenticationLink => "method::authentication_link".to_string(),
+            Flags::VerifyEmail => "action::verify_email".to_string(),
         }
     }
 }

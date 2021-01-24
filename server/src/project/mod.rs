@@ -1,7 +1,11 @@
 use rocket::http::Status;
 use rocket::request::Outcome;
 use rocket::request::{self, FromRequest, Request};
+use rocket::Route;
 use uuid::Uuid;
+
+mod flags;
+mod set_flags;
 
 #[derive(Debug)]
 pub enum ProjectError {
@@ -29,4 +33,8 @@ impl<'a, 'r> FromRequest<'a, 'r> for Project {
             Err(_) => Outcome::Failure((Status::BadRequest, ProjectError::InvalidId)),
         }
     }
+}
+
+pub fn routes() -> Vec<Route> {
+    routes![flags::handler, set_flags::handler]
 }

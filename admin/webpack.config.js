@@ -50,6 +50,7 @@ module.exports = function createConfig (_, argv) {
             '/token/': 'http://127.0.0.1:8000',
             '/password/': 'http://127.0.0.1:8000',
             '/user/': 'http://127.0.0.1:8000',
+            '/project/': 'http://127.0.0.1:8000',
           }
         , hot: true
         }

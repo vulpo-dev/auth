@@ -73,6 +73,7 @@ async fn main() {
             .mount("/passwordless", passwordless::routes())
             .mount("/password", password::routes())
             .mount("/token", token::routes())
+            .mount("/project", project::routes())
             .launch()
             .await;
     }

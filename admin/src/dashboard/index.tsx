@@ -19,6 +19,7 @@ import { Scrollbar } from '@biotic-ui/leptons'
 import Tooltip from 'component/tooltip'
 
 import Users from 'dashboard/component/users'
+import SignInMethods from 'dashboard/component/sign_in_methods'
 
 function Dashboard() {
 	let history = useHistory()
@@ -115,7 +116,7 @@ let Main = () => {
 						<Users project={project} />
 					</Route>
 					<Route path={`${base}/methods`}>
-						<h3>Sign In Methods</h3>
+						<SignInMethods project={project} />
 					</Route>
 					<Route path={`${base}/templates`}>
 						<h3>Templates</h3>
