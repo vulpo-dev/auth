@@ -8,6 +8,7 @@ mod password;
 mod passwordless;
 mod project;
 mod response;
+mod settings;
 mod template;
 mod token;
 mod user;
@@ -74,6 +75,7 @@ async fn main() {
             .mount("/password", password::routes())
             .mount("/token", token::routes())
             .mount("/project", project::routes())
+            .mount("/settings", settings::routes())
             .launch()
             .await;
     }

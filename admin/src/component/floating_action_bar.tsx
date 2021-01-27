@@ -5,7 +5,7 @@ import { motion } from 'framer-motion'
 import { useOnEscape } from '@biotic-ui/std'
 import { X } from 'phosphor-react'
 
-let StyledFloatingActionBar = styled(motion.div)`
+export let StyledFloatingActionBar = styled(motion.div)`
 	position: fixed;
 	bottom: var(--baseline-2);
 	display: flex;
@@ -14,7 +14,7 @@ let StyledFloatingActionBar = styled(motion.div)`
 	width: 100%;
 `
 
-let ContentWrapper = styled.div<{ open: boolean }>`
+export let ContentWrapper = styled.div<{ open: boolean }>`
 	position: relative;
 	background: #000;
 	padding: var(--baseline-2) calc(var(--baseline) * 7);
