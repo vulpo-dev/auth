@@ -9,7 +9,7 @@ import type {
 
 import Storage from 'storage'
 import { shallowEqualObjects } from 'shallow-equal'
-import { makeId, getUsers, last } from 'utils'
+import { makeId, getUser } from 'utils'
 
 type Listener = {
 	id: number;
@@ -17,13 +17,13 @@ type Listener = {
 }
 
 export class User {
-	current: UserState;
-	users: Array<UserId>;
-	active: string | null;
+	current: UserState
+	users: Map<string, UserId> = new Map()
+ 	active: string | null
 	config: Config
 
-	private getId = makeId();
-	private listener: Array<Listener> = [];
+	private getId = makeId()
+	private listener: Array<Listener> = []
 
 	constructor(config: Config) {
 		let id = Storage.getActive()
@@ -35,7 +35,9 @@ export class User {
 		})
 
 		this.active = id
-		this.users = users
+		this.users = new Map(
+			users.map(user => [user.id, user])
+		)
 		this.current = user
 		this.config = config
 	}
@@ -43,11 +45,7 @@ export class User {
 	activate(userId: string) {
 		this.active = userId
 
-		let user = this.users.find(user => {
-			return user.id === this.active
-		})
-
-
+		let user = this.users.get(userId)
 		if (!shallowEqualObjects(this.current, user)) {
 			this.current = user
 			this.listener.forEach(entry => {
@@ -71,19 +69,15 @@ export class User {
 	}
 
 	fromResponse(data: TokenResponse): UserId | undefined {
-		let id = last<string>(data.users) ?? ''
+		let id = data.user_id
 		this.active = id
 
-		let users = getUsers(data.tokens)
-		this.users = users
+		let user = getUser(data.token)
+		this.users.set(id, user)
 
 		if (this.config.offline) {
-			Storage.insert(users)
+			Storage.add(user)
 		}
-
-		let user = users.find(user => {
-			return user.id === this.active
-		})
 
 		if (!shallowEqualObjects(this.current, user)) {
 			this.current = user

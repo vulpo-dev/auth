@@ -3,7 +3,8 @@ import { FC, useState } from 'react'
 import styled from 'styled-components'
 import { Container } from 'component/layout'
 import { useFlags, Flags, useToggleFlags, useUpdateFlags } from 'data/flags'
-import { Button } from 'component/button' 
+import { Button } from 'component/button'
+import { useEmailSettings, hasEmailProvider } from 'data/settings'
 
 type Props = {
 	project: string;
@@ -14,6 +15,8 @@ let SignInMethods: FC<Props> = ({ project }) => {
 	let items = flags.items ?? []
 	let toggleFlag = useToggleFlags(project)
 	let [updateFlags, updating] = useUpdateFlags(project)
+	let [{ data: email }] = useEmailSettings(project)
+	let hasEmail = hasEmailProvider(email)
 
 	return (
 		<Container>
@@ -36,11 +39,12 @@ let SignInMethods: FC<Props> = ({ project }) => {
 						onChange={toggleFlag(Flags.SignUp)}
 					/>
 				</Flag>
-				<Flag>
+				<Flag disabled={!hasEmail}>
 					<FlagTitle htmlFor='auth_link'>Authentication Link</FlagTitle>
 					<input
 						id='auth_link'
 						type='checkbox'
+						disabled={!hasEmail}
 						checked={items.includes(Flags.AuthenticationLink)}
 						onChange={toggleFlag(Flags.AuthenticationLink)}
 					/>
@@ -55,20 +59,22 @@ let SignInMethods: FC<Props> = ({ project }) => {
 					/>
 					{	items.includes(Flags.EmailAndPassword) &&
 						<FlagList>
-							<Flag>
+							<Flag disabled={!hasEmail}>
 								<FlagTitle htmlFor='reset_password'>Reset Password</FlagTitle>
 								<input
 									id='reset_password'
 									type='checkbox'
+									disabled={!hasEmail}
 									checked={items.includes(Flags.PasswordReset)}
 									onChange={toggleFlag(Flags.PasswordReset)}
 								/>
 							</Flag>
-							<Flag>
+							<Flag disabled={!hasEmail}>
 								<FlagTitle htmlFor='verify_email'>Verify Email</FlagTitle>
 								<input
 									id='verify_email'
 									type='checkbox'
+									disabled={!hasEmail}
 									checked={items.includes(Flags.VerifyEmail)}
 									onChange={toggleFlag(Flags.VerifyEmail)}
 								/>
@@ -111,6 +117,7 @@ let Flag = styled.li<{ disabled?: boolean }>`
 	align-items: center;
 	justify-content: space-between;
 	flex-wrap: wrap;
+	opacity: ${p => p.disabled ? '0.8' : '1'};
 `
 
 let FlagTitle = styled.label`

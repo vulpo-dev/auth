@@ -8,10 +8,10 @@ use std::io::Cursor;
 use time::{Duration, OffsetDateTime};
 
 pub struct Token {
-    pub access_tokens: Vec<String>,
+    pub access_token: String,
     pub refresh_token: String,
     pub created: bool,
-    pub users: Vec<uuid::Uuid>,
+    pub user_id: uuid::Uuid,
 }
 
 impl<'r> Responder<'r, 'static> for Token {
@@ -19,23 +19,17 @@ impl<'r> Responder<'r, 'static> for Token {
         let expire = OffsetDateTime::now_utc() + Duration::days(90);
         let expires_in = 15 * 60; // 15 minutes
 
-        let tokens = self
-            .access_tokens
-            .iter()
-            .map(|access_token| {
-                json!({
-                    "access_token": access_token,
-                    "type": "Bearer",
-                    "expires_in": expires_in,
-                    "refresh_token": self.refresh_token,
-                    "created": self.created,
-                })
-            })
-            .collect::<Vec<serde_json::Value>>();
+        let token = json!({
+            "access_token": self.access_token,
+            "type": "Bearer",
+            "expires_in": expires_in,
+            "refresh_token": self.refresh_token,
+            "created": self.created,
+        });
 
         let body = json!({
-            "tokens": tokens,
-            "users": self.users,
+            "token": token,
+            "user_id": self.user_id,
         });
 
         let body = match serde_json::to_string(&body) {

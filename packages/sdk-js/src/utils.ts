@@ -10,13 +10,7 @@ export let makeId = (): (() => number) => {
 	}
 }
 
-export function getUsers(tokens: Array<Token>): Array<User> {
-	return tokens.map(value => {
-		let token = jwtDecode<{ user: User }>(value.access_token)
-		return token?.user
-	})
-}
-
-export function last<T>(arr: Array<T>): T | undefined {
-	return arr[arr.length - 1]
+export function getUser(token: Token): User {
+	let { user } = jwtDecode<{ user: User }>(token.access_token)
+	return user 
 }

@@ -50,8 +50,13 @@ impl RefreshToken {
             Ok(row) => row,
         };
 
+        let user_ids: Vec<Uuid> = match token.try_get("user_ids") {
+            Ok(t) => t,
+            Err(_) => return Err(ApiError::AuthRefreshTokenNotFound),
+        };
+
         Ok(RefreshToken {
-            users: token.get("user_ids"),
+            users: user_ids,
             expire: token.get("expire"),
             project: token.get("project_id"),
             id: token.get("id"),
@@ -75,6 +80,44 @@ impl RefreshToken {
         match row {
             Err(_) => Err(ApiError::TokenGenerate),
             Ok(row) => Ok(row.get("token_id")),
+        }
+    }
+
+    pub fn remove<C: GenericClient>(
+        client: &mut C,
+        token_id: &Uuid,
+        user_id: &Uuid,
+    ) -> Result<(), ApiError> {
+        let query = get_query("token/remove")?;
+        let row = client.query(query, &[&token_id, &user_id]);
+        match row {
+            Ok(_) => Ok(()),
+            Err(_) => Err(ApiError::InternalServerError),
+        }
+    }
+
+    pub fn remove_by_user<C: GenericClient>(
+        client: &mut C,
+        user_id: &Uuid,
+    ) -> Result<(), ApiError> {
+        let query = get_query("token/remove_user_id")?;
+        let row = client.query(query, &[&user_id]);
+        match row {
+            Ok(_) => Ok(()),
+            Err(_) => Err(ApiError::InternalServerError),
+        }
+    }
+
+    pub fn remove_all<C: GenericClient>(
+        client: &mut C,
+        token_id: &Uuid,
+        user_id: &Uuid,
+    ) -> Result<(), ApiError> {
+        let query = get_query("token/remove_all")?;
+        let row = client.query(query, &[&token_id, &user_id]);
+        match row {
+            Ok(_) => Ok(()),
+            Err(_) => Err(ApiError::InternalServerError),
         }
     }
 

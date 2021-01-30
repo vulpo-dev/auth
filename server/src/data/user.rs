@@ -1,4 +1,3 @@
-use crate::data::token::UserId;
 use crate::data::{get_query, GenericClient};
 use crate::response::error::ApiError;
 
@@ -75,33 +74,6 @@ impl User {
             Err(_) => Err(ApiError::NotFound),
             Ok(user) => Ok(User::from_row(&user)),
         }
-    }
-
-    pub fn get_ids<C: GenericClient>(
-        client: &mut C,
-        ids: Vec<Uuid>,
-        project: &Uuid,
-    ) -> Result<Vec<User>, ApiError> {
-        let query = get_query("user/get_ids")?;
-
-        let users = match UserId::to_rows(ids) {
-            Ok(rows) => rows,
-            Err(_) => return Err(ApiError::InternalServerError),
-        };
-
-        let rows = match client.query(query, &[&users, &project]) {
-            Err(_) => {
-                return Err(ApiError::NotFound);
-            }
-            Ok(rows) => rows,
-        };
-
-        let users = rows
-            .iter()
-            .map(move |row| User::from_row(row))
-            .collect::<Vec<User>>();
-
-        Ok(users)
     }
 
     pub fn password<C: GenericClient>(
@@ -226,6 +198,27 @@ impl User {
         Ok(TotalUsers {
             total_users: row.get("total_users"),
         })
+    }
+
+    pub fn remove<C: GenericClient>(client: &mut C, user_id: &Uuid) -> Result<(), ApiError> {
+        let query = get_query("user/remove")?;
+        let row = client.query(query, &[&user_id]);
+        match row {
+            Ok(_) => Ok(()),
+            Err(_) => Err(ApiError::InternalServerError),
+        }
+    }
+
+    pub fn remove_by_token<C: GenericClient>(
+        client: &mut C,
+        token_id: &Uuid,
+    ) -> Result<(), ApiError> {
+        let query = get_query("user/remove_by_token")?;
+        let row = client.query(query, &[&token_id]);
+        match row {
+            Ok(_) => Ok(()),
+            Err(_) => Err(ApiError::InternalServerError),
+        }
     }
 }
 

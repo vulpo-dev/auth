@@ -75,13 +75,39 @@ export class AuthClient {
 		return user
 	}
 
-	async signOut(userId: string): Promise<void> {
-		this.user.remove(userId)
+	async signOut(userId?: string): Promise<void> {
+		let id = userId ?? this.user.active
+
+		if (!id) {
+			return
+		}
+
+		try {
+			this.user.remove(id)
+			await this.http.post(`user/sign_out/${id}`)
+		} catch (err) {
+			throw this.error.fromResponse(err)
+		}
 	}
 
-	async getToken(): Promise<string | null> {
+	async signOutAll(userId?: string): Promise<void> {
+		let id = userId ?? this.user.active
+
+		if (!id) {
+			return
+		}
+
 		try {
-			return await this.tokens.getToken()
+			this.user.remove(id)
+			await this.http.post(`user/sign_out_all/${id}`)
+		} catch (err) {
+			throw this.error.fromResponse(err)
+		}
+	}
+
+	async getToken(userId?: string): Promise<string | null> {
+		try {
+			return await this.tokens.getToken(userId)
 		} catch (res) {
 			let err = this.error.fromResponse(res)
 			
@@ -90,7 +116,6 @@ export class AuthClient {
 				 err.code === ErrorCode.AuthRefreshTokenInvalidFormat
 			   ) {
 				this.user.setCurrent(null)
-				this.user.removeAll()
 			}
 
 			throw err
@@ -99,11 +124,7 @@ export class AuthClient {
 
 	authStateChange(cb: AuthCallback): Unsubscribe {
 		let sub = this.user.subscribe(cb)
-
-		let user = this.user.current
-
-		cb(user)
-
+		cb(this.user.current)
 		return sub
 	}
 
@@ -129,10 +150,7 @@ export let Auth = {
 		})
 
 		let user = new User(config)
-		let tokens = new Tokens(
-			user,
-			http
-		)
+		let tokens = new Tokens(user, http)
 
 		let client = new AuthClient(
 			user,

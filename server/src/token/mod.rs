@@ -8,12 +8,14 @@ use crate::response::token::Token;
 use chrono::{Duration, Utc};
 use rocket::http::CookieJar;
 use rocket::Route;
+use rocket_contrib::uuid::Uuid as RUuid;
 use uuid::Uuid;
 
-#[post("/refresh")]
+#[post("/refresh/<user_id>")]
 pub async fn refresh(
     conn: AuthDb,
     project: Project,
+    user_id: RUuid,
     cookies: &CookieJar<'_>,
 ) -> Result<Token, ApiError> {
     let cookie = match cookies.get("refresh_token") {
@@ -54,27 +56,25 @@ pub async fn refresh(
         })
         .await?;
 
-    let users = conn
-        .run(move |client| User::get_ids(client, refresh_token.users, &refresh_token.project))
-        .await?;
-
-    let ids = users.iter().map(|u| u.id).collect::<Vec<Uuid>>();
-
     let private_key = conn
         .run(move |client| ProjectKeys::get_private_key(client, &project.id))
         .await?;
 
-    let tokens = users
-        .iter()
-        .map(|user| AccessToken::new(&user))
-        .flat_map(|token| token.to_jwt_rsa(&private_key))
-        .collect::<Vec<String>>();
+    let user = conn
+        .run(move |client| User::get_by_id(client, user_id.into_inner(), project.id))
+        .await?;
+
+    let access_token = AccessToken::new(&user);
+    let access_token = match access_token.to_jwt_rsa(&private_key) {
+        Ok(at) => at,
+        Err(_) => return Err(ApiError::InternalServerError),
+    };
 
     Ok(Token {
-        access_tokens: tokens,
+        access_token,
         refresh_token: new_refresh_token.to_string(),
         created: false,
-        users: ids,
+        user_id: user.id,
     })
 }
 

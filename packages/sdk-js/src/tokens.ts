@@ -6,7 +6,7 @@ import type {
 import { User } from 'user'
 import { AxiosInstance } from 'axios'
 
-type InFlight = Promise<string | null> | null
+type InFlight = Promise<string | null>
 
 type TokenPromise = {
 	resolve: (token: string | null) => void;
@@ -16,44 +16,61 @@ type TokenPromise = {
 export class Tokens {
 	tokens: Map<string, Token> = new Map();
 
-	private expireIn: Date = new Date()
-	private listener: Array<TokenPromise> = [];
-	private inFlight: InFlight = null;
+	private expireIn: Map<string, Date> = new Map()
+	private listener: Map<string, TokenPromise> = new Map();
+	private inFlight: Map<string, InFlight> = new Map();
 	private user: User;
 	private http: AxiosInstance;
+	private created_at: Date = new Date()
 
 	constructor(user: User, http: AxiosInstance) {
 		this.user = user
 		this.http = http
 	}
 
-	async getToken(): Promise<string | null> {
+	async getToken(userId: string | null = this.user.active): Promise<string | null> {
+		
+		if (userId === null) {
+			return null
+		}
+
 		/*
 		 * this means that we are already doing a call
 		 * to get a new access token, inFlight is holding
 		 * the promise that will be resolved once the
 		 * token call resolves/rejects
 		*/
-		if (this.inFlight !== null) {
-			return this.inFlight
+		let inFlight = this.inFlight.get(userId)
+		if (!!inFlight) {
+			return inFlight
 		}
 
+
 		let now = new Date()
-		let expired = this.expireIn < now
+		let expireIn = this.expireIn.has(userId)
+			? this.expireIn.get(userId)
+			: this.created_at
+
+		let expired = expireIn! < now
 		if (this.tokens.size === 0 || expired) {
-			this.inFlight = new Promise<string | null>((resolve, reject) => {
-				this.listener.push({ resolve, reject })
+			let promise = new Promise<string | null>((resolve, reject) => {
+				this.listener.set(userId, { resolve, reject })
 			})
 
-			this._getToken().catch(err => {
-				this.listener.forEach(promise => {
+			this.inFlight.set(userId, promise)
+
+			this._getToken(userId).catch(err => {
+				let promise = this.listener.get(userId)
+
+				if (promise) {
 					promise.reject(err)
-				})
-				this.listener = []
-				this.inFlight = null
+				}
+
+				this.listener.delete(userId)
+				this.inFlight.delete(userId)
 			})
 
-			return this.inFlight
+			return promise
 		}
 
 		let token = this.tokens.get(this.user.active ?? '')
@@ -65,37 +82,27 @@ export class Tokens {
 		return token.access_token
 	}
 
-	private async _getToken(): Promise<void> {
-		let { data } = await this.http.post<TokenResponse>('/token/refresh')
-
-		this.listener.forEach(promise => {
-			let index = this.user.users.findIndex(user => {
-				return this.user.active === user.id
-			})
-
-			let token = data.tokens[index]
-
-			if (!token) {
-				promise.resolve(null)
+	private async _getToken(userId: string): Promise<void> {
+		let { data } = await this.http.post<TokenResponse>(`/token/refresh/${userId}`)
+		let promise = this.listener.get(userId)
+			
+		if (promise) {
+			if (data.token) {
+				promise.resolve(data.token.access_token)
 			} else {
-				promise.resolve(token.access_token)
+				promise.resolve(null)
 			}
-		})
+		}
 
-		this.listener = []
-		this.inFlight = null
+		this.listener.delete(userId)
+		this.inFlight.delete(userId)
 
 		this.fromResponse(data)
 		this.user.fromResponse(data)
 	}
 
-	fromResponse({ tokens, users }: TokenResponse) {
-		users.forEach((id, index) => {
-			let token = tokens[index]
-			this.tokens.set(id, token)
-		})
-
-		let [token] = tokens
+	fromResponse({ token, user_id }: TokenResponse) {
+		this.tokens.set(user_id, token)
 
 		let expireIn = token ? token.expires_in : 0
 
@@ -104,6 +111,6 @@ export class Tokens {
 		let now = expiresIn.getSeconds()
 		let expire = now + expireIn - threshold
 		expiresIn.setSeconds(expire)
-		this.expireIn = expiresIn	
+		this.expireIn.set(user_id, expiresIn)	
 	}
 }

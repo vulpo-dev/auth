@@ -20,6 +20,7 @@ import Tooltip from 'component/tooltip'
 
 import Users from 'dashboard/component/users'
 import SignInMethods from 'dashboard/component/sign_in_methods'
+import Settings from 'dashboard/component/settings'
 
 function Dashboard() {
 	let history = useHistory()
@@ -122,7 +123,7 @@ let Main = () => {
 						<h3>Templates</h3>
 					</Route>
 					<Route path={`${base}/settings`}>
-						<h3>Settings</h3>
+						<Settings project={project} />
 					</Route>
 					<Redirect from={base} to={`${base}/users`} />
 				</Switch>

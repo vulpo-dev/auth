@@ -1,13 +1,18 @@
 import type { User } from 'types'
 
-let Storage = {
-	key: 'bento_auth::user',
-	activeKey: 'bento_auth::active_user',
+class Storage {
+	key = 'bento_auth::user'
+	activeKey = 'bento_auth::active_user'
 	
 	insert(u: Array<User>) {
 		let user = JSON.stringify(u)
 		localStorage.setItem(this.key, user)
-	},
+	}
+
+	add(user: User) {
+		let users = this.get()
+		this.insert([...users, user])
+	}
 
 	get(): Array<User> {
 		let entry = localStorage.getItem(this.key)
@@ -18,7 +23,7 @@ let Storage = {
 
 		let user = JSON.parse(entry)
 		return (user as Array<User>)
-	},
+	}
 
 	remove(id: string): void {
 		let users = this.get()
@@ -28,12 +33,12 @@ let Storage = {
 		})
 
 		localStorage.setItem(this.key, JSON.stringify(users))
-	},
+	}
 
 	removeAll() {
 		localStorage.removeItem(this.key)
 		localStorage.removeItem(this.activeKey)
-	},
+	}
 
 	getActive(): string | null {
 		let entry = localStorage.getItem(this.activeKey)
@@ -43,11 +48,11 @@ let Storage = {
 		}
 
 		return entry
-	},
+	}
 
 	setActive(userId: string) {
 		localStorage.setItem(this.activeKey, userId)
 	}
 }
 
-export default Storage
+export default new Storage()

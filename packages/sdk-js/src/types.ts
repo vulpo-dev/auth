@@ -14,8 +14,8 @@ export type Token = {
 }
 
 export type TokenResponse = {
-	tokens: Array<Token>,
-	users: Array<string>
+	token: Token,
+	user_id: string
 }
 
 export type Config =
