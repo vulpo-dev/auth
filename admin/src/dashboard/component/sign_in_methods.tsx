@@ -103,7 +103,7 @@ let FlagList = styled.ul`
 	list-style-type: none;
 	flex-shrink: 0;
 	width: 100%;
-	margin-top: var(--baseline-2);
+	margin-top: 0;
 `
 
 let Flag = styled.li<{ disabled?: boolean }>`

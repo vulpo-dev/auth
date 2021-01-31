@@ -22,8 +22,9 @@ export let Header = styled.header`
 	}
 `
 
-export let Container = styled.div`
-	max-width: 1000px;
+export let Container = styled.div<{ maxWidht?: number }>`
+	max-width: ${p => p.maxWidht ? `${p.maxWidht}px` : '1000px'};
 	width: 100%;
 	margin: 0 auto;
+	padding-top: var(--baseline-2);
 `

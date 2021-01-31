@@ -11,11 +11,12 @@ import {
 	useHistory
 } from 'react-router-dom'
 import { Tabs, TabBar, Tab } from 'component/tabs'
-import { useProjects, PartialProject } from 'data/project'
+import { useProjects, PartialProject, ProjectCtx } from 'data/project'
 import { AddButton, CloseButton } from 'component/button'
 import CreateProject from 'component/create_project'
 import { Drawer } from '@biotic-ui/drawer'
 import { Scrollbar } from '@biotic-ui/leptons'
+import { Button } from '@biotic-ui/button'
 import Tooltip from 'component/tooltip'
 
 import Users from 'dashboard/component/users'
@@ -92,50 +93,52 @@ let Main = () => {
 	let base = `/${project}`
 
 	return (
-		<Wrapper>
-			<Bar>				
-				<Switch>
-					<Route path={`${base}/users`}>
-						<h3>Users</h3>
-					</Route>
-					<Route path={`${base}/methods`}>
-						<h3>Sign In Methods</h3>
-					</Route>
-					<Route path={`${base}/templates`}>
-						<h3>Templates</h3>
-					</Route>
-					<Route path={`${base}/settings`}>
-						<h3>Settings</h3>
-					</Route>
-					<Redirect from={base} to={`${base}/users`} />
-				</Switch>
-			</Bar>
+		<ProjectCtx.Provider value={project}>
+			<Wrapper>
+				<Bar>				
+					<Switch>
+						<Route path={`${base}/users`}>
+							<h3>Users</h3>
+						</Route>
+						<Route path={`${base}/methods`}>
+							<h3>Sign In Methods</h3>
+						</Route>
+						<Route path={`${base}/templates`}>
+							<h3>Templates</h3>
+						</Route>
+						<Route path={`${base}/settings`}>
+							<h3>Settings</h3>
+						</Route>
+						<Redirect from={base} to={`${base}/users`} />
+					</Switch>
+				</Bar>
 
-			<Content>
-				<Switch>
-					<Route path={`${base}/users`}>
-						<Users project={project} />
-					</Route>
-					<Route path={`${base}/methods`}>
-						<SignInMethods project={project} />
-					</Route>
-					<Route path={`${base}/templates`}>
-						<h3>Templates</h3>
-					</Route>
-					<Route path={`${base}/settings`}>
-						<Settings project={project} />
-					</Route>
-					<Redirect from={base} to={`${base}/users`} />
-				</Switch>
-			</Content>
+				<Content>
+					<Switch>
+						<Route path={`${base}/users`}>
+							<Users project={project} />
+						</Route>
+						<Route path={`${base}/methods`}>
+							<SignInMethods project={project} />
+						</Route>
+						<Route path={`${base}/templates`}>
+							<h3>Templates</h3>
+						</Route>
+						<Route path={`${base}/settings`}>
+							<Settings project={project} />
+						</Route>
+						<Redirect from={base} to={`${base}/users`} />
+					</Switch>
+				</Content>
 
-			<Nav>
-				<BottomLink to={`${base}/users`}>Users</BottomLink>
-				<BottomLink to={`${base}/methods`}>Sign In Methods</BottomLink>
-				<BottomLink to={`${base}/templates`}>Templates</BottomLink>
-				<BottomLink to={`${base}/settings`}>Settings</BottomLink>
-			</Nav>
-		</Wrapper>
+				<Nav>
+					<BottomLink to={`${base}/users`}>Users</BottomLink>
+					<BottomLink to={`${base}/methods`}>Sign In Methods</BottomLink>
+					<BottomLink to={`${base}/templates`}>Templates</BottomLink>
+					<BottomLink to={`${base}/settings`}>Settings</BottomLink>
+				</Nav>
+			</Wrapper>
+		</ProjectCtx.Provider>
 	)
 }
 
@@ -154,6 +157,7 @@ let Bar = styled.section`
 	padding: 0 var(--baseline-2);
 	display: flex;
 	align-items: center;
+	justify-content: space-between;
 
 	h3 {
 		margin: 0;

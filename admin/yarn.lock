@@ -1008,6 +1008,11 @@
   dependencies:
     "@riezler/react-utils" "^0.1.1"
 
+"@biotic-ui/select@^0.3.9":
+  version "0.3.9"
+  resolved "https://registry.yarnpkg.com/@biotic-ui/select/-/select-0.3.9.tgz#3fcfcb150f1fc37bb52e84590f7fbbef83d45b76"
+  integrity sha512-wIkO6Y3ymu7i1loe/mYbuKuG5haL30Kz6dgZCsCjOcevvnv372XNa87spOSFbKJHA75QhmQLRCzeaJB2zPQGzQ==
+
 "@biotic-ui/std@^0.3.2":
   version "0.3.2"
   resolved "https://registry.yarnpkg.com/@biotic-ui/std/-/std-0.3.2.tgz#ded854321909eb07c3544f7fab2c9f5a5cea3db6"

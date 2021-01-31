@@ -1,20 +1,18 @@
 import React from 'react'
 import { FunctionComponent } from 'react'
-import { useEmailSettings } from 'data/settings'
+import { Container } from 'component/layout'
 
+import EmailSettings from 'settings/email'
 
 type Props = {
 	project: string;
 }
 
 let Settings: FunctionComponent<Props> = ({ project }) => {
-	let [{ data }] = useEmailSettings(project)
-
 	return (
-		<div>
-			<h1>Settings</h1>
-			<pre>{JSON.stringify(data, null, 2)}</pre>
-		</div>
+		<Container maxWidht={680}>
+			<EmailSettings project={project} />
+		</Container>
 	)
 }
 

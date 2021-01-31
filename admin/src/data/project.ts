@@ -1,4 +1,9 @@
-import { useEffect, useCallback } from 'react'
+import {
+	useEffect,
+	useCallback,
+	createContext,
+	useContext
+} from 'react'
 import { useHttp, getError } from 'data/http'
 import { atom, useRecoilState, SetterOrUpdater, useSetRecoilState } from 'recoil'
 import { AuthClient } from '@riezler/auth-sdk'
@@ -59,4 +64,10 @@ export function useCreateProject() {
 			throw getError(err)
 		}
 	}, [http, setProjects])
+}
+
+export let ProjectCtx = createContext<string>('')
+
+export function useProject(): string {
+	return useContext(ProjectCtx)
 }

@@ -49,6 +49,7 @@
     "@biotic-ui/input": "^0.3.10",
     "@biotic-ui/layout": "^0.3.8",
     "@biotic-ui/leptons": "^0.3.8",
+    "@biotic-ui/select": "^0.3.9",
     "@biotic-ui/std": "^0.3.2",
     "@biotic-ui/tabs": "^0.3.13",
     "@riezler/auth-react": "0.0.1",
