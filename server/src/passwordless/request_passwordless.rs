@@ -5,6 +5,7 @@ use crate::data::AuthDb;
 use crate::mail::Email;
 use crate::project::Project;
 use crate::response::error::ApiError;
+use crate::settings::data::ProjectEmail;
 use crate::template::Template;
 
 use rocket_contrib::json::Json;
@@ -40,13 +41,21 @@ pub async fn request_passwordless(
         })
         .await?;
 
+    let settings = conn
+        .run(move |client| ProjectEmail::from_project(client, project.id))
+        .await?;
+
     let base_url = "http://localhost:3000".to_string();
     let link: String = format!("{}?email={}&token={}", base_url, body.email, token);
 
     let content = Template::passwordless(link);
 
-    match Email::send(content).await {
-        Ok(_) => Ok(Json([id])),
-        Err(_e) => Err(ApiError::InternalServerError),
-    }
+    let email = Email {
+        to_email: body.email.clone(),
+        subject: String::from("Sign In"),
+        content,
+    };
+
+    email.send(settings.settings).await?;
+    Ok(Json([id]))
 }

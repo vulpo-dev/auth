@@ -24,10 +24,10 @@ const FILES: [File; 3] = [
 ];
 
 #[derive(Debug)]
-pub struct Template {}
+pub struct Template;
 
 impl Template {
-    pub fn passwordless(link: String) -> String {
+    fn init_handlebars() -> Handlebars<'static> {
         let mut handlebars = Handlebars::new();
 
         FILES.iter().for_each(|file| {
@@ -42,8 +42,26 @@ impl Template {
                 .is_ok());
         });
 
+        handlebars
+    }
+
+    pub fn passwordless(link: String) -> String {
+        let handlebars = Template::init_handlebars();
+
         let content = handlebars
             .render("passwordless", &json!({ "href": link }))
+            .unwrap();
+
+        handlebars
+            .render("index", &json!({ "content": content }))
+            .unwrap()
+    }
+
+    pub fn password_reset(link: String) -> String {
+        let handlebars = Template::init_handlebars();
+
+        let content = handlebars
+            .render("password_reset", &json!({ "href": link }))
             .unwrap();
 
         handlebars

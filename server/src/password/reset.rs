@@ -1,9 +1,12 @@
 use crate::data::password_reset::PasswordReset;
 use crate::data::user::User;
 use crate::data::AuthDb;
+use crate::mail::Email;
 use crate::password::validate_password_length;
 use crate::project::Project;
 use crate::response::error::ApiError;
+use crate::settings::data::ProjectEmail;
+use crate::template::Template;
 
 use bcrypt::{hash, verify, DEFAULT_COST};
 use chrono::{Duration, Utc};
@@ -23,8 +26,9 @@ pub async fn request_password_reset(
     body: Json<RequestPasswordReset>,
     project: Project,
 ) -> Result<Status, ApiError> {
+    let email = body.email.clone();
     let row = conn
-        .run(move |client| User::get_by_email(client, body.email.to_string(), project.id))
+        .run(move |client| User::get_by_email(client, email.to_string(), project.id))
         .await;
 
     let user = match row {
@@ -42,10 +46,22 @@ pub async fn request_password_reset(
         .run(move |client| PasswordReset::insert(client, &user.id, hashed_token.to_string()))
         .await?;
 
-    println!("Id: {:?}", token_id);
-    println!("Reset Token: {:?}", reset_token);
-    println!("Project: {:?}", project.id);
+    let settings = conn
+        .run(move |client| ProjectEmail::from_project(client, project.id))
+        .await?;
 
+    let base_url = "http://localhost:3000".to_string();
+    let link: String = format!("{}?id={}&token={}", base_url, token_id, reset_token);
+
+    let content = Template::password_reset(link);
+
+    let email = Email {
+        to_email: body.email.clone(),
+        subject: String::from("Reset Password"),
+        content,
+    };
+
+    email.send(settings.settings).await?;
     Ok(Status::Ok)
 }
 
