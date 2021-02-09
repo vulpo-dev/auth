@@ -3,6 +3,7 @@ import { FunctionComponent, FormEvent, ChangeEvent } from 'react'
 import styled from 'styled-components'
 import { Select, Option } from '@biotic-ui/select'
 import { Button } from '@biotic-ui/button'
+import { Header, Section } from 'settings/component/layout'
 
 import {
 	useEmailSettings,
@@ -41,7 +42,7 @@ let EmailSettings: FunctionComponent<Props> = ({ project }) => {
 	}	
 
 	return (
-		<section>
+		<Section>
 			<Header>
 				<h2>Email</h2>
 				
@@ -69,19 +70,8 @@ let EmailSettings: FunctionComponent<Props> = ({ project }) => {
 				</Button>
 			</div>
 
-		</section>
+		</Section>
 	)
 }
 
 export default EmailSettings
-
-let Header = styled.header`
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	margin-bottom: var(--baseline-2);
-
-	h2 {
-		margin-bottom: 0;
-	}
-`

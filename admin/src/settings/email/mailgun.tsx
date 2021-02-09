@@ -11,8 +11,8 @@ type Props = {
 
 let MailGun: FunctionComponent<Props> = ({ value }) => {
 	let project = useProject()
-	let setForm = useSetEmailSettings(project)
-	console.log({ value })
+	let setForm = useSetEmailSettings(project.id)
+	
 	return (
 		<form>
 			<Section>

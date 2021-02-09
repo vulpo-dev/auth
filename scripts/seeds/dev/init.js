@@ -1,8 +1,11 @@
 let {
   admin,
   adminKeys,
+  adminSettings,
+
   project,
-  projectKeys
+  projectKeys,
+  projectSettings,
 } = require('../data/projects')
 
 let { adminUser, getUsers } = require('../data/users')
@@ -15,6 +18,12 @@ exports.seed = async function(knex) {
   await knex('projects').insert([
     admin,
     project
+  ])
+
+  console.log('Insert Settings')
+  await knex('project_settings').insert([
+    adminSettings,
+    projectSettings,
   ])
 
   console.log('Insert Keys')

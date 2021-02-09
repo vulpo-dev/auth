@@ -50,6 +50,10 @@ function Dashboard() {
 		history.push(`/${project.id}`)
 	}
 
+	let currentProject = !projects ? undefined : projects.find(p => {
+		return p.id === project
+	})
+
 	return (
 		<Tabs>
 			<TabBar>
@@ -66,7 +70,9 @@ function Dashboard() {
 			</TabBar>
 			
 			{ projects &&
-				<Main />
+				<ProjectCtx.Provider value={currentProject}>
+					<Main />
+				</ProjectCtx.Provider>
 			}
 
 			<Drawer open={create} left={false} maxWidth={600} onClose={() => setCreate(false)}>
@@ -93,52 +99,50 @@ let Main = () => {
 	let base = `/${project}`
 
 	return (
-		<ProjectCtx.Provider value={project}>
-			<Wrapper>
-				<Bar>				
-					<Switch>
-						<Route path={`${base}/users`}>
-							<h3>Users</h3>
-						</Route>
-						<Route path={`${base}/methods`}>
-							<h3>Sign In Methods</h3>
-						</Route>
-						<Route path={`${base}/templates`}>
-							<h3>Templates</h3>
-						</Route>
-						<Route path={`${base}/settings`}>
-							<h3>Settings</h3>
-						</Route>
-						<Redirect from={base} to={`${base}/users`} />
-					</Switch>
-				</Bar>
+		<Wrapper>
+			<Bar>				
+				<Switch>
+					<Route path={`${base}/users`}>
+						<h3>Users</h3>
+					</Route>
+					<Route path={`${base}/methods`}>
+						<h3>Sign In Methods</h3>
+					</Route>
+					<Route path={`${base}/templates`}>
+						<h3>Templates</h3>
+					</Route>
+					<Route path={`${base}/settings`}>
+						<h3>Settings</h3>
+					</Route>
+					<Redirect from={base} to={`${base}/users`} />
+				</Switch>
+			</Bar>
 
-				<Content>
-					<Switch>
-						<Route path={`${base}/users`}>
-							<Users project={project} />
-						</Route>
-						<Route path={`${base}/methods`}>
-							<SignInMethods project={project} />
-						</Route>
-						<Route path={`${base}/templates`}>
-							<h3>Templates</h3>
-						</Route>
-						<Route path={`${base}/settings`}>
-							<Settings project={project} />
-						</Route>
-						<Redirect from={base} to={`${base}/users`} />
-					</Switch>
-				</Content>
+			<Content>
+				<Switch>
+					<Route path={`${base}/users`}>
+						<Users project={project} />
+					</Route>
+					<Route path={`${base}/methods`}>
+						<SignInMethods project={project} />
+					</Route>
+					<Route path={`${base}/templates`}>
+						<h3>Templates</h3>
+					</Route>
+					<Route path={`${base}/settings`}>
+						<Settings project={project} />
+					</Route>
+					<Redirect from={base} to={`${base}/users`} />
+				</Switch>
+			</Content>
 
-				<Nav>
-					<BottomLink to={`${base}/users`}>Users</BottomLink>
-					<BottomLink to={`${base}/methods`}>Sign In Methods</BottomLink>
-					<BottomLink to={`${base}/templates`}>Templates</BottomLink>
-					<BottomLink to={`${base}/settings`}>Settings</BottomLink>
-				</Nav>
-			</Wrapper>
-		</ProjectCtx.Provider>
+			<Nav>
+				<BottomLink to={`${base}/users`}>Users</BottomLink>
+				<BottomLink to={`${base}/methods`}>Sign In Methods</BottomLink>
+				<BottomLink to={`${base}/templates`}>Templates</BottomLink>
+				<BottomLink to={`${base}/settings`}>Settings</BottomLink>
+			</Nav>
+		</Wrapper>
 	)
 }
 
@@ -147,6 +151,10 @@ let Wrapper = styled.main`
 	grid-template-rows: var(--baseline-5) auto var(--baseline-5);
 	height: calc(100vh - var(--baseline-4));
 	color: #fff;
+
+	--input-border: 1px solid #000;
+	--input-color: #fff;
+	--input-bg: #222043;
 `
 
 let Bar = styled.section`
@@ -192,6 +200,14 @@ let Content = styled.section`
 let TabsWrapper = styled.div`
 	flex-grow: 1;
 	display: flex;
+	overflow-y: auto;
+	
+	&::-webkit-scrollbar {
+	  display: none;
+	}
+
+	-ms-overflow-style: none;  /* IE and Edge */
+  	scrollbar-width: none;  /* Firefox */
 `
 
 let StyledAddButton = styled(AddButton)`

@@ -5,26 +5,6 @@ use serde::{Deserialize, Serialize};
 use serde_json;
 use uuid::Uuid;
 
-pub struct ProjectSettings;
-
-impl ProjectSettings {
-    pub fn create_empty<C: GenericClient>(
-        client: &mut C,
-        project_id: &Uuid,
-    ) -> Result<(), ApiError> {
-        let query = get_query("settings/insert_empty")?;
-        let row = client.query(query, &[&project_id]);
-
-        match row {
-            Err(err) => {
-                println!("{:?}", err);
-                Err(ApiError::InternalServerError)
-            }
-            Ok(_) => Ok(()),
-        }
-    }
-}
-
 pub struct ProjectEmail;
 
 impl ProjectEmail {

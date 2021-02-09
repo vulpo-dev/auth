@@ -37,4 +37,8 @@ let Wrapper = styled.div`
 	justify-content: center;
 	align-items: flex-start;
 	height: 100%;
+
+	--input-border: 1px solid rgba(34,36,38,.15);
+	--input-color: rgba(0,0,0,.87);
+	--input-bg: none;
 `

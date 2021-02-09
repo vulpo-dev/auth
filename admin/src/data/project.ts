@@ -9,8 +9,9 @@ import { atom, useRecoilState, SetterOrUpdater, useSetRecoilState } from 'recoil
 import { AuthClient } from '@riezler/auth-sdk'
 
 export type PartialProject = {
-	id: string,
-	name: string,
+	id: string;
+	name: string;
+	domain: string;
 }
 
 type ProjectList = Array<PartialProject>
@@ -44,14 +45,15 @@ export function useCreateProject() {
 	let http = useHttp()
 	let setProjects = useSetRecoilState(projectsAtom)
 
-	return useCallback(async (name: string): Promise<PartialProject> => {
+	return useCallback(async (name: string, domain: string): Promise<PartialProject> => {
 		try {
 			let { data } = await http
-				.post<[string]>('/admin/__/project/create', { name })
+				.post<[string]>('/admin/__/project/create', { name, domain })
 
 			let project: PartialProject = {
 				id: data[0],
-				name: name,
+				name,
+				domain
 			}
 
 			setProjects((projects = []) => {
@@ -66,8 +68,8 @@ export function useCreateProject() {
 	}, [http, setProjects])
 }
 
-export let ProjectCtx = createContext<string>('')
+export let ProjectCtx = createContext<PartialProject | undefined>(undefined)
 
-export function useProject(): string {
-	return useContext(ProjectCtx)
+export function useProject(): PartialProject {
+	return useContext(ProjectCtx)!
 }

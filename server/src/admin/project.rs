@@ -2,7 +2,6 @@ use crate::data::admin::{Admin, NewProject, PartialProject};
 use crate::data::keys::ProjectKeys;
 use crate::data::AuthDb;
 use crate::response::error::ApiError;
-use crate::settings::data::ProjectSettings;
 
 use rocket_contrib::json::Json;
 use serde::Serialize;
@@ -29,6 +28,7 @@ pub async fn create_admin(conn: AuthDb) -> Result<Json<Project>, ApiError> {
 
     let project = NewProject {
         name: "Admin".to_string(),
+        domain: "http://127.0.0.1:8000".to_string(),
     };
 
     let id = conn
@@ -41,7 +41,6 @@ pub async fn create_admin(conn: AuthDb) -> Result<Json<Project>, ApiError> {
             let id = Admin::create_admin_project(&mut trx, project)?;
             let keys = ProjectKeys::create_keys(id, true, None);
             ProjectKeys::insert(&mut trx, &keys)?;
-            ProjectSettings::create_empty(&mut trx, &id)?;
 
             if let Err(_) = trx.commit() {
                 return Err(ApiError::InternalServerError);
@@ -70,7 +69,6 @@ pub async fn create(
             let id = Admin::create_project(&mut trx, body.into_inner())?;
             let keys = ProjectKeys::create_keys(id, true, None);
             ProjectKeys::insert(&mut trx, &keys)?;
-            ProjectSettings::create_empty(&mut trx, &id)?;
 
             if let Err(_) = trx.commit() {
                 return Err(ApiError::InternalServerError);

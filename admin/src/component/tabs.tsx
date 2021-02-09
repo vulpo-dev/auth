@@ -11,6 +11,7 @@ export let Tabs = styled.div`
 export let TabBar = styled.header`
 	background: #fff;
 	display: flex;
+	width: 100vw;
 `
 
 export let Tab = styled(NavLink)`
@@ -23,6 +24,7 @@ export let Tab = styled(NavLink)`
 	font-size: 0.75em;
 	width: calc(var(--baseline) * 19);
 	border-right: 1px solid #000;
+	flex-shrink: 0;
 
 	&:hover {
 		background: rgba(0,0,0, 0.1);

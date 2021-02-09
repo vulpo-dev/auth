@@ -20,11 +20,13 @@ use uuid::Uuid;
 pub struct PartialProject {
     pub id: Uuid,
     pub name: String,
+    pub domain: Option<String>,
 }
 
 #[derive(Debug, Deserialize)]
 pub struct NewProject {
     pub name: String,
+    pub domain: String,
 }
 
 #[derive(Debug, Deserialize)]
@@ -93,8 +95,8 @@ impl Admin {
     ) -> Result<Uuid, ApiError> {
         let query = get_query("project/create")?;
 
-        let name = body.name.clone();
-        let row = client.query_one(query, &[&name]);
+        println!("BODY: {:?}", body);
+        let row = client.query_one(query, &[&body.name, &body.domain]);
 
         match row {
             Err(err) => match err.code() {
@@ -124,6 +126,7 @@ impl Admin {
                     .map(|row| PartialProject {
                         id: row.get("id"),
                         name: row.get("name"),
+                        domain: row.get("domain"),
                     })
                     .collect();
 
@@ -137,9 +140,7 @@ impl Admin {
         body: NewProject,
     ) -> Result<Uuid, ApiError> {
         let query = get_query("admin/create_project")?;
-
-        let name = body.name.clone();
-        let row = client.query_one(query, &[&name]);
+        let row = client.query_one(query, &[&body.name, &body.domain]);
 
         match row {
             Err(err) => match err.code() {

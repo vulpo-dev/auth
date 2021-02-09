@@ -9,10 +9,12 @@ import { RequestError, ErrorCode } from 'data/http'
 
 type Form = {
 	name: string;
+	domain: string;
 }
 
 let DefaultForm = {
-	name: ''
+	name: '',
+	domain: '',
 }
 
 type Props = {
@@ -33,7 +35,7 @@ let CreateProject: FC<Props> = ({ onSuccess }) => {
 		setLoading(true)
 
 		try {
-			let project = await createProject(form.name)
+			let project = await createProject(form.name, form.domain)
 			if (isMounted) {
 				setLoading(false)
 				set(DefaultForm)
@@ -57,6 +59,16 @@ let CreateProject: FC<Props> = ({ onSuccess }) => {
 						name='name'
 						onChange={setForm}
 						value={form.name}
+						required
+					/>
+				</Section>
+				<Section>
+					<Label>Project Domain:</Label>
+					<Input
+						name='domain'
+						onChange={setForm}
+						value={form.domain}
+						placeholder='https://'
 						required
 					/>
 				</Section>
