@@ -26,7 +26,7 @@ pub async fn request_passwordless(
     conn.run(move |client| Flags::has_flags(client, &project.id, &[Flags::AuthenticationLink]))
         .await?;
 
-    let email = body.email.clone();
+    let email = body.email.clone().to_lowercase();
     let user = conn
         .run(move |client| User::get_by_email(client, email, project.id))
         .await?;

@@ -13,6 +13,8 @@ mod template;
 mod token;
 mod user;
 
+use config::secrets::Secrets;
+
 #[macro_use]
 extern crate rocket;
 
@@ -20,12 +22,15 @@ extern crate rocket;
 extern crate diesel_migrations;
 extern crate openssl;
 
+use serde::Deserialize;
+
 use clap::App;
 use figment::{
     providers::{Env, Format, Serialized, Toml},
     Figment,
 };
 use include_dir::{include_dir, Dir};
+use rocket::fairing::AdHoc;
 use rocket::http::Method;
 use rocket::Config;
 use rocket_cors::AllowedOrigins;
@@ -33,6 +38,11 @@ use rocket_cors::AllowedOrigins;
 const SQL: Dir = include_dir!("./sql");
 const ADMIN_CLIENT: Dir = include_dir!("../admin/build");
 const TEMPLATE: Dir = include_dir!("./template");
+
+#[derive(Deserialize, Debug)]
+struct AppConfig {
+    secrets_passphrase: String,
+}
 
 #[rocket::main]
 async fn main() {
@@ -68,7 +78,7 @@ async fn main() {
         let _ = rocket::custom(figment)
             .attach(data::AuthDb::fairing())
             .attach(cors)
-            .attach(config::secrets::SecretConfig)
+            .attach(AdHoc::config::<Secrets>())
             .mount("/admin", admin::routes())
             .mount("/user", user::routes())
             .mount("/passwordless", passwordless::routes())

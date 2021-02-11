@@ -1,3 +1,4 @@
+use crate::config::secrets::Secrets;
 use crate::data::keys::ProjectKeys;
 use crate::data::project::Flags;
 use crate::data::token::{AccessToken, RefreshToken};
@@ -9,6 +10,7 @@ use crate::response::error::ApiError;
 use crate::response::token::Token;
 
 use rocket::http::CookieJar;
+use rocket::State;
 use rocket_contrib::json::Json;
 use serde::Deserialize;
 use uuid::Uuid;
@@ -25,6 +27,7 @@ pub async fn sign_up(
     body: Json<SignUp>,
     project: Project,
     cookies: &CookieJar<'_>,
+    secrets: State<'_, Secrets>,
 ) -> Result<Token, ApiError> {
     conn.run(move |client| {
         Flags::has_flags(
@@ -51,12 +54,8 @@ pub async fn sign_up(
 
     let user = conn
         .run(move |client| {
-            User::create(
-                client,
-                body.email.clone(),
-                body.password.clone(),
-                project.id,
-            )
+            let email = body.email.clone().to_lowercase();
+            User::create(client, email, body.password.clone(), project.id)
         })
         .await?;
 
@@ -78,8 +77,9 @@ pub async fn sign_up(
         .run(move |client| RefreshToken::create(client, uses_ids, expire, project.id))
         .await?;
 
+    let passphrase = secrets.secrets_passphrase.clone();
     let private_key = conn
-        .run(move |client| ProjectKeys::get_private_key(client, &project.id))
+        .run(move |client| ProjectKeys::get_private_key(client, &project.id, &passphrase))
         .await?;
 
     let access_token = AccessToken::new(&user);

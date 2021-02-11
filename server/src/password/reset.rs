@@ -26,7 +26,7 @@ pub async fn request_password_reset(
     body: Json<RequestPasswordReset>,
     project: Project,
 ) -> Result<Status, ApiError> {
-    let email = body.email.clone();
+    let email = body.email.clone().to_lowercase();
     let row = conn
         .run(move |client| User::get_by_email(client, email.to_string(), project.id))
         .await;

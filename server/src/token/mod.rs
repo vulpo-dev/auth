@@ -1,3 +1,4 @@
+use crate::config::secrets::Secrets;
 use crate::data::keys::ProjectKeys;
 use crate::data::token::{AccessToken, RefreshToken};
 use crate::data::user::User;
@@ -8,6 +9,7 @@ use crate::response::token::Token;
 use chrono::{Duration, Utc};
 use rocket::http::CookieJar;
 use rocket::Route;
+use rocket::State;
 use rocket_contrib::uuid::Uuid as RUuid;
 use uuid::Uuid;
 
@@ -17,6 +19,7 @@ pub async fn refresh(
     project: Project,
     user_id: RUuid,
     cookies: &CookieJar<'_>,
+    secrets: State<'_, Secrets>,
 ) -> Result<Token, ApiError> {
     let cookie = match cookies.get("refresh_token") {
         Some(token) => token,
@@ -56,8 +59,9 @@ pub async fn refresh(
         })
         .await?;
 
+    let passphrase = secrets.secrets_passphrase.clone();
     let private_key = conn
-        .run(move |client| ProjectKeys::get_private_key(client, &project.id))
+        .run(move |client| ProjectKeys::get_private_key(client, &project.id, &passphrase))
         .await?;
 
     let user = conn

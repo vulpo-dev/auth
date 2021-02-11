@@ -1,4 +1,3 @@
-use crate::config::secrets::Secrets;
 use crate::data::{get_query, GenericClient};
 use crate::response::error::ApiError;
 
@@ -31,6 +30,7 @@ impl ProjectKeys {
     pub fn get_private_key<C: GenericClient>(
         client: &mut C,
         project_id: &Uuid,
+        passphrase: &str,
     ) -> Result<String, ApiError> {
         let query = get_query("project_keys/get_private_key")?;
 
@@ -38,8 +38,6 @@ impl ProjectKeys {
         match client.query_one(query, &[&project_id]) {
             Err(_) => Err(ApiError::InternalServerError),
             Ok(row) => {
-                let passphrase = Secrets::get_passphrase().unwrap();
-
                 let private_key: String = row.get("private_key");
                 let key = PKey::private_key_from_pem_passphrase(
                     private_key.as_bytes(),
@@ -71,9 +69,8 @@ impl ProjectKeys {
         project_id: Uuid,
         is_active: bool,
         expire_at: Option<DateTime<Utc>>,
+        passphrase: &str,
     ) -> NewProjectKeys {
-        // TODO: Refactor this mess of unwraps
-        let passphrase = Secrets::get_passphrase().unwrap();
         let rsa = Rsa::generate(2048).unwrap();
         let pkey = PKey::from_rsa(rsa).unwrap();
         let public_key: Vec<u8> = pkey.public_key_to_pem().unwrap();
@@ -110,7 +107,6 @@ impl ProjectKeys {
 
         match row {
             Err(_) => Err(ApiError::InternalServerError),
-
             Ok(row) => Ok(row.get("id")),
         }
     }

@@ -1,3 +1,4 @@
+use crate::config::secrets::Secrets;
 use crate::data::project::Flags;
 use crate::data::user::User;
 use crate::data::AuthDb;
@@ -11,6 +12,7 @@ use crate::response::token::Token;
 
 use bcrypt::verify;
 use rocket::http::CookieJar;
+use rocket::State;
 use rocket_contrib::json::Json;
 use serde::Deserialize;
 use uuid::Uuid;
@@ -27,6 +29,7 @@ pub async fn sign_in(
     body: Json<SignIn>,
     project: Project,
     cookies: &CookieJar<'_>,
+    secrets: State<'_, Secrets>,
 ) -> Result<Token, ApiError> {
     conn.run(move |client| {
         Flags::has_flags(
@@ -37,7 +40,7 @@ pub async fn sign_in(
     })
     .await?;
 
-    let email = body.email.clone();
+    let email = body.email.clone().to_lowercase();
     let user = conn
         .run(move |client| User::password(client, email, project.id))
         .await?;
@@ -86,8 +89,9 @@ pub async fn sign_in(
         .run(move |client| RefreshToken::create(client, uses_ids, expire, project.id))
         .await?;
 
+    let phassphrase = secrets.secrets_passphrase.clone();
     let private_key = conn
-        .run(move |client| ProjectKeys::get_private_key(client, &project.id))
+        .run(move |client| ProjectKeys::get_private_key(client, &project.id, &phassphrase))
         .await?;
 
     let access_token = AccessToken::new(&user);
