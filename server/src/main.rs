@@ -86,6 +86,7 @@ async fn main() {
             .mount("/token", token::routes())
             .mount("/project", project::routes())
             .mount("/settings", settings::routes())
+            .mount("/template", template::routes())
             .launch()
             .await;
     }
