@@ -77,7 +77,7 @@ type Reload = {
 export function useUsers({
 	project,
 	orderBy = 'created_at',
-	sort = 'asc',
+	sort = 'desc',
 	offset = 0,
 	limit = 50
 }: Filter): UsersState & Reload {

@@ -47,10 +47,7 @@ export class User {
 
 		let user = this.users.get(userId)
 		if (!shallowEqualObjects(this.current, user)) {
-			this.current = user
-			this.listener.forEach(entry => {
-				entry.cb(user)
-			})
+			this.setCurrent(user)
 		}
 
 		Storage.setActive(userId)
@@ -80,25 +77,33 @@ export class User {
 		}
 
 		if (!shallowEqualObjects(this.current, user)) {
-			this.current = user
-			this.listener.forEach(entry => {
-				entry.cb(user)
-			})
+			this.setCurrent(user)
 		}
 
 		return user
 	};
 
 	remove(userId: string) {
+		this.users.delete(userId)
 		Storage.remove(userId)
+
+		let wasActive = userId === this.active
+		if (wasActive) {
+			let [user] = Array.from(this.users.values())
+			this.setCurrent(user ?? null)
+		}
 	}
 
 	removeAll() {
 		Storage.removeAll()
+		this.users.clear()
+		this.setCurrent(null)
 	}
 
 	setCurrent(user: UserState) {
 		this.current = user
+		this.active = user?.id ?? null
+
 		this.listener.forEach(entry => {
 			entry.cb(user)
 		})

@@ -1,8 +1,11 @@
 import React from 'react';
 import logo from './logo.svg';
 import './App.css';
+import { useAuth } from '@riezler/auth-react'
 
 function App() {
+  let auth = useAuth()
+
   return (
     <div className="App">
       <header className="App-header">
@@ -19,6 +22,8 @@ function App() {
           Learn React
         </a>
       </header>
+
+      <button onClick={() => auth.signOut()}>Sign Out</button>
     </div>
   );
 }

@@ -9,6 +9,7 @@ import { Section } from 'component/layout'
 import { Input } from '@biotic-ui/input'
 import { useForm } from '@biotic-ui/std'
 import { ErrorCode } from '@riezler/auth-sdk'
+import { useHistory, useRouteMatch } from 'react-router-dom'
 
 type Form = {
 	email: string
@@ -19,6 +20,7 @@ type Props = {
 	error: null | ErrorCode;
 	onBack: () => void;
 	onSignIn: (form: Form) => void;
+	ctx: 'signin' | 'signup';
 }
 
 export let EnterEmail = (props: Props) => {
@@ -36,17 +38,23 @@ export let EnterEmail = (props: Props) => {
 		props.onSignIn(form)
 	}
 
+	let label = props.ctx === 'signin'
+		? t.signin.label
+		: t.signup.label
+
 	return (
 		<Card>
 			<CardNav>
-				<IconButton id='back'>
+				<IconButton id='back' onClick={props.onBack}>
 					{ config.Arrow }				
 				</IconButton>
-				<label htmlFor="back">Sign In</label>
+				<label htmlFor="back">{label}</label>
 			</CardNav>
 			<CardHeader>
 				<Title>{t.passwordless.title}</Title>
-				<Subtitle>{t.passwordless.info}</Subtitle>
+				<Subtitle>
+					<t.passwordless.info label={label} />
+				</Subtitle>
 			</CardHeader>
 			<form onSubmit={handleSubmit}>
 				<Section>
@@ -76,12 +84,18 @@ export let EnterEmail = (props: Props) => {
 
 
 let EnterEmailContainer = () => {
+	let history = useHistory()
+	let match = useRouteMatch<{ type: 'signin' | 'signup' }>('/:type')
 
 	let loading = false
 	let error = null
 
 	function handleBack() {
-		
+		if (match) {
+			history.replace(`/${match.params.type}`)
+		} else {
+			history.replace('/')
+		}
 	}
 
 	function handleSignIn(form: Form) {
@@ -94,6 +108,7 @@ let EnterEmailContainer = () => {
 			error={null}
 			onBack={handleBack}
 			onSignIn={handleSignIn}
+			ctx={match?.params.type ?? 'signin'}
 		/>
 	)
 }

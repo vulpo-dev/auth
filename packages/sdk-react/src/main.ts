@@ -31,21 +31,21 @@ export function useAuthStateChange(fn: AuthCallback) {
 			return
 		}
 
-		let unsub = auth.authStateChange((user: User) => {
+		let sub = auth.authStateChange((user: User) => {
 			cb.current(user)
 		})
 
 		return () => {
-			unsub()
+			sub.unsubscribe()
 		}
 	}, [auth])
 }
 
 type UseAuth = {
 	user: UserState,
-	signIn: (e: string, p: string) => Promise<User>,
-	signUp: (e: string, p: string) => Promise<User>,
-	signOut: (e: string, p: string) => Promise<void>,
+	signIn: (email: string, password: string) => Promise<User>,
+	signUp: (email: string, password: string) => Promise<User>,
+	signOut: (useId?: string) => Promise<void>,
 	resetPassword: (email: string) => Promise<void>,
 	setPassword: (body: SetPassword) => Promise<void>,
 }
@@ -72,12 +72,12 @@ export function useAuth(): UseAuth {
 		return auth.signUp(email, password)
 	}, [auth])
 
-	let signOut = useCallback(() => {
+	let signOut = useCallback((userId?: string) => {
 		if (auth === null) {
 			throw new AuthClientError('signOut')
 		}
 
-		return auth.signOut()
+		return auth.signOut(userId)
 	}, [auth])
 
 	let resetPassword = useCallback((email: string) => {

@@ -11,3 +11,4 @@ export {
 } from 'context/translation'
 
 export { default as Auth } from 'auth'
+export { Container } from 'component/layout'

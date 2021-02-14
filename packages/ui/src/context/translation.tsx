@@ -77,7 +77,7 @@ type Translations = {
 
 	passwordless: {
 		title: string;
-		info: string;
+		info: FC<{ label: string }>;
 		button: string;
 	};
 
@@ -141,7 +141,9 @@ export let DefaultTranslation = {
 
 	passwordless: {
 		title: 'Authentication Link',
-		info: 'Enter your email address and we will send you a link to sign in.',
+		info: ({ label }: { label: string }) => {
+			return <span>Enter your email address and we will send you a link to {label}</span>
+		},
 		button: 'Send Authentication Link',
 	},
 

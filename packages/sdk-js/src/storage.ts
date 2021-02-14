@@ -48,24 +48,31 @@ class Storage {
 		}
 	}
 
-	remove(id: string): void {
+	remove(id: string): boolean {
+		let active = this.getActive()
+		let users = this.get()
+
+		users = users.filter(user => {
+			return user.id !== id
+		})
+
 		if (isBrowser()) {
-			let users = this.get()
-
-			users = users.filter(user => {
-				return user.id !== id
-			})
-
 			localStorage.setItem(this.key, JSON.stringify(users))
-		} else {
-			let users = this.get()
-			
-			users = users.filter(user => {
-				return user.id !== id
-			})
 
+			if (active === id) {
+				localStorage.removeItem(this.activeKey)
+				return true
+			}
+
+		} else {
 			this.memoryStorage.users = users
+			if (active === id) {
+				this.memoryStorage.active = null
+				return true
+			}
 		}
+
+		return false
 	}
 
 	removeAll() {

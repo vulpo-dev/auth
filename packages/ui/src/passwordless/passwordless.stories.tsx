@@ -21,6 +21,7 @@ export let Enter: Story = () => {
 				error={null}
 				onBack={action('onBack')}
 				onSignIn={action('onSignIn')}
+				ctx='signin'
 			/>
 		</Container>
 	)
