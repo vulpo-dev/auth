@@ -1,14 +1,19 @@
 import React from 'react'
-import { SyntheticEvent } from 'react'
+import { SyntheticEvent, useState } from 'react'
 import styled from 'styled-components'
-import { Card, CardHeader, CardNav, CardTitle } from 'component/card'
+import { Card, CardHeader, CardNav } from 'component/card'
 import { Input } from '@biotic-ui/input'
-import { Label, Error } from 'component/text'
+import { Label, Error, Title, Subtitle } from 'component/text'
 import { useForm } from '@biotic-ui/std'
 import { useTranslation, useError } from 'context/translation'
 import { useConfig } from 'context/config'
 import { Button, IconButton } from '@biotic-ui/button'
 import { ErrorCode } from '@riezler/auth-sdk'
+import { useHistory, useRouteMatch, Switch, Route } from 'react-router-dom'
+import { useAuth } from '@riezler/auth-react'
+
+import CheckEmail from 'password_reset/check'
+import SetPassword from 'password_reset/set_password'
 
 type Form = {
 	email: string;
@@ -75,17 +80,65 @@ export let PasswordReset: React.FC<Props> = ({
 	)
 }
 
+let PasswordResetContainer = () => {
+	let auth = useAuth()
+
+	let [error, setError] = useState<ErrorCode | null>(null)
+	let [loading, setLoading] = useState<boolean>(false)
+
+	let history = useHistory()
+
+	async function handleReset(form: Form) {
+		setError(null)
+		setLoading(true)
+
+		try {
+			await auth.resetPassword(form.email)
+			setLoading(false)
+
+			history.replace(`/forgot-password/check-email?email=${form.email}`)
+		} catch (err) {
+			setLoading(false)
+			setError(err.code)
+		}
+	}
+
+	function handleBack() {
+		history.replace(`/signin/email`)
+	}
+
+	return (
+		<PasswordReset
+			onBack={handleBack}
+			onReset={handleReset}
+			loading={loading}
+			error={null}
+		/>
+	)
+}
+
+
+export default () => {
+	return (
+		<Switch>
+			<Route path='/forgot-password/check-email'>
+				<CheckEmail />
+			</Route>
+
+			<Route path='/forgot-password/set-password'>
+				<SetPassword />
+			</Route>
+			
+			<Route path='/forgot-password'>
+				<PasswordResetContainer />
+			</Route>
+		</Switch>
+	)
+}
+
 
 let Section = styled.section`
 	margin-block-end: var(--baseline-2);
 	display: flex;
 	flex-direction: column;
-`
-
-let Title = styled(CardTitle)`
-	margin-block-end: calc(var(--baseline) * 0.625);
-`
-
-let Subtitle = styled.p`
-	margin-block-end: 0;
 `

@@ -16,6 +16,6 @@ export let DefaultConfig = {
 
 export let AuthConfig = createContext<$AuthConfig>(DefaultConfig)
 
-export function useConfig() {
+export function useConfig(): $AuthConfig {
 	return useContext(AuthConfig)
 }

@@ -9,3 +9,5 @@ export {
 	useTranslation,
 	useError
 } from 'context/translation'
+
+export { default as Auth } from 'auth'

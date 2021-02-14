@@ -5,7 +5,8 @@ import { Link } from 'react-router-dom'
 import { ErrorCode } from '@riezler/auth-sdk'
 
 type DisclaimerProps = { tos: string, privacy: string }
-type ResetProps = { email: string | null }; 
+type ResetProps = { email: string | null };
+type PasswordlessProps = { email: string | null; type: string };
 
 export type ErrorMessage = {
 	/* Sign Up */
@@ -74,6 +75,18 @@ type Translations = {
 		password: string;
 	};
 
+	passwordless: {
+		title: string;
+		info: string;
+		button: string;
+	};
+
+	passwordless_check: {
+		title: string;
+		info: string;
+		description: FC<PasswordlessProps>;
+	};
+
 	Disclaimer: FC<DisclaimerProps>;
 
 	error: ErrorMessage;
@@ -112,11 +125,11 @@ export let DefaultTranslation = {
 		info: '(It might take a couple of minutes for the link to arrive)',
 		description: ({ email }: ResetProps) => {
 
-			if (email === null || email.trim() === '') {
-				return <p>We have send you an authentication link to your inbox for you to reset your password.</p>
+			if (!email|| email.trim() === '') {
+				return <p>We have send an authentication link to your inbox for you to reset your password.</p>
 			}
 
-			return <p>We have send you an authentication link to <strong>{email}</strong> for you to reset your password.</p>
+			return <p>We have send an authentication link to <strong>{email}</strong> for you to reset your password.</p>
 		}
 	},
 
@@ -124,6 +137,25 @@ export let DefaultTranslation = {
 		title: 'Reset Password',
 		info: 'Enter your email address and we will send you a link to reset your password.',
 		button: 'Send Reset Password Link',
+	},
+
+	passwordless: {
+		title: 'Authentication Link',
+		info: 'Enter your email address and we will send you a link to sign in.',
+		button: 'Send Authentication Link',
+	},
+
+	passwordless_check: {
+		title: 'Check your Email',
+		info: '(It might take a couple of minutes for the link to arrive)',
+		description: ({ email, type }: PasswordlessProps) => {
+			
+			if (!email || email.trim() === '') {
+				return <p>We have send an authentication link to <strong>your inbox</strong> for you to {type}.</p>
+			}
+
+			return <p>We have send an authentication link to <strong>{email}</strong> for you to {type}.</p>
+		}
 	},
 
 	set_password: {

@@ -2,7 +2,8 @@ import type {
 	AuthClient,
 	AuthCallback,
 	UserState,
-	User
+	User,
+	SetPassword,
 } from '@riezler/auth-sdk'
 
 import {
@@ -45,6 +46,8 @@ type UseAuth = {
 	signIn: (e: string, p: string) => Promise<User>,
 	signUp: (e: string, p: string) => Promise<User>,
 	signOut: (e: string, p: string) => Promise<void>,
+	resetPassword: (email: string) => Promise<void>,
+	setPassword: (body: SetPassword) => Promise<void>,
 }
 
 export function useAuth(): UseAuth {
@@ -77,11 +80,29 @@ export function useAuth(): UseAuth {
 		return auth.signOut()
 	}, [auth])
 
+	let resetPassword = useCallback((email: string) => {
+		if (auth === null) {
+			throw new AuthClientError('resetPassword')
+		}
+
+		return auth.resetPassword(email)
+	}, [auth])
+
+	let setPassword = useCallback((value: SetPassword) => {
+		if (auth === null) {
+			throw new AuthClientError('setPassword')
+		}
+
+		return auth.setPassword(value)
+	}, [auth])
+
 	return {
 		user,
 		signIn,
 		signOut,
 		signUp,
+		resetPassword,
+		setPassword,
 	}
 }
 

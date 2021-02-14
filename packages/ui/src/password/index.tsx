@@ -127,7 +127,11 @@ let PasswordContainer = () => {
 	let auth = useAuth()
 
 	function handleBack() {
-		history.replace('/')
+		if (match) {
+			history.replace(`/${match.params.type}`)
+		} else {
+			history.replace('/')
+		}
 	}
 
 	async function handleSubmit(user: UserForm) {
@@ -149,7 +153,6 @@ let PasswordContainer = () => {
 			setLoading(false)
 			history.replace(ref)
 		} catch (err) {
-			console.log({ err })
 			setLoading(false)
 			setError(err.code)
 		}

@@ -13,11 +13,18 @@ import { ApiError, ErrorCode } from 'error'
 import Axios, { AxiosInstance } from 'axios'
 import { shallowEqualObjects } from 'shallow-equal'
 
-let DefaultConfig: Config =
-	{ offline: true
-	, project: ''
-	, baseURL: ''
-	}
+export type SetPassword = {
+	id: string;
+	token: string;
+	password1: string;
+	password2: string;
+}
+
+let DefaultConfig: Config = {
+	offline: true,
+	project: '',
+	baseURL: '',
+}
 
 export class AuthClient {
 	config: Config = DefaultConfig;
@@ -122,6 +129,22 @@ export class AuthClient {
 		}
 	}
 
+	async resetPassword(email: string): Promise<void> {
+		try {
+			await this.http.post('/password/request_password_reset', { email })
+		} catch(err) {
+			throw this.error.fromResponse(err)
+		}
+	}
+
+	async setPassword(body: SetPassword): Promise<void> {
+		try {
+			await this.http.post('/password/password_reset', body)
+		} catch (err) {
+			throw this.error.fromResponse(err)
+		}
+	}
+
 	authStateChange(cb: AuthCallback): Unsubscribe {
 		let sub = this.user.subscribe(cb)
 		cb(this.user.current)
@@ -137,7 +160,11 @@ export class AuthClient {
 	}
 }
 
-export let Auth = {
+type $Auth = {
+	create(userConfig: Config): AuthClient;
+}
+
+export let Auth: $Auth = {
 	create(userConfig: Config): AuthClient {
 		let config = { ...DefaultConfig, ...userConfig }
 		

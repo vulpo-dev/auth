@@ -5,7 +5,6 @@ export let Card = styled.div`
 	background: var(--card-background, #fff);
 	inline-size: 25rem;
 	max-inline-size: 98vw;
-	min-block-size: calc(var(--baseline) * 25);
 	border-radius: var(--baseline);
 	box-shadow: var(--shadow-4);
 	padding: var(--baseline-3);

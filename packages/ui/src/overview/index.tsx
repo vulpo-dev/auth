@@ -23,6 +23,8 @@ export let Overview = () => {
 	)
 }
 
+export default Overview
+
 let LinkButton = styled(Button)`
 	margin-block-end: var(--baseline);
 	block-size: var(--baseline-4);

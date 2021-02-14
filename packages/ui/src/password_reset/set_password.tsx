@@ -1,5 +1,5 @@
 import React from 'react'
-import { SyntheticEvent, useRef, FC } from 'react'
+import { SyntheticEvent, useRef, FC, useState } from 'react'
 import styled from 'styled-components'
 import { Card, CardHeader, CardNav, CardTitle } from 'component/card'
 import { Password } from '@biotic-ui/input'
@@ -9,6 +9,9 @@ import { useForm } from '@biotic-ui/std'
 import { checkPasswordLength } from 'utils'
 import { useTranslation, useError } from 'context/translation'
 import { ErrorCode } from '@riezler/auth-sdk'
+import { useAuth } from '@riezler/auth-react'
+import { useLocation, useHistory } from 'react-router-dom'
+import { useQueryParams } from '@biotic-ui/std'
 
 type Form = {
 	password1: string;
@@ -112,6 +115,45 @@ export let SetPassword: FC<Props> = ({
 	)
 }
 
+let SetPasswordContainer = () => {
+	let auth = useAuth()
+	let history = useHistory()
+	let location = useLocation()
+	let query = useQueryParams(location.search)
+
+	let [error, setError] = useState<ErrorCode | null>(null)
+	let [loading, setLoading] = useState<boolean>(false)
+
+	async function handleSubmit(form: Form) {
+
+		// todo: validate and show error before making the request 
+		//e.g: id token not found || token not found 
+
+		let id = query.get('id') ?? ''
+		let token = query.get('token') ?? ''
+
+		setLoading(true)
+		setError(null)
+
+		try {
+			await auth.setPassword({ ...form, id, token })
+			history.replace('/signin/email')
+		} catch(err) {
+			setLoading(false)
+			setError(err.code)
+		}
+	}
+
+	return (
+		<SetPassword
+			onSubmit={handleSubmit}
+			loading={loading}
+			error={error}
+		/>
+	)
+}
+
+export default SetPasswordContainer
 
 let Title = styled(CardTitle)`
 	line-height: 1;
