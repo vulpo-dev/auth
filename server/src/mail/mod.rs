@@ -1,8 +1,10 @@
-use crate::mail::mailgun::{Mailgun, MailgunSettings};
 use crate::response::error::ApiError;
 use crate::settings::data::EmailSettings;
 
-mod mailgun;
+use lettre::{
+    transport::smtp::authentication::Credentials, AsyncSmtpTransport, Message, Tokio02Connector,
+    Tokio02Transport,
+};
 
 #[derive(Debug)]
 pub struct Email {
@@ -13,24 +15,36 @@ pub struct Email {
 
 impl Email {
     pub async fn send(self, settings: EmailSettings) -> Result<(), ApiError> {
-        match settings {
-            EmailSettings::MailGun {
-                domain,
-                from_name,
-                from_email,
-                api_key,
-                username,
-            } => {
-                let settings = MailgunSettings {
-                    domain,
-                    from_name,
-                    from_email,
-                    api_key,
-                    username,
-                };
-                Mailgun::send(settings, self).await
+        let from = format!("{} <{}>", settings.from_name, settings.from_email);
+
+        let email = Message::builder()
+            .from(from.parse().unwrap())
+            .to(self.to_email.parse().unwrap())
+            .subject(self.subject)
+            .body(self.content)
+            .unwrap();
+
+        let creds = Credentials::new(settings.username, settings.password);
+
+        // Open a remote connection to gmail
+        let mailer = AsyncSmtpTransport::<Tokio02Connector>::relay(&settings.host)
+            .unwrap()
+            .credentials(creds)
+            .port(settings.port)
+            .build();
+
+        let res = mailer.send(email).await;
+
+        match res {
+            Err(err) => {
+                println!("{:?}", err);
+                Err(ApiError::InternalServerError)
             }
-            EmailSettings::None => Err(ApiError::InternalServerError),
+
+            Ok(_) => {
+                println!("Mail SEND");
+                Ok(())
+            }
         }
     }
 }

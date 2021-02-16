@@ -4,60 +4,85 @@ import styled from 'styled-components'
 import { Select, Option } from '@biotic-ui/select'
 import { Button } from '@biotic-ui/button'
 import { Header, Section } from 'settings/component/layout'
+import { Input, Section as ISection, Label } from '@biotic-ui/input'
 
 import {
 	useEmailSettings,
 	EmailProvider,
-	DefaultMailGun,
+	DefaultEmailSettings,
 	useSaveEmailSettings,
+	useSetEmailSettings,
 } from 'data/settings'
-
-import MailGun from 'settings/email/mailgun'
+import { useProject } from 'data/project'
 
 type Props = {
 	project: string
 }
 
-let EmailSettings: FunctionComponent<Props> = ({ project }) => {
-	let [{ data, initialData }, setSettings] = useEmailSettings(project)
-	let save = useSaveEmailSettings(project)
-
-	function handleChange(e: ChangeEvent<HTMLSelectElement>) {
-		let provider = (e.target.value as EmailProvider)
-		
-		if (initialData?.provider === provider) {
-			setSettings(initialData)
-			return
-		}
-
-		switch(provider) {
-			case EmailProvider.MailGun:
-				setSettings(DefaultMailGun)
-			break
-
-			case EmailProvider.None:
-			default:
-				setSettings({ provider: EmailProvider.None })
-		}
-	}	
+let EmailSettings: FunctionComponent<Props> = () => {
+	let project = useProject()
+	let setForm = useSetEmailSettings(project.id)
+	let [{ data, initialData }, setSettings] = useEmailSettings(project.id)
+	let save = useSaveEmailSettings(project.id)
 
 	return (
 		<Section>
 			<Header>
 				<h2>Email</h2>
-				
-				<div>
-					<Select value={data?.provider} onChange={handleChange}>
-						<Option value={EmailProvider.None}>-- select provider --</Option>
-						<Option value={EmailProvider.MailGun}>Mailgun</Option>
-					</Select>
-				</div>
+			
 			</Header>
 
 			<div>
-				{ data?.provider === EmailProvider.MailGun &&
-					<MailGun value={data.settings.mailgun} />
-				}
+				<form>
+					<ISection>
+						<Label>Host:</Label>
+						<Input
+							value={data?.host}
+							onChange={setForm}
+							name='host'
+						/>
+					</ISection>
+					<ISection>
+						<Label>From Email:</Label>
+						<Input
+							value={data?.from_email}
+							onChange={setForm}
+							name='from_email'
+						/>
+					</ISection>
+					<ISection>
+						<Label>From Name:</Label>
+						<Input
+							value={data?.from_name}
+							onChange={setForm}
+							name='from_name'
+						/>
+					</ISection>
+					<ISection>
+						<Label>Username:</Label>
+						<Input
+							value={data?.username}
+							onChange={setForm}
+							name='username'
+						/>
+					</ISection>
+					<ISection>
+						<Label>Password:</Label>
+						<Input
+							value={data?.password}
+							onChange={setForm}
+							name='password'
+						/>
+					</ISection>
+					<ISection>
+						<Label>Port:</Label>
+						<Input
+							value={data?.port}
+							onChange={setForm}
+							name='port'
+						/>
+					</ISection>
+				</form>
 			</div>
 
 			<div>

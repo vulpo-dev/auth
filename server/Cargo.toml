@@ -29,6 +29,12 @@ openssl-sys = "0.9"
 openssl = { version = "0.10" }
 figment = { version = "0.9.4", features= ["env"] }
 
+[dependencies.lettre]
+git = "https://github.com/lettre/lettre"
+branch = "master"
+features = ["tokio02", "tokio02-rustls-tls", "tokio02-native-tls"]
+
+
 [dependencies.rocket_contrib]
 git = "https://github.com/SergioBenitez/Rocket"
 branch = "master"

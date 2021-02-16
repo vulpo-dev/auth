@@ -61,7 +61,11 @@ pub async fn request_password_reset(
         content,
     };
 
-    email.send(settings.settings).await?;
+    match settings {
+        None => return Err(ApiError::InternalServerError),
+        Some(settings) => email.send(settings).await?,
+    };
+
     Ok(Status::Ok)
 }
 

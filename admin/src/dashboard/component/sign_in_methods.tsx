@@ -15,8 +15,8 @@ let SignInMethods: FC<Props> = ({ project }) => {
 	let items = flags.items ?? []
 	let toggleFlag = useToggleFlags(project)
 	let [updateFlags, updating] = useUpdateFlags(project)
-	let [{ data: email }] = useEmailSettings(project)
-	let hasEmail = hasEmailProvider(email)
+	let [{ initialData }] = useEmailSettings(project)
+	let hasEmail = hasEmailProvider(initialData)
 
 	return (
 		<Container>

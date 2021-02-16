@@ -56,6 +56,10 @@ pub async fn request_passwordless(
         content,
     };
 
-    email.send(settings.settings).await?;
+    match settings {
+        None => return Err(ApiError::InternalServerError),
+        Some(settings) => email.send(settings).await?,
+    };
+
     Ok(Json([id]))
 }

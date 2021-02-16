@@ -21,48 +21,29 @@ export enum EmailProvider {
 	None = 'none',
 }
 
-export type MailGunSettings = {
-	domain: string;
+export type EmailSettings = {
+	host: string;
 	from_email: string;
 	from_name: string;
 	api_key: string;
 	username: string;
+	password: string;
+	port: number;
 }
 
-export type MailGun = {
-	provider: typeof EmailProvider.MailGun;
-	settings: {
-		mailgun: MailGunSettings;
-	};
-}
-
-export let DefaultMailGunSettings: MailGunSettings = {
-	domain: '',
+export let DefaultEmailSettings: EmailSettings = {
+	host: '',
 	from_email: '',
 	from_name: '',
 	api_key: '',
-	username: 'api'
+	username: '',
+	password: '',
+	port: 465
 }
 
-export let DefaultMailGun: MailGun = {
-	provider: EmailProvider.MailGun,
-	settings: {
-		mailgun: DefaultMailGunSettings
-	}
-}
 
-export type ProviderSettings
-	= MailGun
-	| { provider: typeof EmailProvider.None }
-	| undefined
-
-
-export function hasEmailProvider(settings: ProviderSettings) {
+export function hasEmailProvider(settings?: EmailSettings | null) {
 	if (!settings) {
-		return false
-	}
-
-	if (settings.provider === EmailProvider.None) {
 		return false
 	}
 
@@ -74,11 +55,11 @@ type Request<T> = {
 	data: T | undefined,
 	loading: boolean,
 	error: HttpError | null,
-	initialData: T | undefined,
+	initialData: T | undefined | null,
 }
 
 
-let createEmailSettings = atomFamily<Request<ProviderSettings>, string>({
+let createEmailSettings = atomFamily<Request<EmailSettings>, string>({
 	key: 'email_settings',
 	default: {
 		data: undefined,
@@ -88,16 +69,16 @@ let createEmailSettings = atomFamily<Request<ProviderSettings>, string>({
 	}
 })
 
-export function useEmailSettings(project: string): [Request<ProviderSettings>, ((x: SetterOrUpdater<ProviderSettings>) => void)] {
+export function useEmailSettings(project: string): [Request<EmailSettings>, ((x: SetterOrUpdater<EmailSettings>) => void)] {
 	let http = useHttp()
 
 	let [state, setState] = useRecoilState(createEmailSettings(project))
 
-	function handleSetState(valOrFn: SetterOrUpdater<ProviderSettings>) {
+	function handleSetState(valOrFn: SetterOrUpdater<EmailSettings>) {
 		setState(currentState => {
 			let nextState = valOrFn instanceof Function
-				? valOrFn(currentState.data)
-				: (valOrFn as ProviderSettings)
+				? valOrFn(currentState.data ?? DefaultEmailSettings)
+				: (valOrFn as EmailSettings)
 
 			return {
 				...currentState,
@@ -123,10 +104,10 @@ export function useEmailSettings(project: string): [Request<ProviderSettings>, (
 		}
 
 		http
-			.get<ProviderSettings>('settings/email', options)
+			.get<EmailSettings | null>('settings/email', options)
 			.then(res => {
 				setState({
-					data: res.data,
+					data: res.data ?? DefaultEmailSettings,
 					initialData: res.data,
 					loading: false,
 					error: null,
@@ -151,32 +132,16 @@ export function useEmailSettings(project: string): [Request<ProviderSettings>, (
 
 export function useSetEmailSettings(project: string) {
 	let atom = createEmailSettings(project)
-	let setState = useSetRecoilState<Request<ProviderSettings>>(atom)
+	let setState = useSetRecoilState<Request<EmailSettings>>(atom)
 
 	return useCallback((e: ChangeEvent<HTMLInputElement>) => {
 			setState(state => {
-
-				if (state.data === undefined) {
-					return state
-				}
-
-				if (state.data.provider === EmailProvider.None) {
-					return state
-				}
-
-				let { provider } = state.data
-				let settings = state.data.settings[provider]
 				let { name, value } = e.target
 				return {
 					...state,
 					data: {
-						...state.data,
-						settings: {
-							[provider]: {
-								...state.data.settings[provider],
-								[name]: value
-							}
-						}
+						...(state.data ?? DefaultEmailSettings),
+						[name]: value
 					}
 				}
 			})
