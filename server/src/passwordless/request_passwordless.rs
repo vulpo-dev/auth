@@ -37,7 +37,8 @@ pub async fn request_passwordless(
     let email = body.email.clone();
     let id = conn
         .run(move |client| {
-            Passwordless::create_token(client, user.id, email, verification_token, project.id)
+            let id = user.map(|u| u.id);
+            Passwordless::create_token(client, id, email, verification_token, project.id)
         })
         .await?;
 

@@ -36,6 +36,11 @@ pub async fn request_password_reset(
         Ok(user) => user,
     };
 
+    let user = match user {
+        None => return Ok(Status::Ok),
+        Some(user) => user,
+    };
+
     let reset_token = Uuid::new_v4();
     let hashed_token = match hash(reset_token.to_string(), DEFAULT_COST) {
         Err(_) => return Err(ApiError::InternalServerError),

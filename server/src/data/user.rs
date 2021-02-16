@@ -52,13 +52,16 @@ impl User {
         client: &mut C,
         email: String,
         project: Uuid,
-    ) -> Result<User, ApiError> {
+    ) -> Result<Option<User>, ApiError> {
         let query = get_query("user/get_by_email")?;
-        let row = client.query_one(query, &[&email, &project]);
+        let rows = match client.query(query, &[&email, &project]) {
+            Err(_) => return Err(ApiError::InternalServerError),
+            Ok(rows) => rows,
+        };
 
-        match row {
-            Err(_) => Err(ApiError::NotFound),
-            Ok(user) => Ok(User::from_row(&user)),
+        match rows.get(0) {
+            None => Ok(None),
+            Some(row) => Ok(Some(User::from_row(row))),
         }
     }
 

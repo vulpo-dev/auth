@@ -186,7 +186,7 @@ pub struct Passwordless;
 impl Passwordless {
     pub fn create_token<C: GenericClient>(
         client: &mut C,
-        id: Uuid,
+        id: Option<Uuid>,
         email: String,
         verification_token: String,
         project: Uuid,
