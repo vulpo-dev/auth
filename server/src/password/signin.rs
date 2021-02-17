@@ -40,7 +40,7 @@ pub async fn sign_in(
     })
     .await?;
 
-    let email = body.email.clone().to_lowercase();
+    let email = body.email.trim().to_lowercase();
     let user = conn
         .run(move |client| User::password(client, email, project.id))
         .await?;

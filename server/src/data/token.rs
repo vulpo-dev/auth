@@ -2,7 +2,7 @@ use crate::data::user::User;
 use crate::data::{get_query, GenericClient};
 use crate::response::error::ApiError;
 
-use bcrypt::{hash, DEFAULT_COST};
+use bcrypt::{hash, verify, DEFAULT_COST};
 use chrono::{DateTime, Duration as CDuration, Utc};
 use jsonwebtoken::{decode, encode, Algorithm, DecodingKey, EncodingKey, Header, Validation};
 use serde::{Deserialize, Serialize};
@@ -181,14 +181,23 @@ impl AccessToken {
 }
 
 #[derive(Debug)]
-pub struct Passwordless;
+pub struct Passwordless {
+    pub id: Uuid,
+    pub created_at: DateTime<Utc>,
+    pub user_id: Option<Uuid>,
+    pub email: String,
+    pub token: String,
+    pub is_valid: bool,
+    pub project_id: Uuid,
+    pub confirmed: bool,
+}
 
 impl Passwordless {
     pub fn create_token<C: GenericClient>(
         client: &mut C,
         id: Option<Uuid>,
-        email: String,
-        verification_token: String,
+        email: &str,
+        verification_token: &str,
         project: Uuid,
     ) -> Result<Uuid, ApiError> {
         let query = get_query("passwordless/create")?;
@@ -200,6 +209,50 @@ impl Passwordless {
         }
     }
 
+    pub fn get<C: GenericClient>(client: &mut C, id: &Uuid) -> Result<Passwordless, ApiError> {
+        let query = get_query("passwordless/get")?;
+        let rows = match client.query(query, &[&id]) {
+            Err(_) => return Err(ApiError::InternalServerError),
+            Ok(rows) => rows,
+        };
+
+        let row = match rows.get(0) {
+            None => return Err(ApiError::NotFound),
+            Some(row) => row,
+        };
+
+        Ok(Passwordless {
+            id: row.get("id"),
+            created_at: row.get("created_at"),
+            user_id: row.get("user_id"),
+            email: row.get("email"),
+            token: row.get("token"),
+            is_valid: row.get("is_valid"),
+            project_id: row.get("project_id"),
+            confirmed: row.get("confirmed"),
+        })
+    }
+
+    pub fn confirm<C: GenericClient>(client: &mut C, id: &Uuid) -> Result<(), ApiError> {
+        let query = get_query("passwordless/confirm")?;
+        match client.query(query, &[&id]) {
+            Err(_) => Err(ApiError::InternalServerError),
+            Ok(_) => Ok(()),
+        }
+    }
+
+    pub fn remove_all<C: GenericClient>(
+        client: &mut C,
+        email: &str,
+        project: &Uuid,
+    ) -> Result<(), ApiError> {
+        let query = get_query("passwordless/delete_from_user")?;
+        match client.query(query, &[&email, &project]) {
+            Err(_) => Err(ApiError::InternalServerError),
+            Ok(_) => Ok(()),
+        }
+    }
+
     pub fn get_token() -> String {
         Uuid::new_v4().to_string()
     }
@@ -208,6 +261,13 @@ impl Passwordless {
         match hash(token.clone(), DEFAULT_COST) {
             Err(_) => Err(ApiError::InternalServerError),
             Ok(hashed) => Ok(hashed),
+        }
+    }
+
+    pub fn compare(&self, token: &str) -> bool {
+        match verify(token, &self.token) {
+            Err(_) => false,
+            Ok(result) => result,
         }
     }
 }

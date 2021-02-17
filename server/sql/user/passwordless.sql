@@ -1,14 +1,12 @@
 insert into users
 	( email
-	, password
 	, project_id
 	, provider_id
 	)
 values
 	( $1
 	, $2
-	, $3
-	, 'password'
+	, 'link'
 	)
 returning id
 		, display_name

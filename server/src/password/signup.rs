@@ -54,7 +54,7 @@ pub async fn sign_up(
 
     let user = conn
         .run(move |client| {
-            let email = body.email.clone().to_lowercase();
+            let email = body.email.trim().to_lowercase();
             User::create(client, email, body.password.clone(), project.id)
         })
         .await?;

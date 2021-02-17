@@ -90,6 +90,15 @@ pub enum ApiError {
 
     #[serde(rename = "reset/password_mismatch")]
     ResetPasswordMismatch,
+
+    #[serde(rename = "passwordless/invalid_token")]
+    PasswordlessInvalidToken,
+
+    #[serde(rename = "passwordless/token_expire")]
+    PasswordlessTokenExpire,
+
+    #[serde(rename = "passwordless/await_confirm")]
+    PasswordlessAwaitConfirm,
 }
 
 impl ApiError {

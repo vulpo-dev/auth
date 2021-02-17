@@ -26,19 +26,21 @@ pub async fn request_passwordless(
     conn.run(move |client| Flags::has_flags(client, &project.id, &[Flags::AuthenticationLink]))
         .await?;
 
-    let email = body.email.clone().to_lowercase();
+    let body_email = body.email.trim().to_lowercase();
+
+    let email = body_email.clone();
     let user = conn
-        .run(move |client| User::get_by_email(client, email, project.id))
+        .run(move |client| User::get_by_email(client, &email, project.id))
         .await?;
 
     let token = Passwordless::get_token();
     let verification_token = Passwordless::hash_token(&token)?;
 
-    let email = body.email.clone();
+    let email = body_email.clone();
     let id = conn
         .run(move |client| {
             let id = user.map(|u| u.id);
-            Passwordless::create_token(client, id, email, verification_token, project.id)
+            Passwordless::create_token(client, id, &email, &verification_token, project.id)
         })
         .await?;
 
@@ -47,7 +49,7 @@ pub async fn request_passwordless(
         .await?;
 
     let base_url = "http://localhost:3000".to_string();
-    let link: String = format!("{}?email={}&token={}", base_url, body.email, token);
+    let link: String = format!("{}?id={}&token={}", base_url, id, token);
 
     let content = Template::passwordless(link);
 

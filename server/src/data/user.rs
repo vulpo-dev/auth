@@ -50,7 +50,7 @@ impl User {
 
     pub fn get_by_email<C: GenericClient>(
         client: &mut C,
-        email: String,
+        email: &str,
         project: Uuid,
     ) -> Result<Option<User>, ApiError> {
         let query = get_query("user/get_by_email")?;
@@ -110,6 +110,33 @@ impl User {
         };
 
         let row = client.query_one(query, &[&email, &password, &project]);
+
+        match row {
+            Ok(user) => Ok(User::from_row(&user)),
+            Err(err) => match err.into_source() {
+                None => Err(ApiError::InternalServerError),
+                Some(source) => {
+                    if let Some(db_error) = source.downcast_ref::<DbError>() {
+                        match db_error.constraint() {
+                            Some("users_project_id_fkey") => Err(ApiError::ProjectNotFound),
+                            Some("users_project_id_email_key") => Err(ApiError::UserDuplicate),
+                            _ => Err(ApiError::InternalServerError),
+                        }
+                    } else {
+                        Err(ApiError::InternalServerError)
+                    }
+                }
+            },
+        }
+    }
+
+    pub fn create_passwordless<C: GenericClient>(
+        client: &mut C,
+        email: &str,
+        project: &Uuid,
+    ) -> Result<User, ApiError> {
+        let query = get_query("user/passwordless")?;
+        let row = client.query_one(query, &[&email, &project]);
 
         match row {
             Ok(user) => Ok(User::from_row(&user)),

@@ -28,7 +28,7 @@ export type EmailSettings = {
 	api_key: string;
 	username: string;
 	password: string;
-	port: number;
+	port: number | string;
 }
 
 export let DefaultEmailSettings: EmailSettings = {
@@ -162,8 +162,13 @@ export function useSaveEmailSettings(project: string) {
 	let handler = useCallback(async () => {
 		setState({ loading: true, error: null })
 
+		let settings = {
+			...data,
+			port: typeof data?.port === 'string' ? parseInt(data.port, 10) : (data?.port ?? 465)
+		}
+
 		try {
-			await http.post('settings/email', data, {
+			await http.post('settings/email', settings, {
 				params: { project },
 			})
 

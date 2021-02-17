@@ -35,12 +35,25 @@ let EmailSettings: FunctionComponent<Props> = () => {
 			<div>
 				<form>
 					<ISection>
-						<Label>Host:</Label>
-						<Input
-							value={data?.host}
-							onChange={setForm}
-							name='host'
-						/>
+						<Address>
+							<Host>
+								<Label>Host:</Label>
+								<Input
+									value={data?.host}
+									onChange={setForm}
+									name='host'
+								/>
+							</Host>
+
+							<Port>
+								<Label>Port:</Label>
+								<Input
+									value={data?.port}
+									onChange={setForm}
+									name='port'
+								/>
+							</Port>
+						</Address>
 					</ISection>
 					<ISection>
 						<Label>From Email:</Label>
@@ -74,14 +87,6 @@ let EmailSettings: FunctionComponent<Props> = () => {
 							name='password'
 						/>
 					</ISection>
-					<ISection>
-						<Label>Port:</Label>
-						<Input
-							value={data?.port}
-							onChange={setForm}
-							name='port'
-						/>
-					</ISection>
 				</form>
 			</div>
 
@@ -100,3 +105,17 @@ let EmailSettings: FunctionComponent<Props> = () => {
 }
 
 export default EmailSettings
+
+
+let Address = styled.div`
+	display: flex;
+`
+
+let Host = styled.div`
+	flex-grow: 1;
+	margin-right: var(--baseline-2);
+`
+
+let Port = styled.div`
+	width: calc(var(--baseline) * 13);
+`

@@ -43,7 +43,10 @@ impl Email {
         let res = mailer.send(email).await;
 
         match res {
-            Err(_) => Err(ApiError::InternalServerError),
+            Err(err) => {
+                println!("{:?}", err);
+                Err(ApiError::InternalServerError)
+            }
             Ok(_) => Ok(()),
         }
     }

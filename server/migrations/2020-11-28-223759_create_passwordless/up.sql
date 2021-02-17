@@ -8,6 +8,7 @@ create table if not exists passwordless
 	, token text not null
 	, is_valid boolean not null default True
 	, project_id uuid references projects(id) on delete cascade
+	, confirmed boolean not null default False
 	);
 
 create index passwordless_project_idx on passwordless(project_id);
