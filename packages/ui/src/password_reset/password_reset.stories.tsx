@@ -115,6 +115,27 @@ let NewPassword: Story<SetPasswordProps> = (args) => {
 	)
 }
 
+export let VerifyToken: Story<SetPasswordProps> = (args) => {
+	return (
+		<AuthConfig.Provider value={DefaultConfig}>
+			<Translation.Provider value={DefaultTranslation}>
+				<HashRouter>
+					<Switch>
+
+						<Route path='/signin/set_password'>
+							<Container>
+								<SetPassword {...args} verifyToken={true} />
+							</Container>
+						</Route>
+
+						<Redirect to='/signin/set_password' />
+					</Switch>
+				</HashRouter>
+			</Translation.Provider>
+		</AuthConfig.Provider>
+	)
+}
+
 export let SetNewPassword = NewPassword.bind({})
 
 SetNewPassword.argTypes = {
@@ -135,6 +156,12 @@ SetNewPassword.argTypes = {
 		}
 	},
 	loading: {
+		defaultValue: false,
+		control: {
+			type: 'boolean'
+		}
+	},
+	verifyToken: {
 		defaultValue: false,
 		control: {
 			type: 'boolean'

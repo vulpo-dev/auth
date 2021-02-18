@@ -49,7 +49,10 @@ pub async fn request_passwordless(
         .await?;
 
     let base_url = "http://localhost:3000".to_string();
-    let link: String = format!("{}?id={}&token={}", base_url, id, token);
+    let link: String = format!(
+        "{}/auth/#/signin/link/confirm?id={}&token={}",
+        base_url, id, token
+    );
 
     let content = Template::passwordless(link);
 

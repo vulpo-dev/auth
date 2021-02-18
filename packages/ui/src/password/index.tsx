@@ -3,7 +3,7 @@ import { SyntheticEvent, useState } from 'react'
 import styled from 'styled-components'
 import { Card, CardHeader, CardNav, CardTitle } from 'component/card'
 import { Input, Password as PasswordInput } from '@biotic-ui/input'
-import { useForm, useQueryParams } from '@biotic-ui/std'
+import { useForm } from '@biotic-ui/std'
 import { Button, IconButton } from '@biotic-ui/button'
 import { useTranslation, useError } from 'context/translation'
 import { useConfig } from 'context/config'
@@ -119,8 +119,6 @@ let PasswordContainer = () => {
 	let history = useHistory()
 	let location = useLocation()
 
-	let query = useQueryParams(location.search)
-
 	let [error, setError] = useState<ErrorCode | null>(null)
 	let [loading, setLoading] = useState<boolean>(false)
 	let match = useRouteMatch<{ type: 'signin' | 'signup' }>('/:type')
@@ -146,12 +144,9 @@ let PasswordContainer = () => {
 			? auth.signIn
 			: auth.signUp
 
-		let ref = query.get('ref') ?? '/'
-
 		try {
 			await fn(user.email, user.password)
 			setLoading(false)
-			history.replace(ref)
 		} catch (err) {
 			setLoading(false)
 			setError(err.code)

@@ -2,6 +2,7 @@ import React from 'react';
 import logo from './logo.svg';
 import './App.css';
 import { useAuth } from '@riezler/auth-react'
+import { Link } from 'react-router-dom'
 
 function App() {
   let auth = useAuth()
@@ -13,17 +14,12 @@ function App() {
         <p>
           Edit <code>src/App.tsx</code> and save to reload.
         </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
+        <Link className="App-link" to="/page">
+          Page
+        </Link>
       </header>
 
-      <button onClick={() => auth.signOut()}>Sign Out</button>
+      <button className="signOut" onClick={() => auth.signOut()}>Sign Out</button>
     </div>
   );
 }

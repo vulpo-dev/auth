@@ -42,12 +42,13 @@ export function useAuthStateChange(fn: AuthCallback) {
 }
 
 type UseAuth = {
-	user: UserState,
-	signIn: (email: string, password: string) => Promise<User>,
-	signUp: (email: string, password: string) => Promise<User>,
-	signOut: (useId?: string) => Promise<void>,
-	resetPassword: (email: string) => Promise<void>,
-	setPassword: (body: SetPassword) => Promise<void>,
+	user: UserState;
+	signIn: (email: string, password: string) => Promise<User>;
+	signUp: (email: string, password: string) => Promise<User>;
+	signOut: (useId?: string) => Promise<void>;
+	resetPassword: (email: string) => Promise<void>;
+	setPassword: (body: SetPassword) => Promise<void>;
+	verifyToken: (id: string, token: string) => Promise<void>;
 }
 
 export function useAuth(): UseAuth {
@@ -96,6 +97,14 @@ export function useAuth(): UseAuth {
 		return auth.setPassword(value)
 	}, [auth])
 
+	let verifyToken = useCallback((id: string, token: string) => {
+		if (auth === null) {
+			throw new AuthClientError('verifyToken')
+		}
+
+		return auth.verifyToken(id, token)
+	}, [auth])
+
 	return {
 		user,
 		signIn,
@@ -103,6 +112,7 @@ export function useAuth(): UseAuth {
 		signUp,
 		resetPassword,
 		setPassword,
+		verifyToken,
 	}
 }
 

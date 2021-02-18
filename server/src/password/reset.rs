@@ -56,7 +56,10 @@ pub async fn request_password_reset(
         .await?;
 
     let base_url = "http://localhost:3000".to_string();
-    let link: String = format!("{}?id={}&token={}", base_url, token_id, reset_token);
+    let link: String = format!(
+        "{}/auth/#/forgot-password/set-password?id={}&token={}",
+        base_url, token_id, reset_token
+    );
 
     let content = Template::password_reset(link);
 
@@ -130,6 +133,40 @@ pub async fn password_reset(
         Ok(())
     })
     .await?;
+
+    Ok(Status::Ok)
+}
+
+#[derive(Deserialize)]
+pub struct VerifyToken {
+    pub id: Uuid,
+    pub token: Uuid,
+}
+
+#[post("/verify_reset_token", data = "<body>")]
+pub async fn verify_token(
+    conn: AuthDb,
+    body: Json<VerifyToken>,
+    _project: Project,
+) -> Result<Status, ApiError> {
+    let id = body.id;
+    let reset = conn
+        .run(move |client| PasswordReset::get(client, &id))
+        .await?;
+
+    let is_valid = match verify(body.token.to_string(), &reset.token) {
+        Err(_) => return Err(ApiError::InternalServerError),
+        Ok(valid) => valid,
+    };
+
+    if is_valid == false {
+        return Err(ApiError::ResetInvalidToken);
+    }
+
+    let expires_at = reset.created_at - Duration::minutes(30);
+    if expires_at > Utc::now() {
+        return Err(ApiError::ResetExpired);
+    }
 
     Ok(Status::Ok)
 }

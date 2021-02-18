@@ -11,7 +11,8 @@ pub fn routes() -> Vec<Route> {
         signup::sign_up,
         signin::sign_in,
         reset::request_password_reset,
-        reset::password_reset
+        reset::password_reset,
+        reset::verify_token,
     ]
 }
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useRef } from 'react'
 import App from './App'
 import { Switch, Route, useHistory, useLocation } from 'react-router-dom'
 import { useAuthStateChange } from '@riezler/auth-react'
@@ -8,6 +8,7 @@ import { Auth, Container } from '@riezler/auth-ui'
 let Bootstrap = () => {
 	let history = useHistory()
 	let location = useLocation()
+	let refferrer = useRef(window.location.pathname)
 
 	let [user, setUser] = useState<UserState>(undefined)
 
@@ -16,12 +17,12 @@ let Bootstrap = () => {
 		
 		setUser(newUser)
 
-		if (!newUser) {
+		if (!newUser && !location.pathname.startsWith('/auth')) {
 			history.replace('/auth')
 		}
 
 		if (!user && newUser) {
-			history.replace('/')
+			history.replace(refferrer.current)
 		}
 	})
 
@@ -38,6 +39,10 @@ let Bootstrap = () => {
 				</Container>
 			</Route>
 
+			<Route path='/page'>
+				<Page />
+			</Route>
+
 			<Route path='/'>
 				<App />
 			</Route>
@@ -46,3 +51,9 @@ let Bootstrap = () => {
 }
 
 export default Bootstrap
+
+function Page() {
+	return (
+		<h1>Page</h1>
+	)
+}

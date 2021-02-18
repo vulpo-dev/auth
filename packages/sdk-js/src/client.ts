@@ -145,6 +145,14 @@ export class AuthClient {
 		}
 	}
 
+	async verifyToken(id: string, token: string): Promise<void> {
+		try {
+			await this.http.post('/password/verify_reset_token', { id, token })
+		} catch (err) {
+			throw this.error.fromResponse(err)
+		}
+	}
+
 	authStateChange(cb: AuthCallback): Unsubscribe {
 		let sub = this.user.subscribe(cb)
 		cb(this.user.current)
