@@ -97,10 +97,12 @@ export let SetPassword: FC<Props> = ({
 						<Password
 							id="password1"
 							name='password1'
+							autoComplete='new-password'
 							value={form.password1}
 							onChange={setPassword1}
 							disabled={loading || tokenError}
 							required
+							autoFocus
 						/>
 					</Section>
 					

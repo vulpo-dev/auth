@@ -1,15 +1,15 @@
 let createConfig = require('../../webpack.config')
 
-module.exports = function (_, argv) {
+module.exports = function ({ browser }, argv) {
 	let config = createConfig(argv.mode || 'production')
 
-	if (argv.mode === 'browser') {
+	if (browser) {
 		config.output = {
 			library: 'BentoAuth',
 			libraryExport: 'Auth',
 	    	globalObject: 'this',
 	     	filename: '[name].js',
-	     	path: process.cwd() + '/lib',
+	     	path: process.cwd() + '/browser',
 	     	libraryTarget: 'umd'
 	    }
 	}

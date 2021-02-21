@@ -6,6 +6,9 @@
     "type": "git",
     "url": "https://riezler@dev.azure.com/riezler/Auth/_git/Auth"
   },
+  "scripts": {
+    "bootstrap": "lerna bootstrap"
+  },
   "keywords": [],
   "author": "Michael Riezler <michael@riezler.co> (https://riezler.co)",
   "license": "MPL-2.0",
@@ -19,6 +22,7 @@
     "babel-loader": "^8.2.2",
     "babel-plugin-styled-components": "^1.12.0",
     "core-js": "^3.8.1",
+    "lerna": "^3.22.1",
     "react-refresh": "^0.9.0",
     "ts-loader": "^8.0.11",
     "typescript": "^4.1.2",

@@ -13,11 +13,9 @@ let Bootstrap = () => {
 	let [user, setUser] = useState<UserState>(undefined)
 
 	useAuthStateChange((newUser: UserState) => {
-		console.log({ newUser })
 		
 		setUser(newUser)
-
-		if (!newUser && !location.pathname.startsWith('/auth')) {
+		if (!newUser && !window.location.pathname.startsWith('/auth')) {
 			history.replace('/auth')
 		}
 

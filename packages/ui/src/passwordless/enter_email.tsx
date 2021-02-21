@@ -38,7 +38,6 @@ export let EnterEmail = (props: Props) => {
 
 	function handleSubmit(e: SyntheticEvent) {
 		e.preventDefault()
-		console.log({ form })
 		props.onSignIn(form)
 	}
 
@@ -71,6 +70,7 @@ export let EnterEmail = (props: Props) => {
 						value={form.email}
 						onChange={setForm}
 						required
+						autoFocus
 					/>
 				</Section>
 

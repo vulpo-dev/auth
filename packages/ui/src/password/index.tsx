@@ -15,14 +15,14 @@ import { ErrorCode } from '@riezler/auth-sdk'
 import { useAuth } from '@riezler/auth-react'
 import { checkPasswordLength } from 'utils'
 
-type UserForm = {
-	email: string,
-	password: string,
+type Form = {
+	email: string;
+	password: string;
 }
 
 export type Props = {
 	onBack: () => void;
-	onSubmit: (user: UserForm) => void;
+	onSubmit: (user: Form) => void;
 	ctx: 'signin' | 'signup';
 	loading: boolean;
 	error: null | ErrorCode;
@@ -31,7 +31,7 @@ export type Props = {
 export let Password = ({ onSubmit, onBack, ctx, loading, error }: Props) => {
 	let config = useConfig()
 
-	let [form, setForm] = useForm<UserForm>({
+	let [form, setForm] = useForm<Form>({
 		email: '',
 		password: ''
 	})
@@ -77,6 +77,7 @@ export let Password = ({ onSubmit, onBack, ctx, loading, error }: Props) => {
 						value={form.email}
 						onChange={setForm}
 						required
+						autoFocus
 					/>
 				</Section>
 
@@ -84,7 +85,8 @@ export let Password = ({ onSubmit, onBack, ctx, loading, error }: Props) => {
 					<Label htmlFor="password">{t.label.password}</Label>
 					<PasswordInput
 						id="password"
-						name='password'
+						name="password"
+						autoComplete={ctx === 'signin' ? 'current-password' : 'new-password'}
 						type='password'
 						value={form.password}
 						onChange={setPassword}
@@ -133,7 +135,7 @@ let PasswordContainer = () => {
 		}
 	}
 
-	async function handleSubmit(user: UserForm) {
+	async function handleSubmit(user: Form) {
 		if (!match) {
 			return
 		}
@@ -141,14 +143,15 @@ let PasswordContainer = () => {
 		setError(null)
 		setLoading(true)
 
-		let fn = match.params.type === 'signin'
-			? auth.signIn
-			: auth.signUp
-
 		try {
-			await fn(user.email, user.password)
-			setLoading(false)
+			if (match.params.type === 'signin') {
+				await auth.signIn(user.email, user.password)
+			} else {
+				await auth.signUp(user.email, user.password)
+			}
+			// setLoading(false)
 		} catch (err) {
+			console.log({ err })
 			setLoading(false)
 			setError(err.code)
 		}

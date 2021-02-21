@@ -65,6 +65,7 @@ export let PasswordReset: React.FC<Props> = ({
 						value={form.email}
 						onChange={setForm}
 						required
+						autoFocus
 					/>
 				</Section>
 

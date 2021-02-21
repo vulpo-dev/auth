@@ -13,10 +13,10 @@ export let Overview = () => {
 	return (
 		<Card>
 			<Header />
-			<LinkButton forwardedAs={Link} to={`${pathname}/link`}>
+			<LinkButton as={Link} to={`${pathname}/link`}>
 				{t.email.label}
 			</LinkButton>
-			<StyledOutline forwardedAs={Link} to={`${pathname}/email`}>
+			<StyledOutline as={Link} to={`${pathname}/email`}>
 				{t.password.label}
 			</StyledOutline>
 		</Card>

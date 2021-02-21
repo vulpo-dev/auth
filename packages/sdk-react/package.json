@@ -6,8 +6,8 @@
   "scripts": {
     "dev": "tsc --noEmit --watch",
     "types": "tsc --emitDeclarationOnly --declaration --declarationDir ./lib",
-    "build": "webpack --config ../../webpack.config.js --mode production",
-    "build:dev": "webpack --config ../../webpack.config.js --mode development",
+    "build": "webpack --config ./webpack.config.js --mode production",
+    "build:dev": "webpack --config ./webpack.config.js --mode development",
     "bundle": "npm run build && npm run types",
     "prepublish": "npm run bundle"
   },
@@ -15,13 +15,13 @@
   "author": "Michael Riezler <michael@riezler.co> (https://riezler.co)",
   "license": "MPL-2.0",
   "devDependencies": {
-    "@babel/core": "^7.12.9",
-    "@babel/plugin-proposal-class-properties": "^7.12.1",
-    "@babel/preset-env": "^7.12.7",
-    "@babel/preset-react": "^7.12.7",
-    "@babel/preset-typescript": "^7.12.7",
+    "@babel/core": "^7.12.17",
+    "@babel/plugin-proposal-class-properties": "^7.12.13",
+    "@babel/preset-env": "^7.12.17",
+    "@babel/preset-react": "^7.12.13",
+    "@babel/preset-typescript": "^7.12.17",
     "@riezler/auth-sdk": "0.0.1",
-    "@types/react": "^17.0.0",
+    "@types/react": "^17.0.2",
     "babel-jest": "^26.6.3",
     "babel-loader": "^8.2.2",
     "babel-plugin-styled-components": "^1.12.0",
@@ -29,8 +29,8 @@
     "react-dom": "^17.0.1",
     "rimraf": "^3.0.2",
     "source-map-loader": "^1.1.2",
-    "ts-loader": "^8.0.11",
-    "typescript": "^4.1.2",
+    "ts-loader": "^8.0.17",
+    "typescript": "^4.1.5",
     "webpack": "4.44.0",
     "webpack-cli": "^4.2.0"
   }
