@@ -4,8 +4,16 @@ import {
 	createContext,
 	useContext
 } from 'react'
+
 import { useHttp, getError } from 'data/http'
-import { atom, useRecoilState, SetterOrUpdater, useSetRecoilState } from 'recoil'
+
+import {
+	boson,
+	useBoson,
+	useSetBoson,
+	SetterOrUpdater,
+} from '@biotic-ui/boson'
+
 import { AuthClient } from '@riezler/auth-sdk'
 
 export type PartialProject = {
@@ -16,19 +24,19 @@ export type PartialProject = {
 
 type ProjectList = Array<PartialProject>
 
-let projectsAtom = atom<ProjectList | undefined>({
+let projectsAtom = boson<ProjectList | undefined>({
 	key: 'projects',
-	default: undefined
+	defaultValue: undefined
 })
 
 type UseProjects = [
 	ProjectList | undefined,
-	SetterOrUpdater<ProjectList | undefined>
+	(nextState: SetterOrUpdater<ProjectList | undefined>) => void,
 ]
 
 export function useProjects(): UseProjects {
 	let http = useHttp()
-	let [projects, setProjects] = useRecoilState(projectsAtom)
+	let [projects, setProjects] = useBoson(projectsAtom)
 
 	useEffect(() => {
 		http.get<ProjectList>('/admin/__/project/list')
@@ -43,7 +51,7 @@ export function useProjects(): UseProjects {
 
 export function useCreateProject() {
 	let http = useHttp()
-	let setProjects = useSetRecoilState(projectsAtom)
+	let setProjects = useSetBoson(projectsAtom)
 
 	return useCallback(async (name: string, domain: string): Promise<PartialProject> => {
 		try {

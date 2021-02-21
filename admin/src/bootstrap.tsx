@@ -9,7 +9,7 @@ import {
 import App from 'app'
 import { useProject, projectIdAtom } from 'data/admin'
 import { Http } from 'data/http'
-import { RecoilRoot, useSetRecoilState } from 'recoil'
+import { useSetBoson } from '@biotic-ui/boson'
 import { Auth as AuthCtx } from '@riezler/auth-react'
 import { Auth } from '@riezler/auth-sdk'
 import { GhostPage } from 'component/loading'
@@ -18,7 +18,7 @@ import Setup from 'setup'
 let Bootstrap = () => {
 	let history = useHistory()
 	let { project } = useProject()
-	let setProjectId = useSetRecoilState(projectIdAtom)
+	let setProjectId = useSetBoson(projectIdAtom)
 
 	let auth = useMemo(() => {
 		if (!project) {
@@ -64,12 +64,10 @@ let Bootstrap = () => {
 	)
 }
 
-let BootstrapContainer = () => (
-	<RecoilRoot>		
-		<BrowserRouter basename='/admin'>
-			<Bootstrap />
-		</BrowserRouter>
-	</RecoilRoot>
+let BootstrapContainer = () => (	
+	<BrowserRouter basename='/admin'>
+		<Bootstrap />
+	</BrowserRouter>
 )
 
 export default BootstrapContainer

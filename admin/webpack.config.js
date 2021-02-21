@@ -155,7 +155,7 @@ module.exports = function createConfig (_, argv) {
               },
             },
           })
-        // , isDevelopment && new ReactRefreshWebpackPlugin()
+        , isDevelopment && new ReactRefreshWebpackPlugin()
         ].filter(Boolean)
     } 
 }

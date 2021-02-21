@@ -1,7 +1,13 @@
 import { useState, useEffect } from 'react'
 import Axios from 'axios'
 import { useMounted } from 'utils/hook'
-import { atom, useSetRecoilState, useRecoilState } from 'recoil'
+
+import {
+	boson,
+	useBoson,
+	useSetBoson,
+	useBosonValue,
+} from '@biotic-ui/boson'
 
 let axios = Axios.create({
 	baseURL: '/'
@@ -16,7 +22,7 @@ type UseProject = {
 export function useProject(): UseProject {
 	let mounted = useMounted()
 	let [loading, setLoading] = useState(true)
-	let [state, setState] = useRecoilState(projectIdAtom)
+	let [state, setState] = useBoson(projectIdAtom)
 
 	useEffect(() => {
 		axios.get<HasResponse>('/admin/__/project/has').then((res) => {
@@ -30,9 +36,9 @@ export function useProject(): UseProject {
 	return { project: loading ? undefined : state }
 }
 
-export let projectIdAtom = atom<string | null>({
+export let projectIdAtom = boson<string | null>({
 	key: 'project_id',
-	default: null
+	defaultValue: null
 })
 
 type CreateProject = {
@@ -51,7 +57,7 @@ export function useCreateProject(): UseCreateProject {
 		id: null
 	})
 
-	let setProjectId = useSetRecoilState(projectIdAtom)
+	let setProjectId = useSetBoson(projectIdAtom)
 
 	useEffect(() => {
 		axios.post<CreateProject>('/admin/__/project/create_admin').then(res => {

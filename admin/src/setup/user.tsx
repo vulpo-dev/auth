@@ -5,7 +5,7 @@ import { useHistory } from 'react-router-dom'
 import { Input } from '@biotic-ui/input'
 import { useForm } from '@biotic-ui/std' 
 import { Button } from '@biotic-ui/button'
-import { useRecoilValue } from 'recoil'
+import { useBosonValue } from '@biotic-ui/boson'
 import { projectIdAtom, createAdmin, CreateAdmin } from 'data/admin'
 
 export type Props = {
@@ -59,7 +59,7 @@ export let User = ({ onSubmit, loading = false }: Props) => {
 
 let UserContainer = () => {
 	let history = useHistory()
-	let project = useRecoilValue(projectIdAtom)
+	let project = useBosonValue(projectIdAtom)
 	let [loading, setLoading] = useState(false)
 
 	async function handleSubmit(user: CreateAdmin) {

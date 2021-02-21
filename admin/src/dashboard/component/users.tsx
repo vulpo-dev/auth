@@ -50,8 +50,6 @@ let Users: FC<Props> = ({ project }) => {
 		? <Rows items={users.items} onSelect={handleSelect} selected={selected} />
 		: <GhostRows rows={limit} />
 
-
-
 	return (
 		<Container>
 			<HeaderInfo>

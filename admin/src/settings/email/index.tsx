@@ -25,82 +25,80 @@ let EmailSettings: FunctionComponent<Props> = () => {
 	let [{ data, initialData }, setSettings] = useEmailSettings(project.id)
 	let save = useSaveEmailSettings(project.id)
 
+	function handleSubmit(e: FormEvent) {
+		e.preventDefault()
+		save.handler()
+	}
+
 	return (
-		<Section>
-			<Header>
-				<h2>Email</h2>
-			
-			</Header>
+		<form onSubmit={handleSubmit}>
+			<Section>
+				<Header>
+					<h2>Email</h2>
+					
+					<Button
+						loading={save.loading}
+						disabled={data === undefined}
+					>
+						Save
+					</Button>
+				</Header>
 
-			<div>
-				<form>
-					<ISection>
-						<Address>
-							<Host>
-								<Label>Host:</Label>
-								<Input
-									value={data?.host}
-									onChange={setForm}
-									name='host'
-								/>
-							</Host>
+				<ISection>
+					<Address>
+						<Host>
+							<Label>Host:</Label>
+							<Input
+								value={data?.host}
+								onChange={setForm}
+								name='host'
+							/>
+						</Host>
 
-							<Port>
-								<Label>Port:</Label>
-								<Input
-									value={data?.port}
-									onChange={setForm}
-									name='port'
-								/>
-							</Port>
-						</Address>
-					</ISection>
-					<ISection>
-						<Label>From Email:</Label>
-						<Input
-							value={data?.from_email}
-							onChange={setForm}
-							name='from_email'
-						/>
-					</ISection>
-					<ISection>
-						<Label>From Name:</Label>
-						<Input
-							value={data?.from_name}
-							onChange={setForm}
-							name='from_name'
-						/>
-					</ISection>
-					<ISection>
-						<Label>Username:</Label>
-						<Input
-							value={data?.username}
-							onChange={setForm}
-							name='username'
-						/>
-					</ISection>
-					<ISection>
-						<Label>Password:</Label>
-						<Input
-							value={data?.password}
-							onChange={setForm}
-							name='password'
-						/>
-					</ISection>
-				</form>
-			</div>
-
-			<div>
-				<Button
-					onClick={save.handler}
-					loading={save.loading}
-					disabled={data === undefined}
-				>
-					Save
-				</Button>
-			</div>
-
-		</Section>
+						<Port>
+							<Label>Port:</Label>
+							<Input
+								value={data?.port}
+								onChange={setForm}
+								name='port'
+							/>
+						</Port>
+					</Address>
+				</ISection>
+				<ISection>
+					<Label>From Email:</Label>
+					<Input
+						value={data?.from_email}
+						onChange={setForm}
+						name='from_email'
+					/>
+				</ISection>
+				<ISection>
+					<Label>From Name:</Label>
+					<Input
+						value={data?.from_name}
+						onChange={setForm}
+						name='from_name'
+					/>
+				</ISection>
+				<ISection>
+					<Label>Username:</Label>
+					<Input
+						value={data?.username}
+						onChange={setForm}
+						name='username'
+					/>
+				</ISection>
+				<ISection>
+					<Label>Password:</Label>
+					<Input
+						value={data?.password}
+						onChange={setForm}
+						name='password'
+					/>
+				</ISection>
+			</Section>
+		</form>
 	)
 }
 

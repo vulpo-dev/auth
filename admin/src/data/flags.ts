@@ -1,5 +1,11 @@
 import { useEffect, useState, useCallback } from 'react'
-import { atomFamily, useRecoilState, useSetRecoilState } from 'recoil'
+
+import {
+	bosonFamily,
+	useBoson,
+	useSetBoson,
+} from '@biotic-ui/boson'
+
 import { Reload } from 'types/utils'
 import { CancelToken, useHttp, HttpError, getError } from 'data/http'
 
@@ -39,17 +45,19 @@ type Response = {
 }
 
 
-let flagsFamily = atomFamily<ProjectFlags, string>({
-	key: 'project_flags',
-	default: {
-		items: undefined,
-		loading: true,
-		error: null,
+let flagsFamily = bosonFamily<[string], ProjectFlags>((id) => {
+	return {
+		key: `project_flags:${id}`,
+		defaultValue: {
+			items: undefined,
+			loading: true,
+			error: null,
+		}
 	}
 })
 
 export function useFlags(project: string): ProjectFlags & Reload {
-	let [state, setState] = useRecoilState(flagsFamily(project))
+	let [state, setState] = useBoson(flagsFamily(project))
 	let [reload, setReload] = useState<boolean>(false)
 	let http = useHttp()
 
@@ -109,7 +117,7 @@ export function useFlags(project: string): ProjectFlags & Reload {
 }
 
 export function useToggleFlags(project: string) {
-	let setState = useSetRecoilState(flagsFamily(project))
+	let setState = useSetBoson(flagsFamily(project))
 	
 	let set = useCallback((flag: Flags) => () => {
 		setState(state => {
@@ -154,11 +162,13 @@ type UpdateFlagsRequest = {
 	error: null | HttpError;
 }
 
-let updateFamily = atomFamily<UpdateFlagsRequest, string>({
-	key: 'update_project_flags',
-	default: {
-		loading: false,
-		error: null
+let updateFamily = bosonFamily<[string], UpdateFlagsRequest>(id => {
+	return {
+		key: `update_project_flags:${id}`,
+		defaultValue: {
+			loading: false,
+			error: null
+		}
 	}
 })
 
@@ -169,7 +179,7 @@ type UseUpdateFlags = [
 
 export function useUpdateFlags(project: string): UseUpdateFlags {
 	let http = useHttp()
-	let [state, setState] = useRecoilState(updateFamily(project))
+	let [state, setState] = useBoson(updateFamily(project))
 
 	let update = useCallback(async (flags: Array<Flags>) => {
 

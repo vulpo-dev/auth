@@ -4,12 +4,14 @@ import {
 	ChangeEvent,
 	useState,
 } from 'react'
+
 import {
-	atomFamily,
-	useRecoilState,
-	useSetRecoilState,
-	useRecoilValue,
-} from 'recoil'
+	bosonFamily,
+	useBoson,
+	useSetBoson,
+	useBosonValue,
+} from '@biotic-ui/boson'
+
 import { CancelToken, useHttp, HttpError, getError } from 'data/http'
 
 type SetterOrUpdater<T>
@@ -59,20 +61,22 @@ type Request<T> = {
 }
 
 
-let createEmailSettings = atomFamily<Request<EmailSettings>, string>({
-	key: 'email_settings',
-	default: {
-		data: undefined,
-		initialData: undefined,
-		loading: true,
-		error: null,
+let createEmailSettings = bosonFamily<[string], Request<EmailSettings>>((id) => {
+	return {
+		key: `email_settings:${id}`,
+		defaultValue: {
+			data: undefined,
+			initialData: undefined,
+			loading: true,
+			error: null,
+		}
 	}
 })
 
 export function useEmailSettings(project: string): [Request<EmailSettings>, ((x: SetterOrUpdater<EmailSettings>) => void)] {
 	let http = useHttp()
 
-	let [state, setState] = useRecoilState(createEmailSettings(project))
+	let [state, setState] = useBoson(createEmailSettings(project))
 
 	function handleSetState(valOrFn: SetterOrUpdater<EmailSettings>) {
 		setState(currentState => {
@@ -132,7 +136,7 @@ export function useEmailSettings(project: string): [Request<EmailSettings>, ((x:
 
 export function useSetEmailSettings(project: string) {
 	let atom = createEmailSettings(project)
-	let setState = useSetRecoilState<Request<EmailSettings>>(atom)
+	let setState = useSetBoson<Request<EmailSettings>>(atom)
 
 	return useCallback((e: ChangeEvent<HTMLInputElement>) => {
 			setState(state => {
@@ -157,7 +161,7 @@ export function useSaveEmailSettings(project: string) {
 	})
 
 	let atom = createEmailSettings(project)
-	let { data } = useRecoilValue(atom)
+	let { data } = useBosonValue(atom)
 
 	let handler = useCallback(async () => {
 		setState({ loading: true, error: null })

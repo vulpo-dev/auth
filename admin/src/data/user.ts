@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useHttp, HttpError, CancelToken, getError } from 'data/http'
-import { atomFamily, useRecoilState } from 'recoil'
+import { bosonFamily, useBoson } from '@biotic-ui/boson'
 import { useMounted } from '@biotic-ui/std'
 
 enum Provider {
@@ -57,10 +57,12 @@ let DefaultState: UsersState = {
 	error: null,
 }
 
-let usersFamily = atomFamily<UsersState, Filter>({
-	key: 'users',
-	default: DefaultState
-})
+let usersFamily = bosonFamily<[Filter], UsersState>(filter => {
+	return {
+		key: 'users',
+		defaultValue: DefaultState,
+	}
+}, filterToKey)
 
 type Filter = {
 	project: string;
@@ -68,6 +70,10 @@ type Filter = {
 	sort?: 'asc' | 'desc';
 	offset?: number;
 	limit?: number;
+}
+
+function filterToKey(f: Filter) {
+	return `${f.project}:${f.orderBy}:${f.sort}:${f.offset}:${f.limit}`
 }
 
 type Reload = {
@@ -93,7 +99,7 @@ export function useUsers({
 		limit,
 	}
 
-	let [state, setState] = useRecoilState(usersFamily(key))
+	let [state, setState] = useBoson(usersFamily(key))
 	
 	useEffect(() => {
 
@@ -168,19 +174,21 @@ type TotalState = {
 	error: null | HttpError; 
 }
 
-let userTotalFamily = atomFamily<TotalState, string>({
-	key: 'toal_users',
-	default: {
-		value: undefined,
-		loading: true,
-		error: null,
+let userTotalFamily = bosonFamily<[string], TotalState>(id => {
+	return {
+		key: `toal_users:${id}`,
+		defaultValue: {
+			value: undefined,
+			loading: true,
+			error: null,
+		}
 	}
 })
 
 export function useTotalUsers(project: string): TotalState {
 	let mounted = useMounted()
 	let http = useHttp()
-	let [state, setState] = useRecoilState(userTotalFamily(project))
+	let [state, setState] = useBoson(userTotalFamily(project))
 
 	useEffect(() => {
 		setState(state => {
