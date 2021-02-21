@@ -4,6 +4,7 @@ import { useMounted } from 'utils/hook'
 
 import {
 	boson,
+	bosonFamily,
 	useBoson,
 	useSetBoson,
 	useBosonValue,
@@ -86,3 +87,13 @@ export function createAdmin(data: CreateAdmin, project: string) {
 
 	return axios.post('/admin/__/create_once', data, { headers })
 }
+
+
+export let getLatesUrl = bosonFamily<[string], string>(id => {
+	return {
+		key: 'latest_url',
+		defaultValue: `/${id}/`
+	}
+})
+
+

@@ -8,10 +8,15 @@ import {
 	Route,
 	NavLink,
 	Redirect,
-	useHistory
+	useHistory,
+	useLocation,
 } from 'react-router-dom'
+
+import { useBosonValue, useSetBoson } from '@biotic-ui/boson'
+
 import { Tabs, TabBar, Tab } from 'component/tabs'
 import { useProjects, PartialProject, ProjectCtx } from 'data/project'
+import { getLatesUrl } from 'data/admin'
 import { AddButton, CloseButton } from 'component/button'
 import CreateProject from 'component/create_project'
 import { Drawer } from '@biotic-ui/drawer'
@@ -58,13 +63,7 @@ function Dashboard() {
 		<Tabs>
 			<TabBar>
 				<TabsWrapper>
-					{ projects && projects.map(project => 
-						<Tab key={project.id} to={`/${project.id}`}>
-							<Tooltip content={project.name} delay={[1000, null]}>
-								<span>{project.name}</span>
-							</Tooltip>
-						</Tab>
-					) }
+					{ projects?.map(project => <TabItem key={project.id} project={project} />) }
 				</TabsWrapper>
 				<StyledAddButton onClick={() => setCreate(true)} />
 			</TabBar>
@@ -94,9 +93,15 @@ export default function DashboardContainer() {
 }
 
 let Main = () => {
+	let location = useLocation()
 	let match = useRouteMatch<{ project: string }>('/:project')
 	let project = match?.params?.project ?? ''
 	let base = `/${project}`
+
+	let setUrl = useSetBoson(getLatesUrl(project))
+	useEffect(() => {
+		setUrl(location.pathname)
+	}, [location])
 
 	return (
 		<Wrapper>
@@ -146,6 +151,22 @@ let Main = () => {
 	)
 }
 
+
+type TabItemProps = {
+	project: PartialProject
+}
+
+let TabItem = ({ project }: TabItemProps) => {
+	let url = useBosonValue(getLatesUrl(project.id))
+	return (
+		<Tab key={project.id} to={url}>
+			<Tooltip content={project.name} delay={[1000, null]}>
+				<span>{project.name}</span>
+			</Tooltip>
+		</Tab>
+	)
+}
+
 let Wrapper = styled.main`
 	display: inline-grid;
 	grid-template-rows: var(--baseline-5) auto var(--baseline-5);
@@ -188,6 +209,7 @@ let BottomLink = styled(NavLink)`
 	&.active {
 		text-decoration: underline;
 		text-decoration-color: var(--pink);
+		text-decoration-thickness: 3px;
 	}
 `
 
