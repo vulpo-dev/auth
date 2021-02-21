@@ -1,3 +1,4 @@
+use crate::data::user::User;
 use crate::data::{get_query, GenericClient};
 use crate::response::error::ApiError;
 use crate::TEMPLATE;
@@ -8,6 +9,8 @@ use serde::{Deserialize, Serialize};
 use serde_json::json;
 use uuid::Uuid;
 
+pub struct RenderError;
+
 #[derive(Deserialize, Serialize)]
 pub struct TemplateResponse {
     pub from_name: String,
@@ -17,6 +20,7 @@ pub struct TemplateResponse {
     pub of_type: Templates,
     pub project_id: Uuid,
     pub is_default: bool,
+    pub language: String,
 }
 
 #[derive(Debug, Deserialize, Serialize, PartialEq, FromFormValue, Copy, Clone)]
@@ -157,6 +161,7 @@ impl Template {
                     of_type,
                     project_id: row.get("project_id"),
                     is_default: row.get("is_default"),
+                    language: row.get("template"),
                 }
             })),
         }
@@ -176,6 +181,7 @@ impl Template {
                 &template.redirect_to,
                 &template.of_type.to_string(),
                 &template.project_id,
+                &template.language,
             ],
         ) {
             Err(err) => {
@@ -201,27 +207,23 @@ impl Template {
             .unwrap()
     }
 
-    pub fn passwordless(link: String) -> String {
+    pub fn render(template: String, ctx: TemplateCtx) -> Result<String, RenderError> {
         let handlebars = Template::init_handlebars();
+        let content = match handlebars.render_template(&template, &ctx) {
+            Err(_) => return Err(RenderError),
+            Ok(value) => value,
+        };
 
-        let content = handlebars
-            .render("passwordless", &json!({ "href": link }))
-            .unwrap();
-
-        handlebars
-            .render("index", &json!({ "content": content }))
-            .unwrap()
+        match handlebars.render("index", &json!({ "content": content })) {
+            Err(_) => Err(RenderError),
+            Ok(val) => Ok(val),
+        }
     }
+}
 
-    pub fn password_reset(link: String) -> String {
-        let handlebars = Template::init_handlebars();
-
-        let content = handlebars
-            .render("password_reset", &json!({ "href": link }))
-            .unwrap();
-
-        handlebars
-            .render("index", &json!({ "content": content }))
-            .unwrap()
-    }
+#[derive(Serialize)]
+pub struct TemplateCtx {
+    pub href: String,
+    pub project: String,
+    pub user: Option<User>,
 }

@@ -6,7 +6,7 @@ use crate::mail::Email;
 use crate::project::Project;
 use crate::response::error::ApiError;
 use crate::settings::data::ProjectEmail;
-use crate::template::Template;
+use crate::template::{Template, TemplateCtx, Templates};
 
 use rocket_contrib::json::Json;
 use serde::Deserialize;
@@ -37,35 +37,42 @@ pub async fn request_passwordless(
     let verification_token = Passwordless::hash_token(&token)?;
 
     let email = body_email.clone();
+    let user_id = user.clone().map(|u| u.id);
     let id = conn
         .run(move |client| {
-            let id = user.map(|u| u.id);
-            Passwordless::create_token(client, id, &email, &verification_token, project.id)
+            Passwordless::create_token(client, user_id, &email, &verification_token, project.id)
         })
         .await?;
 
     let settings = conn
-        .run(move |client| ProjectEmail::from_project(client, project.id))
+        .run(move |client| {
+            ProjectEmail::from_project_template(client, project.id, Templates::Passwordless)
+        })
         .await?;
 
-    let base_url = "http://localhost:3000".to_string();
     let link: String = format!(
-        "{}/auth/#/signin/link/confirm?id={}&token={}",
-        base_url, id, token
+        "{}{}?id={}&token={}",
+        settings.domain, settings.redirect_to, id, token
     );
 
-    let content = Template::passwordless(link);
+    let ctx = TemplateCtx {
+        href: link,
+        project: settings.name,
+        user,
+    };
+
+    let content = match Template::render(settings.body, ctx) {
+        Err(_) => return Err(ApiError::TemplateRender),
+        Ok(v) => v,
+    };
 
     let email = Email {
         to_email: body.email.clone(),
-        subject: String::from("Sign In"),
+        subject: settings.subject,
         content,
     };
 
-    match settings {
-        None => return Err(ApiError::InternalServerError),
-        Some(settings) => email.send(settings).await?,
-    };
+    email.send(settings.email).await?;
 
     Ok(Json([id]))
 }

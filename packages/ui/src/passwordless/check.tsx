@@ -1,12 +1,16 @@
 import React from 'react'
+import { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import { Card, CardHeader, CardNav, CardTitle } from 'component/card'
 import { useTranslation } from 'context/translation'
 import { useQueryParams } from '@biotic-ui/std'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useRouteMatch } from 'react-router-dom'
+import { useAuth } from '@riezler/auth-react'
+import { ErrorCode, ApiError, CancelToken } from '@riezler/auth-sdk'
 
 export type Props = {
 	email: string | null;
+	type: 'signin' | 'signup';
 }
 
 export let CheckEmail = ({ email }: Props) => {
@@ -18,20 +22,45 @@ export let CheckEmail = ({ email }: Props) => {
 				<Title>{t.passwordless_check.title}</Title>
 			</Header>
 
-			<p><strong>Do not close this window until opening the email link.</strong></p>
+			<p>
+				<strong>{t.passwordless_check.warning}</strong>
+			</p>
 
-			<t.passwordless_check.description email={email} type='Sign In' />
+			<t.passwordless_check.description email={email} type={t.signin.label} />
 			<small>{t.passwordless_check.info}</small>
 		</Card>
 	)
 }
 
 let CheckEmailContainer = () => {
+	let auth = useAuth()
 	let location = useLocation()
-	let params = useQueryParams(location.search)
+	let query = useQueryParams(location.search)
+	let match = useRouteMatch<{ type: 'signin' | 'signup' }>('/:type')
+	let [error, setError] = useState<ErrorCode | null>(null)
+
+	useEffect(() => {
+		let id = query.get('id')
+
+		if (!id) {
+			setError(ErrorCode.PasswordlessInvalidToken)
+			return
+		}
+
+		let source = CancelToken.source()
+		auth.verifyPasswordless(id, { cancelToken: source.token })
+			.catch((err: ApiError) => setError(err.code))
+
+		return () => {
+			source.cancel()
+		}
+	}, [])
 
 	return (
-		<CheckEmail email={params.get('email')} />
+		<CheckEmail
+			email={query.get('email')}
+			type={match?.params.type ?? 'signin'}
+		/>
 	)
 }
 

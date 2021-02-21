@@ -10,6 +10,7 @@ import { useConfig } from 'context/config'
 import { useHistory, useRouteMatch, Link, useLocation } from 'react-router-dom'
 import { Label } from 'component/text'
 import { Disclaimer } from 'component/disclaimer'
+import { Footer, Divider } from 'component/layout'
 import { ErrorCode } from '@riezler/auth-sdk'
 import { useAuth } from '@riezler/auth-react'
 import { checkPasswordLength } from 'utils'
@@ -181,19 +182,6 @@ let PasswordSection = styled.section`
 	input {
 		margin-block-end: var(--baseline-half);
 	}
-`
-
-let Footer = styled.footer`
-	text-align: center;
-`
-
-let Divider = styled.hr`
-	border: 0;
-	height: 1px;
-	width: 100%;
-	margin-block-start: var(--baseline);
-	margin-block-end: calc(var(--baseline) * 1.625);
-	background: var(--border-color);
 `
 
 let ForgotPassword = styled(Link)`

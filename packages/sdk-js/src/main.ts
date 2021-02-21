@@ -11,7 +11,7 @@ export type {
 	TokenListener,
 } from 'types'
 
-export type { SetPassword } from 'client'
-export { default as Auth, AuthClient } from 'client'
+export type { SetPassword, AuthClient } from 'client'
+export { default as Auth, CancelToken } from 'client'
 
-export { ErrorCode, HttpError, AuthError } from 'error'
+export { ApiError, ErrorCode, HttpError, AuthError } from 'error'

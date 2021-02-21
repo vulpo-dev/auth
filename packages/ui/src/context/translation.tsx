@@ -85,6 +85,7 @@ type Translations = {
 		title: string;
 		info: string;
 		description: FC<PasswordlessProps>;
+		warning: string;
 	};
 
 	Disclaimer: FC<DisclaimerProps>;
@@ -150,6 +151,7 @@ export let DefaultTranslation = {
 	passwordless_check: {
 		title: 'Check your Email',
 		info: '(It might take a couple of minutes for the link to arrive)',
+		warning: 'Do not close this window until opening the email link.',
 		description: ({ email, type }: PasswordlessProps) => {
 			
 			if (!email || email.trim() === '') {

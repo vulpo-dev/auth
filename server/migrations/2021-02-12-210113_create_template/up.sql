@@ -7,5 +7,6 @@ create table if not exists templates
 	, redirect_to text not null
 	, of_type text not null
 	, project_id uuid references projects(id) on delete cascade
+	, language text not null default 'en'
 	, primary key (of_type, project_id)
 	);

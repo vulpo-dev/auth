@@ -21,6 +21,10 @@ export enum ErrorCode {
 	ResetTokenNotFound = 'reset/token_not_found',
 	ResetExpired = 'reset/expired',
 	ResetPasswordMismatch = 'reset/password_mismatch',
+
+	PasswordlessAwaitConfirm = 'passwordless/await_confirm',
+	PasswordlessTokenExpire = 'passwordless/token_expire',
+	PasswordlessInvalidToken = 'passwordless/invalid_token',
 }
 
 type ErrorResponse = {
@@ -54,6 +58,9 @@ export class ApiError {
 			case ErrorCode.ResetTokenNotFound:
 			case ErrorCode.ResetExpired:
 			case ErrorCode.ResetPasswordMismatch:
+			case ErrorCode.PasswordlessAwaitConfirm:
+			case ErrorCode.PasswordlessTokenExpire:
+			case ErrorCode.PasswordlessInvalidToken:
 				return new AuthError(res.response?.data.code)
 
 			default:

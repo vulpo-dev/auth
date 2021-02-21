@@ -99,6 +99,9 @@ pub enum ApiError {
 
     #[serde(rename = "passwordless/await_confirm")]
     PasswordlessAwaitConfirm,
+
+    #[serde(rename = "template/render")]
+    TemplateRender,
 }
 
 impl ApiError {

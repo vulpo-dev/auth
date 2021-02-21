@@ -1,10 +1,13 @@
+mod config;
 mod template;
+
+pub use config::{DefaultRedirect, DefaultSubject};
 
 use crate::data::admin::Admin;
 use crate::data::AuthDb;
 use crate::response::error::ApiError;
-pub use template::Template;
-use template::{TemplateResponse, Templates};
+pub use template::{Template, TemplateCtx};
+pub use template::{TemplateResponse, Templates};
 
 use rocket::Route;
 use rocket_contrib::json::Json;
@@ -27,12 +30,13 @@ async fn get_template(
             let body = Template::get_body(template);
             TemplateResponse {
                 from_name: String::from(""),
-                subject: String::from(""),
+                subject: DefaultSubject::from_template(template),
                 body: body.to_string(),
-                redirect_to: String::from(""),
+                redirect_to: DefaultRedirect::from_template(template),
                 of_type: template,
                 project_id: project.into_inner(),
                 is_default: true,
+                language: String::from("en"),
             }
         }
         Some(t) => t,

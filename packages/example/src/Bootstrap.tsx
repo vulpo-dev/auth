@@ -22,7 +22,11 @@ let Bootstrap = () => {
 		}
 
 		if (!user && newUser) {
-			history.replace(refferrer.current)
+			if (refferrer.current.startsWith('/auth')) {
+				history.replace('/')
+			} else {
+				history.replace(refferrer.current)
+			}
 		}
 	})
 

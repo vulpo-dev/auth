@@ -2,11 +2,13 @@ insert into users
 	( email
 	, project_id
 	, provider_id
+	, email_verified
 	)
 values
 	( $1
 	, $2
 	, 'link'
+	, true
 	)
 returning id
 		, display_name

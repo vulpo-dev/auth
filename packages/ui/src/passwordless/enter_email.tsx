@@ -1,5 +1,5 @@
 import React from 'react'
-import { SyntheticEvent } from 'react'
+import { SyntheticEvent, useState } from 'react'
 import { Card, CardHeader, CardNav } from 'component/card'
 import { Button, IconButton } from '@biotic-ui/button'
 import { useConfig } from 'context/config'
@@ -10,6 +10,9 @@ import { Input } from '@biotic-ui/input'
 import { useForm } from '@biotic-ui/std'
 import { ErrorCode } from '@riezler/auth-sdk'
 import { useHistory, useRouteMatch } from 'react-router-dom'
+import { useAuth } from '@riezler/auth-react'
+import { Disclaimer } from 'component/disclaimer'
+import { Footer, Divider } from 'component/layout'
 
 type Form = {
 	email: string
@@ -35,6 +38,7 @@ export let EnterEmail = (props: Props) => {
 
 	function handleSubmit(e: SyntheticEvent) {
 		e.preventDefault()
+		console.log({ form })
 		props.onSignIn(form)
 	}
 
@@ -78,17 +82,24 @@ export let EnterEmail = (props: Props) => {
 					<Error>{errorMessage}</Error>
 				}
 			</form>
+
+			<Divider />
+
+			<Footer>
+				<Disclaimer  />
+			</Footer>
 		</Card>
 	)
 }
 
 
 let EnterEmailContainer = () => {
+	let auth = useAuth()
 	let history = useHistory()
 	let match = useRouteMatch<{ type: 'signin' | 'signup' }>('/:type')
 
-	let loading = false
-	let error = null
+	let [error, setError] = useState<ErrorCode | null>(null)
+	let [loading, setLoading] = useState<boolean>(false)
 
 	function handleBack() {
 		if (match) {
@@ -98,8 +109,17 @@ let EnterEmailContainer = () => {
 		}
 	}
 
-	function handleSignIn(form: Form) {
-		console.log({ form })
+	async function handleSignIn(form: Form) {
+		setLoading(true)
+		setError(null)
+
+		try {
+			let id = await auth.passwordless(form.email)
+			history.push(`/signin/link/check-email?id=${id}`)
+		} catch (err) {
+			setLoading(false)
+			setError(err.code)
+		}
 	}
 
 	return (

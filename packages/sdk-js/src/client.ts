@@ -10,8 +10,14 @@ import { User as User } from 'user'
 import { Tokens } from 'tokens'
 import { ApiError, ErrorCode } from 'error'
 
-import Axios, { AxiosInstance } from 'axios'
+import Axios, { AxiosInstance, AxiosRequestConfig} from 'axios'
 import { shallowEqualObjects } from 'shallow-equal'
+
+export const CancelToken = Axios.CancelToken;
+
+interface CancellablePromise<T> extends Promise<T> {
+  cancel: () => void
+}
 
 export type SetPassword = {
 	id: string;
@@ -46,10 +52,10 @@ export class AuthClient {
 		this.config = config
 	}
 
-	async signIn(email: string, password: string): Promise<IUser> {
+	async signIn(email: string, password: string, config?: AxiosRequestConfig): Promise<IUser> {
 		let url = '/password/sign_in'
 		let { data } = await this.http
-			.post<TokenResponse>(url, { email, password })
+			.post<TokenResponse>(url, { email, password }, config)
 			.catch(res => Promise.reject(this.error.fromResponse(res)))
 		
 		this.tokens.fromResponse(data)
@@ -64,10 +70,10 @@ export class AuthClient {
 		return user
 	}
 
-	async signUp(email: string, password: string): Promise<IUser> {
+	async signUp(email: string, password: string, config?: AxiosRequestConfig): Promise<IUser> {
 		let url = '/password/sign_up'
 		let { data } = await this.http
-			.post<TokenResponse>(url, { email, password })
+			.post<TokenResponse>(url, { email, password }, config)
 			.catch(res => Promise.reject(this.error.fromResponse(res)))
 
 		this.tokens.fromResponse(data)
@@ -82,7 +88,7 @@ export class AuthClient {
 		return user
 	}
 
-	async signOut(userId?: string): Promise<void> {
+	async signOut(userId?: string, config?: AxiosRequestConfig): Promise<void> {
 		let id = userId ?? this.user.active
 
 		if (!id) {
@@ -91,13 +97,13 @@ export class AuthClient {
 
 		try {
 			this.user.remove(id)
-			await this.http.post(`user/sign_out/${id}`)
+			await this.http.post(`user/sign_out/${id}`, undefined, config)
 		} catch (err) {
 			throw this.error.fromResponse(err)
 		}
 	}
 
-	async signOutAll(userId?: string): Promise<void> {
+	async signOutAll(userId?: string, config?: AxiosRequestConfig): Promise<void> {
 		let id = userId ?? this.user.active
 
 		if (!id) {
@@ -106,7 +112,7 @@ export class AuthClient {
 
 		try {
 			this.user.remove(id)
-			await this.http.post(`user/sign_out_all/${id}`)
+			await this.http.post(`user/sign_out_all/${id}`, undefined, config)
 		} catch (err) {
 			throw this.error.fromResponse(err)
 		}
@@ -129,28 +135,81 @@ export class AuthClient {
 		}
 	}
 
-	async resetPassword(email: string): Promise<void> {
+	async resetPassword(email: string, config?: AxiosRequestConfig): Promise<void> {
 		try {
-			await this.http.post('/password/request_password_reset', { email })
+			await this.http.post('/password/request_password_reset', { email }, config)
 		} catch(err) {
 			throw this.error.fromResponse(err)
 		}
 	}
 
-	async setPassword(body: SetPassword): Promise<void> {
+	async setPassword(body: SetPassword, config?: AxiosRequestConfig): Promise<void> {
 		try {
-			await this.http.post('/password/password_reset', body)
+			await this.http.post('/password/password_reset', body, config)
 		} catch (err) {
 			throw this.error.fromResponse(err)
 		}
 	}
 
-	async verifyToken(id: string, token: string): Promise<void> {
+	async verifyToken(id: string, token: string, config?: AxiosRequestConfig): Promise<void> {
 		try {
-			await this.http.post('/password/verify_reset_token', { id, token })
+			await this.http.post('/password/verify_reset_token', { id, token }, config)
 		} catch (err) {
 			throw this.error.fromResponse(err)
 		}
+	}
+
+	async passwordless(email: string, config?: AxiosRequestConfig): Promise<string> {
+		try {
+			let res = await this.http.post<[string]>('/passwordless/', { email }, config)
+			return res.data[0]!
+		} catch (err) {
+			throw this.error.fromResponse(err)
+		}
+	}
+
+	async confirmPasswordless(id: string, token: string, config?: AxiosRequestConfig): Promise<void> {
+		try {
+			await this.http.post('/passwordless/confirm', { id, token }, config)
+		} catch (err) {
+			throw this.error.fromResponse(err)
+		}
+	}
+
+	verifyPasswordless(id: string, config?: AxiosRequestConfig): Promise<IUser | null> {
+		return new Promise((resolve, reject) => {
+			let check = async () => {
+				try {
+					
+					let { data } = await this.http.get<TokenResponse>('/passwordless/verify', {
+						...config,
+						params: { token: id },
+					})
+
+					this.tokens.fromResponse(data)
+					let user = this.user.fromResponse(data)
+
+					// todo: proper error handling
+					if (user === undefined) {
+						throw new Error('signIn')
+					}
+
+					this.user.activate(user.id)
+					resolve(user)
+				} catch (err) {
+					let error = this.error.fromResponse(err)
+					if (error.code === ErrorCode.PasswordlessAwaitConfirm) {
+						setTimeout(check, 1000)
+					} else if (Axios.isCancel(err)) {
+						resolve(null)
+					} else {
+						reject(error)
+					}
+				}
+			}
+
+			check()
+		})
 	}
 
 	authStateChange(cb: AuthCallback): Unsubscribe {

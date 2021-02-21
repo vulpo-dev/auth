@@ -6,7 +6,7 @@ use crate::password::validate_password_length;
 use crate::project::Project;
 use crate::response::error::ApiError;
 use crate::settings::data::ProjectEmail;
-use crate::template::Template;
+use crate::template::{Template, TemplateCtx, Templates};
 
 use bcrypt::{hash, verify, DEFAULT_COST};
 use chrono::{Duration, Utc};
@@ -47,32 +47,40 @@ pub async fn request_password_reset(
         Ok(hashed) => hashed,
     };
 
+    let user_id = user.clone().id;
     let token_id = conn
-        .run(move |client| PasswordReset::insert(client, &user.id, hashed_token.to_string()))
+        .run(move |client| PasswordReset::insert(client, &user_id, hashed_token.to_string()))
         .await?;
 
     let settings = conn
-        .run(move |client| ProjectEmail::from_project(client, project.id))
+        .run(move |client| {
+            ProjectEmail::from_project_template(client, project.id, Templates::PasswordReset)
+        })
         .await?;
 
-    let base_url = "http://localhost:3000".to_string();
     let link: String = format!(
-        "{}/auth/#/forgot-password/set-password?id={}&token={}",
-        base_url, token_id, reset_token
+        "{}{}?id={}&token={}",
+        settings.domain, settings.redirect_to, token_id, reset_token
     );
 
-    let content = Template::password_reset(link);
+    let ctx = TemplateCtx {
+        href: link,
+        project: settings.name,
+        user: Some(user),
+    };
+
+    let content = match Template::render(settings.body, ctx) {
+        Err(_) => return Err(ApiError::TemplateRender),
+        Ok(v) => v,
+    };
 
     let email = Email {
         to_email: body.email.clone(),
-        subject: String::from("Reset Password"),
+        subject: settings.subject,
         content,
     };
 
-    match settings {
-        None => return Err(ApiError::InternalServerError),
-        Some(settings) => email.send(settings).await?,
-    };
+    email.send(settings.email).await?;
 
     Ok(Status::Ok)
 }
