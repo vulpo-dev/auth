@@ -6,6 +6,7 @@ import {
 } from 'react'
 
 import { useHttp, getError } from 'data/http'
+import { useProject as useProjectId } from 'data/admin'
 
 import {
 	boson,
@@ -79,5 +80,8 @@ export function useCreateProject() {
 export let ProjectCtx = createContext<PartialProject | undefined>(undefined)
 
 export function useProject(): PartialProject {
-	return useContext(ProjectCtx)!
+	let current = useContext(ProjectCtx)
+	let [projects] = useProjects()
+	let project = projects?.find(p => p.id === current?.id)
+	return project!
 }

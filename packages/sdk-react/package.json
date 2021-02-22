@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "description": "",
   "main": "lib/main.js",
+  "types": "lib/main.d.ts",
   "scripts": {
     "dev": "tsc --noEmit --watch",
     "types": "tsc --emitDeclarationOnly --declaration --declarationDir ./lib",
