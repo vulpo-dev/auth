@@ -19,12 +19,12 @@
   "author": "Michael Riezler <michael@riezler.co> (https://riezler.co)",
   "license": "MPL-2.0",
   "devDependencies": {
-    "@babel/core": "^7.12.17",
-    "@babel/plugin-proposal-class-properties": "^7.12.13",
+    "@babel/core": "^7.13.0",
+    "@babel/plugin-proposal-class-properties": "^7.13.0",
     "@babel/polyfill": "^7.12.1",
-    "@babel/preset-env": "^7.12.17",
+    "@babel/preset-env": "^7.13.0",
     "@babel/preset-react": "^7.12.13",
-    "@babel/preset-typescript": "^7.12.17",
+    "@babel/preset-typescript": "^7.13.0",
     "babel-jest": "^26.6.3",
     "babel-loader": "^8.2.2",
     "babel-plugin-styled-components": "^1.12.0",
@@ -32,11 +32,11 @@
     "http-proxy-middleware": "^1.0.6",
     "jest": "^26.6.3",
     "rimraf": "^3.0.2",
-    "source-map-loader": "^1.1.2",
+    "source-map-loader": "^2.0.1",
     "ts-loader": "^8.0.17",
     "typescript": "^4.1.5",
-    "webpack": "4.44.0",
-    "webpack-cli": "^4.2.0"
+    "webpack": "5.24.0",
+    "webpack-cli": "^4.5.0"
   },
   "dependencies": {
     "axios": "^0.21.1",

@@ -3,6 +3,10 @@ let cwd = process.cwd()
 let src = path.resolve(cwd, 'src')
 
 module.exports = {
+  core: {
+    builder: "webpack5",
+  },
+
   "stories": [
     "../src/**/*.stories.mdx",
     "../src/**/*.stories.@(js|jsx|ts|tsx)"
