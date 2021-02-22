@@ -8,7 +8,7 @@ import type {
 
 import { User as User } from 'user'
 import { Tokens } from 'tokens'
-import { ApiError, ErrorCode } from 'error'
+import { ApiError, ErrorCode, ClientError } from 'error'
 
 import Axios, { AxiosInstance, AxiosRequestConfig} from 'axios'
 import { shallowEqualObjects } from 'shallow-equal'
@@ -30,6 +30,7 @@ let DefaultConfig: Config = {
 	offline: true,
 	project: '',
 	baseURL: '',
+	preload: true,
 }
 
 export class AuthClient {
@@ -122,11 +123,14 @@ export class AuthClient {
 		try {
 			return await this.tokens.getToken(userId)
 		} catch (res) {
-			let err = this.error.fromResponse(res)
-			
+			let err = res instanceof ClientError
+				? res
+				: this.error.fromResponse(res)
+
 			if ( err.code === ErrorCode.AuthRefreshTokenMissing ||
 				 err.code === ErrorCode.AuthRefreshTokenNotFound ||
-				 err.code === ErrorCode.AuthRefreshTokenInvalidFormat
+				 err.code === ErrorCode.AuthRefreshTokenInvalidFormat ||
+				 err.code === ErrorCode.ClientUserIdNotFound
 			   ) {
 				this.user.setCurrent(null)
 			}
@@ -253,10 +257,11 @@ export let Auth: $Auth = {
 			config,
 		)
 
-		// Prefetch the token
-		client
-			.getToken()
-			.catch(err => {})
+		if (config.preload) {			
+			client
+				.getToken()
+				.catch(err => {})
+		}
 
 		return client
 	}	

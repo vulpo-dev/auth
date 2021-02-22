@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
-import { useHttp, HttpError, CancelToken, getError } from 'data/http'
+import { useHttp, CancelToken } from 'data/http'
+import { ApiError, getErrorCode } from 'error'
 import { bosonFamily, useBoson } from '@biotic-ui/boson'
 import { useMounted } from '@biotic-ui/std'
 
@@ -48,7 +49,7 @@ type Response = {
 type UsersState = {
 	items?: Array<User> | null;
 	loading: boolean;
-	error: null | HttpError;
+	error: null | ApiError;
 }
 
 let DefaultState: UsersState = {
@@ -147,7 +148,7 @@ export function useUsers({
 					return {
 						...state,
 						loading: false,
-						error: getError(err),
+						error: getErrorCode(err),
 					}
 				})
 			})
@@ -171,7 +172,7 @@ type TotalUsersResponse = {
 type TotalState = {
 	value?: number | null;
 	loading: boolean;
-	error: null | HttpError; 
+	error: null | ApiError; 
 }
 
 let userTotalFamily = bosonFamily<[string], TotalState>(id => {
@@ -226,7 +227,7 @@ export function useTotalUsers(project: string): TotalState {
 					return {
 						...state,
 						loading: false,
-						error: getError(err),
+						error: getErrorCode(err),
 					}
 				})
 			})

@@ -22,9 +22,7 @@ const Template: Story<{}> = (args) => {
           <Wrapper>
             <Switch>
               <Route path='/signin'>
-                <Content>
                   <Auth />
-                </Content>
               </Route>
 
               <Redirect to='/signin' />

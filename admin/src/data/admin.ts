@@ -48,26 +48,32 @@ type CreateProject = {
 
 export type UseCreateProject = {
 	loading: boolean,
-	id: null | string
+	id: null | string,
+	error: boolean,
 }
 
 export function useCreateProject(): UseCreateProject {
 	let mounted = useMounted()
 	let [state, setState] = useState<UseCreateProject>({
 		loading: true,
-		id: null
+		id: null,
+		error: false,
 	})
 
 	let setProjectId = useSetBoson(projectIdAtom)
 
 	useEffect(() => {
-		axios.post<CreateProject>('/admin/__/project/create_admin').then(res => {
-			if (mounted.current) {
-				let { id } = res.data
-				setState({ id, loading: false })
-				setProjectId(id)
-			}
-		})
+		axios.post<CreateProject>('/admin/__/project/create_admin')
+			.then(res => {
+				if (mounted.current) {
+					let { id } = res.data
+					setState({ id, loading: false, error: false })
+					setProjectId(id)
+				}
+			})
+			.catch(() => {
+				setState({ id: null, loading: false, error: true })
+			})
 	}, [mounted, setProjectId])
 
 	return state

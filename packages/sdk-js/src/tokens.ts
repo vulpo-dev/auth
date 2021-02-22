@@ -5,6 +5,7 @@ import type {
 
 import { User } from 'user'
 import { AxiosInstance } from 'axios'
+import { ClientError } from 'error'
 
 type InFlight = Promise<string | null>
 
@@ -30,7 +31,8 @@ export class Tokens {
 
 	async getToken(userId: string | null = this.user.active): Promise<string | null> {
 		
-		if (userId === null) {
+		if (!userId) {
+			throw new ClientError()
 			return null
 		}
 

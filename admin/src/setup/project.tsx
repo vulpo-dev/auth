@@ -4,16 +4,27 @@ import styled from 'styled-components'
 import { useCreateProject } from 'data/admin'
 import { useHistory } from 'react-router-dom'
 import { Flow } from '@biotic-ui/leptons'
+import { ErrorMessage } from '@biotic-ui/text'
 
 const MIN_TIMEOUT = 5000 // 5s
 
-export let Project = () => {
+export type Props = {
+	error: boolean;
+}
+
+export let Project = ({ error }: Props) => {
 	return (
 		<Wrapper>
 			<h2>Creating Admin Project</h2>
-			<FlowWrapper>
-				<Flow />
-			</FlowWrapper>
+			<ContentWrapper>
+				{ !error &&
+						<Flow />
+				}
+				{ error &&
+					<ErrorMessage>Something went wrong</ErrorMessage>
+				}
+			</ContentWrapper>
+
 		</Wrapper>
 	)
 }
@@ -21,7 +32,7 @@ export let Project = () => {
 let ProjectContainer = () => {
 	let history = useHistory()
 	let [ready, setReady] = useState(false)
-	let { id } = useCreateProject()
+	let { id, error } = useCreateProject()
 
 	useEffect(() => {
 		let id = setTimeout(() => {
@@ -40,7 +51,7 @@ let ProjectContainer = () => {
 		}
 	}, [id, history, ready])
 
-	return <Project />
+	return <Project error={error} />
 }
 
 export default ProjectContainer
@@ -51,7 +62,7 @@ let Wrapper = styled.div`
 	height: 100%;
 `
 
-let FlowWrapper = styled.div`
+let ContentWrapper = styled.div`
 	display: flex;
 	justify-content: center;
 	align-items: center;

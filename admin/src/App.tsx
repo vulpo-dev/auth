@@ -16,6 +16,7 @@ export default function App() {
 	let auth = useAuth()
 
 	useAuthStateChange((user: UserState) => {
+
 		setUser(user)
 		if (user === null) {
 			history.replace('/auth/#/signin')

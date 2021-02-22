@@ -5,7 +5,7 @@ import { useForm, useMounted } from '@biotic-ui/std'
 import { Input, Label, Section } from '@biotic-ui/input'
 import { Button } from 'component/button'
 import { useCreateProject, PartialProject } from 'data/project'
-import { RequestError, ErrorCode } from 'data/http'
+import { ApiError, getErrorCode } from 'error'
 
 type Form = {
 	name: string;
@@ -23,7 +23,7 @@ type Props = {
 
 let CreateProject: FC<Props> = ({ onSuccess }) => {
 	let isMounted = useMounted()
-	let [error, setError] = useState<RequestError | null>(null)
+	let [error, setError] = useState<ApiError | null>(null)
 	let [loading, setLoading] = useState<boolean>(false)
 
 	let [form, setForm, set] = useForm<Form>(DefaultForm)
@@ -44,7 +44,7 @@ let CreateProject: FC<Props> = ({ onSuccess }) => {
 		} catch (err) {
 			if (isMounted) {
 				setLoading(false)
-				setError(err)
+				setError(getErrorCode(err))
 			}
 		}
 	}
@@ -98,9 +98,9 @@ let Wrapper = styled.div`
 	--input-bg: none;
 `
 
-function getErrorMessage(error: RequestError): string {
-	switch (error.code) {
-		case ErrorCode.ProjectNameExists:
+function getErrorMessage(code: ApiError): string {
+	switch (code) {
+		case ApiError.ProjectNameExists:
 			return 'Project name already exists'
 
 		default:

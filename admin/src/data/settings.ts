@@ -12,7 +12,8 @@ import {
 	useBosonValue,
 } from '@biotic-ui/boson'
 
-import { CancelToken, useHttp, HttpError, getError } from 'data/http'
+import { CancelToken, useHttp } from 'data/http'
+import { ApiError, getErrorCode } from 'error'
 
 type SetterOrUpdater<T>
 	= T
@@ -56,7 +57,7 @@ export function hasEmailProvider(settings?: EmailSettings | null) {
 type Request<T> = {
 	data: T | undefined,
 	loading: boolean,
-	error: HttpError | null,
+	error: ApiError | null,
 	initialData: T | undefined | null,
 }
 
@@ -121,7 +122,7 @@ export function useEmailSettings(project: string): [Request<EmailSettings>, ((x:
 				return {
 					...state,
 					loading: false,
-					error: getError(err)
+					error: getErrorCode(err)
 				}
 			}))
 
@@ -155,7 +156,7 @@ export function useSetEmailSettings(project: string) {
 export function useSaveEmailSettings(project: string) {
 	let http = useHttp()
 
-	let [state, setState] = useState<{ loading: boolean; error: HttpError | null }>({
+	let [state, setState] = useState<{ loading: boolean; error: ApiError | null }>({
 		loading: false,
 		error: null
 	})
@@ -178,7 +179,7 @@ export function useSaveEmailSettings(project: string) {
 
 			setState({ loading: false, error: null })
 		} catch (err) {
-			setState({ loading: false, error: getError(err) })
+			setState({ loading: false, error: getErrorCode(err) })
 		}
 
 	}, [project, data, http])

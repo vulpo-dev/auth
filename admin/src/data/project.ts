@@ -5,7 +5,7 @@ import {
 	useContext
 } from 'react'
 
-import { useHttp, getError } from 'data/http'
+import { useHttp } from 'data/http'
 import { useProject as useProjectId } from 'data/admin'
 
 import {
@@ -55,25 +55,20 @@ export function useCreateProject() {
 	let setProjects = useSetBoson(projectsAtom)
 
 	return useCallback(async (name: string, domain: string): Promise<PartialProject> => {
-		try {
-			let { data } = await http
-				.post<[string]>('/admin/__/project/create', { name, domain })
+		let { data } = await http
+			.post<[string]>('/admin/__/project/create', { name, domain })
 
-			let project: PartialProject = {
-				id: data[0],
-				name,
-				domain
-			}
-
-			setProjects((projects = []) => {
-				return [...projects, project]
-			})
-
-			return project
-
-		} catch (err) {
-			throw getError(err)
+		let project: PartialProject = {
+			id: data[0],
+			name,
+			domain
 		}
+
+		setProjects((projects = []) => {
+			return [...projects, project]
+		})
+
+		return project
 	}, [http, setProjects])
 }
 

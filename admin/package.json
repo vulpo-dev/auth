@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "build": "webpack --mode production",
-    "start": "webpack serve --mode development"
+    "start": "webpack serve --mode development",
+    "storybook": "start-storybook -p 9001",
+    "build-storybook": "build-storybook"
   },
   "keywords": [],
   "author": "Michael Riezler <michael@riezler.co> (https://riezler.co)",
@@ -17,7 +19,7 @@
     "@babel/preset-react": "^7.12.13",
     "@babel/preset-typescript": "^7.12.17",
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.0-beta.0",
-    "@storybook/react": "^6.1.18",
+    "@storybook/react": "^6.2.0-beta.0",
     "@types/react": "^17.0.2",
     "@types/react-dom": "^17.0.1",
     "@types/react-router-dom": "^5.1.7",
@@ -52,9 +54,11 @@
     "@biotic-ui/select": "^0.3.11",
     "@biotic-ui/std": "^0.3.5",
     "@biotic-ui/tabs": "^0.3.16",
+    "@biotic-ui/text": "^0.3.2",
     "@riezler/auth-react": "0.0.1",
     "@riezler/auth-sdk": "0.0.1",
     "@riezler/auth-ui": "0.0.1",
+    "@storybook/builder-webpack5": "^6.2.0-beta.0",
     "@tippyjs/react": "^4.2.0",
     "@types/clipboard": "^2.0.1",
     "axios": "^0.21.1",

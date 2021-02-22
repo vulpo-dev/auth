@@ -7,7 +7,8 @@ import {
 } from '@biotic-ui/boson'
 
 import { Reload } from 'types/utils'
-import { CancelToken, useHttp, HttpError, getError } from 'data/http'
+import { CancelToken, useHttp } from 'data/http'
+import { ApiError, getErrorCode } from 'error'
 
 export enum Flags {
 	SignIn = 'auth::signin',
@@ -37,7 +38,7 @@ export function getFlagsFromRequest(flags: Array<string>): Array<Flags> {
 type ProjectFlags = {
 	items?: Array<Flags>;
 	loading: boolean;
-	error: null | HttpError;
+	error: null | ApiError;
 }
 
 type Response = {
@@ -99,7 +100,7 @@ export function useFlags(project: string): ProjectFlags & Reload {
 					return {
 						...state,
 						loading: false,
-						error: getError(err)
+						error: getErrorCode(err)
 					}
 				})
 			})
@@ -159,7 +160,7 @@ type UpdateFlags = {
 
 type UpdateFlagsRequest = {
 	loading: boolean;
-	error: null | HttpError;
+	error: null | ApiError;
 }
 
 let updateFamily = bosonFamily<[string], UpdateFlagsRequest>(id => {
@@ -202,7 +203,7 @@ export function useUpdateFlags(project: string): UseUpdateFlags {
 		} catch (err) {
 			setState({
 				loading: false,
-				error: getError(err),
+				error: getErrorCode(err),
 			})
 		}
 

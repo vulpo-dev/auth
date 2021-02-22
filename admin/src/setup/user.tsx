@@ -6,14 +6,17 @@ import { Input } from '@biotic-ui/input'
 import { useForm } from '@biotic-ui/std' 
 import { Button } from '@biotic-ui/button'
 import { useBosonValue } from '@biotic-ui/boson'
+import { ErrorMessage } from '@biotic-ui/text'
 import { projectIdAtom, createAdmin, CreateAdmin } from 'data/admin'
+import { ApiError, getErrorCode } from 'error'
 
 export type Props = {
 	onSubmit: (user: CreateAdmin) => void;
 	loading?: boolean;
+	error?: ApiError | null;
 }
 
-export let User = ({ onSubmit, loading = false }: Props) => {
+export let User = ({ onSubmit, loading = false, error }: Props) => {
 	
 	let [form, setForm] = useForm<CreateAdmin>({
 		email: '',
@@ -23,6 +26,22 @@ export let User = ({ onSubmit, loading = false }: Props) => {
 	function handleSubmit(e: SyntheticEvent) {
 		e.preventDefault()
 		onSubmit(form)
+	}
+
+	let errorMessage = () => {
+		switch(error) {
+			case ApiError.AdminHasAdmin:
+				return "An admin user already exists"
+
+			case ApiError.AdminExists:
+				return "User already exists"
+
+			case ApiError.ProjectNotFound:
+				return "Project not found"
+
+			default:
+				return "Something went wrong"
+		}
 	}
 
 	return (
@@ -48,6 +67,10 @@ export let User = ({ onSubmit, loading = false }: Props) => {
 						required
 					/>
 				</Section>
+				
+				{ error !== null &&
+					<ErrorMessage>{errorMessage()}</ErrorMessage>
+				}
 
 				<StyledButton loading={loading}>
 					Create Admin
@@ -61,6 +84,7 @@ let UserContainer = () => {
 	let history = useHistory()
 	let project = useBosonValue(projectIdAtom)
 	let [loading, setLoading] = useState(false)
+	let [error, setError] = useState<null | ApiError>(null)
 
 	async function handleSubmit(user: CreateAdmin) {
 		// handle error
@@ -73,11 +97,12 @@ let UserContainer = () => {
 			await createAdmin(user, project)
 			history.replace('/auth/#/signin')
 		} catch (err) {
-			console.log(err)
+			setLoading(false)
+			setError(getErrorCode(err))
 		}
 	}
 
-	return <User loading={loading} onSubmit={handleSubmit} />
+	return <User error={error} loading={loading} onSubmit={handleSubmit} />
 }
 
 export default UserContainer

@@ -13,10 +13,10 @@ export let Overview = () => {
 	return (
 		<Card>
 			<Header />
-			<LinkButton as={Link} to={`${pathname}/link`}>
+			<LinkButton forwardedAs={Link} to={`${pathname}/link`}>
 				{t.email.label}
 			</LinkButton>
-			<StyledOutline as={Link} to={`${pathname}/email`}>
+			<StyledOutline forwardedAs={Link} to={`${pathname}/email`}>
 				{t.password.label}
 			</StyledOutline>
 		</Card>
@@ -25,11 +25,14 @@ export let Overview = () => {
 
 export default Overview
 
-let LinkButton = styled(Button)`
+
+// using any here because ts complains about "forwardedAs"
+let LinkButton = styled<any>(Button)`
 	margin-block-end: var(--baseline);
 	block-size: var(--baseline-4);
 `
 
-let StyledOutline = styled(OutlineButton)`
+// using any here because ts complains about "forwardedAs"
+let StyledOutline = styled<any>(OutlineButton)`
 	block-size: var(--baseline-4);
 `

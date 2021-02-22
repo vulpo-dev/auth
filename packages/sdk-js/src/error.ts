@@ -25,6 +25,8 @@ export enum ErrorCode {
 	PasswordlessAwaitConfirm = 'passwordless/await_confirm',
 	PasswordlessTokenExpire = 'passwordless/token_expire',
 	PasswordlessInvalidToken = 'passwordless/invalid_token',
+
+	ClientUserIdNotFound = 'client/user_id_not_found',
 }
 
 type ErrorResponse = {
@@ -100,3 +102,13 @@ export class GenericError extends Error {
 	}
 }
 
+
+export class ClientError extends Error {
+	code: ErrorCode
+
+	constructor(message?: string) {
+		super(message)
+		this.name = 'NoUserId'
+		this.code = ErrorCode.ClientUserIdNotFound
+	}
+}
