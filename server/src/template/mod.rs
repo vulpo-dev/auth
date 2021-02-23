@@ -51,7 +51,15 @@ async fn set_template(
     body: Json<TemplateResponse>,
     _admin: Admin,
 ) -> Result<(), ApiError> {
-    conn.run(move |client| Template::set_template(client, &body))
+    let body = body.into_inner();
+    let template = TemplateResponse {
+        from_name: body.from_name.trim().to_string(),
+        subject: body.subject.trim().to_string(),
+        redirect_to: body.redirect_to.trim().to_string(),
+        ..body
+    };
+
+    conn.run(move |client| Template::set_template(client, &template))
         .await?;
 
     Ok(())

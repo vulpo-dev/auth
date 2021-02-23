@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "description": "",
   "main": "lib/main.js",
-  "types": "lib/main.d.ts",
+  "types": "./lib/main.d.ts",
   "scripts": {
     "dev": "tsc --noEmit --watch",
     "types": "tsc --emitDeclarationOnly --declaration --declarationDir ./lib",
@@ -15,19 +15,22 @@
   "keywords": [],
   "author": "Michael Riezler <michael@riezler.co> (https://riezler.co)",
   "license": "MPL-2.0",
+  "dependencies": {
+    "@riezler/auth-sdk": "0.0.1",
+    "@types/react": "^17.0.2"
+  },
+  "peerDependencies": {
+    "react": "^17.0.1"
+  },
   "devDependencies": {
     "@babel/core": "^7.13.0",
     "@babel/plugin-proposal-class-properties": "^7.13.0",
     "@babel/preset-env": "^7.13.0",
     "@babel/preset-react": "^7.12.13",
     "@babel/preset-typescript": "^7.13.0",
-    "@riezler/auth-sdk": "0.0.1",
-    "@types/react": "^17.0.2",
     "babel-jest": "^26.6.3",
     "babel-loader": "^8.2.2",
     "babel-plugin-styled-components": "^1.12.0",
-    "react": "^17.0.1",
-    "react-dom": "^17.0.1",
     "rimraf": "^3.0.2",
     "source-map-loader": "^2.0.1",
     "ts-loader": "^8.0.17",

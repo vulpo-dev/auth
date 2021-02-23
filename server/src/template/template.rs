@@ -161,7 +161,7 @@ impl Template {
                     of_type,
                     project_id: row.get("project_id"),
                     is_default: row.get("is_default"),
-                    language: row.get("template"),
+                    language: row.get("language"),
                 }
             })),
         }

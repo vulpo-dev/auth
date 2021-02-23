@@ -52,6 +52,7 @@ module.exports = function createConfig (_, argv) {
             '/user/': 'http://127.0.0.1:8000',
             '/project/': 'http://127.0.0.1:8000',
             '/settings/': 'http://127.0.0.1:8000',
+            '/template/': 'http://127.0.0.1:8000',
           }
         , hot: true
         }

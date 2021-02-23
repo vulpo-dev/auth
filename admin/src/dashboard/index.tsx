@@ -27,6 +27,7 @@ import Tooltip from 'component/tooltip'
 import Users from 'dashboard/component/users'
 import SignInMethods from 'dashboard/component/sign_in_methods'
 import Settings from 'dashboard/component/settings'
+import Templates from 'dashboard/component/templates'
 
 function Dashboard() {
 	let history = useHistory()
@@ -132,7 +133,7 @@ let Main = () => {
 						<SignInMethods project={project} />
 					</Route>
 					<Route path={`${base}/templates`}>
-						<h3>Templates</h3>
+						<Templates />
 					</Route>
 					<Route path={`${base}/settings`}>
 						<Settings project={project} />
@@ -157,9 +158,12 @@ type TabItemProps = {
 }
 
 let TabItem = ({ project }: TabItemProps) => {
+	let location = useLocation()
 	let url = useBosonValue(getLatesUrl(project.id))
+	let active = location.pathname.startsWith(`/${project.id}`)
+
 	return (
-		<Tab key={project.id} to={url}>
+		<Tab isActive={active} key={project.id} to={url}>
 			<Tooltip content={project.name} delay={[1000, null]}>
 				<span>{project.name}</span>
 			</Tooltip>

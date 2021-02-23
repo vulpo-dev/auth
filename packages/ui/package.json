@@ -40,13 +40,15 @@
     "typescript": "^4.1.5",
     "webpack": "5.24.0",
     "@riezler/auth-sdk": "0.0.1",
+    "@riezler/auth-react": "0.0.1",
     "webpack-cli": "^4.5.0",
+    "react-dom": "^17.0.1",
     "@storybook/builder-webpack5": "^6.2.0-beta.0"
   },
   "peerDependencies": {
     "react": "^17.0.1",
-    "react-dom": "^17.0.1",
     "react-router-dom": "^5.2.0",
+    "@riezler/auth-react": "0.0.1",
     "@riezler/auth-sdk": "0.0.1",
     "styled-components": "^5.2.1"
   },
@@ -55,9 +57,8 @@
     "@biotic-ui/input": "^0.3.14",
     "@biotic-ui/leptons": "^0.3.10",
     "@biotic-ui/std": "^0.3.6",
-    "@riezler/auth-sdk": "0.0.1",
-    "@riezler/auth-react": "0.0.1",
     "@types/react-router-dom": "^5.1.7",
-    "@types/styled-components": "^5.1.7"
+    "@types/styled-components": "^5.1.7",
+    "@types/react": "^17.0.2"
   }
 }

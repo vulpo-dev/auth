@@ -1,6 +1,6 @@
 
 select email_settings.host
-	 , coalesce(templates .from_name, email_settings.from_name) as from_name
+	 , coalesce(nullif(templates.from_name, ''), email_settings.from_name) as from_name
 	 , email_settings.from_email
 	 , email_settings.password
 	 , email_settings.username

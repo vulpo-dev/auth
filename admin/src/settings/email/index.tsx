@@ -68,6 +68,7 @@ let EmailSettings: FunctionComponent<Props> = () => {
 				<ISection>
 					<Label>From Email:</Label>
 					<Input
+						type='email'
 						value={data?.from_email}
 						onChange={setForm}
 						name='from_email'

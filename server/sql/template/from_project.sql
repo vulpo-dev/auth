@@ -5,6 +5,7 @@ select from_name
 	 , of_type
 	 , project_id
 	 , false as is_default
+	 , language
   from templates
  where project_id = $1
    and of_type = $2

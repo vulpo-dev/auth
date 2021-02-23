@@ -1,4 +1,4 @@
-import { NavLink } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 import styled from 'styled-components'
 
@@ -14,7 +14,7 @@ export let TabBar = styled.header`
 	width: 100vw;
 `
 
-export let Tab = styled(NavLink)`
+export let Tab = styled(Link)<{ isActive: boolean }>`
 	height: 100%;
 	display: flex;
 	align-items: center;
@@ -30,10 +30,10 @@ export let Tab = styled(NavLink)`
 		background: rgba(0,0,0, 0.1);
 	}
 
-	&.active {
-		background: #000;
-		color: #fff;
-	}
+	${p => p.isActive && `
+		background: #000!important;
+		color: #fff!important;
+	`}
 
 	> * {
 		display: block;
