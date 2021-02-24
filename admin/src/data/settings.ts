@@ -186,3 +186,35 @@ export function useSaveEmailSettings(project: string) {
 
 	return { handler, ...state }
 }
+
+export type ProjectSettings = {
+	id: string;
+	name: string;
+	domain: string;
+}
+
+export function useSetProjectSettings() {
+	let http = useHttp()
+	let [loading, setLoading] = useState<boolean>(false)
+	let [error, setError] = useState<ApiError | null>(null)
+
+	let run = useCallback(async (settings: ProjectSettings) => {
+		try {
+			setLoading(true)
+
+			let payload = {
+				project: settings.id,
+				name: settings.name,
+				domain: settings.domain,
+			}
+
+			await http.post('/settings/project', payload)
+			setLoading(false)
+		} catch (err) {
+			setLoading(false)
+			setError(getErrorCode(err))
+		}
+	}, [setLoading, setError, http])
+
+	return { run, loading, error }
+}

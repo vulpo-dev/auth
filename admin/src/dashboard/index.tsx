@@ -163,7 +163,7 @@ let TabItem = ({ project }: TabItemProps) => {
 	let active = location.pathname.startsWith(`/${project.id}`)
 
 	return (
-		<Tab isActive={active} key={project.id} to={url}>
+		<Tab $isActive={active} key={project.id} to={url}>
 			<Tooltip content={project.name} delay={[1000, null]}>
 				<span>{project.name}</span>
 			</Tooltip>

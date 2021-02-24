@@ -5,6 +5,23 @@ use serde::{Deserialize, Serialize};
 
 use uuid::Uuid;
 
+pub struct Project;
+
+impl Project {
+    pub fn set_settings<C: GenericClient>(
+        client: &mut C,
+        project: &Uuid,
+        email: &str,
+        domain: &str,
+    ) -> Result<(), ApiError> {
+        let query = get_query("project/set_settings")?;
+        match client.query(query, &[&project, &email, &domain]) {
+            Ok(_) => Ok(()),
+            Err(_) => Err(ApiError::InternalServerError),
+        }
+    }
+}
+
 #[derive(Debug, Copy, Clone, Deserialize, Serialize, PartialEq)]
 pub enum Flags {
     #[serde(rename = "auth::signin")]

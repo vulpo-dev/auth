@@ -20,7 +20,7 @@ type Props = {
 }
 
 let EmailSettings: FunctionComponent<Props> = () => {
-	let project = useProject()
+	let [project] = useProject()
 	let setForm = useSetEmailSettings(project.id)
 	let [{ data, initialData }, setSettings] = useEmailSettings(project.id)
 	let save = useSaveEmailSettings(project.id)
@@ -29,6 +29,8 @@ let EmailSettings: FunctionComponent<Props> = () => {
 		e.preventDefault()
 		save.handler()
 	}
+
+	let isLoading = data === undefined
 
 	return (
 		<form onSubmit={handleSubmit}>
@@ -49,18 +51,20 @@ let EmailSettings: FunctionComponent<Props> = () => {
 						<Host>
 							<Label>Host:</Label>
 							<Input
-								value={data?.host}
+								value={data?.host ?? ''}
 								onChange={setForm}
 								name='host'
+								disabled={isLoading}
 							/>
 						</Host>
 
 						<Port>
 							<Label>Port:</Label>
 							<Input
-								value={data?.port}
+								value={data?.port ?? 465}
 								onChange={setForm}
 								name='port'
+								disabled={isLoading}
 							/>
 						</Port>
 					</Address>
@@ -69,33 +73,37 @@ let EmailSettings: FunctionComponent<Props> = () => {
 					<Label>From Email:</Label>
 					<Input
 						type='email'
-						value={data?.from_email}
+						value={data?.from_email ?? ''}
 						onChange={setForm}
 						name='from_email'
+						disabled={isLoading}
 					/>
 				</ISection>
 				<ISection>
 					<Label>From Name:</Label>
 					<Input
-						value={data?.from_name}
+						value={data?.from_name ?? ''}
 						onChange={setForm}
 						name='from_name'
+						disabled={isLoading}
 					/>
 				</ISection>
 				<ISection>
 					<Label>Username:</Label>
 					<Input
-						value={data?.username}
+						value={data?.username ?? ''}
 						onChange={setForm}
 						name='username'
+						disabled={isLoading}
 					/>
 				</ISection>
 				<ISection>
 					<Label>Password:</Label>
 					<Input
-						value={data?.password}
+						value={data?.password ?? ''}
 						onChange={setForm}
 						name='password'
+						disabled={isLoading}
 					/>
 				</ISection>
 			</Section>

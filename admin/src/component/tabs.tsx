@@ -14,7 +14,7 @@ export let TabBar = styled.header`
 	width: 100vw;
 `
 
-export let Tab = styled(Link)<{ isActive: boolean }>`
+export let Tab = styled(Link)<{ $isActive: boolean }>`
 	height: 100%;
 	display: flex;
 	align-items: center;
@@ -30,7 +30,7 @@ export let Tab = styled(Link)<{ isActive: boolean }>`
 		background: rgba(0,0,0, 0.1);
 	}
 
-	${p => p.isActive && `
+	${p => p.$isActive && `
 		background: #000!important;
 		color: #fff!important;
 	`}

@@ -74,9 +74,26 @@ export function useCreateProject() {
 
 export let ProjectCtx = createContext<PartialProject | undefined>(undefined)
 
-export function useProject(): PartialProject {
+export function useProject(): [PartialProject, (p: PartialProject) => void] {
 	let current = useContext(ProjectCtx)
-	let [projects] = useProjects()
+	let [projects, setProjects] = useProjects()
 	let project = projects?.find(p => p.id === current?.id)
-	return project!
+
+	let set = (p: PartialProject) => {
+		setProjects((state = []) => {
+			let index = state.findIndex(item => item.id === p.id)
+
+			if (index === -1) {
+				return state
+			}
+
+			return [
+				...state.slice(0, index),
+				p,
+				...state.slice(index + 1),
+			]
+		})
+	}
+
+	return [project!, set]
 }

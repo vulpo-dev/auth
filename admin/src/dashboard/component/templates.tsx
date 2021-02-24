@@ -67,7 +67,7 @@ let List = styled.ul`
 	padding: var(--baseline-3) var(--baseline-2);
 `
 
-let StyledListItem = styled.li<{ isActive: boolean }>`
+let StyledListItem = styled.li<{ $isActive: boolean }>`
 	font-size: calc(var(--baseline) * 2.5);
 	line-height: 1;
 	margin-bottom: calc(var(--baseline) * 2.5);
@@ -76,7 +76,7 @@ let StyledListItem = styled.li<{ isActive: boolean }>`
 		color: inherit;
 		text-decoration: none;
 
-		${p => p.isActive && `
+		${p => p.$isActive && `
 			text-decoration: underline;
 			text-decoration-color: var(--pink);
 			text-decoration-thickness: 3px;
@@ -90,13 +90,13 @@ type ListItemProps = {
 
 let ListItem: FunctionComponent<ListItemProps> = ({ children, type }) => {
 	let location = useLocation()
-	let project = useProject()
+	let [project] = useProject()
 	let url = `/${project.id}/templates/${type}`
 
 	let active = location.pathname === url
 
 	return (
-		<StyledListItem isActive={active}>
+		<StyledListItem $isActive={active}>
 			<Link to={url}>
 				{children}
 			</Link>
@@ -120,6 +120,8 @@ let TemplateForm: FunctionComponent<TemplateFormProps> = ({ project, template: t
 		setTemplate({ ...t, [name]: value })
 	}
 
+	let isLoading = template === undefined
+
 	return (
 		<FormWrapper>
 			<form onSubmit={onSubmit.save}>
@@ -131,8 +133,9 @@ let TemplateForm: FunctionComponent<TemplateFormProps> = ({ project, template: t
 					<Label>From Name:</Label>
 					<Input
 						name='from_name'
-						value={template?.from_name}
+						value={template?.from_name ?? ''}
 						onChange={handleChange}
+						disabled={isLoading}
 					/>
 				</Section>
 				
@@ -140,8 +143,9 @@ let TemplateForm: FunctionComponent<TemplateFormProps> = ({ project, template: t
 					<Label>Subject:</Label>
 					<Input
 						name='subject'
-						value={template?.subject}
+						value={template?.subject ?? ''}
 						onChange={handleChange}
+						disabled={isLoading}
 					/>
 				</Section>
 				
@@ -149,19 +153,21 @@ let TemplateForm: FunctionComponent<TemplateFormProps> = ({ project, template: t
 					<Label>Redirect To:</Label>
 					<Input
 						name='redirect_to'
-						value={template?.redirect_to}
+						value={template?.redirect_to ?? ''}
 						onChange={handleChange}
+						disabled={isLoading}
 					/>
 				</Section>
 
 				<Section>
 					<Label>Body:</Label>
 					<Textarea
+						disabled={isLoading}
 						name='body'
-						value={template?.body}
+						value={template?.body ?? ''}
 						minRows={12}
 						maxHeight={575}
-						onChange={e => handleChange(e as ChangeEvent<HTMLTextAreaElement>)}
+						onChange={handleChange}
 					/>
 				</Section>
 			</form>
