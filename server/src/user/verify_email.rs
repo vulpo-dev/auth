@@ -1,8 +1,12 @@
+use crate::data::admin::Admin;
 use crate::data::token;
 use crate::data::verify_email::VerifyEmail;
 use crate::data::AuthDb;
+use crate::mail::Email;
 use crate::project::Project;
 use crate::response::error::ApiError;
+use crate::settings::data::ProjectEmail;
+use crate::template::{Template, TemplateCtx, Templates};
 
 use chrono::{Duration, Utc};
 use rocket::http::Status;
@@ -40,6 +44,65 @@ pub async fn handler(
 
     conn.run(move |client| VerifyEmail::verify(client, &verify.user_id))
         .await?;
+
+    Ok(Status::Ok)
+}
+
+#[derive(Deserialize)]
+pub struct SendEmailVerification {
+    pub user_id: Uuid,
+    pub project_id: Uuid,
+}
+
+#[post("/send_email_verification", data = "<body>")]
+pub async fn admin(
+    conn: AuthDb,
+    body: Json<SendEmailVerification>,
+    _admin: Admin,
+) -> Result<Status, ApiError> {
+    let user_id = body.user_id.clone();
+    let to_email = conn
+        .run(move |client| VerifyEmail::unverify(client, &user_id))
+        .await?;
+
+    let project_id = body.project_id;
+    let settings = conn
+        .run(move |client| {
+            ProjectEmail::from_project_template(client, project_id, Templates::VerifyEmail)
+        })
+        .await?;
+
+    let reset_token = token::create();
+    let hashed_token = token::hash(&reset_token)?;
+
+    let user_id = body.user_id;
+    let token_id = conn
+        .run(move |client| VerifyEmail::insert(client, &user_id, hashed_token))
+        .await?;
+
+    let link: String = format!(
+        "{}{}?id={}&token={}",
+        settings.domain, settings.redirect_to, token_id, reset_token
+    );
+
+    let ctx = TemplateCtx {
+        href: link,
+        project: settings.name,
+        user: None,
+    };
+
+    let content = match Template::render(settings.body, ctx) {
+        Err(_) => return Err(ApiError::TemplateRender),
+        Ok(v) => v,
+    };
+
+    let email = Email {
+        to_email,
+        subject: settings.subject,
+        content,
+    };
+
+    email.send(settings.email).await?;
 
     Ok(Status::Ok)
 }

@@ -256,7 +256,29 @@ export function useDeleteUser() {
 		} finally {
 			setLoading(false)
 		}
-	}, [http])
+	}, [http, setLoading, setError])
+
+	return { run, error, loading }
+}
+
+
+export function useVerifyEmail(project_id: string) {
+	let http = useHttp()
+	let [loading, setLoading] = useState<boolean>(false)
+	let [error, setError] = useState<ApiError | null>(null)
+
+	let run = useCallback(async (user_id: string) => {
+		setError(null)
+		setLoading(true)
+		
+		try {
+			await http.post(`/user/send_email_verification`, { user_id, project_id })
+		} catch(err) {
+			setError(getErrorCode(err))
+		} finally {
+			setLoading(false)
+		}
+	}, [http, project_id, setLoading, setError])
 
 	return { run, error, loading }
 }

@@ -17,5 +17,6 @@ pub fn routes() -> Vec<Route> {
         delete_account::admin_delete_account,
         delete_account::delete_account,
         verify_email::handler,
+        verify_email::admin,
     ]
 }

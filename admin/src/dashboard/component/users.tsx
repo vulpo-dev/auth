@@ -1,7 +1,7 @@
 import React from 'react'
 import { FC, useState } from 'react'
 import styled from 'styled-components'
-import { useUsers, useTotalUsers, useDeleteUser } from 'data/user'
+import { useUsers, useTotalUsers, useDeleteUser, useVerifyEmail } from 'data/user'
 import { format } from 'data/date'
 import { Wrapper, Header, Content, Text, GhostRows, Rows } from 'component/user_table'
 import {
@@ -24,6 +24,7 @@ type Props = {
 
 let Users: FC<Props> = ({ project }) => {
 	let deleteUser = useDeleteUser()
+	let verifyEmail = useVerifyEmail(project)
 
 	let limit = 25
 	let [page, setPage] = useState<number>(0)
@@ -49,6 +50,12 @@ let Users: FC<Props> = ({ project }) => {
 
 	async function handleDelete() {
 		await deleteUser.run(selected[0]!)
+		users.reload()
+		setSelected([])
+	}
+
+	async function handleVerify() {
+		await verifyEmail.run(selected[0]!)
 		users.reload()
 		setSelected([])
 	}
@@ -108,7 +115,7 @@ let Users: FC<Props> = ({ project }) => {
 					<ClockClockwise weight='bold' size={24} />
 					<ActionLabel>Reset Password</ActionLabel>
 				</ActionItem>
-				<ActionItem>
+				<ActionItem onClick={handleVerify}>
 					<IdentificationCard weight='bold' size={24} />
 					<ActionLabel>Send Email Verification</ActionLabel>
 				</ActionItem>

@@ -56,4 +56,15 @@ impl VerifyEmail {
             Ok(_) => Ok(()),
         }
     }
+
+    pub fn unverify<C: GenericClient>(client: &mut C, user_id: &Uuid) -> Result<String, ApiError> {
+        let query = get_query("verify_email/unverify")?;
+        match client.query_one(query, &[&user_id]) {
+            Err(err) => {
+                println!("{:?}", err);
+                Err(ApiError::InternalServerError)
+            }
+            Ok(row) => Ok(row.get("email")),
+        }
+    }
 }

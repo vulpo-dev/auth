@@ -3,6 +3,8 @@ use crate::template::Templates;
 pub enum DefaultRedirect {
     Passwordless,
     PasswordReset,
+    VerifyEmail,
+    ChangeEmail,
 }
 
 impl ToString for DefaultRedirect {
@@ -10,6 +12,8 @@ impl ToString for DefaultRedirect {
         let url = match self {
             DefaultRedirect::Passwordless => "/auth/#/signin/link/confirm",
             DefaultRedirect::PasswordReset => "/auth/#/forgot-password/set-password",
+            DefaultRedirect::VerifyEmail => "/auth/#/verify-email",
+            DefaultRedirect::ChangeEmail => "/auth/#/change-email",
         };
 
         String::from(url)
@@ -21,6 +25,8 @@ impl DefaultRedirect {
         match template {
             Templates::Passwordless => DefaultRedirect::Passwordless.to_string(),
             Templates::PasswordReset => DefaultRedirect::PasswordReset.to_string(),
+            Templates::VerifyEmail => DefaultRedirect::VerifyEmail.to_string(),
+            Templates::ChangeEmail => DefaultRedirect::ChangeEmail.to_string(),
             _ => String::from(""),
         }
     }
@@ -29,6 +35,8 @@ impl DefaultRedirect {
 pub enum DefaultSubject {
     Passwordless,
     PasswordReset,
+    VerifyEmail,
+    ChangeEmail,
 }
 
 impl ToString for DefaultSubject {
@@ -36,6 +44,8 @@ impl ToString for DefaultSubject {
         let url = match self {
             DefaultSubject::Passwordless => "Sign In",
             DefaultSubject::PasswordReset => "Reset Password",
+            DefaultSubject::VerifyEmail => "Verify Email",
+            DefaultSubject::ChangeEmail => "Change Email",
         };
 
         String::from(url)
@@ -47,6 +57,8 @@ impl DefaultSubject {
         match template {
             Templates::Passwordless => DefaultSubject::Passwordless.to_string(),
             Templates::PasswordReset => DefaultSubject::PasswordReset.to_string(),
+            Templates::VerifyEmail => DefaultSubject::VerifyEmail.to_string(),
+            Templates::ChangeEmail => DefaultSubject::ChangeEmail.to_string(),
             _ => String::from(""),
         }
     }
