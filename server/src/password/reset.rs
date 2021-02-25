@@ -1,4 +1,5 @@
 use crate::data::password_reset::PasswordReset;
+use crate::data::token;
 use crate::data::user::User;
 use crate::data::AuthDb;
 use crate::mail::Email;
@@ -8,7 +9,6 @@ use crate::response::error::ApiError;
 use crate::settings::data::ProjectEmail;
 use crate::template::{Template, TemplateCtx, Templates};
 
-use bcrypt::{hash, verify, DEFAULT_COST};
 use chrono::{Duration, Utc};
 use rocket::http::Status;
 use rocket_contrib::json::Json;
@@ -41,15 +41,12 @@ pub async fn request_password_reset(
         Some(user) => user,
     };
 
-    let reset_token = Uuid::new_v4();
-    let hashed_token = match hash(reset_token.to_string(), DEFAULT_COST) {
-        Err(_) => return Err(ApiError::InternalServerError),
-        Ok(hashed) => hashed,
-    };
+    let reset_token = token::create();
+    let hashed_token = token::hash(&reset_token)?;
 
     let user_id = user.clone().id;
     let token_id = conn
-        .run(move |client| PasswordReset::insert(client, &user_id, hashed_token.to_string()))
+        .run(move |client| PasswordReset::insert(client, &user_id, hashed_token))
         .await?;
 
     let settings = conn
@@ -88,7 +85,7 @@ pub async fn request_password_reset(
 #[derive(Deserialize)]
 pub struct ResetPassword {
     pub id: Uuid,
-    pub token: Uuid,
+    pub token: String,
     pub password1: String,
     pub password2: String,
 }
@@ -110,10 +107,7 @@ pub async fn password_reset(
         .run(move |client| PasswordReset::get(client, &id))
         .await?;
 
-    let is_valid = match verify(body.token.to_string(), &reset.token) {
-        Err(_) => return Err(ApiError::InternalServerError),
-        Ok(valid) => valid,
-    };
+    let is_valid = token::verify(&body.token, &reset.token)?;
 
     if is_valid == false {
         return Err(ApiError::ResetInvalidToken);
@@ -148,7 +142,7 @@ pub async fn password_reset(
 #[derive(Deserialize)]
 pub struct VerifyToken {
     pub id: Uuid,
-    pub token: Uuid,
+    pub token: String,
 }
 
 #[post("/verify_reset_token", data = "<body>")]
@@ -162,10 +156,7 @@ pub async fn verify_token(
         .run(move |client| PasswordReset::get(client, &id))
         .await?;
 
-    let is_valid = match verify(body.token.to_string(), &reset.token) {
-        Err(_) => return Err(ApiError::InternalServerError),
-        Ok(valid) => valid,
-    };
+    let is_valid = token::verify(&body.token, &reset.token)?;
 
     if is_valid == false {
         return Err(ApiError::ResetInvalidToken);

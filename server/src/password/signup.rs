@@ -4,10 +4,13 @@ use crate::data::project::Flags;
 use crate::data::token::{AccessToken, RefreshToken};
 use crate::data::user::User;
 use crate::data::AuthDb;
+use crate::mail::Email;
 use crate::password::validate_password_length;
 use crate::project::Project;
 use crate::response::error::ApiError;
 use crate::response::token::Token;
+use crate::settings::data::ProjectEmail;
+use crate::template::{Template, TemplateCtx, Templates};
 
 use rocket::http::CookieJar;
 use rocket::State;
@@ -52,11 +55,10 @@ pub async fn sign_up(
             .ok(),
     };
 
+    let email = body.email.trim().to_lowercase();
+    let password = body.password.clone();
     let user = conn
-        .run(move |client| {
-            let email = body.email.trim().to_lowercase();
-            User::create(client, email, body.password.clone(), project.id)
-        })
+        .run(move |client| User::create(client, email, password, project.id))
         .await?;
 
     let expire = RefreshToken::expire();
@@ -87,6 +89,42 @@ pub async fn sign_up(
         Ok(at) => at,
         Err(_) => return Err(ApiError::InternalServerError),
     };
+
+    let verify = conn
+        .run(move |client| Flags::has_flags(client, &project.id, &[Flags::VerifyEmail]))
+        .await;
+
+    if verify.is_ok() {
+        let settings = conn
+            .run(move |client| {
+                ProjectEmail::from_project_template(client, project.id, Templates::Passwordless)
+            })
+            .await?;
+
+        let link: String = format!(
+            "{}{}?email={}",
+            settings.domain, settings.redirect_to, body.email
+        );
+
+        let ctx = TemplateCtx {
+            href: link,
+            project: settings.name,
+            user: None,
+        };
+
+        let content = match Template::render(settings.body, ctx) {
+            Err(_) => return Err(ApiError::TemplateRender),
+            Ok(v) => v,
+        };
+
+        let email = Email {
+            to_email: body.email.clone(),
+            subject: settings.subject,
+            content,
+        };
+
+        email.send(settings.email).await?;
+    }
 
     Ok(Token {
         access_token,

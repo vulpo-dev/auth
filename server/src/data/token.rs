@@ -2,12 +2,15 @@ use crate::data::user::User;
 use crate::data::{get_query, GenericClient};
 use crate::response::error::ApiError;
 
-use bcrypt::{hash, verify, DEFAULT_COST};
+use bcrypt;
 use chrono::{DateTime, Duration as CDuration, Utc};
 use jsonwebtoken::{decode, encode, Algorithm, DecodingKey, EncodingKey, Header, Validation};
+use rand::distributions::Alphanumeric;
+use rand::{thread_rng, Rng};
 use serde::{Deserialize, Serialize};
 use serde_json;
 use serde_json::Error;
+use std::char;
 use time::{Duration, OffsetDateTime};
 use uuid::Uuid;
 
@@ -253,21 +256,33 @@ impl Passwordless {
         }
     }
 
-    pub fn get_token() -> String {
-        Uuid::new_v4().to_string()
-    }
-
-    pub fn hash_token(token: &String) -> Result<String, ApiError> {
-        match hash(token.clone(), DEFAULT_COST) {
-            Err(_) => Err(ApiError::InternalServerError),
-            Ok(hashed) => Ok(hashed),
-        }
-    }
-
     pub fn compare(&self, token: &str) -> bool {
-        match verify(token, &self.token) {
+        match bcrypt::verify(token, &self.token) {
             Err(_) => false,
             Ok(result) => result,
         }
+    }
+}
+
+pub fn create() -> String {
+    let mut rng = thread_rng();
+    (&mut rng)
+        .sample_iter(Alphanumeric)
+        .take(32)
+        .map(char::from)
+        .collect()
+}
+
+pub fn hash(token: &String) -> Result<String, ApiError> {
+    match bcrypt::hash(token.clone(), bcrypt::DEFAULT_COST) {
+        Err(_) => Err(ApiError::InternalServerError),
+        Ok(hashed) => Ok(hashed),
+    }
+}
+
+pub fn verify(token: &str, compare: &str) -> Result<bool, ApiError> {
+    match bcrypt::verify(token, compare) {
+        Err(_) => Err(ApiError::InternalServerError),
+        Ok(valid) => Ok(valid),
     }
 }

@@ -1,7 +1,7 @@
 use crate::data::project::Flags;
-use crate::data::token::Passwordless;
 use crate::data::user::User;
 use crate::data::AuthDb;
+use crate::data::{token, token::Passwordless};
 use crate::mail::Email;
 use crate::project::Project;
 use crate::response::error::ApiError;
@@ -33,14 +33,14 @@ pub async fn request_passwordless(
         .run(move |client| User::get_by_email(client, &email, project.id))
         .await?;
 
-    let token = Passwordless::get_token();
-    let verification_token = Passwordless::hash_token(&token)?;
+    let verification_token = token::create();
+    let hashed_token = token::hash(&verification_token)?;
 
     let email = body_email.clone();
     let user_id = user.clone().map(|u| u.id);
     let id = conn
         .run(move |client| {
-            Passwordless::create_token(client, user_id, &email, &verification_token, project.id)
+            Passwordless::create_token(client, user_id, &email, &hashed_token, project.id)
         })
         .await?;
 
@@ -52,7 +52,7 @@ pub async fn request_passwordless(
 
     let link: String = format!(
         "{}{}?id={}&token={}",
-        settings.domain, settings.redirect_to, id, token
+        settings.domain, settings.redirect_to, id, verification_token
     );
 
     let ctx = TemplateCtx {
