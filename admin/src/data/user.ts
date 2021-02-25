@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useHttp, CancelToken } from 'data/http'
 import { ApiError, getErrorCode } from 'error'
 import { bosonFamily, useBoson } from '@biotic-ui/boson'
@@ -238,4 +238,25 @@ export function useTotalUsers(project: string): TotalState {
 	}, [project, http, setState])
 
 	return state
+}
+
+export function useDeleteUser() {
+	let http = useHttp()
+	let [loading, setLoading] = useState<boolean>(false)
+	let [error, setError] = useState<ApiError | null>(null)
+
+	let run = useCallback(async (userId: string) => {
+		setError(null)
+		setLoading(true)
+		
+		try {
+			await http.post(`/user/delete_account/${userId}`)
+		} catch(err) {
+			setError(getErrorCode(err))
+		} finally {
+			setLoading(false)
+		}
+	}, [http])
+
+	return { run, error, loading }
 }

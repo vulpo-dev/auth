@@ -1,8 +1,10 @@
 use crate::config::secrets::Secrets;
 use crate::data::keys::ProjectKeys;
 use crate::data::project::Flags;
+use crate::data::token;
 use crate::data::token::{AccessToken, RefreshToken};
 use crate::data::user::User;
+use crate::data::verify_email::VerifyEmail;
 use crate::data::AuthDb;
 use crate::mail::Email;
 use crate::password::validate_password_length;
@@ -97,13 +99,21 @@ pub async fn sign_up(
     if verify.is_ok() {
         let settings = conn
             .run(move |client| {
-                ProjectEmail::from_project_template(client, project.id, Templates::Passwordless)
+                ProjectEmail::from_project_template(client, project.id, Templates::VerifyEmail)
             })
             .await?;
 
+        let reset_token = token::create();
+        let hashed_token = token::hash(&reset_token)?;
+
+        let user_id = user.clone().id;
+        let token_id = conn
+            .run(move |client| VerifyEmail::insert(client, &user_id, hashed_token))
+            .await?;
+
         let link: String = format!(
-            "{}{}?email={}",
-            settings.domain, settings.redirect_to, body.email
+            "{}{}?id={}&token={}",
+            settings.domain, settings.redirect_to, token_id, reset_token
         );
 
         let ctx = TemplateCtx {

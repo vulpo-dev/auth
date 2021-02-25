@@ -1,7 +1,7 @@
 import React from 'react'
 import { FC, useState } from 'react'
 import styled from 'styled-components'
-import { useUsers, useTotalUsers } from 'data/user'
+import { useUsers, useTotalUsers, useDeleteUser } from 'data/user'
 import { format } from 'data/date'
 import { Wrapper, Header, Content, Text, GhostRows, Rows } from 'component/user_table'
 import {
@@ -23,6 +23,8 @@ type Props = {
 }
 
 let Users: FC<Props> = ({ project }) => {
+	let deleteUser = useDeleteUser()
+
 	let limit = 25
 	let [page, setPage] = useState<number>(0)
 
@@ -37,18 +39,19 @@ let Users: FC<Props> = ({ project }) => {
 	let [selected, setSelected] = useState<Array<string>>([])
 
 	function handleSelect(id: string) {
-		setSelected(selected => {
-			if (selected.includes(id)) {
-				return selected.filter(s => s !== id)
-			} else  {
-				return [...selected, id]
-			}
-		})
+		setSelected([id])
 	}
 
 	let rows = users.items
 		? <Rows items={users.items} onSelect={handleSelect} selected={selected} />
 		: <GhostRows rows={limit} />
+
+
+	async function handleDelete() {
+		await deleteUser.run(selected[0]!)
+		users.reload()
+		setSelected([])
+	}
 
 	return (
 		<Container>
@@ -109,7 +112,7 @@ let Users: FC<Props> = ({ project }) => {
 					<IdentificationCard weight='bold' size={24} />
 					<ActionLabel>Send Email Verification</ActionLabel>
 				</ActionItem>
-				<ActionItem>
+				<ActionItem onClick={handleDelete}>
 					<Trash weight='bold' size={24} />
 					<ActionLabel>Delete</ActionLabel>
 				</ActionItem>

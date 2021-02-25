@@ -4,6 +4,7 @@ pub mod password_reset;
 pub mod project;
 pub mod token;
 pub mod user;
+pub mod verify_email;
 
 use crate::response::error::ApiError;
 use crate::SQL;

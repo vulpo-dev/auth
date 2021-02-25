@@ -4,6 +4,7 @@ mod delete_account;
 mod get;
 mod list;
 mod sign_out;
+mod verify_email;
 
 pub fn routes() -> Vec<Route> {
     routes![
@@ -15,5 +16,6 @@ pub fn routes() -> Vec<Route> {
         sign_out::admin_sign_out,
         delete_account::admin_delete_account,
         delete_account::delete_account,
+        verify_email::handler,
     ]
 }
