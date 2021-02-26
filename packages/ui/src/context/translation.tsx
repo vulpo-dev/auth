@@ -91,6 +91,11 @@ type Translations = {
 	Disclaimer: FC<DisclaimerProps>;
 
 	error: ErrorMessage;
+
+	verify_email: {
+		title: string;
+		success: string;
+	};
 }
 
 export let DefaultTranslation = {
@@ -191,7 +196,12 @@ export let DefaultTranslation = {
 		generic: 'Something went wrong',
 		not_allowed: 'Not Allowed',
 		unavailable: 'Authentication Service is Unavailable',
-	}
+	},
+
+	verify_email: {
+		title: 'Verifying Email',
+		success: 'Your email has been verified',
+	},
 }
 
 export let Translation = createContext(DefaultTranslation)

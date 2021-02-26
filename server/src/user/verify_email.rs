@@ -34,7 +34,7 @@ pub async fn handler(
     let is_valid = token::verify(&body.token, &verify.token)?;
 
     if is_valid == false {
-        return Err(ApiError::ResetInvalidToken);
+        return Err(ApiError::TokenInvalid);
     }
 
     let expires_at = verify.created_at - Duration::minutes(30);

@@ -26,3 +26,8 @@ export let Divider = styled.hr`
 	margin-block-end: calc(var(--baseline) * 1.625);
 	background: var(--border-color);
 `
+
+export let LoadingWrapper = styled.div`
+	display: flex;
+	justify-content: center;
+`

@@ -31,7 +31,7 @@ impl VerifyEmail {
             Err(_) => Err(ApiError::InternalServerError),
             Ok(entries) => {
                 if entries.len() == 0 {
-                    return Err(ApiError::ResetTokenNotFound);
+                    return Err(ApiError::TokenNotFound);
                 }
 
                 let row = entries.get(0).unwrap();

@@ -130,7 +130,9 @@ export class AuthClient {
 			if ( err.code === ErrorCode.AuthRefreshTokenMissing ||
 				 err.code === ErrorCode.AuthRefreshTokenNotFound ||
 				 err.code === ErrorCode.AuthRefreshTokenInvalidFormat ||
-				 err.code === ErrorCode.ClientUserIdNotFound
+				 err.code === ErrorCode.ClientUserIdNotFound ||
+				 err.code === ErrorCode.NotFound || 
+				 err.code === ErrorCode.GenericError
 			   ) {
 				this.user.setCurrent(null)
 			}
@@ -175,6 +177,14 @@ export class AuthClient {
 	async confirmPasswordless(id: string, token: string, config?: AxiosRequestConfig): Promise<void> {
 		try {
 			await this.http.post('/passwordless/confirm', { id, token }, config)
+		} catch (err) {
+			throw this.error.fromResponse(err)
+		}
+	}
+
+	async verifyEmail(id: string, token: string, config?: AxiosRequestConfig): Promise<void> {
+		try {
+			await this.http.post('/user/verify_email', { id, token }, config)
 		} catch (err) {
 			throw this.error.fromResponse(err)
 		}

@@ -6,11 +6,16 @@ import Overview from 'overview'
 import Password from 'password'
 import PasswordReset from 'password_reset'
 import Passwordless from 'passwordless'
+import VerifyEmail from 'verify_email'
 
 let Auth = () => {
 	return (
 		<HashRouter>
 			<Switch>
+
+				<Route path='/verify-email'>
+					<VerifyEmail /> 
+				</Route>
 
 				<Route path='/forgot-password'>
 					<PasswordReset />

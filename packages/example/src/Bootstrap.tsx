@@ -13,6 +13,9 @@ let Bootstrap = () => {
 	let [user, setUser] = useState<UserState>(undefined)
 
 	useAuthStateChange((newUser: UserState) => {
+		if (window.location.hash.startsWith('#/verify-email')) {
+			return
+		}
 		
 		setUser(newUser)
 		if (!newUser && !window.location.pathname.startsWith('/auth')) {

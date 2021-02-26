@@ -15,7 +15,9 @@ export enum ErrorCode {
 	AuthRefreshTokenNotFound = 'auth/refresh_token_not_found',
 	AuthRefreshTokenInvalidFormat = 'auth/refresh_token_invalid_format',
 	InvalidEmailPassword = 'auth/invalid_email_password',
+	
 	TokenGenerate = 'token/generate',
+	TokenNotFound = 'token/not_found',
 
 	ResetInvalidToken = 'reset/invalid_token',
 	ResetTokenNotFound = 'reset/token_not_found',
