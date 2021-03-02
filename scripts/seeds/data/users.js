@@ -21,7 +21,7 @@ function getUsers(total) {
 	let emails = new Set()
 
 	while(emails.size < total) {
-		emails.add(faker.internet.email())
+		emails.add(faker.internet.email().toLowerCase())
 	}
 
 	return Array.from(emails.values()).map(email => {
