@@ -18,11 +18,18 @@ export type TokenResponse = {
 	user_id: string;
 }
 
+
+export type SessionResponse = {
+	access_token: string;
+	created: boolean;
+	user_id: string;
+	expire_at: string;
+	session: string;
+}
+
 export type Config = {
 	baseURL: string;
 	project: string;
-	offline?: boolean;
-	preload?: boolean;
 }
 
 export type UserState = User | null | undefined
@@ -33,3 +40,17 @@ export type PasswordOptions = {
 }
 
 export type TokenListener = (token: String | null) => void
+
+export type SessionId = string
+export type AccessToken = string
+
+export interface CancellablePromise<T> extends Promise<T> {
+  cancel: () => void
+}
+
+export type SetPassword = {
+	id: string;
+	token: string;
+	password1: string;
+	password2: string;
+}

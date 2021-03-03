@@ -3,138 +3,141 @@ import type {
 	Config,
 	AuthCallback,
 	Unsubscribe,
-	User as IUser
+	User,
+	SessionResponse,
+	CancellablePromise,
+	SetPassword,
 } from 'types'
 
-import { User as User } from 'user'
+import { Session } from 'session'
 import { Tokens } from 'tokens'
 import { ApiError, ErrorCode, ClientError } from 'error'
+import { createSession, getPublicKey, generateAccessToken } from 'keys'
+import { Sessions, Keys, SessionInfo } from 'storage'
 
-import Axios, { AxiosInstance, AxiosRequestConfig} from 'axios'
-import { shallowEqualObjects } from 'shallow-equal'
+import Axios, { AxiosInstance, AxiosRequestConfig } from 'axios'
 
 export const CancelToken = Axios.CancelToken;
 
-interface CancellablePromise<T> extends Promise<T> {
-  cancel: () => void
-}
-
-export type SetPassword = {
-	id: string;
-	token: string;
-	password1: string;
-	password2: string;
-}
-
-let DefaultConfig: Config = {
-	offline: true,
-	project: '',
-	baseURL: '',
-	preload: true,
-}
-
 export class AuthClient {
-	config: Config = DefaultConfig;
-
-	private user: User;
+	private session: Session;
 	private tokens: Tokens;
 	private http: AxiosInstance;
 	private error: ApiError = new ApiError();
 		
 	constructor(
-		user: User,
+		session: Session,
 		tokens: Tokens,
 		http: AxiosInstance,
-		config: Config
 	) {
-		this.user = user
+		this.session = session
 		this.tokens = tokens
 		this.http = http
-		this.config = config
 	}
 
-	async signIn(email: string, password: string, config?: AxiosRequestConfig): Promise<IUser> {
+	async signIn(email: string, password: string, config?: AxiosRequestConfig): Promise<User> {
+		let session = await createSession()
+		let public_key = await getPublicKey(session)
+
+		let payload =  {
+			email,
+			password,
+			public_key, 
+			session: session.id,
+		}
+
 		let url = '/password/sign_in'
 		let { data } = await this.http
-			.post<TokenResponse>(url, { email, password }, config)
-			.catch(res => Promise.reject(this.error.fromResponse(res)))
+			.post<SessionResponse>(url, payload, config)
+			.catch(async res => {
+				await Sessions.delete(session.id)
+				return Promise.reject(this.error.fromResponse(res))
+			})
 		
+		let user = await this.session.fromResponse(data)
+		await this.session.activate(data.session)
 		this.tokens.fromResponse(data)
-		let user = this.user.fromResponse(data)
-
-		// todo: proper error handling
-		if (user === undefined) {
-			throw new Error('signIn')
-		}
-
-		this.user.activate(user.id)
 		return user
 	}
 
-	async signUp(email: string, password: string, config?: AxiosRequestConfig): Promise<IUser> {
+	async signUp(email: string, password: string, config?: AxiosRequestConfig): Promise<User> {
+		let session = await createSession()
+		let public_key = await getPublicKey(session)
+
+		let payload =  {
+			email,
+			password,
+			public_key, 
+			session: session.id,
+		}
+
 		let url = '/password/sign_up'
 		let { data } = await this.http
-			.post<TokenResponse>(url, { email, password }, config)
-			.catch(res => Promise.reject(this.error.fromResponse(res)))
+			.post<SessionResponse>(url, payload, config)
+			.catch(async res => {
+				await Sessions.delete(session.id)
+				return Promise.reject(this.error.fromResponse(res))
+			})
 
+		let user = await this.session.fromResponse(data)
+		await this.session.activate(data.session)
 		this.tokens.fromResponse(data)
-		let user = this.user.fromResponse(data)
-
-		// todo: proper error handling
-		if (user === undefined) {
-			throw new Error('signIn')
-		}
-
-		this.user.activate(user.id)
 		return user
 	}
 
-	async signOut(userId?: string, config?: AxiosRequestConfig): Promise<void> {
-		let id = userId ?? this.user.active
+	async signOut(sessionId?: string, config?: AxiosRequestConfig): Promise<void> {
+		let session = sessionId ?? this.session.active?.id
 
-		if (!id) {
+		if (!session) {
 			return
 		}
 
-		try {
-			this.user.remove(id)
-			await this.http.post(`user/sign_out/${id}`, undefined, config)
-		} catch (err) {
-			throw this.error.fromResponse(err)
-		}
+		let value = await generateAccessToken(session)
+		await this.http
+			.post(`user/sign_out/${session}`, { value }, config)
+			.catch(err => Promise.reject(this.error.fromResponse(err)))
+
+		await this.session.remove(session)
 	}
 
-	async signOutAll(userId?: string, config?: AxiosRequestConfig): Promise<void> {
-		let id = userId ?? this.user.active
+	async signOutAll(sessionId?: string, config?: AxiosRequestConfig): Promise<void> {
+		let session = sessionId ?? this.session.active?.id
 
-		if (!id) {
+		if (!session) {
 			return
 		}
 
-		try {
-			this.user.remove(id)
-			await this.http.post(`user/sign_out_all/${id}`, undefined, config)
-		} catch (err) {
-			throw this.error.fromResponse(err)
-		}
+		let value = await generateAccessToken(session)
+		await this.http
+			.post(`user/sign_out_all/${session}`, undefined, config)
+			.catch(err => Promise.reject(this.error.fromResponse(err)))
+
+		await this.session.remove(session)
 	}
 
-	async getToken(userId?: string): Promise<string | null> {
+	async getToken(sessionId?: string): Promise<string | null> {
 		try {
-			return await this.tokens.getToken(userId)
+
+			let info = await this.session.current(sessionId)
+			if (!info) {
+				return null
+			}
+
+			let keys = await Keys.get(info.id)
+			if (!keys) {
+				this.session.setCurrent(null)
+				return null
+			}
+
+			let session = { ...info, ...keys }
+			return await this.tokens.getToken(session)
 		} catch (res) {
 			let err = res instanceof ClientError
 				? res
 				: this.error.fromResponse(res)
 
-			if ( err.code === ErrorCode.AuthRefreshTokenMissing ||
-				 err.code === ErrorCode.AuthRefreshTokenNotFound ||
-				 err.code === ErrorCode.AuthRefreshTokenInvalidFormat ||
-				 err.code === ErrorCode.ClientUserIdNotFound ||
-				 err.code === ErrorCode.NotFound || 
-				 err.code === ErrorCode.GenericError
-			   ) {
-				this.user.setCurrent(null)
+			if (sessionId === undefined) {
+				this.session.setCurrent(null)
 			}
 
 			throw err
@@ -142,113 +145,103 @@ export class AuthClient {
 	}
 
 	async resetPassword(email: string, config?: AxiosRequestConfig): Promise<void> {
-		try {
-			await this.http.post('/password/request_password_reset', { email }, config)
-		} catch(err) {
-			throw this.error.fromResponse(err)
-		}
+		await this.http
+			.post('/password/request_password_reset', { email }, config)
+			.catch(err => Promise.reject(this.error.fromResponse(err)))
 	}
 
 	async setPassword(body: SetPassword, config?: AxiosRequestConfig): Promise<void> {
-		try {
-			await this.http.post('/password/password_reset', body, config)
-		} catch (err) {
-			throw this.error.fromResponse(err)
-		}
+		await this.http
+			.post('/password/password_reset', body, config)
+			.catch(err => Promise.reject(this.error.fromResponse(err)))
 	}
 
 	async verifyToken(id: string, token: string, config?: AxiosRequestConfig): Promise<void> {
-		try {
-			await this.http.post('/password/verify_reset_token', { id, token }, config)
-		} catch (err) {
-			throw this.error.fromResponse(err)
-		}
+		await this.http
+			.post('/password/verify_reset_token', { id, token }, config)
+			.catch(err => Promise.reject(this.error.fromResponse(err)))
 	}
 
-	async passwordless(email: string, config?: AxiosRequestConfig): Promise<string> {
-		try {
-			let res = await this.http.post<[string]>('/passwordless/', { email }, config)
-			return res.data[0]!
-		} catch (err) {
-			throw this.error.fromResponse(err)
+	async passwordless(email: string, config?: AxiosRequestConfig): Promise<{ id: string; session: string }> {
+		let session = await createSession()
+		let public_key = await getPublicKey(session)
+
+		let payload =  {
+			email,
+			public_key, 
+			session: session.id,
 		}
+
+		let { data } = await this.http
+			.post<{ id: string }>('/passwordless/', payload, config)
+			.catch(async err => {
+				await Sessions.delete(session.id)
+				return Promise.reject(this.error.fromResponse(err))
+			})
+
+		return { id: data.id, session: session.id }
 	}
 
 	async confirmPasswordless(id: string, token: string, config?: AxiosRequestConfig): Promise<void> {
-		try {
-			await this.http.post('/passwordless/confirm', { id, token }, config)
-		} catch (err) {
-			throw this.error.fromResponse(err)
-		}
+		await this.http
+			.post('/passwordless/confirm', { id, token }, config)
+			.catch(err => Promise.reject(this.error.fromResponse(err)))
 	}
 
 	async verifyEmail(id: string, token: string, config?: AxiosRequestConfig): Promise<void> {
-		try {
-			await this.http.post('/user/verify_email', { id, token }, config)
-		} catch (err) {
-			throw this.error.fromResponse(err)
-		}
+		await this.http
+			.post('/user/verify_email', { id, token }, config)
+			.catch(err => Promise.reject(this.error.fromResponse(err)))
 	}
 
-	verifyPasswordless(id: string, config?: AxiosRequestConfig): Promise<IUser | null> {
+	verifyPasswordless(id: string, session: string, config?: AxiosRequestConfig): Promise<User | null> {
 		return new Promise((resolve, reject) => {
 			let check = async () => {
-				try {
-					
-					let { data } = await this.http.get<TokenResponse>('/passwordless/verify', {
-						...config,
-						params: { token: id },
-					})
+				let { data } = await this.http.get<SessionResponse>('/passwordless/verify', {
+					...config,
+					params: { token: id, session },
+				})
 
-					this.tokens.fromResponse(data)
-					let user = this.user.fromResponse(data)
+				this.tokens.fromResponse(data)
+				let user = await this.session.fromResponse(data)
 
-					// todo: proper error handling
-					if (user === undefined) {
-						throw new Error('signIn')
-					}
-
-					this.user.activate(user.id)
-					resolve(user)
-				} catch (err) {
-					let error = this.error.fromResponse(err)
-					if (error.code === ErrorCode.PasswordlessAwaitConfirm) {
-						setTimeout(check, 1000)
-					} else if (Axios.isCancel(err)) {
-						resolve(null)
-					} else {
-						reject(error)
-					}
-				}
+				this.session.activate(data.session)
+				resolve(user)
 			}
 
-			check()
+			check().catch(async err => {
+				let error = this.error.fromResponse(err)
+				if (error.code === ErrorCode.PasswordlessAwaitConfirm) {
+					setTimeout(check, 1000)
+				} else if (Axios.isCancel(err)) {
+					resolve(null)
+				} else {
+					await Sessions.delete(session)
+					reject(error)
+				}
+			})
 		})
 	}
 
 	authStateChange(cb: AuthCallback): Unsubscribe {
-		let sub = this.user.subscribe(cb)
-		cb(this.user.current)
+		let sub = this.session.subscribe(cb)
+		let session = this.session.current(this.session.active?.id)
+		cb(session)
 		return sub
 	}
 
 	activate(userId: string) {
-		this.user.activate(userId)
+		this.session.activate(userId)
 	}
 
-	get active() {
-		return this.user.active
+	get active(): SessionInfo | null {
+		return this.session.active
 	}
 }
 
-type $Auth = {
-	create(userConfig: Config): AuthClient;
-}
+export let Auth = {
+	create(config: Config): AuthClient {
 
-export let Auth: $Auth = {
-	create(userConfig: Config): AuthClient {
-		let config = { ...DefaultConfig, ...userConfig }
-		
 		let http = Axios.create({
 			baseURL: config.baseURL,
 			headers: {
@@ -257,21 +250,14 @@ export let Auth: $Auth = {
 			withCredentials: true
 		})
 
-		let user = new User(config)
+		let user = new Session(config)
 		let tokens = new Tokens(user, http)
 
 		let client = new AuthClient(
 			user,
 			tokens,
 			http,
-			config,
 		)
-
-		if (config.preload) {			
-			client
-				.getToken()
-				.catch(err => {})
-		}
 
 		return client
 	}	

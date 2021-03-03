@@ -1,0 +1,139 @@
+use crate::data::{get_query, GenericClient};
+use crate::response::error::ApiError;
+
+use chrono::{DateTime, Duration, NaiveDateTime, Utc};
+use jsonwebtoken as jwt;
+use jsonwebtoken::{Algorithm, DecodingKey, Validation};
+use serde::Deserialize;
+use uuid::Uuid;
+
+pub struct Session {
+    pub id: Uuid,
+    pub public_key: Vec<u8>,
+    pub expire_at: DateTime<Utc>,
+    pub user_id: Uuid,
+}
+
+impl Session {
+    pub fn create<C: GenericClient>(client: &mut C, session: Session) -> Result<Session, ApiError> {
+        let query = get_query("session/create")?;
+        match client.query_one(
+            query,
+            &[
+                &session.id,
+                &session.public_key,
+                &session.expire_at,
+                &session.user_id,
+            ],
+        ) {
+            Err(err) => {
+                println!("{:?}", err);
+                Err(ApiError::InternalServerError)
+            }
+            Ok(row) => Ok(Session {
+                id: row.get("id"),
+                public_key: row.get("public_key"),
+                expire_at: row.get("expire_at"),
+                user_id: row.get("user_id"),
+            }),
+        }
+    }
+
+    pub fn get<C: GenericClient>(client: &mut C, session: &Uuid) -> Result<Session, ApiError> {
+        let query = get_query("session/get")?;
+        let rows = match client.query(query, &[&session]) {
+            Err(_) => return Err(ApiError::InternalServerError),
+            Ok(rows) => rows,
+        };
+
+        match rows.get(0) {
+            None => return Err(ApiError::NotFound),
+            Some(row) => Ok(Session {
+                id: row.get("id"),
+                public_key: row.get("public_key"),
+                expire_at: row.get("expire_at"),
+                user_id: row.get("user_id"),
+            }),
+        }
+    }
+
+    pub fn extend<C: GenericClient>(
+        client: &mut C,
+        session: &Uuid,
+        expire_at: &DateTime<Utc>,
+    ) -> Result<(), ApiError> {
+        let query = get_query("session/extend")?;
+        match client.query(query, &[&session, &expire_at]) {
+            Err(_) => Err(ApiError::InternalServerError),
+            Ok(_) => Ok(()),
+        }
+    }
+
+    pub fn delete<C: GenericClient>(client: &mut C, session: &Uuid) -> Result<(), ApiError> {
+        let query = get_query("session/delete")?;
+        match client.query(query, &[&session]) {
+            Err(_) => Err(ApiError::InternalServerError),
+            Ok(_) => Ok(()),
+        }
+    }
+
+    pub fn delete_all<C: GenericClient>(client: &mut C, session: &Uuid) -> Result<(), ApiError> {
+        let query = get_query("session/delete_all")?;
+        match client.query(query, &[&session]) {
+            Err(_) => Err(ApiError::InternalServerError),
+            Ok(_) => Ok(()),
+        }
+    }
+
+    pub fn delete_by_user<C: GenericClient>(client: &mut C, user: &Uuid) -> Result<(), ApiError> {
+        let query = get_query("session/delete_by_user")?;
+        match client.query(query, &[&user]) {
+            Err(_) => Err(ApiError::InternalServerError),
+            Ok(_) => Ok(()),
+        }
+    }
+}
+
+#[derive(Deserialize)]
+pub struct RefreshAccessToken {
+    pub value: String,
+}
+
+#[derive(Deserialize)]
+pub struct Claims {
+    pub exp: i32,
+}
+
+impl Session {
+    pub fn validate_token(session: &Session, rat: &RefreshAccessToken) -> Result<bool, ApiError> {
+        let header = match jwt::decode_header(&rat.value) {
+            Err(_) => return Err(ApiError::InternalServerError),
+            Ok(h) => h,
+        };
+
+        let public_key = match header.alg {
+            Algorithm::ES384 => DecodingKey::from_ec_pem(&session.public_key),
+            Algorithm::RS256 => DecodingKey::from_rsa_pem(&session.public_key),
+            _ => return Err(ApiError::BadRequest),
+        };
+
+        let claims = match jwt::decode::<Claims>(
+            &rat.value,
+            &public_key.unwrap(),
+            &Validation::new(header.alg),
+        ) {
+            Err(_err) => return Err(ApiError::Forbidden),
+            Ok(body) => body,
+        };
+
+        let expire = claims.claims.exp as i64;
+        let now = Utc::now().timestamp();
+        let delta = expire - now;
+
+        if delta < 0 {
+            Ok(false)
+        } else {
+            Ok(true)
+        }
+    }
+}

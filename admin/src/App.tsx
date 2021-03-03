@@ -16,7 +16,7 @@ export default function App() {
 	let auth = useAuth()
 
 	useAuthStateChange((user: UserState) => {
-
+		console.log(user)
 		setUser(user)
 		if (user === null) {
 			history.replace('/auth/#/signin')
@@ -24,8 +24,7 @@ export default function App() {
 
 		if (user) {
 			history.replace({
-				pathname: '/',
-				hash: location.hash
+				pathname: '/'
 			})
 		}
 	})

@@ -2,7 +2,6 @@ import React from 'react'
 import { useEffect, Suspense, useState } from 'react'
 import styled from 'styled-components'
 import {
-	HashRouter,
 	useRouteMatch,
 	Switch,
 	Route,
@@ -85,11 +84,9 @@ function Dashboard() {
 
 export default function DashboardContainer() {
 	return (
-		<HashRouter>
-			<Suspense fallback={<p>...loading</p>}>
-				<Dashboard />
-			</Suspense>
-		</HashRouter>
+		<Suspense fallback={<p>...loading</p>}>
+			<Dashboard />
+		</Suspense>
 	)
 }
 

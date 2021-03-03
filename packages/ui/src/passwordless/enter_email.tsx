@@ -114,8 +114,8 @@ let EnterEmailContainer = () => {
 		setError(null)
 
 		try {
-			let id = await auth.passwordless(form.email)
-			history.push(`/signin/link/check-email?id=${id}`)
+			let { id, session } = await auth.passwordless(form.email)
+			history.push(`/signin/link/check-email?id=${id}&session=${session}`)
 		} catch (err) {
 			setLoading(false)
 			setError(err.code)

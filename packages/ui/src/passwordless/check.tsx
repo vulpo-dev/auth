@@ -41,14 +41,15 @@ let CheckEmailContainer = () => {
 
 	useEffect(() => {
 		let id = query.get('id')
+		let session = query.get('session')
 
-		if (!id) {
+		if (!id || !session) {
 			setError(ErrorCode.PasswordlessInvalidToken)
 			return
 		}
 
 		let source = CancelToken.source()
-		auth.verifyPasswordless(id, { cancelToken: source.token })
+		auth.verifyPasswordless(id, session, { cancelToken: source.token })
 			.catch((err: ApiError) => setError(err.code))
 
 		return () => {

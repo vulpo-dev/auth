@@ -2,7 +2,7 @@ use crate::config::secrets::Secrets;
 use crate::data::keys::ProjectKeys;
 use crate::data::project::Flags;
 use crate::data::token;
-use crate::data::token::{AccessToken, RefreshToken};
+use crate::data::token::AccessToken;
 use crate::data::user::User;
 use crate::data::verify_email::VerifyEmail;
 use crate::data::AuthDb;
@@ -10,11 +10,12 @@ use crate::mail::Email;
 use crate::password::validate_password_length;
 use crate::project::Project;
 use crate::response::error::ApiError;
-use crate::response::token::Token;
+use crate::response::SessionResponse;
+use crate::session::Session;
 use crate::settings::data::ProjectEmail;
 use crate::template::{Template, TemplateCtx, Templates};
 
-use rocket::http::CookieJar;
+use chrono::{Duration, Utc};
 use rocket::State;
 use rocket_contrib::json::Json;
 use serde::Deserialize;
@@ -24,6 +25,8 @@ use uuid::Uuid;
 pub struct SignUp {
     pub email: String,
     pub password: String,
+    pub session: Uuid,
+    pub public_key: Vec<u8>,
 }
 
 #[post("/sign_up", data = "<body>")]
@@ -31,9 +34,8 @@ pub async fn sign_up(
     conn: AuthDb,
     body: Json<SignUp>,
     project: Project,
-    cookies: &CookieJar<'_>,
     secrets: State<'_, Secrets>,
-) -> Result<Token, ApiError> {
+) -> Result<SessionResponse, ApiError> {
     conn.run(move |client| {
         Flags::has_flags(
             client,
@@ -45,40 +47,10 @@ pub async fn sign_up(
 
     validate_password_length(&body.password)?;
 
-    let refresh_token_id = cookies
-        .get("refresh_token")
-        .and_then(|cookie| Uuid::parse_str(cookie.value()).ok());
-
-    let refresh_token = match refresh_token_id {
-        None => None,
-        Some(id) => conn
-            .run(move |client| RefreshToken::get(client, id))
-            .await
-            .ok(),
-    };
-
     let email = body.email.trim().to_lowercase();
     let password = body.password.clone();
     let user = conn
         .run(move |client| User::create(client, email, password, project.id))
-        .await?;
-
-    let expire = RefreshToken::expire();
-    let users = if let Some(token) = refresh_token {
-        token
-            .users
-            .iter()
-            .filter(|id| id != &&user.id)
-            .chain(&vec![user.id])
-            .map(|&x| x)
-            .collect::<Vec<Uuid>>()
-    } else {
-        vec![user.id]
-    };
-
-    let uses_ids = users.clone();
-    let refresh_token = conn
-        .run(move |client| RefreshToken::create(client, uses_ids, expire, project.id))
         .await?;
 
     let passphrase = secrets.secrets_passphrase.clone();
@@ -91,6 +63,22 @@ pub async fn sign_up(
         Ok(at) => at,
         Err(_) => return Err(ApiError::InternalServerError),
     };
+
+    let user_id = user.id;
+    let session_id = body.session.clone();
+    let public_key = body.public_key.clone();
+    let session = conn
+        .run(move |client| {
+            let session = Session {
+                id: session_id,
+                public_key,
+                user_id,
+                expire_at: Utc::now() + Duration::days(30),
+            };
+
+            Session::create(client, session)
+        })
+        .await?;
 
     let verify = conn
         .run(move |client| Flags::has_flags(client, &project.id, &[Flags::VerifyEmail]))
@@ -136,10 +124,11 @@ pub async fn sign_up(
         email.send(settings.email).await?;
     }
 
-    Ok(Token {
+    Ok(SessionResponse {
         access_token,
-        refresh_token: refresh_token.to_string(),
         created: true,
-        user_id: user.id,
+        user_id: session.user_id,
+        session: session.id,
+        expire_at: session.expire_at,
     })
 }

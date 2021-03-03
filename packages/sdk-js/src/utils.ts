@@ -1,5 +1,5 @@
 import jwtDecode from 'jwt-decode'
-import type { User, Token } from 'types'
+import type { User, Token, AccessToken } from 'types'
 
 export let makeId = (): (() => number) => {
 	let id = 0
@@ -10,7 +10,7 @@ export let makeId = (): (() => number) => {
 	}
 }
 
-export function getUser(token: Token): User {
-	let { user } = jwtDecode<{ user: User }>(token.access_token)
+export function getUser(token: AccessToken): User {
+	let { user } = jwtDecode<{ user: User }>(token)
 	return user 
 }

@@ -12,7 +12,7 @@ import { Section, Label, Input, Textarea } from '@biotic-ui/input'
 let Templates = () => {
 	let [open, setOpen] = useState(true)
 	let match = useRouteMatch<{ project: string; template: string }>('/:project/templates/:template')
-
+	let [project] = useProject()
 
 	return (
 		<Wrapper>
@@ -23,9 +23,13 @@ let Templates = () => {
 				<Main>
 					{ (match && isTemplate(match.params.template)) &&
 						<TemplateForm
-							project={match.params.project}
+							project={project.id}
 							template={match.params.template}
 						/>
+					}
+
+					{ (!match || !isTemplate(match.params.template)) &&
+						<Redirect to={`/${project.id}/templates/${TemplateType.Passwordless}`} />
 					}
 				</Main>
 			</SidebarLayout>
@@ -40,7 +44,6 @@ let Wrapper = styled.div`
 	--aside-background: none;
 	height: 100%;
 `
-
 
 let TemplateList = () => {
 	return (

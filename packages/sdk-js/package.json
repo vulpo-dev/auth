@@ -3,7 +3,6 @@
   "version": "0.0.1",
   "description": "",
   "main": "lib/main.js",
-  "types": "./lib/main.d.ts",
   "scripts": {
     "dev": "tsc --noEmit --watch",
     "types": "tsc --emitDeclarationOnly --declaration --declarationDir ./lib",
@@ -12,6 +11,8 @@
     "build:browser": "webpack --config ./webpack.config.js --mode production --env browser",
     "bundle": "npm run build && npm run types ",
     "clean": "node ./scripts/cleanup.js",
+    "clean:all": "npm run clean && npm run rimraf",
+    "rimraf": "rimraf ./node_modules/**/*.*",
     "server": "node ./scripts/server.js",
     "prepublish": "npm run bundle"
   },
@@ -39,9 +40,11 @@
     "webpack-cli": "^4.5.0"
   },
   "dependencies": {
+    "@types/uuid": "^8.3.0",
     "axios": "^0.21.1",
+    "idb-keyval": "^5.0.4",
     "jwt-decode": "^3.1.2",
-    "neverthrow": "^4.1.0",
-    "shallow-equal": "^1.2.1"
+    "shallow-equal": "^1.2.1",
+    "uuid": "^8.3.2"
   }
 }

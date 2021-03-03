@@ -1,62 +1,41 @@
 use crate::config::secrets::Secrets;
 use crate::data::keys::ProjectKeys;
-use crate::data::token::{AccessToken, RefreshToken};
+use crate::data::token::AccessToken;
 use crate::data::user::User;
 use crate::data::AuthDb;
 use crate::project::Project;
 use crate::response::error::ApiError;
-use crate::response::token::Token;
+
+use crate::response::SessionResponse;
+use crate::session::{RefreshAccessToken, Session};
+
 use chrono::{Duration, Utc};
-use rocket::http::CookieJar;
 use rocket::Route;
 use rocket::State;
-use rocket_contrib::uuid::Uuid as RUuid;
-use uuid::Uuid;
+use rocket_contrib::json::Json;
+use rocket_contrib::uuid::Uuid;
 
-#[post("/refresh/<user_id>")]
+#[post("/refresh/<session_id>", data = "<rat>")]
 pub async fn refresh(
     conn: AuthDb,
     project: Project,
-    user_id: RUuid,
-    cookies: &CookieJar<'_>,
+    session_id: Uuid,
+    rat: Json<RefreshAccessToken>,
     secrets: State<'_, Secrets>,
-) -> Result<Token, ApiError> {
-    let cookie = match cookies.get("refresh_token") {
-        Some(token) => token,
-        None => return Err(ApiError::AuthRefreshTokenMissing),
-    };
-
-    let id = match Uuid::parse_str(cookie.value()) {
-        Err(_) => return Err(ApiError::AuthRefreshTokenInvalidFormat),
-        Ok(id) => id,
-    };
-
-    let refresh_token = conn
-        .run(move |client| RefreshToken::get(client, id))
+) -> Result<SessionResponse, ApiError> {
+    let session = conn
+        .run(move |client| Session::get(client, &session_id.into_inner()))
         .await?;
 
-    if refresh_token.expire - Utc::now() <= Duration::zero() {
-        return Err(ApiError::AuthRefreshTokenMissing);
+    let is_valid = Session::validate_token(&session, &rat)?;
+
+    if !is_valid {
+        return Err(ApiError::Forbidden);
     }
 
-    let current_token = refresh_token.clone();
-    let new_refresh_token = conn
-        .run(move |client| {
-            let mut trx = match client.transaction() {
-                Ok(client) => client,
-                Err(_) => return Err(ApiError::InternalServerError),
-            };
-            RefreshToken::set_expire(&mut trx, current_token.id)?;
-            let expire = RefreshToken::expire();
-            let token =
-                RefreshToken::create(&mut trx, current_token.users, expire, current_token.project)?;
-
-            if let Err(_) = trx.commit() {
-                return Err(ApiError::InternalServerError);
-            }
-
-            Ok(token)
-        })
+    let session_id = session.id;
+    let expire_at = Utc::now() + Duration::days(30);
+    conn.run(move |client| Session::extend(client, &session_id, &expire_at))
         .await?;
 
     let passphrase = secrets.secrets_passphrase.clone();
@@ -64,8 +43,9 @@ pub async fn refresh(
         .run(move |client| ProjectKeys::get_private_key(client, &project.id, &passphrase))
         .await?;
 
+    let user_id = session.user_id;
     let user = conn
-        .run(move |client| User::get_by_id(client, user_id.into_inner(), project.id))
+        .run(move |client| User::get_by_id(client, user_id, project.id))
         .await?;
 
     let access_token = AccessToken::new(&user);
@@ -74,11 +54,12 @@ pub async fn refresh(
         Err(_) => return Err(ApiError::InternalServerError),
     };
 
-    Ok(Token {
+    Ok(SessionResponse {
         access_token,
-        refresh_token: new_refresh_token.to_string(),
         created: false,
-        user_id: user.id,
+        user_id: session.user_id,
+        session: session.id,
+        expire_at: session.expire_at,
     })
 }
 

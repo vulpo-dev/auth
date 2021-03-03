@@ -40,6 +40,11 @@ export function useProjects(): UseProjects {
 	let [projects, setProjects] = useBoson(projectsAtom)
 
 	useEffect(() => {
+
+		if (projects !== undefined) {
+			return
+		}
+
 		http.get<ProjectList>('/admin/__/project/list')
 			.then(async res => {
 				setProjects(res.data)

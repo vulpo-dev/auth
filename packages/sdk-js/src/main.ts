@@ -9,9 +9,9 @@ export type {
 	PasswordOptions,
 	Token,
 	TokenListener,
+	SetPassword,
 } from 'types'
 
-export type { SetPassword } from 'client'
 export { default as Auth, CancelToken, AuthClient } from 'client'
 
 export { ApiError, ErrorCode, HttpError, AuthError } from 'error'
