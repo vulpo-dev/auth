@@ -72,7 +72,7 @@ pub async fn sign_up(
             let session = Session {
                 id: session_id,
                 public_key,
-                user_id,
+                user_id: Some(user_id),
                 expire_at: Utc::now() + Duration::days(30),
             };
 
@@ -127,7 +127,7 @@ pub async fn sign_up(
     Ok(SessionResponse {
         access_token,
         created: true,
-        user_id: session.user_id,
+        user_id: session.user_id.unwrap(),
         session: session.id,
         expire_at: session.expire_at,
     })

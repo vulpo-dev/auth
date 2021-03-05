@@ -20,6 +20,14 @@ impl Project {
             Err(_) => Err(ApiError::InternalServerError),
         }
     }
+
+    pub fn domain<C: GenericClient>(client: &mut C, project: &Uuid) -> Result<String, ApiError> {
+        let query = get_query("project/domain")?;
+        match client.query_one(query, &[&project]) {
+            Err(_) => Err(ApiError::InternalServerError),
+            Ok(row) => Ok(row.get("domain")),
+        }
+    }
 }
 
 #[derive(Debug, Copy, Clone, Deserialize, Serialize, PartialEq)]

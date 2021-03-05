@@ -20,7 +20,7 @@ pub struct SessionResponse {
 }
 
 impl<'r> Responder<'r, 'static> for SessionResponse {
-    fn respond_to(self, req: &'r Request<'_>) -> response::Result<'static> {
+    fn respond_to(self, _req: &'r Request<'_>) -> response::Result<'static> {
         let body = match serde_json::to_string(&self) {
             Ok(body) => body,
             Err(_) => return Response::build().status(Status::InternalServerError).ok(),

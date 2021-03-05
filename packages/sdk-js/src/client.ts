@@ -12,7 +12,7 @@ import type {
 import { Session } from 'session'
 import { Tokens } from 'tokens'
 import { ApiError, ErrorCode, ClientError } from 'error'
-import { createSession, getPublicKey, generateAccessToken } from 'keys'
+import { createSession, getPublicKey, generateAccessToken, ratPayload } from 'keys'
 import { Sessions, Keys, SessionInfo } from 'storage'
 
 import Axios, { AxiosInstance, AxiosRequestConfig } from 'axios'
@@ -92,9 +92,9 @@ export class AuthClient {
 			return
 		}
 
-		let value = await generateAccessToken(session)
+		let value = await generateAccessToken(session, ratPayload())
 		await this.http
-			.post(`user/sign_out/${session}`, { value }, config)
+			.post(`user/sign_out/${session}/`, { value }, config)
 			.catch(err => Promise.reject(this.error.fromResponse(err)))
 
 		await this.session.remove(session)
@@ -107,9 +107,9 @@ export class AuthClient {
 			return
 		}
 
-		let value = await generateAccessToken(session)
+		let value = await generateAccessToken(session, ratPayload())
 		await this.http
-			.post(`user/sign_out_all/${session}`, undefined, config)
+			.post(`user/sign_out_all/${session}/`, undefined, config)
 			.catch(err => Promise.reject(this.error.fromResponse(err)))
 
 		await this.session.remove(session)
@@ -246,8 +246,7 @@ export let Auth = {
 			baseURL: config.baseURL,
 			headers: {
 				'Bento-Project': config.project
-			},
-			withCredentials: true
+			}
 		})
 
 		let user = new Session(config)

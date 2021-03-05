@@ -76,9 +76,6 @@ pub enum ApiError {
     #[serde(rename = "auth/invalid_email_password")]
     UserDuplicate,
 
-    #[serde(rename = "token/generate")]
-    TokenGenerate,
-
     #[serde(rename = "token/not_found")]
     TokenNotFound,
 

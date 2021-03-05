@@ -6,7 +6,7 @@ import type {
 } from 'types'
 
 import { Session as SessionEntry } from 'storage'
-import { generateAccessToken } from 'keys'
+import { generateAccessToken, ratPayload } from 'keys'
 import { Session } from 'session'
 import { AxiosInstance } from 'axios'
 import { ClientError } from 'error'
@@ -56,7 +56,7 @@ export class Tokens {
 	}
 
 	private async _getToken(session: SessionEntry): Promise<AccessToken | null> {
-		let value = await generateAccessToken(session.id)
+		let value = await generateAccessToken(session.id, ratPayload())
 
 		try {
 			let { data } = await this.http.post<SessionResponse>(`/token/refresh/${session.id}`, { value })

@@ -20,7 +20,15 @@ export async function getPublicKey(session: Session): Promise<Array<number>> {
 	return Array.from(enc.encode(pemExported))
 }
 
-export async function generateAccessToken(sessionId: string): Promise<string | null> {
+export function ratPayload() {
+	let now = new Date()
+	let exp = Math.ceil(now.setMinutes(now.getMinutes() + 5) / 1000)
+	return {
+		exp
+	}
+}
+
+export async function generateAccessToken(sessionId: string, claims: Object = {}): Promise<string | null> {
 	let session = await Keys.get(sessionId)
 
 	if (!session) {
@@ -41,7 +49,8 @@ export async function generateAccessToken(sessionId: string): Promise<string | n
 	let exp = Math.ceil(now.setMinutes(now.getMinutes() + 1) / 1000)
 
 	let payload = {
-		exp
+		...claims,
+		jti: uuid(),
 	}
 
 	let h = base64url(JSON.stringify(header))

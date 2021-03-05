@@ -10,6 +10,7 @@ pub fn routes() -> Vec<Route> {
     routes![
         signup::sign_up,
         signin::sign_in,
+        // signin::cors,
         reset::request_password_reset,
         reset::password_reset,
         reset::verify_token,

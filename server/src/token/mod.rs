@@ -43,9 +43,14 @@ pub async fn refresh(
         .run(move |client| ProjectKeys::get_private_key(client, &project.id, &passphrase))
         .await?;
 
-    let user_id = session.user_id;
+    let user_id = match session.user_id {
+        None => return Err(ApiError::Forbidden),
+        Some(id) => id,
+    };
+
+    let uid = user_id.clone();
     let user = conn
-        .run(move |client| User::get_by_id(client, user_id, project.id))
+        .run(move |client| User::get_by_id(client, uid, project.id))
         .await?;
 
     let access_token = AccessToken::new(&user);
@@ -56,8 +61,8 @@ pub async fn refresh(
 
     Ok(SessionResponse {
         access_token,
+        user_id,
         created: false,
-        user_id: session.user_id,
         session: session.id,
         expire_at: session.expire_at,
     })

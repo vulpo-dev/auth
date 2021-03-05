@@ -1,7 +1,7 @@
 use crate::data::{get_query, GenericClient};
 use crate::response::error::ApiError;
 
-use chrono::{DateTime, Duration, NaiveDateTime, Utc};
+use chrono::{DateTime, Utc};
 use jsonwebtoken as jwt;
 use jsonwebtoken::{Algorithm, DecodingKey, Validation};
 use serde::Deserialize;
@@ -11,7 +11,7 @@ pub struct Session {
     pub id: Uuid,
     pub public_key: Vec<u8>,
     pub expire_at: DateTime<Utc>,
-    pub user_id: Uuid,
+    pub user_id: Option<Uuid>,
 }
 
 impl Session {
@@ -49,6 +49,24 @@ impl Session {
         match rows.get(0) {
             None => return Err(ApiError::NotFound),
             Some(row) => Ok(Session {
+                id: row.get("id"),
+                public_key: row.get("public_key"),
+                expire_at: row.get("expire_at"),
+                user_id: row.get("user_id"),
+            }),
+        }
+    }
+
+    pub fn confirm<C: GenericClient>(
+        client: &mut C,
+        session: &Uuid,
+        user_id: &Uuid,
+        expire_at: &DateTime<Utc>,
+    ) -> Result<Session, ApiError> {
+        let query = get_query("session/confirm")?;
+        match client.query_one(query, &[&session, &user_id, &expire_at]) {
+            Err(_) => Err(ApiError::InternalServerError),
+            Ok(row) => Ok(Session {
                 id: row.get("id"),
                 public_key: row.get("public_key"),
                 expire_at: row.get("expire_at"),
@@ -102,6 +120,7 @@ pub struct RefreshAccessToken {
 #[derive(Deserialize)]
 pub struct Claims {
     pub exp: i32,
+    pub jti: Uuid,
 }
 
 impl Session {
