@@ -1,7 +1,7 @@
 use crate::data::admin::Admin;
+use crate::data::session::{RefreshAccessToken, Session};
 use crate::data::AuthDb;
 use crate::response::error::ApiError;
-use crate::session::{RefreshAccessToken, Session};
 
 use rocket;
 use rocket_contrib::json::Json;

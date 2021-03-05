@@ -1,11 +1,11 @@
 use crate::data::project::Flags;
+use crate::data::session::Session;
 use crate::data::user::User;
 use crate::data::AuthDb;
 use crate::data::{token, token::Passwordless};
 use crate::mail::Email;
 use crate::project::Project;
 use crate::response::error::ApiError;
-use crate::session::Session;
 use crate::settings::data::ProjectEmail;
 use crate::template::{Template, TemplateCtx, Templates};
 

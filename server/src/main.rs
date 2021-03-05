@@ -9,7 +9,6 @@ mod password;
 mod passwordless;
 mod project;
 mod response;
-mod session;
 mod settings;
 mod template;
 mod token;

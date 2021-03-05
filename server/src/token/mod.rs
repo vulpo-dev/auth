@@ -6,8 +6,8 @@ use crate::data::AuthDb;
 use crate::project::Project;
 use crate::response::error::ApiError;
 
+use crate::data::session::{RefreshAccessToken, Session};
 use crate::response::SessionResponse;
-use crate::session::{RefreshAccessToken, Session};
 
 use chrono::{Duration, Utc};
 use rocket::Route;

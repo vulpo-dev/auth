@@ -1,6 +1,7 @@
 use crate::config::secrets::Secrets;
 use crate::data::keys::ProjectKeys;
 use crate::data::project::Flags;
+use crate::data::session::Session;
 use crate::data::token;
 use crate::data::token::AccessToken;
 use crate::data::user::User;
@@ -11,7 +12,6 @@ use crate::password::validate_password_length;
 use crate::project::Project;
 use crate::response::error::ApiError;
 use crate::response::SessionResponse;
-use crate::session::Session;
 use crate::settings::data::ProjectEmail;
 use crate::template::{Template, TemplateCtx, Templates};
 
