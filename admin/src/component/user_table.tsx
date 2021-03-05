@@ -45,7 +45,7 @@ export let Content = styled.div`
 `
 
 export let Row = styled.div<{ selected?: boolean }>`
-	display: inline-grid;
+	display: grid;
 	height: calc(var(--baseline) * 6);
 	border: 1px solid #000;
 	border-color: ${p => p.selected ? '#f0f' : '#000'};

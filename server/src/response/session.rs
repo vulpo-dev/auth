@@ -1,5 +1,5 @@
 use chrono::{DateTime, Utc};
-use rocket::http::Status;
+use rocket::http::{ContentType, Status};
 
 use rocket::request::Request;
 use rocket::response::{self, Responder, Response};
@@ -28,6 +28,7 @@ impl<'r> Responder<'r, 'static> for SessionResponse {
 
         Response::build()
             .status(Status::Ok)
+            .header(ContentType::JSON)
             .sized_body(body.len(), Cursor::new(body))
             .ok()
     }
