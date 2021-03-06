@@ -1,9 +1,9 @@
 use crate::data::keys::ProjectKeys;
-use crate::data::token::AccessToken;
 use crate::data::user::User;
 use crate::data::{get_query, AuthDb, GenericClient};
 use crate::project::Project;
 use crate::response::error::ApiError;
+use crate::token::AccessToken;
 
 use bcrypt::{hash, DEFAULT_COST};
 use rocket::http::Status;
@@ -266,12 +266,12 @@ impl<'a, 'r> FromRequest<'a, 'r> for Admin {
         let claims = match AccessToken::from_rsa(token.to_string(), &key) {
             Ok(token) => token,
             Err(_) => {
-                return Outcome::Failure((Status::BadRequest, ApiError::BadRequest));
+                return Outcome::Failure((Status::Unauthorized, ApiError::BadRequest));
             }
         };
 
         if !claims.user.traits.contains(&String::from("Admin")) {
-            return Outcome::Failure((Status::BadRequest, ApiError::AdminAuth));
+            return Outcome::Failure((Status::Forbidden, ApiError::AdminAuth));
         }
 
         Outcome::Success(Admin(claims.user))

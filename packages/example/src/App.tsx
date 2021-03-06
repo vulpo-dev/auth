@@ -6,6 +6,12 @@ import { Link } from 'react-router-dom'
 
 function App() {
   let auth = useAuth()
+  
+  function signOut() {
+    auth.signOut().catch((err: unknown) => {
+      console.log(err)
+    })
+  }
 
   return (
     <div className="App">
@@ -19,7 +25,7 @@ function App() {
         </Link>
       </header>
 
-      <button className="signOut" onClick={() => auth.signOut()}>Sign Out</button>
+      <button className="signOut" onClick={signOut}>Sign Out</button>
     </div>
   );
 }

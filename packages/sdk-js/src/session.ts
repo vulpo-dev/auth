@@ -36,6 +36,23 @@ export class Session {
 			this.sessions.set(session.id, session)
 		})
 
+		Sessions.changes(sessions => {
+			this.sessions.clear()
+			sessions.forEach(session => {
+				this.sessions.set(session.id, session)
+			})
+		})
+
+		Storage.changes(active => {
+			if (active === null) {
+				this.setCurrent(null)
+				return
+			}
+
+			let session = Sessions.get(active)
+			this.setCurrent(session)
+		})
+
 		this.config = config
 	}
 
@@ -55,9 +72,7 @@ export class Session {
 			Storage.setActive(session.id)
 		}
 
-		if (!shallowEqualObjects(this.active, session)) {
-			this.setCurrent(session)
-		}
+		this.setCurrent(session)
 	}
 
 	subscribe(cb: AuthCallback): Unsubscribe {
@@ -80,11 +95,6 @@ export class Session {
 			user,
 		})
 
-		this.sessions.set(session.id, session)
-		if (!shallowEqualObjects(this.active, session)) {
-			this.setCurrent(session)
-		}
-
 		return session
 	};
 
@@ -106,6 +116,11 @@ export class Session {
 	}
 
 	setCurrent(session: SessionInfo | null) {
+		let sameUser = shallowEqualObjects(this.active?.user, session?.user)
+
+		if (sameUser) {
+			return
+		}
 
 		if (this.active === null && session) {
 			Storage.setActive(session.id)

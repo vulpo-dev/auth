@@ -1,68 +1,13 @@
-use crate::data::user::User;
+use crate::data::session::Claims;
 use crate::data::{get_query, GenericClient};
 use crate::response::error::ApiError;
 
 use bcrypt;
-use chrono::{DateTime, Utc};
-use jsonwebtoken::{decode, encode, Algorithm, DecodingKey, EncodingKey, Header, Validation};
+use chrono::{DateTime, NaiveDateTime, Utc};
 use rand::distributions::Alphanumeric;
 use rand::{thread_rng, Rng};
-use serde::{Deserialize, Serialize};
 use std::char;
-use time::{Duration, OffsetDateTime};
 use uuid::Uuid;
-
-#[derive(Debug, Deserialize, Serialize)]
-pub struct Claims {
-    pub user: User,
-    pub exp: i64,
-}
-
-pub struct AccessToken(Claims);
-
-impl AccessToken {
-    pub fn new(user: &User) -> AccessToken {
-        let exp = OffsetDateTime::now_utc() + Duration::minutes(15);
-        let claims = Claims {
-            user: user.clone(),
-            exp: exp.unix_timestamp(),
-        };
-
-        AccessToken(claims)
-    }
-
-    pub fn to_jwt_rsa(&self, key: &String) -> Result<String, ApiError> {
-        let key = key.as_bytes();
-        let encodeing_key = match EncodingKey::from_rsa_pem(key) {
-            Ok(key) => key,
-            Err(_) => {
-                return Err(ApiError::InternalServerError);
-            }
-        };
-
-        let header = Header::new(Algorithm::RS256);
-        match encode(&header, &self.0, &encodeing_key) {
-            Ok(token) => Ok(token),
-            Err(_) => Err(ApiError::InternalServerError),
-        }
-    }
-
-    pub fn from_rsa(token: String, key: &String) -> Result<Claims, ApiError> {
-        let decodeing_key = match DecodingKey::from_rsa_pem(key.as_bytes()) {
-            Ok(key) => key,
-            Err(_) => {
-                return Err(ApiError::InternalServerError);
-            }
-        };
-
-        match decode::<Claims>(&token, &decodeing_key, &Validation::new(Algorithm::RS256)) {
-            Ok(token_data) => Ok(token_data.claims),
-            Err(_) => {
-                return Err(ApiError::InternalServerError);
-            }
-        }
-    }
-}
 
 #[derive(Debug)]
 pub struct Passwordless {
@@ -175,5 +120,28 @@ pub fn verify(token: &str, compare: &str) -> Result<bool, ApiError> {
     match bcrypt::verify(token, compare) {
         Err(_) => Err(ApiError::InternalServerError),
         Ok(valid) => Ok(valid),
+    }
+}
+
+#[derive(Debug)]
+pub struct Token;
+
+impl Token {
+    pub fn is_valid<C: GenericClient>(
+        client: &mut C,
+        claims: &Claims,
+        session: &Uuid,
+    ) -> Result<bool, ApiError> {
+        let query = get_query("token/is_valid")?;
+
+        let exp = NaiveDateTime::from_timestamp(claims.exp.into(), 0);
+
+        match client.query_one(query, &[&claims.jti, &session, &exp]) {
+            Err(err) => {
+                println!("{:?}", err);
+                Err(ApiError::InternalServerError)
+            }
+            Ok(row) => Ok(row.get("is_valid")),
+        }
     }
 }

@@ -11,7 +11,7 @@ import type {
 
 import { Session } from 'session'
 import { Tokens } from 'tokens'
-import { ApiError, ErrorCode, ClientError } from 'error'
+import { ApiError, ErrorCode, ClientError, SessionNotFoundError, SessionKeysNotFoundError } from 'error'
 import { createSession, getPublicKey, generateAccessToken, ratPayload } from 'keys'
 import { Sessions, Keys, SessionInfo } from 'storage'
 
@@ -93,11 +93,10 @@ export class AuthClient {
 		}
 
 		let value = await generateAccessToken(session, ratPayload())
+		await this.session.remove(session)
 		await this.http
 			.post(`user/sign_out/${session}/`, { value }, config)
 			.catch(err => Promise.reject(this.error.fromResponse(err)))
-
-		await this.session.remove(session)
 	}
 
 	async signOutAll(sessionId?: string, config?: AxiosRequestConfig): Promise<void> {
@@ -108,25 +107,24 @@ export class AuthClient {
 		}
 
 		let value = await generateAccessToken(session, ratPayload())
+		await this.session.remove(session)
 		await this.http
 			.post(`user/sign_out_all/${session}/`, undefined, config)
 			.catch(err => Promise.reject(this.error.fromResponse(err)))
-
-		await this.session.remove(session)
 	}
 
-	async getToken(sessionId?: string): Promise<string | null> {
+	async getToken(sessionId?: string): Promise<string> {
 		try {
 
 			let info = await this.session.current(sessionId)
 			if (!info) {
-				return null
+				return Promise.reject(new SessionNotFoundError())
 			}
 
 			let keys = await Keys.get(info.id)
 			if (!keys) {
 				this.session.setCurrent(null)
-				return null
+				return Promise.reject(new SessionKeysNotFoundError())
 			}
 
 			let session = { ...info, ...keys }
@@ -136,9 +134,34 @@ export class AuthClient {
 				? res
 				: this.error.fromResponse(res)
 
-			if (sessionId === undefined) {
-				this.session.setCurrent(null)
+			this.session.setCurrent(null)
+
+			throw err
+		}
+	}
+
+	async forceToken(sessionId?: string): Promise<string> {
+		try {
+
+			let info = await this.session.current(sessionId)
+			if (!info) {
+				return Promise.reject(new SessionNotFoundError())
 			}
+
+			let keys = await Keys.get(info.id)
+			if (!keys) {
+				this.session.setCurrent(null)
+				return Promise.reject(new SessionKeysNotFoundError())
+			}
+
+			let session = { ...info, ...keys }
+			return await this.tokens.forceToken(session)
+		} catch (res) {
+			let err = res instanceof ClientError
+				? res
+				: this.error.fromResponse(res)
+
+			this.session.setCurrent(null)
 
 			throw err
 		}
@@ -237,6 +260,19 @@ export class AuthClient {
 	get active(): SessionInfo | null {
 		return this.session.active
 	}
+
+	async withToken(fn: (token: string) => Promise<Response>, session?: string): Promise<Response> {
+		let token = await this.getToken(session)
+
+		return fn(token).then(async response => {
+			if (response.status === 401) {
+				let token = await this.forceToken(session)
+				return fn(token)
+			}
+
+			return response
+		})
+	}
 }
 
 export let Auth = {
@@ -257,6 +293,10 @@ export let Auth = {
 			tokens,
 			http,
 		)
+
+		if (config.preload) {
+			client.forceToken().catch(err => {})
+		}
 
 		return client
 	}	

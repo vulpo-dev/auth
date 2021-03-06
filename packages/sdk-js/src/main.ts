@@ -13,5 +13,5 @@ export type {
 } from 'types'
 
 export { default as Auth, CancelToken, AuthClient } from 'client'
-
+export { addToken } from 'interceptor'
 export { ApiError, ErrorCode, HttpError, AuthError } from 'error'

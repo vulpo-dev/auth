@@ -30,6 +30,7 @@ export type SessionResponse = {
 export type Config = {
 	baseURL: string;
 	project: string;
+	preload?: boolean;
 }
 
 export type UserState = User | null | undefined

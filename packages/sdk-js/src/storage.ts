@@ -1,5 +1,6 @@
 import type { User, SessionId } from 'types'
 import { createStore, get, set, del } from 'idb-keyval'
+import { makeId } from 'utils'
 
 export type Key = {
 	privateKey: CryptoKey,
@@ -30,11 +31,44 @@ export type SessionInfo = {
 	expire_at?: string
 }
 
+type SessionsChangeCallback = (sessions: Array<SessionInfo>) => void
+
 export type Session = SessionInfo & Key
 
 class SessionsStorage {
 	private key = 'auth-db::sessions'
 	private cache: Array<SessionInfo> | undefined = undefined
+
+	private ids = makeId()
+	private listener = new Map<number, SessionsChangeCallback>()
+
+	constructor() {
+		window.addEventListener('storage', (event: StorageEvent) => {
+			if (event.key !== this.key) {
+				return
+			}
+
+			if (event.newValue === null) {
+				this.cache = []
+				return
+			}
+
+			let entries = JSON.parse(event.newValue) as Array<SessionInfo>
+			this.cache = entries
+
+			this.listener.forEach(fn => {
+				fn(entries)
+			})
+		})
+	}
+
+	changes(fn: SessionsChangeCallback) {
+		let id = this.ids()
+		this.listener.set(id, fn)
+		return () => {
+			this.listener.delete(id)
+		}
+	}
 
 	getAll(): Array<SessionInfo> {
 
@@ -116,14 +150,40 @@ class SessionsStorage {
 export let Sessions = new SessionsStorage()
 
 
+type ActiveUserCallback = (sessions: string | null) => void
+
 class Storage {
 	key = 'auth-db::active_user'
+	cache: string | undefined | null = undefined
+
+	private ids = makeId()
+	private listener = new Map<number, ActiveUserCallback>()
+
+	constructor() {
+		window.addEventListener('storage', (event: StorageEvent) => {
+			if (event.key !== this.key) {
+				return
+			}
+
+			this.cache = event.newValue
+			this.listener.forEach(fn => fn(event.newValue))
+		})
+	}
+
+	changes(fn: ActiveUserCallback) {
+		let id = this.ids()
+		this.listener.set(id, fn)
+		return () => {
+			this.listener.delete(id)
+		}
+	}
 	
 	remove(id: SessionId): boolean {
 		let active = this.getActive()
 
 		if (active === id) {
 			localStorage.removeItem(this.key)
+			this.cache = undefined
 			return true
 		}
 
@@ -132,14 +192,22 @@ class Storage {
 
 	removeAll() {
 		localStorage.removeItem(this.key)
+		this.cache = undefined
 	}
 
 	getActive(): SessionId | null {
-		return localStorage.getItem(this.key) ?? null
+		if (this.cache !== undefined) {
+			return this.cache
+		}
+
+		let active = localStorage.getItem(this.key) ?? null
+		this.cache = active
+		return active
 	}
 
 	setActive(session: SessionId) {
 		localStorage.setItem(this.key, session)
+		this.cache = session
 	}
 }
 

@@ -3,7 +3,6 @@ use crate::data::keys::ProjectKeys;
 use crate::data::project::Flags;
 use crate::data::session::Session;
 use crate::data::token;
-use crate::data::token::AccessToken;
 use crate::data::user::User;
 use crate::data::verify_email::VerifyEmail;
 use crate::data::AuthDb;
@@ -14,6 +13,7 @@ use crate::response::error::ApiError;
 use crate::response::SessionResponse;
 use crate::settings::data::ProjectEmail;
 use crate::template::{Template, TemplateCtx, Templates};
+use crate::token::AccessToken;
 
 use chrono::{Duration, Utc};
 use rocket::State;
@@ -58,7 +58,8 @@ pub async fn sign_up(
         .run(move |client| ProjectKeys::get_private_key(client, &project.id, &passphrase))
         .await?;
 
-    let access_token = AccessToken::new(&user);
+    let exp = Utc::now() + Duration::minutes(15);
+    let access_token = AccessToken::new(&user, exp);
     let access_token = match access_token.to_jwt_rsa(&private_key) {
         Ok(at) => at,
         Err(_) => return Err(ApiError::InternalServerError),

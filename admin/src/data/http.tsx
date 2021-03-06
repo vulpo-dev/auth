@@ -1,8 +1,14 @@
 import React from 'react'
 
 import { createContext, useContext, FC, useMemo, useEffect } from 'react'
-import Axios, { AxiosInstance, AxiosError, AxiosResponse } from 'axios'
-import { AuthClient } from '@riezler/auth-sdk'
+import Axios from 'axios'
+import {
+	AxiosInstance,
+	AxiosError,
+	AxiosResponse,
+	AxiosRequestConfig,
+} from 'axios'
+import { AuthClient, addToken } from '@riezler/auth-sdk'
 
 export let CancelToken = Axios.CancelToken
 
@@ -27,22 +33,7 @@ export let Http: FC<Props> = ({ auth, project, children }) => {
 			},
 		})
 
-		instance.interceptors.request.use(async function (config) {
-			try {
-				let token = await auth
-					.getToken()
-
-				return {
-					...config,
-					headers: {
-						...config.headers,
-						'Authorization': `Bearer ${token}`,
-					}
-				};
-			} catch (err) {
-				throw new Axios.Cancel(err.message)
-			}
-		})
+		addToken(instance, auth)
 
 		return instance
 	}, [project, auth])

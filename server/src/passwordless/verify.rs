@@ -1,11 +1,12 @@
 use crate::config::secrets::Secrets;
 use crate::data::keys::ProjectKeys;
 use crate::data::session::{RefreshAccessToken, Session};
-use crate::data::token::{AccessToken, Passwordless};
+use crate::data::token::{Passwordless, Token};
 use crate::data::user::User;
 use crate::data::AuthDb;
 use crate::response::error::ApiError;
 use crate::response::SessionResponse;
+use crate::token::AccessToken;
 
 use chrono::{Duration, Utc};
 use rocket::State;
@@ -59,7 +60,12 @@ pub async fn handler(
         value: body.into_inner().token,
     };
 
-    let is_valid = Session::validate_token(&current_session, &rat)?;
+    let claims = Session::validate_token(&current_session, &rat)?;
+
+    let session_id = current_session.id.clone();
+    let is_valid = conn
+        .run(move |client| Token::is_valid(client, &claims, &session_id))
+        .await?;
 
     if !is_valid {
         return Err(ApiError::Forbidden);
@@ -89,7 +95,8 @@ pub async fn handler(
         .run(move |client| ProjectKeys::get_private_key(client, &project_id, &phassphrase))
         .await?;
 
-    let access_token = AccessToken::new(&user);
+    let exp = Utc::now() + Duration::minutes(15);
+    let access_token = AccessToken::new(&user, exp);
     let access_token = match access_token.to_jwt_rsa(&private_key) {
         Ok(at) => at,
         Err(_) => return Err(ApiError::InternalServerError),

@@ -29,6 +29,9 @@ export enum ErrorCode {
 	PasswordlessInvalidToken = 'passwordless/invalid_token',
 
 	ClientUserIdNotFound = 'client/user_id_not_found',
+
+	SessionNotFound = 'session/not_found',
+	SessionKeysNotFound = 'session/keys_not_found',
 }
 
 type ErrorResponse = {
@@ -113,4 +116,12 @@ export class ClientError extends Error {
 		this.name = 'NoUserId'
 		this.code = ErrorCode.ClientUserIdNotFound
 	}
+}
+
+export class SessionNotFoundError extends Error {
+	code = ErrorCode.SessionNotFound
+}
+
+export class SessionKeysNotFoundError extends Error {
+	code = ErrorCode.SessionKeysNotFound
 }

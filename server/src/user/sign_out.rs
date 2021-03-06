@@ -1,5 +1,6 @@
 use crate::data::admin::Admin;
 use crate::data::session::{RefreshAccessToken, Session};
+use crate::data::token::Token;
 use crate::data::AuthDb;
 use crate::response::error::ApiError;
 
@@ -17,7 +18,11 @@ pub async fn sign_out(
         .run(move |client| Session::get(client, &session_id))
         .await?;
 
-    let is_valid = Session::validate_token(&session, &rat)?;
+    let claims = Session::validate_token(&session, &rat)?;
+
+    let is_valid = conn
+        .run(move |client| Token::is_valid(client, &claims, &session_id.into_inner()))
+        .await?;
 
     if !is_valid {
         return Err(ApiError::Forbidden);
@@ -49,7 +54,11 @@ pub async fn sign_out_all(
         .run(move |client| Session::get(client, &session_id))
         .await?;
 
-    let is_valid = Session::validate_token(&session, &rat)?;
+    let claims = Session::validate_token(&session, &rat)?;
+
+    let is_valid = conn
+        .run(move |client| Token::is_valid(client, &claims, &session_id.into_inner()))
+        .await?;
 
     if !is_valid {
         return Err(ApiError::Forbidden);
