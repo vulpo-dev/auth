@@ -7,6 +7,7 @@ import { Container } from 'component/layout'
 import { Translation, DefaultTranslation } from 'context/translation'
 import { AuthConfig, DefaultConfig } from 'context/config'
 import { ErrorCode } from '@riezler/auth-sdk'
+import { BoxShadow } from 'component/card'
 
 export default {
 	title: 'Password',
@@ -54,10 +55,11 @@ let Template: Story<Props> = args => {
 			<Translation.Provider value={DefaultTranslation}>
 				<HashRouter>
 					<Switch>
-
 						<Route path='/signin/email'>
 							<Container>
-								<Password {...args} />
+								<BoxShadow>
+									<Password {...args} />
+								</BoxShadow>
 							</Container>
 						</Route>
 

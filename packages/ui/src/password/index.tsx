@@ -53,17 +53,32 @@ export let Password = ({ onSubmit, onBack, ctx, loading, error }: Props) => {
 		? t.signin.label
 		: t.signup.label
 
+	let navLink = ctx === 'signin'
+		? 'signup'
+		: 'signin'
+
+	let linkLabel = ctx === 'signin'
+		? t.signup.nav
+		: t.signin.nav
+
 	let errorMessage = useError(error)
 
 	return (
 		<Card>
 			<CardHeader>
-				<CardNav>
-					<IconButton id="back" aria-label={button} onClick={() => onBack()}>
-						{ config.Arrow }
-					</IconButton>
-					<label htmlFor="back">{button}</label>
-				</CardNav>
+				<StyledCardNav>
+					<section>
+						<IconButton id="back" aria-label={button} onClick={() => onBack()}>
+							{ config.Arrow }
+						</IconButton>
+						<label htmlFor="back">{button}</label>
+					</section>
+					<section>
+						<small>
+							<Link to={`/${navLink}/email`}>{linkLabel}</Link>
+						</small>
+					</section>
+				</StyledCardNav>
 				<CardTitle>{t.password.title}</CardTitle>
 			</CardHeader>
 
@@ -199,4 +214,12 @@ let Error = styled.p`
 
 let Form = styled.form`
 	margin-block-start: calc(var(--baseline) * -0.625);
+`
+
+let StyledCardNav = styled(CardNav)`
+	justify-content: space-between;
+	
+	section {
+		display: flex;
+	}
 `

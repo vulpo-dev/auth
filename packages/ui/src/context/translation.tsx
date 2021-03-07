@@ -33,12 +33,14 @@ type Translations = {
 		title: string;
 		label: string;
 		info: string;
+		nav: string;
 	};
 
 	signup: {
 		title: string;
 		label: string;
 		info: string;
+		nav: string;
 	};
 
 	email: {
@@ -102,13 +104,15 @@ export let DefaultTranslation = {
 	signin: {
 		title: 'Welcome Back.',
 		label: 'Sign In',
-		info: 'Already have an account?'
+		info: 'Already have an account?',
+		nav: 'Sign In',
 	},
 
 	signup: {
 		title: 'Create an account',
 		label: 'Sign Up',
-		info: `Don't have an account?`
+		info: `Don't have an account?`,
+		nav: 'Create Account',
 	},
 
 	email: {

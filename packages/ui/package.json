@@ -23,10 +23,15 @@
     "@babel/preset-env": "^7.13.5",
     "@babel/preset-react": "^7.12.13",
     "@babel/preset-typescript": "^7.13.0",
+    "@riezler/auth-react": "0.0.1",
+    "@riezler/auth-sdk": "0.0.1",
     "@storybook/addon-actions": "^6.2.0-beta.0",
     "@storybook/addon-essentials": "^6.2.0-beta.0",
     "@storybook/addon-links": "^6.2.0-beta.0",
+    "@storybook/builder-webpack5": "^6.2.0-beta.0",
     "@storybook/react": "^6.2.0-beta.0",
+    "axios": "^0.21.1",
+    "axios-mock-adapter": "^1.19.0",
     "babel-loader": "^8.2.2",
     "babel-plugin-styled-components": "^1.12.0",
     "core-js": "^3.9.0",
@@ -38,17 +43,13 @@
     "styled-components": "^5.2.1",
     "typescript": "^4.2.2",
     "webpack": "5.24.2",
-    "@riezler/auth-sdk": "0.0.1",
-    "@riezler/auth-react": "0.0.1",
-    "webpack-cli": "^4.5.0",
-    "react-dom": "^17.0.1",
-    "@storybook/builder-webpack5": "^6.2.0-beta.0"
+    "webpack-cli": "^4.5.0"
   },
   "peerDependencies": {
-    "react": "^17.0.1",
-    "react-router-dom": "^5.2.0",
     "@riezler/auth-react": "0.0.1",
     "@riezler/auth-sdk": "0.0.1",
+    "react": "^17.0.1",
+    "react-router-dom": "^5.2.0",
     "styled-components": "^5.2.1"
   },
   "dependencies": {
@@ -56,8 +57,8 @@
     "@biotic-ui/input": "^0.3.15",
     "@biotic-ui/leptons": "^0.3.10",
     "@biotic-ui/std": "^0.3.6",
+    "@types/react": "^17.0.2",
     "@types/react-router-dom": "^5.1.7",
-    "@types/styled-components": "^5.1.7",
-    "@types/react": "^17.0.2"
+    "@types/styled-components": "^5.1.7"
   }
 }

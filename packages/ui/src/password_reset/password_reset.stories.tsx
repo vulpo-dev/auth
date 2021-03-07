@@ -3,6 +3,7 @@ import { Story, Meta } from '@storybook/react/types-6-0'
 
 import { HashRouter, Switch, Route, Redirect } from 'react-router-dom'
 import { Container } from 'component/layout'
+import { BoxShadow } from 'component/card'
 import { Translation, DefaultTranslation } from 'context/translation'
 import { AuthConfig, DefaultConfig } from 'context/config'
 import { ErrorCode } from '@riezler/auth-sdk'
@@ -25,7 +26,9 @@ let Template: Story<Props> = args => {
 
 						<Route path='/signin/password_reset'>
 							<Container>
-								<PasswordReset {...args} />
+								<BoxShadow>
+									<PasswordReset {...args} />
+								</BoxShadow>
 							</Container>
 						</Route>
 
@@ -71,7 +74,9 @@ let CheckEmailTemplate: Story<{ email: string | null }> = (args) => {
 
 						<Route path='/signin/check_email'>
 							<Container>
-								<CheckReset {...args} />
+								<BoxShadow>
+									<CheckReset {...args} />
+								</BoxShadow>
 							</Container>
 						</Route>
 
@@ -103,7 +108,9 @@ let NewPassword: Story<SetPasswordProps> = (args) => {
 
 						<Route path='/signin/set_password'>
 							<Container>
-								<SetPassword {...args} />
+								<BoxShadow>
+									<SetPassword {...args} />
+								</BoxShadow>
 							</Container>
 						</Route>
 
@@ -124,7 +131,9 @@ export let VerifyToken: Story<SetPasswordProps> = (args) => {
 
 						<Route path='/signin/set_password'>
 							<Container>
-								<SetPassword {...args} verifyToken={true} />
+								<BoxShadow>
+									<SetPassword {...args} verifyToken={true} />
+								</BoxShadow>
 							</Container>
 						</Route>
 

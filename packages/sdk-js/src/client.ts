@@ -1,4 +1,4 @@
-import type {
+import {
 	TokenResponse,
 	Config,
 	AuthCallback,
@@ -7,6 +7,7 @@ import type {
 	SessionResponse,
 	CancellablePromise,
 	SetPassword,
+	Url,
 } from 'types'
 
 import { Session } from 'session'
@@ -46,9 +47,8 @@ export class AuthClient {
 			session: session.id,
 		}
 
-		let url = '/password/sign_in'
 		let { data } = await this.http
-			.post<SessionResponse>(url, payload, config)
+			.post<SessionResponse>(Url.SignIn, payload, config)
 			.catch(async res => {
 				await Sessions.delete(session.id)
 				return Promise.reject(this.error.fromResponse(res))
@@ -71,9 +71,8 @@ export class AuthClient {
 			session: session.id,
 		}
 
-		let url = '/password/sign_up'
 		let { data } = await this.http
-			.post<SessionResponse>(url, payload, config)
+			.post<SessionResponse>(Url.SignUp, payload, config)
 			.catch(async res => {
 				await Sessions.delete(session.id)
 				return Promise.reject(this.error.fromResponse(res))
@@ -94,8 +93,9 @@ export class AuthClient {
 
 		let value = await generateAccessToken(session, ratPayload())
 		await this.session.remove(session)
+		let url = Url.SignOut.replace(':session', session)
 		await this.http
-			.post(`user/sign_out/${session}/`, { value }, config)
+			.post(url, { value }, config)
 			.catch(err => Promise.reject(this.error.fromResponse(err)))
 	}
 
@@ -108,8 +108,9 @@ export class AuthClient {
 
 		let value = await generateAccessToken(session, ratPayload())
 		await this.session.remove(session)
+		let url = Url.SignOutAll.replace(':session', session)
 		await this.http
-			.post(`user/sign_out_all/${session}/`, undefined, config)
+			.post(url, undefined, config)
 			.catch(err => Promise.reject(this.error.fromResponse(err)))
 	}
 
@@ -169,19 +170,19 @@ export class AuthClient {
 
 	async resetPassword(email: string, config?: AxiosRequestConfig): Promise<void> {
 		await this.http
-			.post('/password/request_password_reset', { email }, config)
+			.post(Url.RequestPasswordReset, { email }, config)
 			.catch(err => Promise.reject(this.error.fromResponse(err)))
 	}
 
 	async setPassword(body: SetPassword, config?: AxiosRequestConfig): Promise<void> {
 		await this.http
-			.post('/password/password_reset', body, config)
+			.post(Url.PasswordReset, body, config)
 			.catch(err => Promise.reject(this.error.fromResponse(err)))
 	}
 
 	async verifyToken(id: string, token: string, config?: AxiosRequestConfig): Promise<void> {
 		await this.http
-			.post('/password/verify_reset_token', { id, token }, config)
+			.post(Url.VerifyResetToken, { id, token }, config)
 			.catch(err => Promise.reject(this.error.fromResponse(err)))
 	}
 
@@ -196,7 +197,7 @@ export class AuthClient {
 		}
 
 		let { data } = await this.http
-			.post<{ id: string }>('/passwordless/', payload, config)
+			.post<{ id: string }>(Url.Passwordless, payload, config)
 			.catch(async err => {
 				await Sessions.delete(session.id)
 				return Promise.reject(this.error.fromResponse(err))
@@ -207,20 +208,20 @@ export class AuthClient {
 
 	async confirmPasswordless(id: string, token: string, config?: AxiosRequestConfig): Promise<void> {
 		await this.http
-			.post('/passwordless/confirm', { id, token }, config)
+			.post(Url.PasswordlessConfim, { id, token }, config)
 			.catch(err => Promise.reject(this.error.fromResponse(err)))
 	}
 
 	async verifyEmail(id: string, token: string, config?: AxiosRequestConfig): Promise<void> {
 		await this.http
-			.post('/user/verify_email', { id, token }, config)
+			.post(Url.UserVerifyEmail, { id, token }, config)
 			.catch(err => Promise.reject(this.error.fromResponse(err)))
 	}
 
 	verifyPasswordless(id: string, session: string, config?: AxiosRequestConfig): Promise<User | null> {
 		return new Promise((resolve, reject) => {
 			let check = async () => {
-				let { data } = await this.http.get<SessionResponse>('/passwordless/verify', {
+				let { data } = await this.http.get<SessionResponse>(Url.PasswordlessVerify, {
 					...config,
 					params: { token: id, session },
 				})
@@ -278,7 +279,7 @@ export class AuthClient {
 export let Auth = {
 	create(config: Config): AuthClient {
 
-		let http = Axios.create({
+		let http = config.http ?? Axios.create({
 			baseURL: config.baseURL,
 			headers: {
 				'Bento-Project': config.project

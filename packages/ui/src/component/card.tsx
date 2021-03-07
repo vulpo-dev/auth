@@ -1,12 +1,15 @@
 import styled from 'styled-components'
 import { IconButton } from '@biotic-ui/button'
 
+export let BoxShadow = styled.div`
+	box-shadow: var(--shadow-4);	
+`
+
 export let Card = styled.div`
 	background: var(--card-background, #fff);
 	inline-size: 25rem;
 	max-inline-size: 98vw;
 	border-radius: var(--baseline);
-	box-shadow: var(--shadow-4);
 	padding: var(--baseline-3);
 	display: flex;
 	flex-direction: column;

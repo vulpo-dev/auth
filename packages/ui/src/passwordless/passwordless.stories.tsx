@@ -10,6 +10,7 @@ import { EnterEmail } from 'passwordless/enter_email'
 import { CheckEmail } from 'passwordless/check'
 import { Confirm } from 'passwordless/confirm'
 import { Container } from 'component/layout'
+import { BoxShadow } from 'component/card'
 import { ErrorCode } from '@riezler/auth-sdk'
 
 export default {
@@ -20,13 +21,15 @@ export let Enter: Story = () => {
 	return (
 		<HashRouter>
 			<Container>
-				<EnterEmail
-					loading={false}
-					error={null}
-					onBack={action('onBack')}
-					onSignIn={action('onSignIn')}
-					ctx='signin'
-				/>
+				<BoxShadow>
+					<EnterEmail
+						loading={false}
+						error={null}
+						onBack={action('onBack')}
+						onSignIn={action('onSignIn')}
+						ctx='signin'
+					/>
+				</BoxShadow>
 			</Container>
 		</HashRouter>
 	)
@@ -37,10 +40,12 @@ Enter.storyName = 'Enter Email'
 export let Check: Story = () => {
 	return (	
 		<Container>
-			<CheckEmail
-				email='michael@riezler.co'
-				type='signin'
-			/>
+			<BoxShadow>
+				<CheckEmail
+					email='michael@riezler.co'
+					type='signin'
+				/>
+			</BoxShadow>
 		</Container>
 	)
 }
@@ -51,10 +56,12 @@ export let ConfirmAuth: Story = () => {
 	return (
 		<HashRouter>		
 			<Container>
-				<Confirm
-					loading
-					error={null}
-				/>
+				<BoxShadow>
+					<Confirm
+						loading
+						error={null}
+					/>
+				</BoxShadow>
 			</Container>
 		</HashRouter>
 	)
@@ -64,10 +71,12 @@ export let ConfirmError: Story = () => {
 	return (
 		<HashRouter>
 			<Container>
-				<Confirm
-					loading={false}
-					error={ErrorCode.GenericError}
-				/>
+				<BoxShadow>
+					<Confirm
+						loading={false}
+						error={ErrorCode.GenericError}
+					/>
+				</BoxShadow>
 			</Container>
 		</HashRouter>
 	)
@@ -78,10 +87,12 @@ export let ConfirmSuccess: Story = () => {
 	return (
 		<HashRouter>
 			<Container>
-				<Confirm
-					loading={false}
-					error={null}
-				/>
+				<BoxShadow>
+					<Confirm
+						loading={false}
+						error={null}
+					/>
+				</BoxShadow>
 			</Container>
 		</HashRouter>
 	)

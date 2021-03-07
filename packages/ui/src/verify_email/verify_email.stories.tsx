@@ -3,6 +3,7 @@ import { Story, Meta } from '@storybook/react/types-6-0'
 import { ErrorCode } from '@riezler/auth-sdk'
 import { Container } from 'component/layout'
 import { VerifyEmail } from 'verify_email'
+import { BoxShadow } from 'component/card'
 
 export default {
 	title: 'Verify Email',
@@ -12,10 +13,12 @@ export default {
 export let Loading = () => {
 	return (
 		<Container>
-			<VerifyEmail
-				loading={true}
-				error={null}
-			/>
+			<BoxShadow>
+				<VerifyEmail
+					loading={true}
+					error={null}
+				/>
+			</BoxShadow>
 		</Container>
 	)
 }
@@ -23,10 +26,12 @@ export let Loading = () => {
 export let Verified = () => {
 	return (
 		<Container>
-			<VerifyEmail
-				loading={false}
-				error={null}
-			/>
+			<BoxShadow>
+				<VerifyEmail
+					loading={false}
+					error={null}
+				/>
+			</BoxShadow>
 		</Container>
 	)
 }
@@ -34,10 +39,12 @@ export let Verified = () => {
 export let Error = () => {
 	return (
 		<Container>
-			<VerifyEmail
-				loading={false}
-				error={ErrorCode.GenericError}
-			/>
+			<BoxShadow>
+				<VerifyEmail
+					loading={false}
+					error={ErrorCode.GenericError}
+				/>
+			</BoxShadow>
 		</Container>
 	)
 }

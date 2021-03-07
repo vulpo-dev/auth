@@ -1,3 +1,4 @@
+import type { AxiosInstance } from 'axios'
 
 export type User = {
 	id: string;
@@ -31,6 +32,7 @@ export type Config = {
 	baseURL: string;
 	project: string;
 	preload?: boolean;
+	http?: AxiosInstance;
 }
 
 export type UserState = User | null | undefined
@@ -54,4 +56,23 @@ export type SetPassword = {
 	token: string;
 	password1: string;
 	password2: string;
+}
+
+export enum Url {
+	SignIn = '/password/sign_in',
+	SignUp = '/password/sign_up',
+	SignOut = '/user/sign_out/:session',
+	SignOutAll = '/user/sign_out_all/:session',
+
+	RequestPasswordReset = '/password/request_password_reset',
+	PasswordReset = '/password/password_reset',
+	VerifyResetToken = '/password/verify_reset_token',
+
+	Passwordless = '/passwordless/',
+	PasswordlessConfim = '/passwordless/confirm',
+	PasswordlessVerify = '/passwordless/verify',
+
+	UserVerifyEmail = '/user/verify_email',
+
+	TokenRefresh = '/token/refresh/:session'
 }

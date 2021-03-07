@@ -4,6 +4,7 @@ import { Story, Meta } from '@storybook/react/types-6-0'
 import { HashRouter, Switch, Route, Redirect } from 'react-router-dom'
 import { Overview } from 'overview'
 import { Container } from 'component/layout'
+import { BoxShadow } from 'component/card'
 import { Translation, DefaultTranslation } from 'context/translation'
 
 export default {
@@ -20,7 +21,9 @@ let Template: Story<{}> = args => {
 
 					<Route path='/:type'>
 						<Container>
-							<Overview />
+							<BoxShadow>
+								<Overview />
+							</BoxShadow>
 						</Container>
 					</Route>
 

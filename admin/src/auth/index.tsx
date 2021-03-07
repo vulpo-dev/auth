@@ -9,7 +9,8 @@ import {
 	AuthConfig,
 	DefaultTranslation,
 	Translation,
-	Password
+	Password,
+	BoxShadow,
 } from '@riezler/auth-ui'
 
 export let Auth = () => {
@@ -21,7 +22,9 @@ export let Auth = () => {
 			<Wrapper>
 				<Translation.Provider value={DefaultTranslation}>
 					<AuthConfig.Provider value={DefaultConfig}>
-						<Password />	
+						<BoxShadow>
+							<Password />	
+						</BoxShadow>
 					</AuthConfig.Provider>
 				</Translation.Provider>
 			</Wrapper>
