@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "target": "es6",
+    "declaration": true,
     "lib": [
       "dom",
       "dom.iterable",
@@ -18,9 +19,5 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "react"
-  },
-  "typeRoots": [
-    "src/@types",
-    "node_modules/@types"
-  ]
+  }
 }

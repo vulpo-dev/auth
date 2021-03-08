@@ -3,9 +3,10 @@
   "version": "0.0.1",
   "description": "",
   "main": "lib/main.js",
+  "types": "./lib/main.d.ts",
   "scripts": {
     "dev": "tsc --noEmit --watch",
-    "types": "tsc --emitDeclarationOnly --declaration --declarationDir ./lib",
+    "types": "tsc --emitDeclarationOnly --declarationDir ./lib",
     "build": "webpack --config ./webpack.config.js --mode production",
     "build:dev": "webpack --config ./webpack.config.js --mode development",
     "bundle": "npm run build && npm run types",

@@ -7,7 +7,10 @@
     "url": "https://riezler@dev.azure.com/riezler/Auth/_git/Auth"
   },
   "scripts": {
-    "bootstrap": "lerna bootstrap"
+    "bootstrap": "lerna bootstrap",
+    "clean:modules": "rimraf **/node_modules/",
+    "clean:lib": "rimraf **/lib/",
+    "clean": "npm run clean:lib && npm run clean:modules "
   },
   "keywords": [],
   "author": "Michael Riezler <michael@riezler.co> (https://riezler.co)",
@@ -24,6 +27,7 @@
     "core-js": "^3.9.0",
     "lerna": "^3.22.1",
     "react-refresh": "^0.9.0",
+    "rimraf": "^3.0.2",
     "ts-loader": "^8.0.17",
     "typescript": "^4.2.2",
     "webpack": "5.24.2",
