@@ -1,6 +1,6 @@
 {
   "name": "admin",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -55,9 +55,9 @@
     "@biotic-ui/std": "^0.3.6",
     "@biotic-ui/tabs": "^0.3.18",
     "@biotic-ui/text": "^0.3.3",
-    "@riezler/auth-react": "0.0.1",
-    "@riezler/auth-sdk": "0.0.1",
-    "@riezler/auth-ui": "0.0.1",
+    "@riezler/auth-react": "^0.0.2",
+    "@riezler/auth-sdk": "^0.0.2",
+    "@riezler/auth-ui": "^0.0.2",
     "@storybook/builder-webpack5": "^6.2.0-beta.0",
     "@tippyjs/react": "^4.2.0",
     "@types/clipboard": "^2.0.1",

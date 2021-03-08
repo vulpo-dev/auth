@@ -1,14 +1,14 @@
 {
   "name": "example",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "dependencies": {
     "@babel/core": "7.12.3",
     "@biotic-ui/leptons": "^0.3.9",
     "@pmmmwh/react-refresh-webpack-plugin": "0.4.3",
-    "@riezler/auth-react": "0.0.1",
-    "@riezler/auth-sdk": "0.0.1",
-    "@riezler/auth-ui": "0.0.1",
+    "@riezler/auth-react": "^0.0.2",
+    "@riezler/auth-sdk": "^0.0.2",
+    "@riezler/auth-ui": "^0.0.2",
     "@svgr/webpack": "5.5.0",
     "@testing-library/jest-dom": "^5.11.4",
     "@testing-library/react": "^11.1.0",

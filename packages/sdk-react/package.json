@@ -1,6 +1,6 @@
 {
   "name": "@riezler/auth-react",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "",
   "main": "lib/main.js",
   "types": "./lib/main.d.ts",
@@ -16,7 +16,7 @@
   "author": "Michael Riezler <michael@riezler.co> (https://riezler.co)",
   "license": "MPL-2.0",
   "dependencies": {
-    "@riezler/auth-sdk": "0.0.1",
+    "@riezler/auth-sdk": "^0.0.2",
     "@types/react": "^17.0.2"
   },
   "peerDependencies": {
