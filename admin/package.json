@@ -1,5 +1,6 @@
 {
   "name": "admin",
+  "private": true,
   "version": "0.0.2",
   "description": "",
   "main": "index.js",
@@ -78,5 +79,6 @@
     "styled-components": "^5.2.1",
     "terser-webpack-plugin": "^5.1.1",
     "webpack-dev-server": "^3.11.2"
-  }
+  },
+  "gitHead": "4499aab95a130575a36a26a4bef7fab19d5efb27"
 }
