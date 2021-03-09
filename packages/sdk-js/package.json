@@ -15,7 +15,8 @@
     "clean:all": "npm run clean && npm run rimraf",
     "rimraf": "rimraf ./node_modules/**/*.*",
     "server": "node ./scripts/server.js",
-    "prepublish": "npm run bundle"
+    "prepublish": "npm run bundle",
+    "watch": "npm run build:dev -- --watch"
   },
   "keywords": [],
   "author": "Michael Riezler <michael@riezler.co> (https://riezler.co)",

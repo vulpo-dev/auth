@@ -4,6 +4,8 @@ import styled from 'styled-components'
 import { useRouteMatch, Link } from 'react-router-dom'
 import { useTranslation } from 'context/translation'
 import { CardHeader, CardTitle } from 'component/card'
+import { useFlags } from 'context/config'
+import { Flag } from '@riezler/auth-sdk'
 
 type Props = {
 	title: string | null,
@@ -29,13 +31,15 @@ type Match = {
 
 let HeaderContainer = () => {
 	let match = useRouteMatch<Match>('/:type')
+	let flags = useFlags()
 
 	let type = match?.params?.type ?? ''
 
 	let title = useTitle(type)
-	let info = useInfo(type)
+	let info = useInfo(type, flags)
 	let link = useLink(type)
 	let to = useTo(type)
+
 
 	return <Header
 		title={title}
@@ -79,9 +83,16 @@ function useTitle(type: string): string | null {
 }
 
 
-function useInfo(type: string): string | null {
+function useInfo(type: string, flags: Array<Flag>): string | null {
 	let t = useTranslation()
 	return useMemo(() => {
+		if (
+			!flags.includes(Flag.SignIn) ||
+			!flags.includes(Flag.SignUp)
+		) {
+			return null
+		}
+
 		switch(type) {
 			case 'signin':
 				return t.signup.info
@@ -92,7 +103,7 @@ function useInfo(type: string): string | null {
 			default:
 				return null
 		}
-	}, [t, type])
+	}, [t, type, flags])
 }
 
 function useLink(type: string): string | null {

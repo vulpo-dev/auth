@@ -5,8 +5,8 @@ import { HashRouter, Switch, Route, Redirect } from 'react-router-dom'
 import { Password, Props } from 'password'
 import { Container } from 'component/layout'
 import { Translation, DefaultTranslation } from 'context/translation'
-import { AuthConfig, DefaultConfig } from 'context/config'
-import { ErrorCode } from '@riezler/auth-sdk'
+import { AuthConfig, DefaultConfig, FlagsCtx } from 'context/config'
+import { ErrorCode, Flag } from '@riezler/auth-sdk'
 import { BoxShadow } from 'component/card'
 
 export default {
@@ -44,30 +44,49 @@ export default {
 	  		]
 	  	}
 	  },
+	  flags: {
+	  	defaultValue: [
+  			Flag.SignIn,
+  			Flag.SignUp,
+  			Flag.PasswordReset,
+  			Flag.AuthenticationLink
+  		],
+	  	control: {
+	  		type: 'multi-select',
+	  		options: [
+	  			Flag.SignIn,
+	  			Flag.SignUp,
+	  			Flag.PasswordReset,
+	  			Flag.AuthenticationLink
+	  		]
+	  	}
+	  },
 	  onSubmit: { action: 'handle form' },
 	  onBack: { action: 'go to overview' },
 	},
 } as Meta
 
-let Template: Story<Props> = args => {
+let Template: Story<Props & { flags: Array<Flag> }> = ({ flags, ...args }) => {
 	return (
-		<AuthConfig.Provider value={DefaultConfig}>
-			<Translation.Provider value={DefaultTranslation}>
-				<HashRouter>
-					<Switch>
-						<Route path='/signin/email'>
-							<Container>
-								<BoxShadow>
-									<Password {...args} />
-								</BoxShadow>
-							</Container>
-						</Route>
+		<FlagsCtx.Provider value={flags}>
+			<AuthConfig.Provider value={DefaultConfig}>
+				<Translation.Provider value={DefaultTranslation}>
+					<HashRouter>
+						<Switch>
+							<Route path='/signin/email'>
+								<Container>
+									<BoxShadow>
+										<Password {...args} />
+									</BoxShadow>
+								</Container>
+							</Route>
 
-						<Redirect to='/signin/email' />
-					</Switch>
-				</HashRouter>
-			</Translation.Provider>
-		</AuthConfig.Provider>
+							<Redirect to='/signin/email' />
+						</Switch>
+					</HashRouter>
+				</Translation.Provider>
+			</AuthConfig.Provider>
+		</FlagsCtx.Provider>
 	)
 }
 

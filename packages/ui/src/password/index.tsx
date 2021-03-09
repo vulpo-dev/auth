@@ -6,12 +6,12 @@ import { Input, Password as PasswordInput } from '@biotic-ui/input'
 import { useForm } from '@biotic-ui/std'
 import { Button, IconButton } from '@biotic-ui/button'
 import { useTranslation, useError } from 'context/translation'
-import { useConfig } from 'context/config'
-import { useHistory, useRouteMatch, Link, useLocation } from 'react-router-dom'
+import { useConfig, useFlags } from 'context/config'
+import { useHistory, useRouteMatch, Link, useLocation, Redirect } from 'react-router-dom'
 import { Label } from 'component/text'
 import { Disclaimer } from 'component/disclaimer'
 import { Footer, Divider } from 'component/layout'
-import { ErrorCode } from '@riezler/auth-sdk'
+import { ErrorCode, Flag } from '@riezler/auth-sdk'
 import { useAuth } from '@riezler/auth-react'
 import { checkPasswordLength } from 'utils'
 
@@ -30,6 +30,14 @@ export type Props = {
 
 export let Password = ({ onSubmit, onBack, ctx, loading, error }: Props) => {
 	let config = useConfig()
+	let flags = useFlags()
+
+	let withBack = flags.includes(Flag.AuthenticationLink)
+	let withPasswordReset = flags.includes(Flag.PasswordReset)
+	let withNavLink = (
+		flags.includes(Flag.SignIn) &&
+		flags.includes(Flag.SignUp)
+	)
 
 	let [form, setForm] = useForm<Form>({
 		email: '',
@@ -63,21 +71,30 @@ export let Password = ({ onSubmit, onBack, ctx, loading, error }: Props) => {
 
 	let errorMessage = useError(error)
 
+	if (!flags.includes(Flag.EmailAndPassword)) {
+		return <Redirect to='/' />
+	}
+
 	return (
 		<Card>
 			<CardHeader>
 				<StyledCardNav>
 					<section>
-						<IconButton id="back" aria-label={button} onClick={() => onBack()}>
-							{ config.Arrow }
-						</IconButton>
+						{ withBack &&
+							<IconButton id="back" aria-label={button} onClick={() => onBack()}>
+								{ config.Arrow }
+							</IconButton>
+						}
 						<label htmlFor="back">{button}</label>
 					</section>
-					<section>
-						<small>
-							<Link to={`/${navLink}/email`}>{linkLabel}</Link>
-						</small>
-					</section>
+
+					{ withNavLink &&	
+						<section>
+							<small>
+								<Link to={`/${navLink}/email`}>{linkLabel}</Link>
+							</small>
+						</section>
+					}
 				</StyledCardNav>
 				<CardTitle>{t.password.title}</CardTitle>
 			</CardHeader>
@@ -108,7 +125,7 @@ export let Password = ({ onSubmit, onBack, ctx, loading, error }: Props) => {
 						required
 					/>
 					{	
-						ctx === 'signin' &&
+						(ctx === 'signin' && withPasswordReset) &&
 						<ForgotPassword to='/forgot-password'>
 							<small>{t.password.forgot}</small>
 						</ForgotPassword>

@@ -6,10 +6,10 @@ import { Input } from '@biotic-ui/input'
 import { Label, Error, Title, Subtitle } from 'component/text'
 import { useForm } from '@biotic-ui/std'
 import { useTranslation, useError } from 'context/translation'
-import { useConfig } from 'context/config'
+import { useConfig, useFlags } from 'context/config'
 import { Button, IconButton } from '@biotic-ui/button'
-import { ErrorCode } from '@riezler/auth-sdk'
-import { useHistory, useRouteMatch, Switch, Route } from 'react-router-dom'
+import { ErrorCode, Flag } from '@riezler/auth-sdk'
+import { useHistory, useRouteMatch, Switch, Route, Redirect } from 'react-router-dom'
 import { useAuth } from '@riezler/auth-react'
 
 import CheckEmail from 'password_reset/check'
@@ -120,6 +120,12 @@ let PasswordResetContainer = () => {
 
 
 export default () => {
+	let flags = useFlags()
+
+	if (!flags.includes(Flag.PasswordReset)) {
+		return <Redirect to='/' />
+	}
+
 	return (
 		<Switch>
 			<Route path='/forgot-password/check-email'>

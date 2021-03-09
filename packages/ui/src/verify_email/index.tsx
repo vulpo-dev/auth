@@ -2,13 +2,14 @@ import React, { Fragment, useState, useEffect } from 'react'
 import styled from 'styled-components'
 import { Card, CardHeader, CardTitle } from 'component/card'
 import { Flow } from '@biotic-ui/leptons'
-import { ErrorCode } from '@riezler/auth-sdk'
+import { ErrorCode, Flag } from '@riezler/auth-sdk'
 import { LoadingWrapper } from 'component/layout'
 import CheckIcon from 'component/check'
 import { Error } from 'component/text'
 import { useTranslation, useError } from 'context/translation'
+import { useFlags } from 'context/config'
 import { useAuth } from '@riezler/auth-react'
-import { useLocation } from 'react-router-dom'
+import { useLocation, Redirect } from 'react-router-dom'
 import { useQueryParams } from '@biotic-ui/std'
 
 export type Props = {
@@ -77,6 +78,11 @@ let VerifyEmailContainer = () => {
 			})
 
 	}, [])
+
+	let flags = useFlags()
+	if (!flags.includes(Flag.VerifyEmail)) {
+		return <Redirect to='/' />
+	}
 
 	return (
 		<VerifyEmail loading={loading} error={error} />

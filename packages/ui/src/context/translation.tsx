@@ -109,7 +109,7 @@ export let DefaultTranslation = {
 	},
 
 	signup: {
-		title: 'Create an account',
+		title: 'Create an account.',
 		label: 'Sign Up',
 		info: `Don't have an account?`,
 		nav: 'Create Account',

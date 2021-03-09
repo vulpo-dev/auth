@@ -8,6 +8,7 @@ import {
 	CancellablePromise,
 	SetPassword,
 	Url,
+	Flag,
 } from 'types'
 
 import { Session } from 'session'
@@ -25,15 +26,18 @@ export class AuthClient {
 	private tokens: Tokens;
 	private http: AxiosInstance;
 	private error: ApiError = new ApiError();
+	private config: Config;
 		
 	constructor(
 		session: Session,
 		tokens: Tokens,
 		http: AxiosInstance,
+		config: Config,
 	) {
 		this.session = session
 		this.tokens = tokens
 		this.http = http
+		this.config = config
 	}
 
 	async signIn(email: string, password: string, config?: AxiosRequestConfig): Promise<User> {
@@ -274,6 +278,12 @@ export class AuthClient {
 			return response
 		})
 	}
+
+	async flags(config?: AxiosRequestConfig): Promise<Array<Flag>> {
+		return this.http
+			.get<{ items: Array<Flag> }>(`${Url.Flags}?project=${this.config.project}`, config)
+			.then(res => res.data.items)
+	}
 }
 
 export let Auth = {
@@ -293,6 +303,7 @@ export let Auth = {
 			user,
 			tokens,
 			http,
+			config,
 		)
 
 		if (config.preload) {

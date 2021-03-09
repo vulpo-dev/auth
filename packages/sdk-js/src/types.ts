@@ -74,5 +74,16 @@ export enum Url {
 
 	UserVerifyEmail = '/user/verify_email',
 
-	TokenRefresh = '/token/refresh/:session'
+	TokenRefresh = '/token/refresh/:session',
+
+	Flags = '/project/flags'
+}
+
+export enum Flag {
+	SignIn = 'auth::signin',
+	SignUp = 'auth::signup',
+	PasswordReset = 'action::password_reset',
+	VerifyEmail = 'action::verify_email',
+	EmailAndPassword = 'method::email_password',
+	AuthenticationLink = 'method::authentication_link',
 }
