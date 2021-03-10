@@ -1,5 +1,5 @@
 import React from 'react'
-import { Fragment, FC, useMemo, useLayoutEffect, SyntheticEvent } from 'react'
+import { Fragment, FC, useMemo, useLayoutEffect, SyntheticEvent, MouseEvent } from 'react'
 import styled from 'styled-components'
 import { Scrollbar } from '@biotic-ui/leptons'
 import { GhostBar } from 'component/loading'
@@ -7,6 +7,7 @@ import { Users } from 'data/user'
 import { format } from 'data/date'
 import Tooltip from 'component/tooltip'
 import Clipboard from 'clipboard'
+import { useClickHandler } from '@biotic-ui/std'
 
 export let Wrapper = styled.div`
 	display: inline-grid;
@@ -37,7 +38,6 @@ export let Content = styled.div`
 	height: 100%;
 	overflow-y: scroll;
 	overflow-x: hidden;
-	background: #222043;
 	padding: 0;
 	border: 1px solid #000;
 	--scrollbar-thumb: #000;
@@ -51,6 +51,11 @@ export let Row = styled.div<{ selected?: boolean, disabled?: boolean }>`
 	border-color: ${p => p.selected ? '#f0f' : '#000'};
 	padding: 0 var(--baseline-3);
 	opacity: ${p => p.disabled ? 0.3 : 1};
+	background: #222043;
+
+	&:hover {
+		background: #22204370;
+	}
 
 	${columns}
 
@@ -75,6 +80,7 @@ export let Rows: FC<RowsPops> = ({
 	selected = []
 }) => {
 
+
 	useLayoutEffect(() => {
 		let clipboard = new Clipboard('.js-user-id', {
 			// Not sure why, but it's broken without it
@@ -87,14 +93,24 @@ export let Rows: FC<RowsPops> = ({
 		}
 	}, [])
 
-	let handleSelect = (userId: string) => (e: SyntheticEvent) => {
+	let handleSelect = (e: SyntheticEvent) => {
 		let target = (e.target as HTMLElement)
 		let isUserId = target.classList.contains('js-user-id')
 
 		if (!isUserId) {
+			let userId = getUserId(target)
 			onSelect(userId)
 		}
  	}
+
+ 	let onClick = useClickHandler({
+ 		onClick: handleSelect,
+ 		onDblClick: (e) => {
+ 			let target = (e.target as HTMLElement)
+ 			let userId = getUserId(target)
+			onOpen(userId)
+ 		}
+ 	}, 200)
 
 	return (
 		<Fragment>
@@ -104,9 +120,9 @@ export let Rows: FC<RowsPops> = ({
 						<Row
 							disabled={user.disabled}
 							key={user.id}
-							onClick={handleSelect(user.id)}
-							onDoubleClick={() => onOpen(user.id)}
+							onClick={onClick}
 							selected={selected.includes(user.id)}
+							data-user={user.id}
 						>
 							<div>
 								<Tooltip content={user.id}>
@@ -186,3 +202,13 @@ export let Text = styled.span<{ align?: 'left' | 'right' }>`
 	white-space: nowrap;
 	width: 100%;
 `
+
+function getUserId(elm: HTMLElement): string {
+	let parent = elm
+
+	while (parent.dataset.user === undefined) {
+		parent = parent.parentElement!
+	}
+
+	return parent.dataset.user
+}

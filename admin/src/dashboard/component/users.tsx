@@ -23,12 +23,16 @@ import { IconButton } from 'component/button'
 import { Pulse } from '@biotic-ui/leptons'
 import { FloatingActionBar, ActionItem, ActionLabel } from 'component/floating_action_bar'
 import Tooltip from 'component/tooltip'
+import { useEmailSettings, hasEmailProvider } from 'data/settings'
 
 type Props = {
 	project: string;
 }
 
 let Users: FC<Props> = ({ project }) => {
+	let [{ initialData }] = useEmailSettings(project)
+	let hasEmail = hasEmailProvider(initialData)
+
 	let deleteUser = useDeleteUser()
 	let verifyEmail = useVerifyEmail(project)
 	let disableUser = useDisableUser(project)
@@ -132,11 +136,11 @@ let Users: FC<Props> = ({ project }) => {
 					<ArchiveBox weight='bold' size={24} />
 					<ActionLabel>{ user?.disabled ? 'Enable' : 'Disable' } Account</ActionLabel>
 				</ActionItem>
-				<ActionItem>
+				<ActionItem disabled={!hasEmail}>
 					<ClockClockwise weight='bold' size={24} />
 					<ActionLabel>Reset Password</ActionLabel>
 				</ActionItem>
-				<ActionItem onClick={handleVerify}>
+				<ActionItem onClick={handleVerify} disabled={!hasEmail}>
 					<IdentificationCard weight='bold' size={24} />
 					<ActionLabel>Send Email Verification</ActionLabel>
 				</ActionItem>

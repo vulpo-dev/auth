@@ -17,7 +17,7 @@ export let StyledFloatingActionBar = styled(motion.div)`
 export let ContentWrapper = styled.div<{ open: boolean }>`
 	position: relative;
 	background: #000;
-	padding: var(--baseline-2) calc(var(--baseline) * 7);
+	padding: 0 calc(var(--baseline) * 3);
 	display: flex;
 	grid-column-gap: var(--baseline-3);
 	border-radius: var(--baseline-2);
@@ -65,11 +65,11 @@ export let FloatingActionBar: FC<Props> = ({
 	)
 }
 
-export let ActionItem = styled.button`
+export let ActionItem = styled.button<{ disabled?: boolean }>`
 	--size: calc(var(--baseline) * 6);
 	min-width: var(--size);
 	min-height: var(--size);
-	padding: var(---baseline);
+	padding: var(--baseline-2);
 	position: relative;
 	display: flex;
 	justify-content: center;
@@ -78,6 +78,12 @@ export let ActionItem = styled.button`
 	border: none;
 	color: #fff;
 	flex-direction: column;
+	opacity: ${p => p.disabled ? 0.3 : 1};
+	cursor: ${p => p.disabled ? 'default' : 'pointer'};
+
+	&:hover {
+		background: ${p => p.disabled ? '#000' : '#151515'};
+	}
 `
 
 export let ActionLabel = styled.label`
