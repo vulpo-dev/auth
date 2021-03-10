@@ -105,6 +105,9 @@ pub enum ApiError {
 
     #[serde(rename = "template/render")]
     TemplateRender,
+
+    #[serde(rename = "user/disabled")]
+    UserDisabled,
 }
 
 impl ApiError {
@@ -113,7 +116,7 @@ impl ApiError {
             ApiError::InternalServerError => Status::InternalServerError,
             ApiError::NotFound => Status::NotFound,
             ApiError::Forbidden => Status::Forbidden,
-            _ => Status::BadRequest,
+            _ => Status::InternalServerError,
         }
     }
 }

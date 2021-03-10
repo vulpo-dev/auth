@@ -44,12 +44,13 @@ export let Content = styled.div`
 	${Scrollbar}
 `
 
-export let Row = styled.div<{ selected?: boolean }>`
+export let Row = styled.div<{ selected?: boolean, disabled?: boolean }>`
 	display: grid;
 	height: calc(var(--baseline) * 6);
 	border: 1px solid #000;
 	border-color: ${p => p.selected ? '#f0f' : '#000'};
 	padding: 0 var(--baseline-3);
+	opacity: ${p => p.disabled ? 0.3 : 1};
 
 	${columns}
 
@@ -101,6 +102,7 @@ export let Rows: FC<RowsPops> = ({
 				items.map(user => {
 					return (
 						<Row
+							disabled={user.disabled}
 							key={user.id}
 							onClick={handleSelect(user.id)}
 							onDoubleClick={() => onOpen(user.id)}

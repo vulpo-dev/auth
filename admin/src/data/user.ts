@@ -21,7 +21,8 @@ export type User = {
 	email: string;
 	email_verified: boolean;
 	id: string;
-	provider_id: Provider
+	provider_id: Provider;
+	disabled: boolean;
 }
 
 export type Users = Array<User>
@@ -32,6 +33,7 @@ type UserResponse = {
 	email_verified: boolean;
 	id: string;
 	provider_id: string;
+	disabled: boolean;
 }
 
 function userFromResponse(user: UserResponse): User {
@@ -279,6 +281,27 @@ export function useVerifyEmail(project_id: string) {
 			setLoading(false)
 		}
 	}, [http, project_id, setLoading, setError])
+
+	return { run, error, loading }
+}
+
+export function useDisableUser(project: string) {
+	let http = useHttp()
+	let [loading, setLoading] = useState<boolean>(false)
+	let [error, setError] = useState<ApiError | null>(null)
+
+	let run = useCallback(async (user: string, disabled: boolean) => {
+		setError(null)
+		setLoading(true)
+		
+		try {
+			await http.post(`/user/disable`, { user, project, disabled })
+		} catch(err) {
+			setError(getErrorCode(err))
+		} finally {
+			setLoading(false)
+		}
+	}, [http, project, setLoading, setError])
 
 	return { run, error, loading }
 }

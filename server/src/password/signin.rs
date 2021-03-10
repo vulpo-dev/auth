@@ -46,6 +46,10 @@ pub async fn sign_in(
         .run(move |client| User::password(client, email, project.id))
         .await?;
 
+    if user.disabled {
+        return Err(ApiError::UserDisabled);
+    }
+
     let password = match user.password {
         Some(ref password) => password,
         None => return Err(ApiError::UserInvalidPassword),

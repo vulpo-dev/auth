@@ -1,7 +1,13 @@
 import React from 'react'
 import { FC, useState } from 'react'
 import styled from 'styled-components'
-import { useUsers, useTotalUsers, useDeleteUser, useVerifyEmail } from 'data/user'
+import {
+	useUsers,
+	useTotalUsers,
+	useDeleteUser,
+	useVerifyEmail,
+	useDisableUser,
+} from 'data/user'
 import { format } from 'data/date'
 import { Wrapper, Header, Content, Text, GhostRows, Rows } from 'component/user_table'
 import {
@@ -25,6 +31,7 @@ type Props = {
 let Users: FC<Props> = ({ project }) => {
 	let deleteUser = useDeleteUser()
 	let verifyEmail = useVerifyEmail(project)
+	let disableUser = useDisableUser(project)
 
 	let limit = 25
 	let [page, setPage] = useState<number>(0)
@@ -56,6 +63,20 @@ let Users: FC<Props> = ({ project }) => {
 
 	async function handleVerify() {
 		await verifyEmail.run(selected[0]!)
+		users.reload()
+		setSelected([])
+	}
+
+	let user = users.items?.find(user =>  user.id === selected[0])
+	async function handleDisable() {
+
+		if (!users.items) {
+			users.reload()
+			setSelected([])
+			return
+		}
+
+		await disableUser.run(selected[0]!, !user?.disabled)
 		users.reload()
 		setSelected([])
 	}
@@ -107,9 +128,9 @@ let Users: FC<Props> = ({ project }) => {
 			</Footer>
 
 			<FloatingActionBar open={selected.length > 0} onClose={() => setSelected([])}>
-				<ActionItem>
+				<ActionItem onClick={handleDisable}>
 					<ArchiveBox weight='bold' size={24} />
-					<ActionLabel>Disable Account</ActionLabel>
+					<ActionLabel>{ user?.disabled ? 'Enable' : 'Disable' } Account</ActionLabel>
 				</ActionItem>
 				<ActionItem>
 					<ClockClockwise weight='bold' size={24} />

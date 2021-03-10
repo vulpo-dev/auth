@@ -1,6 +1,7 @@
 use rocket::Route;
 
 mod delete_account;
+mod disable;
 mod get;
 mod list;
 mod sign_out;
@@ -18,5 +19,6 @@ pub fn routes() -> Vec<Route> {
         delete_account::delete_account,
         verify_email::handler,
         verify_email::admin,
+        disable::handler,
     ]
 }

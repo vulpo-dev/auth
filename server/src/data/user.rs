@@ -22,6 +22,7 @@ pub struct User {
     pub provider_id: String,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
+    pub disabled: bool,
     #[serde(skip_serializing)]
     pub password: Option<String>,
 }
@@ -45,6 +46,7 @@ impl User {
             provider_id: row.get("provider_id"),
             created_at: row.get("created_at"),
             updated_at: row.get("updated_at"),
+            disabled: row.get("disabled"),
         }
     }
 
@@ -209,6 +211,7 @@ impl User {
                 email_verified: row.get("email_verified"),
                 provider_id: row.get("provider_id"),
                 created_at: row.get("created_at"),
+                disabled: row.get("disabled"),
             })
             .collect();
 
@@ -245,6 +248,32 @@ impl User {
     ) -> Result<(), ApiError> {
         let query = get_query("user/remove_by_token")?;
         let row = client.query(query, &[&token_id]);
+        match row {
+            Ok(_) => Ok(()),
+            Err(_) => Err(ApiError::InternalServerError),
+        }
+    }
+
+    pub fn disable<C: GenericClient>(
+        client: &mut C,
+        user: &Uuid,
+        project: &Uuid,
+    ) -> Result<(), ApiError> {
+        let query = get_query("user/disable")?;
+        let row = client.query(query, &[&user, &project]);
+        match row {
+            Ok(_) => Ok(()),
+            Err(_) => Err(ApiError::InternalServerError),
+        }
+    }
+
+    pub fn enable<C: GenericClient>(
+        client: &mut C,
+        user: &Uuid,
+        project: &Uuid,
+    ) -> Result<(), ApiError> {
+        let query = get_query("user/enable")?;
+        let row = client.query(query, &[&user, &project]);
         match row {
             Ok(_) => Ok(()),
             Err(_) => Err(ApiError::InternalServerError),
@@ -311,6 +340,7 @@ pub struct PartialUser {
     email_verified: bool,
     provider_id: String,
     created_at: DateTime<Utc>,
+    disabled: bool,
 }
 
 pub enum ParamError {

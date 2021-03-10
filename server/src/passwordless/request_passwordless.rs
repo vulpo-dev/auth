@@ -43,6 +43,10 @@ pub async fn request_passwordless(
         .run(move |client| User::get_by_email(client, &email, project.id))
         .await?;
 
+    if user.clone().map_or(false, |u| u.disabled) {
+        return Err(ApiError::UserDisabled);
+    }
+
     let user_id = user.clone().map(|u| u.id);
     let session_id = body.session.clone();
     let public_key = body.public_key.clone();

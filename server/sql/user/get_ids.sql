@@ -9,6 +9,7 @@ select id
 	 , provider_id
 	 , created_at
 	 , updated_at
+	 , disabled
   from jsonb_to_recordset($1) as user_ids(user_id uuid)
   join users on users.id = user_ids.user_id
  where project_id = $2

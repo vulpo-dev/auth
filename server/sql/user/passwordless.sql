@@ -20,3 +20,4 @@ returning id
 		, provider_id
 		, created_at
 		, updated_at
+		, disabled
