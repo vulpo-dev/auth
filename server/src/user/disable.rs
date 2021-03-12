@@ -1,7 +1,7 @@
-use crate::data::admin::Admin;
-use crate::data::user::User;
-use crate::data::AuthDb;
+use crate::admin::data::Admin;
+use crate::db::AuthDb;
 use crate::response::error::ApiError;
+use crate::user::data::User;
 
 use rocket_contrib::json::Json;
 use serde::Deserialize;

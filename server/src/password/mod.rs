@@ -1,9 +1,9 @@
+pub mod data;
 mod reset;
 mod signin;
 mod signup;
 
 use crate::response::error::ApiError;
-
 use rocket::Route;
 
 pub fn routes() -> Vec<Route> {

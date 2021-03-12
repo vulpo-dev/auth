@@ -1,12 +1,3 @@
-pub mod admin;
-pub mod keys;
-pub mod password_reset;
-pub mod project;
-pub mod session;
-pub mod token;
-pub mod user;
-pub mod verify_email;
-
 use crate::response::error::ApiError;
 use crate::SQL;
 

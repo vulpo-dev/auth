@@ -4,6 +4,7 @@ use rocket::request::{self, FromRequest, Request};
 use rocket::Route;
 use uuid::Uuid;
 
+pub mod data;
 mod flags;
 mod set_flags;
 

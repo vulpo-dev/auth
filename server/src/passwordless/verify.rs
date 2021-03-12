@@ -1,12 +1,11 @@
 use crate::config::secrets::Secrets;
-use crate::data::keys::ProjectKeys;
-use crate::data::session::{RefreshAccessToken, Session};
-use crate::data::token::{Passwordless, Token};
-use crate::data::user::User;
-use crate::data::AuthDb;
+use crate::db::AuthDb;
+use crate::passwordless::data::Passwordless;
 use crate::response::error::ApiError;
 use crate::response::SessionResponse;
-use crate::token::AccessToken;
+use crate::session::data::ProjectKeys;
+use crate::session::data::{AccessToken, RefreshAccessToken, Session, Token};
+use crate::user::data::User;
 
 use chrono::{Duration, Utc};
 use rocket::State;

@@ -1,5 +1,5 @@
-use crate::data::admin::{Admin, NewUser};
-use crate::data::AuthDb;
+use crate::admin::data::{Admin, NewUser};
+use crate::db::AuthDb;
 use crate::response::error::ApiError;
 
 use rocket;

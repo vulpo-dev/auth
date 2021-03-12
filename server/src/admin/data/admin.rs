@@ -1,9 +1,9 @@
-use crate::data::keys::ProjectKeys;
-use crate::data::user::User;
-use crate::data::{get_query, AuthDb};
+use crate::db::{get_query, AuthDb};
 use crate::project::Project;
 use crate::response::error::ApiError;
-use crate::token::AccessToken;
+use crate::session::data::AccessToken;
+use crate::session::data::ProjectKeys;
+use crate::user::data::User;
 
 use bcrypt::{hash, DEFAULT_COST};
 use rocket::http::Status;

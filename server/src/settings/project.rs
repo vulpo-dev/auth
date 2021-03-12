@@ -1,6 +1,6 @@
-use crate::data::admin::Admin;
-use crate::data::project::Project;
-use crate::data::AuthDb;
+use crate::admin::data::Admin;
+use crate::db::AuthDb;
+use crate::project::data::Project;
 use crate::response::error::ApiError;
 
 use rocket_contrib::json::Json;

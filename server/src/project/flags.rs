@@ -1,5 +1,5 @@
-use crate::data::project::Flags;
-use crate::data::AuthDb;
+use crate::db::AuthDb;
+use crate::project::data::Flags;
 use crate::response::error::ApiError;
 use rocket_contrib::uuid::Uuid;
 

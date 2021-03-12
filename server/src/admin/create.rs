@@ -1,5 +1,5 @@
-use crate::data::admin::{Admin, NewAdmin};
-use crate::data::AuthDb;
+use crate::admin::data::{Admin, NewAdmin};
+use crate::db::AuthDb;
 use crate::project::Project;
 use crate::response::error::ApiError;
 

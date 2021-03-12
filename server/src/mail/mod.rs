@@ -1,3 +1,5 @@
+pub mod data;
+
 use crate::response::error::ApiError;
 use crate::settings::data::EmailSettings;
 

@@ -6,6 +6,7 @@ use std::path::PathBuf;
 
 mod create;
 mod create_user;
+pub mod data;
 mod has_admin;
 mod project;
 

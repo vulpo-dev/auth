@@ -1,9 +1,7 @@
 use rocket::Route;
 
-mod access_token;
+pub mod data;
 mod refresh;
-
-pub use access_token::{AccessToken, Claims};
 
 pub fn routes() -> Vec<Route> {
     routes![refresh::handler]

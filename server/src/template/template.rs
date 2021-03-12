@@ -1,6 +1,6 @@
-use crate::data::get_query;
-use crate::data::user::User;
+use crate::db::get_query;
 use crate::response::error::ApiError;
+use crate::user::data::User;
 use crate::TEMPLATE;
 
 use handlebars::Handlebars;

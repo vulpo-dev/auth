@@ -1,13 +1,14 @@
-use crate::data::project::Flags;
-use crate::data::session::Session;
-use crate::data::user::User;
-use crate::data::AuthDb;
-use crate::data::{token, token::Passwordless};
+use crate::db::AuthDb;
 use crate::mail::Email;
+use crate::passwordless::data::Passwordless;
+use crate::project::data::Flags;
 use crate::project::Project;
 use crate::response::error::ApiError;
+use crate::session::data::Session;
+use crate::session::data::Token;
 use crate::settings::data::ProjectEmail;
 use crate::template::{Template, TemplateCtx, Templates};
+use crate::user::data::User;
 
 use chrono::{Duration, Utc};
 use rocket_contrib::json::Json;
@@ -63,8 +64,8 @@ pub async fn request_passwordless(
         })
         .await?;
 
-    let verification_token = token::create();
-    let hashed_token = token::hash(&verification_token)?;
+    let verification_token = Token::create();
+    let hashed_token = Token::hash(&verification_token)?;
 
     let email = body_email.clone();
     let user_id = user.clone().map(|u| u.id);

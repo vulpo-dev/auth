@@ -1,5 +1,5 @@
-use crate::data::user::User;
 use crate::response::error::ApiError;
+use crate::user::data::User;
 
 use chrono::{DateTime, Utc};
 use jsonwebtoken::{decode, encode, Algorithm, DecodingKey, EncodingKey, Header, Validation};

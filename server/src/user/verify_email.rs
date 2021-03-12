@@ -1,10 +1,10 @@
-use crate::data::admin::Admin;
-use crate::data::token;
-use crate::data::verify_email::VerifyEmail;
-use crate::data::AuthDb;
+use crate::admin::data::Admin;
+use crate::db::AuthDb;
+use crate::mail::data::VerifyEmail;
 use crate::mail::Email;
 use crate::project::Project;
 use crate::response::error::ApiError;
+use crate::session::data::Token;
 use crate::settings::data::ProjectEmail;
 use crate::template::{Template, TemplateCtx, Templates};
 
@@ -31,7 +31,7 @@ pub async fn handler(
         .run(move |client| VerifyEmail::get(client, &id))
         .await?;
 
-    let is_valid = token::verify(&body.token, &verify.token)?;
+    let is_valid = Token::verify(&body.token, &verify.token)?;
 
     if is_valid == false {
         return Err(ApiError::TokenInvalid);
@@ -72,8 +72,8 @@ pub async fn admin(
         })
         .await?;
 
-    let reset_token = token::create();
-    let hashed_token = token::hash(&reset_token)?;
+    let reset_token = Token::create();
+    let hashed_token = Token::hash(&reset_token)?;
 
     let user_id = body.user_id;
     let token_id = conn

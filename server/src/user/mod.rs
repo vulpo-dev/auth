@@ -1,5 +1,6 @@
 use rocket::Route;
 
+pub mod data;
 mod delete_account;
 mod disable;
 mod get;

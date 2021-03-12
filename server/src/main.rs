@@ -1,7 +1,7 @@
 mod admin;
 mod config;
 mod cors;
-mod data;
+mod db;
 mod file;
 mod mail;
 mod migration;
@@ -9,9 +9,9 @@ mod password;
 mod passwordless;
 mod project;
 mod response;
+mod session;
 mod settings;
 mod template;
-mod token;
 mod user;
 
 use crate::cors::CORS;
@@ -61,14 +61,14 @@ async fn main() {
 
     if matches.is_present("server") {
         let _ = rocket::custom(figment)
-            .attach(data::AuthDb::fairing())
+            .attach(db::AuthDb::fairing())
             .attach(CORS())
             .attach(AdHoc::config::<Secrets>())
             .mount("/admin", admin::routes())
             .mount("/user", user::routes())
             .mount("/passwordless", passwordless::routes())
             .mount("/password", password::routes())
-            .mount("/token", token::routes())
+            .mount("/token", session::routes())
             .mount("/project", project::routes())
             .mount("/settings", settings::routes())
             .mount("/template", template::routes())

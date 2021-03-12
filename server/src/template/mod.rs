@@ -3,8 +3,8 @@ mod template;
 
 pub use config::{DefaultRedirect, DefaultSubject};
 
-use crate::data::admin::Admin;
-use crate::data::AuthDb;
+use crate::admin::data::Admin;
+use crate::db::AuthDb;
 use crate::response::error::ApiError;
 pub use template::{Template, TemplateCtx};
 pub use template::{TemplateResponse, Templates};

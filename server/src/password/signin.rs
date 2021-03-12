@@ -1,13 +1,12 @@
 use crate::config::secrets::Secrets;
-use crate::data::keys::ProjectKeys;
-use crate::data::project::Flags;
-use crate::data::session::Session;
-use crate::data::user::User;
-use crate::data::AuthDb;
+use crate::db::AuthDb;
+use crate::project::data::Flags;
 use crate::project::Project;
 use crate::response::error::ApiError;
 use crate::response::SessionResponse;
-use crate::token::AccessToken;
+use crate::session::data::ProjectKeys;
+use crate::session::data::{AccessToken, Session};
+use crate::user::data::User;
 
 use bcrypt::verify;
 

@@ -1,7 +1,7 @@
-use crate::data::user::User;
-use crate::data::AuthDb;
+use crate::db::AuthDb;
 use crate::project::Project;
 use crate::response::error::ApiError;
+use crate::user::data::User;
 
 use rocket_contrib::json::Json;
 use rocket_contrib::uuid::Uuid;

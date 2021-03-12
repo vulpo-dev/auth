@@ -1,7 +1,7 @@
-use crate::data::admin::Admin;
-use crate::data::user::{PartialUser, SortDirection, TotalUsers, User, UserOrder};
-use crate::data::AuthDb;
+use crate::admin::data::Admin;
+use crate::db::AuthDb;
 use crate::response::error::ApiError;
+use crate::user::data::{PartialUser, SortDirection, TotalUsers, User, UserOrder};
 use rocket_contrib::uuid::Uuid;
 
 use rocket::http::RawStr;

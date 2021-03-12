@@ -1,4 +1,5 @@
 mod confirm;
+pub mod data;
 mod request_passwordless;
 mod verify;
 

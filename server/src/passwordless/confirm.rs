@@ -1,5 +1,5 @@
-use crate::data::token::Passwordless;
-use crate::data::AuthDb;
+use crate::db::AuthDb;
+use crate::passwordless::data::Passwordless;
 use crate::response::error::ApiError;
 
 use chrono::{Duration, Utc};

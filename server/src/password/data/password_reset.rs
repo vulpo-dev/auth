@@ -1,4 +1,4 @@
-use crate::data::get_query;
+use crate::db::get_query;
 use crate::response::error::ApiError;
 
 use chrono::{DateTime, Utc};

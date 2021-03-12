@@ -1,5 +1,5 @@
-use crate::data::project::Project;
-use crate::data::AuthDb;
+use crate::db::AuthDb;
+use crate::project::data::Project;
 
 use rocket::fairing::{Fairing, Info, Kind};
 use rocket::http::Status;

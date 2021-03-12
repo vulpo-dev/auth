@@ -1,19 +1,18 @@
 use crate::config::secrets::Secrets;
-use crate::data::keys::ProjectKeys;
-use crate::data::project::Flags;
-use crate::data::session::Session;
-use crate::data::token;
-use crate::data::user::User;
-use crate::data::verify_email::VerifyEmail;
-use crate::data::AuthDb;
+use crate::db::AuthDb;
+use crate::mail::data::VerifyEmail;
 use crate::mail::Email;
 use crate::password::validate_password_length;
+use crate::project::data::Flags;
 use crate::project::Project;
 use crate::response::error::ApiError;
 use crate::response::SessionResponse;
+use crate::session::data::ProjectKeys;
+use crate::session::data::Session;
+use crate::session::data::{AccessToken, Token};
 use crate::settings::data::ProjectEmail;
 use crate::template::{Template, TemplateCtx, Templates};
-use crate::token::AccessToken;
+use crate::user::data::User;
 
 use chrono::{Duration, Utc};
 use rocket::State;
@@ -92,8 +91,8 @@ pub async fn sign_up(
             })
             .await?;
 
-        let reset_token = token::create();
-        let hashed_token = token::hash(&reset_token)?;
+        let reset_token = Token::create();
+        let hashed_token = Token::hash(&reset_token)?;
 
         let user_id = user.clone().id;
         let token_id = conn

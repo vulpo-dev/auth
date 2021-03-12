@@ -1,13 +1,13 @@
-use crate::data::password_reset::PasswordReset;
-use crate::data::token;
-use crate::data::user::User;
-use crate::data::AuthDb;
+use crate::db::AuthDb;
 use crate::mail::Email;
+use crate::password::data::PasswordReset;
 use crate::password::validate_password_length;
 use crate::project::Project;
 use crate::response::error::ApiError;
+use crate::session::data::Token;
 use crate::settings::data::ProjectEmail;
 use crate::template::{Template, TemplateCtx, Templates};
+use crate::user::data::User;
 
 use chrono::{Duration, Utc};
 use rocket::http::Status;
@@ -41,8 +41,8 @@ pub async fn request_password_reset(
         Some(user) => user,
     };
 
-    let reset_token = token::create();
-    let hashed_token = token::hash(&reset_token)?;
+    let reset_token = Token::create();
+    let hashed_token = Token::hash(&reset_token)?;
 
     let user_id = user.clone().id;
     let token_id = conn
@@ -107,7 +107,7 @@ pub async fn password_reset(
         .run(move |client| PasswordReset::get(client, &id))
         .await?;
 
-    let is_valid = token::verify(&body.token, &reset.token)?;
+    let is_valid = Token::verify(&body.token, &reset.token)?;
 
     if is_valid == false {
         return Err(ApiError::ResetInvalidToken);
@@ -156,7 +156,7 @@ pub async fn verify_token(
         .run(move |client| PasswordReset::get(client, &id))
         .await?;
 
-    let is_valid = token::verify(&body.token, &reset.token)?;
+    let is_valid = Token::verify(&body.token, &reset.token)?;
 
     if is_valid == false {
         return Err(ApiError::ResetInvalidToken);
