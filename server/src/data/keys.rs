@@ -1,10 +1,11 @@
-use crate::data::{get_query, GenericClient};
+use crate::data::get_query;
 use crate::response::error::ApiError;
 
 use chrono::{DateTime, Utc};
 use openssl::pkey::PKey;
 use openssl::rsa::Rsa;
 use openssl::symm::Cipher;
+use rocket_contrib::databases::postgres::GenericClient;
 use uuid::Uuid;
 
 pub struct ProjectKeys {

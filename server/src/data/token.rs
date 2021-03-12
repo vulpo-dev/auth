@@ -1,11 +1,12 @@
+use crate::data::get_query;
 use crate::data::session::Claims;
-use crate::data::{get_query, GenericClient};
 use crate::response::error::ApiError;
 
 use bcrypt;
 use chrono::{DateTime, NaiveDateTime, Utc};
 use rand::distributions::Alphanumeric;
 use rand::{thread_rng, Rng};
+use rocket_contrib::databases::postgres::GenericClient;
 use std::char;
 use uuid::Uuid;
 

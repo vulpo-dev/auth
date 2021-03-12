@@ -1,9 +1,10 @@
-use crate::data::{get_query, GenericClient};
+use crate::data::get_query;
 use crate::response::error::ApiError;
 
 use chrono::{DateTime, Utc};
 use jsonwebtoken as jwt;
 use jsonwebtoken::{Algorithm, DecodingKey, Validation};
+use rocket_contrib::databases::postgres::GenericClient;
 use serde::Deserialize;
 use uuid::Uuid;
 

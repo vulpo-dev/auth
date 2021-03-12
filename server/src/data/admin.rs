@@ -1,6 +1,6 @@
 use crate::data::keys::ProjectKeys;
 use crate::data::user::User;
-use crate::data::{get_query, AuthDb, GenericClient};
+use crate::data::{get_query, AuthDb};
 use crate::project::Project;
 use crate::response::error::ApiError;
 use crate::token::AccessToken;
@@ -9,8 +9,11 @@ use bcrypt::{hash, DEFAULT_COST};
 use rocket::http::Status;
 use rocket::request::Outcome;
 use rocket::request::{self, FromRequest, Request};
+
 use rocket_contrib::databases::postgres::error::DbError;
 use rocket_contrib::databases::postgres::error::SqlState;
+use rocket_contrib::databases::postgres::GenericClient;
+
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use serde_json::value::Value;

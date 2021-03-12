@@ -20,6 +20,7 @@ export async function getPublicKey(session: Session): Promise<Array<number>> {
 	return Array.from(enc.encode(pemExported))
 }
 
+// rat := Refresh Access Token
 export function ratPayload() {
 	let now = new Date()
 	let exp = Math.ceil(now.setMinutes(now.getMinutes() + 5) / 1000)
@@ -44,9 +45,6 @@ export async function generateAccessToken(sessionId: string, claims: Object = {}
 				alg: "ES384",
 				typ: "JWT"
 			}
-
-	let now = new Date()
-	let exp = Math.ceil(now.setMinutes(now.getMinutes() + 1) / 1000)
 
 	let payload = {
 		...claims,
@@ -93,7 +91,7 @@ async function generateKeys(): Promise<CryptoKeyPair> {
 	return keys as CryptoKeyPair
 }
 
-function ab2str(buf: ArrayBuffer) {
+function ab2str(buf: ArrayBuffer): string {
   let arr = Array.from(new Uint8Array(buf))
   return String.fromCharCode(...arr)
 }
@@ -102,10 +100,10 @@ function isFirefox(): boolean {
 	return navigator.userAgent.toLowerCase().indexOf('firefox') > -1
 }
 
-function isRsa(name: string) {
+function isRsa(name: string): boolean {
 	return name === 'RSASSA-PKCS1-v1_5'
 }
 
-function base64url(str: string) {
+function base64url(str: string): string {
 	return window.btoa(str).replaceAll('+', '-').replaceAll('/', '_').replace(/=+$/, '')
 }

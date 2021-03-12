@@ -1,8 +1,8 @@
-use crate::data::{get_query, GenericClient};
+use crate::data::get_query;
 use crate::response::error::ApiError;
 
+use rocket_contrib::databases::postgres::GenericClient;
 use serde::{Deserialize, Serialize};
-
 use uuid::Uuid;
 
 pub struct Project;

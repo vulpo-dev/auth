@@ -1,7 +1,8 @@
-use crate::data::{get_query, GenericClient};
+use crate::data::get_query;
 use crate::response::error::ApiError;
 use crate::template::{DefaultRedirect, DefaultSubject, Template, Templates};
 
+use rocket_contrib::databases::postgres::GenericClient;
 use serde::{Deserialize, Serialize};
 use std::convert::TryFrom;
 use uuid::Uuid;

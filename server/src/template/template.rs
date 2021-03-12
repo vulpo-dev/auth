@@ -1,10 +1,11 @@
+use crate::data::get_query;
 use crate::data::user::User;
-use crate::data::{get_query, GenericClient};
 use crate::response::error::ApiError;
 use crate::TEMPLATE;
 
 use handlebars::Handlebars;
 use rocket::FromFormValue;
+use rocket_contrib::databases::postgres::GenericClient;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use uuid::Uuid;

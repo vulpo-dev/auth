@@ -1,9 +1,10 @@
-use crate::data::{get_query, GenericClient};
+use crate::data::get_query;
 use crate::response::error::ApiError;
 
 use bcrypt::{hash, DEFAULT_COST};
 use chrono::{DateTime, Utc};
 use rocket_contrib::databases::postgres::error::DbError;
+use rocket_contrib::databases::postgres::GenericClient;
 use rocket_contrib::databases::postgres::Row;
 use serde::{Deserialize, Serialize};
 use serde_json::value::Value;

@@ -1,7 +1,8 @@
-use crate::data::{get_query, GenericClient};
+use crate::data::get_query;
 use crate::response::error::ApiError;
 
 use chrono::{DateTime, Utc};
+use rocket_contrib::databases::postgres::GenericClient;
 use uuid::Uuid;
 
 pub struct VerifyEmail {

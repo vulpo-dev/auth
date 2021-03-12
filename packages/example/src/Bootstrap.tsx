@@ -3,7 +3,7 @@ import App from './App'
 import { Switch, Route, useHistory, useLocation } from 'react-router-dom'
 import { useAuthStateChange } from '@riezler/auth-react'
 import { UserState } from '@riezler/auth-sdk'
-import { Auth, Container } from '@riezler/auth-ui'
+import { Auth, Container, BoxShadow } from '@riezler/auth-ui'
 
 let Bootstrap = () => {
 	let history = useHistory()
@@ -40,7 +40,9 @@ let Bootstrap = () => {
 
 			<Route path='/auth'>
 				<Container>
-					<Auth />
+					<BoxShadow>
+						<Auth />
+					</BoxShadow>
 				</Container>
 			</Route>
 
