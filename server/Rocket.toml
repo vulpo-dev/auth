@@ -3,3 +3,8 @@ auth = { url = "postgres://postgres:postgres@localhost/auth" }
 
 [global.secrets]
 passphrase = "password"
+
+[database]
+username = "postgres"
+password = "postgres"
+port = 5432

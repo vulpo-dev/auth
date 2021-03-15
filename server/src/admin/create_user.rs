@@ -1,5 +1,5 @@
 use crate::admin::data::{Admin, NewUser};
-use crate::db::AuthDb;
+use crate::db::Db;
 use crate::response::error::ApiError;
 
 use rocket;
@@ -8,12 +8,10 @@ use uuid::Uuid;
 
 #[post("/__/create_user", data = "<body>")]
 pub async fn handler(
-    conn: AuthDb,
+    pool: Db<'_>,
     body: Json<NewUser>,
     _admin: Admin,
 ) -> Result<Json<[Uuid; 1]>, ApiError> {
-    let id = conn
-        .run(|client| Admin::create_user(client, body.into_inner()))
-        .await?;
+    let id = Admin::create_user(pool.inner(), body.into_inner()).await?;
     Ok(Json([id]))
 }

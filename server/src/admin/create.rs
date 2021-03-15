@@ -1,5 +1,5 @@
 use crate::admin::data::{Admin, NewAdmin};
-use crate::db::AuthDb;
+use crate::db::Db;
 use crate::project::Project;
 use crate::response::error::ApiError;
 
@@ -9,31 +9,26 @@ use uuid::Uuid;
 
 #[post("/__/create", data = "<body>")]
 pub async fn handler(
-    conn: AuthDb,
+    pool: Db<'_>,
     body: Json<NewAdmin>,
     project: Project,
     _admin: Admin,
 ) -> Result<Json<[Uuid; 1]>, ApiError> {
-    let id = conn
-        .run(move |client| Admin::create(client, body.into_inner(), project.id))
-        .await?;
-
+    let id = Admin::create(pool.inner(), body.into_inner(), project.id).await?;
     Ok(Json([id]))
 }
 
 #[post("/__/create_once", data = "<body>")]
 pub async fn create_once(
-    conn: AuthDb,
+    pool: Db<'_>,
     body: Json<NewAdmin>,
     project: Project,
 ) -> Result<Json<[Uuid; 1]>, ApiError> {
-    let has_admin = conn.run(|client| Admin::has_admin(client)).await?;
+    let has_admin = Admin::has_admin(pool.inner()).await?;
     if has_admin {
         return Err(ApiError::AdminHasAdmin);
     }
 
-    let id = conn
-        .run(move |client| Admin::create(client, body.into_inner(), project.id))
-        .await?;
+    let id = Admin::create(pool.inner(), body.into_inner(), project.id).await?;
     Ok(Json([id]))
 }

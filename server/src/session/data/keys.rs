@@ -22,7 +22,6 @@ pub struct ProjectKeys {
 pub struct NewProjectKeys {
     pub public_key: String,
     pub private_key: String,
-    pub project_id: Uuid,
     pub expire_at: Option<DateTime<Utc>>,
     pub is_active: bool,
 }
@@ -67,7 +66,6 @@ impl ProjectKeys {
     }
 
     pub fn create_keys(
-        project_id: Uuid,
         is_active: bool,
         expire_at: Option<DateTime<Utc>>,
         passphrase: &str,
@@ -81,7 +79,6 @@ impl ProjectKeys {
             .unwrap();
 
         NewProjectKeys {
-            project_id,
             is_active,
             expire_at,
             public_key: String::from_utf8(public_key).unwrap(),
@@ -89,26 +86,26 @@ impl ProjectKeys {
         }
     }
 
-    pub fn insert<C: GenericClient>(
-        client: &mut C,
-        keys: &NewProjectKeys,
-    ) -> Result<Uuid, ApiError> {
-        let query = get_query("project_keys/create")?;
+    // pub fn insert<C: GenericClient>(
+    //     client: &mut C,
+    //     keys: &NewProjectKeys,
+    // ) -> Result<Uuid, ApiError> {
+    //     let query = get_query("project_keys/create")?;
 
-        let row = client.query_one(
-            query,
-            &[
-                &keys.project_id,
-                &keys.public_key,
-                &keys.private_key,
-                &keys.is_active,
-                &keys.expire_at,
-            ],
-        );
+    //     let row = client.query_one(
+    //         query,
+    //         &[
+    //             &keys.project_id,
+    //             &keys.public_key,
+    //             &keys.private_key,
+    //             &keys.is_active,
+    //             &keys.expire_at,
+    //         ],
+    //     );
 
-        match row {
-            Err(_) => Err(ApiError::InternalServerError),
-            Ok(row) => Ok(row.get("id")),
-        }
-    }
+    //     match row {
+    //         Err(_) => Err(ApiError::InternalServerError),
+    //         Ok(row) => Ok(row.get("id")),
+    //     }
+    // }
 }

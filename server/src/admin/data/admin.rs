@@ -1,22 +1,20 @@
-use crate::db::{get_query, AuthDb};
+use crate::db::AuthDb;
 use crate::project::Project;
 use crate::response::error::ApiError;
 use crate::session::data::AccessToken;
-use crate::session::data::ProjectKeys;
+use crate::session::data::{NewProjectKeys, ProjectKeys};
 use crate::user::data::User;
 
-use bcrypt::{hash, DEFAULT_COST};
 use rocket::http::Status;
 use rocket::request::Outcome;
 use rocket::request::{self, FromRequest, Request};
 
-use rocket_contrib::databases::postgres::error::DbError;
-use rocket_contrib::databases::postgres::error::SqlState;
-use rocket_contrib::databases::postgres::GenericClient;
-
+use bcrypt::{hash, DEFAULT_COST};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use serde_json::value::Value;
+use sqlx::postgres::PgDatabaseError;
+use sqlx::{self, Error, PgPool};
 use uuid::Uuid;
 
 #[derive(Debug, Serialize)]
@@ -52,134 +50,172 @@ pub struct NewUser {
 pub struct Admin(User);
 
 impl Admin {
-    pub fn create<C: GenericClient>(
-        client: &mut C,
-        body: NewAdmin,
-        project: Uuid,
-    ) -> Result<Uuid, ApiError> {
-        let query = get_query("admin/create")?;
-
+    pub async fn create(pool: &PgPool, body: NewAdmin, project: Uuid) -> Result<Uuid, ApiError> {
         let password = match hash(body.password.clone(), DEFAULT_COST) {
             Err(_) => return Err(ApiError::InternalServerError),
             Ok(hashed) => hashed,
         };
 
-        let row = client.query_one(query, &[&body.email, &password, &project]);
-
-        match row {
-            Err(err) => {
-                if let Some(db_error) = err.into_source().unwrap().downcast_ref::<DbError>() {
-                    return match db_error.constraint() {
-                        Some("users_project_id_fkey") => Err(ApiError::ProjectNotFound),
-                        Some("users_project_id_email_key") => Err(ApiError::AdminExists),
-                        _ => Err(ApiError::InternalServerError),
-                    };
+        let row = sqlx::query!(
+            r#"
+            insert into users
+                 ( email
+                 , password
+                 , project_id
+                 , traits
+                 , data
+                 , provider_id
+                 )
+            values
+                 ( $1
+                 , $2
+                 , $3
+                 , '{ "Admin" }'
+                 , '{}'::jsonb
+                 , 'email'
+                 )
+            returning id
+            "#,
+            &body.email,
+            &password,
+            &project
+        )
+        .fetch_one(pool)
+        .await
+        .map_err(|err| match err {
+            Error::Database(err) => {
+                let err = err.downcast::<PgDatabaseError>();
+                match err.constraint() {
+                    Some("users_project_id_fkey") => ApiError::ProjectNotFound,
+                    Some("users_project_id_email_key") => ApiError::AdminExists,
+                    _ => ApiError::InternalServerError,
                 }
-
-                Err(ApiError::InternalServerError)
             }
-            Ok(row) => Ok(row.get("id")),
-        }
+            _ => ApiError::InternalServerError,
+        })?;
+
+        Ok(row.id)
     }
 
-    pub fn has_admin<C: GenericClient>(client: &mut C) -> Result<bool, ApiError> {
-        let query = get_query("admin/has_admin")?;
-        let row = client.query_one(query, &[]);
+    pub async fn has_admin(pool: &PgPool) -> Result<bool, ApiError> {
+        let row = sqlx::query!(
+            r#"
+            select count(*) > 0 as has_admin
+              from projects
+              join users on users.id = projects.id
+             where projects.is_admin = True
+        "#
+        )
+        .fetch_one(pool)
+        .await
+        .map_err(|_| ApiError::InternalServerError)?;
 
-        match row {
-            Ok(result) => Ok(result.get("has_admin")),
-            Err(_) => Err(ApiError::InternalServerError),
-        }
+        row.has_admin.ok_or(ApiError::InternalServerError)
     }
 
-    pub fn create_project<C: GenericClient>(
-        client: &mut C,
-        body: NewProject,
+    pub async fn create_project(
+        pool: &PgPool,
+        body: &NewProject,
+        keys: &NewProjectKeys,
     ) -> Result<Uuid, ApiError> {
-        let query = get_query("project/create")?;
-
-        println!("BODY: {:?}", body);
-        let row = client.query_one(query, &[&body.name, &body.domain]);
-
-        match row {
-            Err(err) => match err.code() {
-                Some(sql_state) => {
-                    if sql_state == &SqlState::UNIQUE_VIOLATION {
-                        return Err(ApiError::ProjectNameExists);
-                    }
-
-                    Err(ApiError::InternalServerError)
-                }
-                None => Err(ApiError::InternalServerError),
-            },
-            Ok(row) => Ok(row.get("id")),
-        }
-    }
-
-    pub fn project_list<C: GenericClient>(client: &mut C) -> Result<Vec<PartialProject>, ApiError> {
-        let query = get_query("project/list")?;
-
-        let rows = client.query(query, &[]);
-
-        match rows {
-            Err(_err) => Err(ApiError::InternalServerError),
-            Ok(rows) => {
-                let projects = rows
-                    .iter()
-                    .map(|row| PartialProject {
-                        id: row.get("id"),
-                        name: row.get("name"),
-                        domain: row.get("domain"),
-                    })
-                    .collect();
-
-                Ok(projects)
-            }
-        }
-    }
-
-    pub fn create_admin_project<C: GenericClient>(
-        client: &mut C,
-        body: NewProject,
-    ) -> Result<Uuid, ApiError> {
-        let query = get_query("admin/create_project")?;
-        let row = client.query_one(query, &[&body.name, &body.domain]);
-
-        match row {
-            Err(err) => match err.code() {
-                Some(sql_state) => {
-                    if sql_state == &SqlState::UNIQUE_VIOLATION {
-                        return Err(ApiError::ProjectNameExists);
-                    }
-
-                    Err(ApiError::InternalServerError)
-                }
-                None => Err(ApiError::InternalServerError),
-            },
-            Ok(row) => Ok(row.get("id")),
-        }
-    }
-
-    pub fn get_project<C: GenericClient>(client: &mut C) -> Result<Option<Uuid>, ApiError> {
-        let query = get_query("admin/has_project")?;
-        let rows = client.query(query, &[]);
-
-        match rows {
-            Ok(result) => {
-                if result.len() == 0 {
-                    Ok(None)
-                } else {
-                    let row = result.get(0).unwrap();
-                    Ok(row.get("id"))
+        let row = sqlx::query!(
+            r#"
+            with created_project as (
+                   insert into projects
+                  default values
+                returning id
+            ), create_project_settings as (
+                insert into project_settings(project_id, name, domain)
+                select created_project.id as "project_id"
+                     , $1 as "name"
+                     , $2 as "domain"
+                  from created_project
+                returning project_id
+            )
+            insert into project_keys(project_id, public_key, private_key, is_active, expire_at)
+            select create_project_settings.project_id
+                 , $3 as "public_key"
+                 , $4 as "private_key"
+                 , $5 as "is_active"
+                 , $6 as "expire_at"
+              from create_project_settings
+            returning project_id as id
+        "#,
+            body.name,
+            body.domain,
+            keys.public_key,
+            keys.private_key,
+            keys.is_active,
+            keys.expire_at,
+        )
+        .fetch_one(pool)
+        .await
+        .map_err(|err| match err {
+            Error::Database(err) => {
+                let err = err.downcast::<PgDatabaseError>();
+                match err.code() {
+                    "23505" => ApiError::ProjectNameExists,
+                    _ => ApiError::InternalServerError,
                 }
             }
-            Err(_) => return Err(ApiError::InternalServerError),
-        }
+            _ => ApiError::InternalServerError,
+        })?;
+
+        Ok(row.id)
     }
 
-    pub fn create_user<C: GenericClient>(client: &mut C, user: NewUser) -> Result<Uuid, ApiError> {
-        let query = get_query("user/create")?;
+    pub async fn project_list(pool: &PgPool) -> Result<Vec<PartialProject>, ApiError> {
+        sqlx::query_as!(
+            PartialProject,
+            r#"
+            select id
+                 , project_settings.name
+                 , project_settings.domain
+              from projects
+              join project_settings on project_settings.project_id = projects.id
+             where is_admin = False
+             order by created_at
+        "#
+        )
+        .fetch_all(pool)
+        .await
+        .map_err(|_| ApiError::InternalServerError)
+    }
 
+    pub async fn set_admin(pool: &PgPool, id: &Uuid) -> Result<(), ApiError> {
+        sqlx::query!(
+            r#"
+            update projects
+               set is_admin = true
+                 , flags = '{ "auth::signin", "method::email_password" }'
+             where id = $1
+        "#,
+            id,
+        )
+        .execute(pool)
+        .await
+        .map_err(|_| ApiError::InternalServerError)?;
+
+        Ok(())
+    }
+
+    pub async fn get_project(pool: &PgPool) -> Result<Option<Uuid>, ApiError> {
+        let rows = sqlx::query!(
+            r#"
+            select id
+              from projects
+             where is_admin = True
+        "#
+        )
+        .fetch_all(pool)
+        .await
+        .map_err(|_err| ApiError::InternalServerError)?;
+
+        let id = rows.get(0).and_then(|row| Some(row.id));
+        Ok(id)
+    }
+
+    pub async fn create_user(pool: &PgPool, user: NewUser) -> Result<Uuid, ApiError> {
         let password = match user.password {
             Some(ref password) => match hash(password.clone(), DEFAULT_COST) {
                 Err(_) => return Err(ApiError::InternalServerError),
@@ -198,35 +234,48 @@ impl Admin {
             None => String::from("email"),
         };
 
-        let row = client.query_one(
-            query,
-            &[
-                &user.email,
-                &password,
-                &user.display_name,
-                &data,
-                &provider,
-                &user.project_id,
-            ],
-        );
-
-        match row {
-            Err(err) => match err.code() {
-                Some(sql_state) => {
-                    if sql_state == &SqlState::UNIQUE_VIOLATION {
-                        return Err(ApiError::UserExists);
-                    }
-
-                    if sql_state == &SqlState::FOREIGN_KEY_VIOLATION {
-                        return Err(ApiError::UserInvalidProject);
-                    }
-
-                    Err(ApiError::InternalServerError)
+        let row = sqlx::query!(
+            r#"
+            insert into users
+                ( email
+                , password
+                , display_name
+                , data
+                , provider_id
+                , project_id
+                )
+            values
+                ( $1
+                , $2
+                , $3
+                , $4::jsonb
+                , $5
+                , $6
+                )
+            returning id
+        "#,
+            user.email,
+            password,
+            user.display_name,
+            data,
+            provider,
+            user.project_id,
+        )
+        .fetch_one(pool)
+        .await
+        .map_err(|err| match err {
+            Error::Database(err) => {
+                let db_err = err.downcast::<PgDatabaseError>();
+                match db_err.code() {
+                    "23505" => ApiError::UserExists,
+                    "23503" => ApiError::UserInvalidProject,
+                    _ => ApiError::InternalServerError,
                 }
-                None => Err(ApiError::InternalServerError),
-            },
-            Ok(row) => Ok(row.get("id")),
-        }
+            }
+            _ => ApiError::InternalServerError,
+        })?;
+
+        Ok(row.id)
     }
 }
 

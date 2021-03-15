@@ -1,4 +1,4 @@
-use crate::config::secrets::Secrets;
+use crate::config::Secrets;
 use crate::db::AuthDb;
 use crate::mail::data::VerifyEmail;
 use crate::mail::Email;

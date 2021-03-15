@@ -1,18 +1,12 @@
+use crate::config::DbConfig;
+
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
 
-use rocket;
-use rocket_contrib::databases::Config;
-
 embed_migrations!();
 
-pub fn establish_connection() -> PgConnection {
-    let rocket = rocket::ignite();
-    let config = Config::from("auth", &rocket).expect("global.databases.auth missing");
-    PgConnection::establish(&config.url).expect(&format!("Error connecting to {}", config.url))
-}
-
-pub fn run() -> std::result::Result<(), diesel_migrations::RunMigrationsError> {
-    let conn = establish_connection();
+pub fn run(config: &DbConfig) -> std::result::Result<(), diesel_migrations::RunMigrationsError> {
+    let url = config.to_string();
+    let conn = PgConnection::establish(&url).expect(&format!("Error connecting to {}", url));
     embedded_migrations::run(&conn)
 }

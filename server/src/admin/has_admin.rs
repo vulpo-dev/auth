@@ -1,5 +1,5 @@
 use crate::admin::data::Admin;
-use crate::db::AuthDb;
+use crate::db::Db;
 use crate::response::error::ApiError;
 
 use rocket_contrib::json::Json;
@@ -11,7 +11,7 @@ pub struct HasAdmin {
 }
 
 #[get("/__/has_admin")]
-pub async fn handler(conn: AuthDb) -> Result<Json<HasAdmin>, ApiError> {
-    let has = conn.run(|client| Admin::has_admin(client)).await?;
+pub async fn handler(pool: Db<'_>) -> Result<Json<HasAdmin>, ApiError> {
+    let has = Admin::has_admin(pool.inner()).await?;
     Ok(Json(HasAdmin { has_admin: has }))
 }

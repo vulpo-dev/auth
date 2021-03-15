@@ -3,6 +3,8 @@ name = "auth_server"
 version = "0.1.0"
 authors = ["Michael Riezler <michael@riezler.co>"]
 edition = "2018"
+repository = "https://github.com/riezler-co/auth/"
+license = "MPL-2.0"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -28,11 +30,23 @@ openssl-sys = "0.9"
 openssl = { version = "0.10" }
 figment = { version = "0.9.4", features= ["env"] }
 
+[dependencies.sqlx]
+version = "0.4.2"
+default-features = false
+features = [
+	"runtime-tokio-rustls",
+	"macros",
+	"postgres",
+	"uuid",
+	"chrono",
+	"migrate",
+	"json"
+]
+
 [dependencies.lettre]
 git = "https://github.com/lettre/lettre"
 branch = "master"
 features = ["tokio02", "tokio02-rustls-tls", "tokio02-native-tls"]
-
 
 [dependencies.rocket_contrib]
 git = "https://github.com/SergioBenitez/Rocket"
