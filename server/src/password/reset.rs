@@ -1,4 +1,4 @@
-use crate::db::AuthDb;
+use crate::db::{AuthDb, Db};
 use crate::mail::Email;
 use crate::password::data::PasswordReset;
 use crate::password::validate_password_length;
@@ -23,6 +23,7 @@ pub struct RequestPasswordReset {
 #[post("/request_password_reset", data = "<body>")]
 pub async fn request_password_reset(
     conn: AuthDb,
+    pool: Db<'_>,
     body: Json<RequestPasswordReset>,
     project: Project,
 ) -> Result<Status, ApiError> {
@@ -43,11 +44,7 @@ pub async fn request_password_reset(
 
     let reset_token = Token::create();
     let hashed_token = Token::hash(&reset_token)?;
-
-    let user_id = user.clone().id;
-    let token_id = conn
-        .run(move |client| PasswordReset::insert(client, &user_id, hashed_token))
-        .await?;
+    let token_id = PasswordReset::insert(pool.inner(), &user.id, hashed_token).await?;
 
     let settings = conn
         .run(move |client| {
@@ -93,6 +90,7 @@ pub struct ResetPassword {
 #[post("/password_reset", data = "<body>")]
 pub async fn password_reset(
     conn: AuthDb,
+    pool: Db<'_>,
     body: Json<ResetPassword>,
     _project: Project,
 ) -> Result<Status, ApiError> {
@@ -102,10 +100,7 @@ pub async fn password_reset(
 
     validate_password_length(&body.password1)?;
 
-    let id = body.id;
-    let reset = conn
-        .run(move |client| PasswordReset::get(client, &id))
-        .await?;
+    let reset = PasswordReset::get(pool.inner(), &body.id).await?;
 
     let is_valid = Token::verify(&body.token, &reset.token)?;
 
@@ -118,14 +113,15 @@ pub async fn password_reset(
         return Err(ApiError::ResetExpired);
     }
 
+    PasswordReset::remove(pool.inner(), &reset.user_id).await?;
+
+    // todo: move "remove password reset token" into "set_password" query
     let password = body.password1.clone();
     conn.run(move |client| {
         let mut trx = match client.transaction() {
             Err(_) => return Err(ApiError::InternalServerError),
             Ok(con) => con,
         };
-
-        PasswordReset::remove(&mut trx, &reset.user_id)?;
         User::set_password(&mut trx, reset.user_id, password)?;
 
         if let Err(_) = trx.commit() {
@@ -147,14 +143,12 @@ pub struct VerifyToken {
 
 #[post("/verify_reset_token", data = "<body>")]
 pub async fn verify_token(
-    conn: AuthDb,
+    pool: Db<'_>,
     body: Json<VerifyToken>,
     _project: Project,
 ) -> Result<Status, ApiError> {
     let id = body.id;
-    let reset = conn
-        .run(move |client| PasswordReset::get(client, &id))
-        .await?;
+    let reset = PasswordReset::get(pool.inner(), &id).await?;
 
     let is_valid = Token::verify(&body.token, &reset.token)?;
 

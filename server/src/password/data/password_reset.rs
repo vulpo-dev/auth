@@ -1,8 +1,7 @@
-use crate::db::get_query;
 use crate::response::error::ApiError;
 
 use chrono::{DateTime, Utc};
-use rocket_contrib::databases::postgres::GenericClient;
+use sqlx::PgPool;
 use uuid::Uuid;
 
 pub struct PasswordReset {
@@ -12,46 +11,61 @@ pub struct PasswordReset {
 }
 
 impl PasswordReset {
-    pub fn insert<C: GenericClient>(
-        client: &mut C,
-        user_id: &Uuid,
-        token: String,
-    ) -> Result<Uuid, ApiError> {
-        let query = get_query("password/insert_password_reset_token")?;
-        let row = client.query_one(query, &[&token, &user_id]);
-        match row {
-            Err(_) => Err(ApiError::InternalServerError),
-            Ok(row) => Ok(row.get("id")),
-        }
+    pub async fn insert(pool: &PgPool, user_id: &Uuid, token: String) -> Result<Uuid, ApiError> {
+        sqlx::query!(
+            r#"
+            insert into password_change_requests (token, user_id)
+            values ($1, $2)
+            returning id
+        "#,
+            token,
+            user_id
+        )
+        .fetch_one(pool)
+        .await
+        .map(|row| row.id)
+        .map_err(|_| ApiError::InternalServerError)
     }
 
-    pub fn get<C: GenericClient>(client: &mut C, id: &Uuid) -> Result<PasswordReset, ApiError> {
-        let query = get_query("password/get_reset_password_token")?;
-        let row = client.query(query, &[&id]);
-        match row {
-            Err(_) => Err(ApiError::InternalServerError),
-            Ok(entries) => {
-                if entries.len() == 0 {
-                    return Err(ApiError::ResetTokenNotFound);
-                }
+    pub async fn get(pool: &PgPool, id: &Uuid) -> Result<PasswordReset, ApiError> {
+        let rows = sqlx::query!(
+            r#"
+            select token, user_id, created_at
+              from password_change_requests
+             where id = $1
+        "#,
+            id
+        )
+        .fetch_all(pool)
+        .await
+        .map_err(|_| ApiError::InternalServerError)?;
 
-                let row = entries.get(0).unwrap();
-                let entry = PasswordReset {
-                    token: row.get("token"),
-                    user_id: row.get("user_id"),
-                    created_at: row.get("created_at"),
-                };
-
-                Ok(entry)
-            }
+        if rows.len() == 0 {
+            return Err(ApiError::ResetTokenNotFound);
         }
+
+        let row = rows.get(0).unwrap();
+        let entry = PasswordReset {
+            token: row.token.clone(),
+            user_id: row.user_id,
+            created_at: row.created_at,
+        };
+
+        Ok(entry)
     }
 
-    pub fn remove<C: GenericClient>(client: &mut C, user_id: &Uuid) -> Result<(), ApiError> {
-        let query = get_query("password/remove_password_reset_tokens")?;
-        match client.query(query, &[&user_id]) {
-            Err(_) => Err(ApiError::InternalServerError),
-            Ok(_) => Ok(()),
-        }
+    pub async fn remove(pool: &PgPool, user_id: &Uuid) -> Result<(), ApiError> {
+        sqlx::query!(
+            r#"
+            delete from password_change_requests
+             where user_id = $1
+        "#,
+            user_id
+        )
+        .execute(pool)
+        .await
+        .map_err(|_| ApiError::InternalServerError)?;
+
+        Ok(())
     }
 }
