@@ -1,5 +1,5 @@
 use crate::config::Secrets;
-use crate::db::AuthDb;
+use crate::db::{AuthDb, Db};
 use crate::passwordless::data::Passwordless;
 use crate::response::error::ApiError;
 use crate::response::SessionResponse;
@@ -23,14 +23,11 @@ pub struct Veriy {
 #[post("/verify", data = "<body>")]
 pub async fn handler(
     conn: AuthDb,
+    pool: Db<'_>,
     body: Json<Veriy>,
     secrets: State<'_, Secrets>,
 ) -> Result<SessionResponse, ApiError> {
-    let id = body.id.clone();
-
-    let token = conn
-        .run(move |client| Passwordless::get(client, &id))
-        .await?;
+    let token = Passwordless::get(pool.inner(), &body.id).await?;
 
     if token.confirmed == false {
         return Err(ApiError::PasswordlessAwaitConfirm);
@@ -45,10 +42,7 @@ pub async fn handler(
         return Err(ApiError::PasswordlessTokenExpire);
     }
 
-    let email = token.email.clone();
-    let project_id = token.project_id.clone();
-    conn.run(move |client| Passwordless::remove_all(client, &email, &project_id))
-        .await?;
+    Passwordless::remove_all(pool.inner(), &token.email, &token.project_id).await?;
 
     let session_id = body.session.clone();
     let current_session = conn

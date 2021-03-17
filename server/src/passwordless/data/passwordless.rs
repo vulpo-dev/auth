@@ -1,9 +1,8 @@
-use crate::db::get_query;
 use crate::response::error::ApiError;
 
 use bcrypt;
 use chrono::{DateTime, Utc};
-use rocket_contrib::databases::postgres::GenericClient;
+use sqlx::PgPool;
 use uuid::Uuid;
 
 #[derive(Debug)]
@@ -19,74 +18,99 @@ pub struct Passwordless {
 }
 
 impl Passwordless {
-    pub fn create_token<C: GenericClient>(
-        client: &mut C,
+    pub async fn create_token(
+        pool: &PgPool,
         id: Option<Uuid>,
         email: &str,
         verification_token: &str,
         project: &Uuid,
         session_id: &Uuid,
     ) -> Result<Uuid, ApiError> {
-        let query = get_query("passwordless/create")?;
-        let row = client.query_one(
-            query,
-            &[&id, &email, &verification_token, &project, &session_id],
-        );
+        sqlx::query!(
+            r#"
+            insert into passwordless (user_id, email, token, project_id, session_id)
+            values ($1, $2, $3, $4, $5)
+            returning id
+        "#,
+            id,
+            email,
+            verification_token,
+            project,
+            session_id
+        )
+        .fetch_one(pool)
+        .await
+        .map(|row| row.id)
+        .map_err(|_| ApiError::InternalServerError)
+    }
+
+    pub async fn get(pool: &PgPool, id: &Uuid) -> Result<Passwordless, ApiError> {
+        let row = sqlx::query_as!(
+            Passwordless,
+            r#"
+            select id
+                 , created_at
+                 , user_id
+                 , email
+                 , token
+                 , is_valid
+                 , project_id
+                 , confirmed
+              from passwordless
+             where id = $1
+        "#,
+            id
+        )
+        .fetch_optional(pool)
+        .await
+        .map_err(|_| ApiError::InternalServerError)?;
 
         match row {
-            Err(err) => {
-                println!("{:?}", err);
-                Err(ApiError::InternalServerError)
-            }
-            Ok(result) => Ok(result.get("id")),
+            None => Err(ApiError::NotFound),
+            Some(row) => Ok(row),
         }
     }
 
-    pub fn get<C: GenericClient>(client: &mut C, id: &Uuid) -> Result<Passwordless, ApiError> {
-        let query = get_query("passwordless/get")?;
-        let rows = match client.query(query, &[&id]) {
-            Err(err) => {
-                println!("{:?}", err);
-                return Err(ApiError::InternalServerError);
-            }
-            Ok(rows) => rows,
-        };
+    pub async fn confirm(pool: &PgPool, id: &Uuid) -> Result<(), ApiError> {
+        sqlx::query!(
+            r#"
+            with confirm_token as (
+                update passwordless
+                   set confirmed = True
+                 where id = $1
+             returning email, project_id, id
+            )
+            update passwordless
+               set is_valid = False
+              from confirm_token
+             where passwordless.email = confirm_token.email
+               and passwordless.project_id = confirm_token.project_id
+               and passwordless.id != confirm_token.id
+        "#,
+            id
+        )
+        .execute(pool)
+        .await
+        .map_err(|_| ApiError::InternalServerError)?;
 
-        let row = match rows.get(0) {
-            None => return Err(ApiError::NotFound),
-            Some(row) => row,
-        };
-
-        Ok(Passwordless {
-            id: row.get("id"),
-            created_at: row.get("created_at"),
-            user_id: row.get("user_id"),
-            email: row.get("email"),
-            token: row.get("token"),
-            is_valid: row.get("is_valid"),
-            project_id: row.get("project_id"),
-            confirmed: row.get("confirmed"),
-        })
+        Ok(())
     }
 
-    pub fn confirm<C: GenericClient>(client: &mut C, id: &Uuid) -> Result<(), ApiError> {
-        let query = get_query("passwordless/confirm")?;
-        match client.query(query, &[&id]) {
-            Err(_) => Err(ApiError::InternalServerError),
-            Ok(_) => Ok(()),
-        }
-    }
+    pub async fn remove_all(pool: &PgPool, email: &str, project: &Uuid) -> Result<(), ApiError> {
+        sqlx::query!(
+            r#"
+            delete from passwordless
+             where email = $1
+               and project_id = $2
+        "#,
+            email,
+            project
+        )
+        .execute(pool)
+        .await
+        .map_err(|_| ApiError::InternalServerError)?;
 
-    pub fn remove_all<C: GenericClient>(
-        client: &mut C,
-        email: &str,
-        project: &Uuid,
-    ) -> Result<(), ApiError> {
-        let query = get_query("passwordless/delete_from_user")?;
-        match client.query(query, &[&email, &project]) {
-            Err(_) => Err(ApiError::InternalServerError),
-            Ok(_) => Ok(()),
-        }
+        Ok(())
     }
 
     pub fn compare(&self, token: &str) -> bool {

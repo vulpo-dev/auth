@@ -1,4 +1,4 @@
-use crate::db::AuthDb;
+use crate::db::Db;
 use crate::passwordless::data::Passwordless;
 use crate::response::error::ApiError;
 
@@ -15,11 +15,8 @@ pub struct ConfirmPasswordless {
 }
 
 #[post("/confirm", data = "<body>")]
-pub async fn handler(conn: AuthDb, body: Json<ConfirmPasswordless>) -> Result<Status, ApiError> {
-    let id = body.id.clone();
-    let token = conn
-        .run(move |client| Passwordless::get(client, &id))
-        .await?;
+pub async fn handler(pool: Db<'_>, body: Json<ConfirmPasswordless>) -> Result<Status, ApiError> {
+    let token = Passwordless::get(pool.inner(), &body.id).await?;
 
     if token.is_valid == false {
         return Err(ApiError::PasswordlessInvalidToken);
@@ -34,8 +31,7 @@ pub async fn handler(conn: AuthDb, body: Json<ConfirmPasswordless>) -> Result<St
         return Err(ApiError::PasswordlessTokenExpire);
     }
 
-    conn.run(move |client| Passwordless::confirm(client, &token.id))
-        .await?;
+    Passwordless::confirm(pool.inner(), &token.id).await?;
 
     Ok(Status::Ok)
 }

@@ -51,7 +51,7 @@ pub struct Admin(User);
 
 impl Admin {
     pub async fn create(pool: &PgPool, body: NewAdmin, project: Uuid) -> Result<Uuid, ApiError> {
-        let password = match hash(body.password.clone(), DEFAULT_COST) {
+        let password = match hash(body.password, DEFAULT_COST) {
             Err(_) => return Err(ApiError::InternalServerError),
             Ok(hashed) => hashed,
         };

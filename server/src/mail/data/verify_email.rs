@@ -28,7 +28,8 @@ impl VerifyEmail {
     }
 
     pub async fn get(pool: &PgPool, id: &Uuid) -> Result<VerifyEmail, ApiError> {
-        let rows = sqlx::query!(
+        let row = sqlx::query_as!(
+            VerifyEmail,
             r#"
             select token, user_id, created_at
               from verify_email
@@ -36,19 +37,13 @@ impl VerifyEmail {
         "#,
             id
         )
-        .fetch_all(pool)
+        .fetch_optional(pool)
         .await
         .map_err(|_| ApiError::InternalServerError)?;
 
-        if rows.len() == 0 {
-            Err(ApiError::TokenNotFound)
-        } else {
-            let row = rows.get(0).unwrap();
-            Ok(VerifyEmail {
-                token: row.token.clone(),
-                user_id: row.user_id,
-                created_at: row.created_at,
-            })
+        match row {
+            None => Err(ApiError::TokenNotFound),
+            Some(entry) => Ok(entry),
         }
     }
 

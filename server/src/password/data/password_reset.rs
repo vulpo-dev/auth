@@ -28,7 +28,8 @@ impl PasswordReset {
     }
 
     pub async fn get(pool: &PgPool, id: &Uuid) -> Result<PasswordReset, ApiError> {
-        let rows = sqlx::query!(
+        let row = sqlx::query_as!(
+            PasswordReset,
             r#"
             select token, user_id, created_at
               from password_change_requests
@@ -36,22 +37,14 @@ impl PasswordReset {
         "#,
             id
         )
-        .fetch_all(pool)
+        .fetch_optional(pool)
         .await
         .map_err(|_| ApiError::InternalServerError)?;
 
-        if rows.len() == 0 {
-            return Err(ApiError::ResetTokenNotFound);
+        match row {
+            None => Err(ApiError::ResetTokenNotFound),
+            Some(entry) => Ok(entry),
         }
-
-        let row = rows.get(0).unwrap();
-        let entry = PasswordReset {
-            token: row.token.clone(),
-            user_id: row.user_id,
-            created_at: row.created_at,
-        };
-
-        Ok(entry)
     }
 
     pub async fn remove(pool: &PgPool, user_id: &Uuid) -> Result<(), ApiError> {
