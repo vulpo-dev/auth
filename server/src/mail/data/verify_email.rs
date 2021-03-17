@@ -1,8 +1,7 @@
-use crate::db::get_query;
 use crate::response::error::ApiError;
 
 use chrono::{DateTime, Utc};
-use rocket_contrib::databases::postgres::GenericClient;
+use sqlx::PgPool;
 use uuid::Uuid;
 
 pub struct VerifyEmail {
@@ -12,60 +11,82 @@ pub struct VerifyEmail {
 }
 
 impl VerifyEmail {
-    pub fn insert<C: GenericClient>(
-        client: &mut C,
-        user_id: &Uuid,
-        token: String,
-    ) -> Result<Uuid, ApiError> {
-        let query = get_query("verify_email/insert_token")?;
-        let row = client.query_one(query, &[&token, &user_id]);
-        match row {
-            Err(_) => Err(ApiError::InternalServerError),
-            Ok(row) => Ok(row.get("id")),
+    pub async fn insert(pool: &PgPool, user_id: &Uuid, token: String) -> Result<Uuid, ApiError> {
+        sqlx::query!(
+            r#"
+            insert into verify_email (token, user_id)
+            values ($1, $2)
+            returning id
+        "#,
+            token,
+            user_id
+        )
+        .fetch_one(pool)
+        .await
+        .map(|row| row.id)
+        .map_err(|_| ApiError::InternalServerError)
+    }
+
+    pub async fn get(pool: &PgPool, id: &Uuid) -> Result<VerifyEmail, ApiError> {
+        let rows = sqlx::query!(
+            r#"
+            select token, user_id, created_at
+              from verify_email
+             where id = $1
+        "#,
+            id
+        )
+        .fetch_all(pool)
+        .await
+        .map_err(|_| ApiError::InternalServerError)?;
+
+        if rows.len() == 0 {
+            Err(ApiError::TokenNotFound)
+        } else {
+            let row = rows.get(0).unwrap();
+            Ok(VerifyEmail {
+                token: row.token.clone(),
+                user_id: row.user_id,
+                created_at: row.created_at,
+            })
         }
     }
 
-    pub fn get<C: GenericClient>(client: &mut C, id: &Uuid) -> Result<VerifyEmail, ApiError> {
-        let query = get_query("verify_email/get_token")?;
-        let row = client.query(query, &[&id]);
-        match row {
-            Err(_) => Err(ApiError::InternalServerError),
-            Ok(entries) => {
-                if entries.len() == 0 {
-                    return Err(ApiError::TokenNotFound);
-                }
+    pub async fn verify(pool: &PgPool, user_id: &Uuid) -> Result<(), ApiError> {
+        sqlx::query!(
+            r#"
+            with delete_token as (
+                delete from verify_email
+                 where user_id = $1
+                 returning user_id
+            )
+            update users
+               set email_verified = true
+              from delete_token
+             where id = delete_token.user_id
+        "#,
+            user_id
+        )
+        .execute(pool)
+        .await
+        .map_err(|_| ApiError::InternalServerError)?;
 
-                let row = entries.get(0).unwrap();
-                let entry = VerifyEmail {
-                    token: row.get("token"),
-                    user_id: row.get("user_id"),
-                    created_at: row.get("created_at"),
-                };
-
-                Ok(entry)
-            }
-        }
+        Ok(())
     }
 
-    pub fn verify<C: GenericClient>(client: &mut C, user_id: &Uuid) -> Result<(), ApiError> {
-        let query = get_query("verify_email/verify")?;
-        match client.query(query, &[&user_id]) {
-            Err(err) => {
-                println!("{:?}", err);
-                Err(ApiError::InternalServerError)
-            }
-            Ok(_) => Ok(()),
-        }
-    }
-
-    pub fn unverify<C: GenericClient>(client: &mut C, user_id: &Uuid) -> Result<String, ApiError> {
-        let query = get_query("verify_email/unverify")?;
-        match client.query_one(query, &[&user_id]) {
-            Err(err) => {
-                println!("{:?}", err);
-                Err(ApiError::InternalServerError)
-            }
-            Ok(row) => Ok(row.get("email")),
-        }
+    pub async fn unverify(pool: &PgPool, user_id: &Uuid) -> Result<String, ApiError> {
+        sqlx::query!(
+            r#"
+            update users
+               set email_verified = false
+             where id = $1
+            returning users.email
+        "#,
+            user_id
+        )
+        .fetch_one(pool)
+        .await
+        .map(|row| row.email)
+        .map_err(|_| ApiError::InternalServerError)
     }
 }
