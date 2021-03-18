@@ -4,7 +4,7 @@ mod template;
 pub use config::{DefaultRedirect, DefaultSubject};
 
 use crate::admin::data::Admin;
-use crate::db::AuthDb;
+use crate::db::Db;
 use crate::response::error::ApiError;
 pub use template::{Template, TemplateCtx};
 pub use template::{TemplateResponse, Templates};
@@ -15,16 +15,13 @@ use rocket_contrib::uuid::Uuid as RUuid;
 
 #[get("/?<project>&<template>")]
 async fn get_template(
-    conn: AuthDb,
+    pool: Db<'_>,
     project: RUuid,
     template: Templates,
     _admin: Admin,
 ) -> Result<Json<TemplateResponse>, ApiError> {
     let project_id = project.into_inner();
-    let entry = conn
-        .run(move |client| Template::from_project(client, project_id, template))
-        .await?;
-
+    let entry = Template::from_project(pool.inner(), project_id, template).await?;
     let result = match entry {
         None => {
             let body = Template::get_body(template);
@@ -47,7 +44,7 @@ async fn get_template(
 
 #[post("/", data = "<body>")]
 async fn set_template(
-    conn: AuthDb,
+    pool: Db<'_>,
     body: Json<TemplateResponse>,
     _admin: Admin,
 ) -> Result<(), ApiError> {
@@ -59,8 +56,7 @@ async fn set_template(
         ..body
     };
 
-    conn.run(move |client| Template::set_template(client, &template))
-        .await?;
+    Template::set_template(pool.inner(), &template).await?;
 
     Ok(())
 }

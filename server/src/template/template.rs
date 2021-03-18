@@ -1,13 +1,12 @@
-use crate::db::get_query;
 use crate::response::error::ApiError;
 use crate::user::data::User;
 use crate::TEMPLATE;
 
 use handlebars::Handlebars;
 use rocket::FromFormValue;
-use rocket_contrib::databases::postgres::GenericClient;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
+use sqlx::PgPool;
 use uuid::Uuid;
 
 pub struct RenderError;
@@ -139,59 +138,76 @@ impl Template {
         handlebars
     }
 
-    pub fn from_project<C: GenericClient>(
-        client: &mut C,
+    pub async fn from_project(
+        pool: &PgPool,
         project: Uuid,
         template: Templates,
     ) -> Result<Option<TemplateResponse>, ApiError> {
-        let query = get_query("template/from_project")?;
         let template = template.to_string();
-        let rows = client.query(query, &[&project, &template]);
-        match rows {
-            Err(err) => {
-                println!("{:?}", err);
-                Err(ApiError::InternalServerError)
+        let row = sqlx::query!(
+            r#"
+                select from_name
+                     , subject
+                     , body
+                     , redirect_to
+                     , of_type
+                     , project_id
+                     , false as is_default
+                     , language
+                  from templates
+                 where project_id = $1
+                   and of_type = $2
+            "#,
+            project,
+            template
+        )
+        .fetch_optional(pool)
+        .await
+        .map_err(|_| ApiError::InternalServerError)?;
+
+        let template = row.map(|template| {
+            let of_type = Templates::from_string(&template.of_type).unwrap();
+            TemplateResponse {
+                from_name: template.from_name,
+                subject: template.subject,
+                body: template.body,
+                redirect_to: template.redirect_to,
+                of_type,
+                project_id: template.project_id,
+                is_default: template.is_default.unwrap(),
+                language: template.language,
             }
-            Ok(rows) => Ok(rows.get(0).map(|row| {
-                let of_type = Templates::from_string(row.get("of_type")).unwrap();
-                TemplateResponse {
-                    from_name: row.get("from_name"),
-                    subject: row.get("subject"),
-                    body: row.get("body"),
-                    redirect_to: row.get("redirect_to"),
-                    of_type,
-                    project_id: row.get("project_id"),
-                    is_default: row.get("is_default"),
-                    language: row.get("language"),
-                }
-            })),
-        }
+        });
+
+        Ok(template)
     }
 
-    pub fn set_template<C: GenericClient>(
-        client: &mut C,
-        template: &TemplateResponse,
-    ) -> Result<(), ApiError> {
-        let query = get_query("template/set_template")?;
-        match client.query(
-            query,
-            &[
-                &template.from_name,
-                &template.subject,
-                &template.body,
-                &template.redirect_to,
-                &template.of_type.to_string(),
-                &template.project_id,
-                &template.language,
-            ],
-        ) {
-            Err(err) => {
-                println!("{:?}", err);
-                Err(ApiError::InternalServerError)
-            }
+    pub async fn set_template(pool: &PgPool, template: &TemplateResponse) -> Result<(), ApiError> {
+        sqlx::query!(
+            r#"
+                insert into templates(from_name, subject, body, redirect_to, of_type, project_id, language)
+                values ($1, $2, $3, $4, $5, $6, $7)
+                on conflict (project_id, of_type)
+                  do update
+                        set from_name = $1
+                          , subject = $2
+                          , body = $3
+                          , redirect_to = $4
+                          , language = $7
+            "#,
+            template.from_name,
+            template.subject,
+            template.body,
+            template.redirect_to,
+            template.of_type.to_string(),
+            template.project_id,
+            template.language,
+        )
+        .execute(pool)
+        .await
+        .map_err(|_| ApiError::InternalServerError)?;
 
-            Ok(_) => Ok(()),
-        }
+        Ok(())
     }
 
     pub fn get_body(template: Templates) -> &'static str {

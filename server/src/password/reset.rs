@@ -1,4 +1,4 @@
-use crate::db::{AuthDb, Db};
+use crate::db::Db;
 use crate::mail::Email;
 use crate::password::data::PasswordReset;
 use crate::password::validate_password_length;
@@ -22,15 +22,12 @@ pub struct RequestPasswordReset {
 
 #[post("/request_password_reset", data = "<body>")]
 pub async fn request_password_reset(
-    conn: AuthDb,
     pool: Db<'_>,
     body: Json<RequestPasswordReset>,
     project: Project,
 ) -> Result<Status, ApiError> {
-    let email = body.email.clone().trim().to_lowercase();
-    let row = conn
-        .run(move |client| User::get_by_email(client, &email, project.id))
-        .await;
+    let to_email = body.email.trim().to_lowercase();
+    let row = User::get_by_email(pool.inner(), &to_email, project.id).await;
 
     let user = match row {
         Err(_) => return Ok(Status::Ok),
@@ -67,7 +64,7 @@ pub async fn request_password_reset(
     };
 
     let email = Email {
-        to_email: body.email.clone(),
+        to_email,
         subject: settings.subject,
         content,
     };
@@ -87,7 +84,6 @@ pub struct ResetPassword {
 
 #[post("/password_reset", data = "<body>")]
 pub async fn password_reset(
-    conn: AuthDb,
     pool: Db<'_>,
     body: Json<ResetPassword>,
     _project: Project,
@@ -111,24 +107,9 @@ pub async fn password_reset(
         return Err(ApiError::ResetExpired);
     }
 
-    PasswordReset::remove(pool.inner(), &reset.user_id).await?;
-
     // todo: move "remove password reset token" into "set_password" query
-    let password = body.password1.clone();
-    conn.run(move |client| {
-        let mut trx = match client.transaction() {
-            Err(_) => return Err(ApiError::InternalServerError),
-            Ok(con) => con,
-        };
-        User::set_password(&mut trx, reset.user_id, password)?;
-
-        if let Err(_) = trx.commit() {
-            return Err(ApiError::InternalServerError);
-        }
-
-        Ok(())
-    })
-    .await?;
+    PasswordReset::remove(pool.inner(), &reset.user_id).await?;
+    User::set_password(pool.inner(), &reset.user_id, &body.password1).await?;
 
     Ok(Status::Ok)
 }

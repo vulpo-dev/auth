@@ -1,5 +1,5 @@
 use crate::config::Secrets;
-use crate::db::{AuthDb, Db};
+use crate::db::Db;
 use crate::project::Project;
 use crate::response::error::ApiError;
 use crate::session::data::AccessToken;
@@ -17,7 +17,6 @@ use rocket_contrib::uuid::Uuid;
 
 #[post("/refresh/<session_id>", data = "<rat>")]
 pub async fn handler(
-    conn: AuthDb,
     pool: Db<'_>,
     project: Project,
     session_id: Uuid,
@@ -45,10 +44,7 @@ pub async fn handler(
         Some(id) => id,
     };
 
-    let uid = user_id.clone();
-    let user = conn
-        .run(move |client| User::get_by_id(client, uid, project.id))
-        .await?;
+    let user = User::get_by_id(pool.inner(), &user_id, &project.id).await?;
 
     let exp = Utc::now() + Duration::minutes(15);
     let access_token = AccessToken::new(&user, exp);

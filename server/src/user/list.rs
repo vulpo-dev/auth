@@ -1,5 +1,5 @@
 use crate::admin::data::Admin;
-use crate::db::AuthDb;
+use crate::db::Db;
 use crate::response::error::ApiError;
 use crate::user::data::{PartialUser, SortDirection, TotalUsers, User, UserOrder};
 use rocket_contrib::uuid::Uuid;
@@ -11,7 +11,7 @@ use std::str::FromStr;
 
 #[get("/list?<project>&<order_by>&<sort>&<offset>&<limit>")]
 pub async fn handler(
-    conn: AuthDb,
+    pool: Db<'_>,
     project: Uuid,
     order_by: &RawStr,
     sort: &RawStr,
@@ -39,12 +39,8 @@ pub async fn handler(
         Ok(sort) => sort,
     };
 
-    let users = conn
-        .run(move |client| User::list(client, &project, &order_by, direction, offset, limit))
-        .await?;
-
+    let users = User::list(pool.inner(), &project, &order_by, direction, offset, limit).await?;
     let result = Response { items: users };
-
     Ok(Json(result))
 }
 
@@ -54,9 +50,7 @@ pub struct Response {
 }
 
 #[get("/total?<project>")]
-pub async fn total(conn: AuthDb, project: Uuid) -> Result<Json<TotalUsers>, ApiError> {
-    let result = conn
-        .run(move |client| User::total(client, &project))
-        .await?;
+pub async fn total(pool: Db<'_>, project: Uuid) -> Result<Json<TotalUsers>, ApiError> {
+    let result = User::total(pool.inner(), &project).await?;
     Ok(Json(result))
 }

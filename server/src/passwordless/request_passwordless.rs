@@ -1,4 +1,4 @@
-use crate::db::{AuthDb, Db};
+use crate::db::Db;
 use crate::mail::Email;
 use crate::passwordless::data::Passwordless;
 use crate::project::data::Flags;
@@ -30,7 +30,6 @@ pub struct PasswordlessResponse {
 
 #[post("/", data = "<body>")]
 pub async fn request_passwordless(
-    conn: AuthDb,
     pool: Db<'_>,
     project: Project,
     body: Json<RequestPasswordless>,
@@ -39,10 +38,7 @@ pub async fn request_passwordless(
 
     let body_email = body.email.trim().to_lowercase();
 
-    let email = body_email.clone();
-    let user = conn
-        .run(move |client| User::get_by_email(client, &email, project.id))
-        .await?;
+    let user = User::get_by_email(pool.inner(), &body_email, project.id).await?;
 
     if user.clone().map_or(false, |u| u.disabled) {
         return Err(ApiError::UserDisabled);
@@ -62,15 +58,13 @@ pub async fn request_passwordless(
     let verification_token = Token::create();
     let hashed_token = Token::hash(&verification_token)?;
 
-    let email = body_email.clone();
-    let session_id = body.session.clone();
     let id = Passwordless::create_token(
         pool.inner(),
         user_id,
-        &email,
+        &body_email,
         &hashed_token,
         &project.id,
-        &session_id,
+        &body.session,
     )
     .await?;
 

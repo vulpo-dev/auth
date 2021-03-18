@@ -1,5 +1,5 @@
 use crate::config::Secrets;
-use crate::db::{AuthDb, Db};
+use crate::db::Db;
 use crate::passwordless::data::Passwordless;
 use crate::response::error::ApiError;
 use crate::response::SessionResponse;
@@ -22,7 +22,6 @@ pub struct Veriy {
 
 #[post("/verify", data = "<body>")]
 pub async fn handler(
-    conn: AuthDb,
     pool: Db<'_>,
     body: Json<Veriy>,
     secrets: State<'_, Secrets>,
@@ -57,14 +56,10 @@ pub async fn handler(
         return Err(ApiError::Forbidden);
     }
 
-    let project_id = token.project_id.clone();
     let user = if let Some(user_id) = token.user_id {
-        conn.run(move |client| User::get_by_id(client, user_id, project_id))
-            .await?
+        User::get_by_id(pool.inner(), &user_id, &token.project_id).await?
     } else {
-        let user_email = token.email.clone();
-        conn.run(move |client| User::create_passwordless(client, &user_email, &project_id))
-            .await?
+        User::create_passwordless(pool.inner(), &token.email, &token.project_id).await?
     };
 
     let expire_at = Utc::now() + Duration::days(30);

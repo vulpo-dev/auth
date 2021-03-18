@@ -1,5 +1,5 @@
 use crate::admin::data::Admin;
-use crate::db::AuthDb;
+use crate::db::Db;
 use crate::response::error::ApiError;
 use crate::user::data::User;
 
@@ -10,19 +10,18 @@ use uuid;
 
 #[post("/delete_account/<user_id>")]
 pub async fn admin_delete_account(
-    conn: AuthDb,
+    pool: Db<'_>,
     user_id: Uuid,
     _admin: Admin,
 ) -> Result<(), ApiError> {
     let user_id = user_id.into_inner();
-    conn.run(move |client| User::remove(client, &user_id))
-        .await?;
-
+    User::remove(pool.inner(), &user_id).await?;
     Ok(())
 }
 
+// todo: authenticate caller
 #[post("/delete_account")]
-pub async fn delete_account(conn: AuthDb, cookies: &CookieJar<'_>) -> Result<(), ApiError> {
+pub async fn delete_account(pool: Db<'_>, cookies: &CookieJar<'_>) -> Result<(), ApiError> {
     let cookie = match cookies.get("refresh_token") {
         Some(token) => token,
         None => return Err(ApiError::AuthRefreshTokenMissing),
@@ -33,8 +32,7 @@ pub async fn delete_account(conn: AuthDb, cookies: &CookieJar<'_>) -> Result<(),
         Ok(id) => id,
     };
 
-    conn.run(move |client| User::remove_by_token(client, &id))
-        .await?;
+    User::remove_by_token(pool.inner(), &id).await?;
 
     Ok(())
 }

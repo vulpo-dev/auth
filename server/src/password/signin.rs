@@ -1,5 +1,5 @@
 use crate::config::Secrets;
-use crate::db::{AuthDb, Db};
+use crate::db::Db;
 use crate::project::data::Flags;
 use crate::project::Project;
 use crate::response::error::ApiError;
@@ -26,7 +26,6 @@ pub struct SignIn {
 
 #[post("/sign_in", data = "<body>")]
 pub async fn sign_in(
-    conn: AuthDb,
     pool: Db<'_>,
     body: Json<SignIn>,
     project: Project,
@@ -40,9 +39,7 @@ pub async fn sign_in(
     .await?;
 
     let email = body.email.trim().to_lowercase();
-    let user = conn
-        .run(move |client| User::password(client, email, project.id))
-        .await?;
+    let user = User::password(pool.inner(), email, project.id).await?;
 
     if user.disabled {
         return Err(ApiError::UserDisabled);

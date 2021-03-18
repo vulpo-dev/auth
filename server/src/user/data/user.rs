@@ -1,13 +1,10 @@
-use crate::db::get_query;
 use crate::response::error::ApiError;
 
 use bcrypt::{hash, DEFAULT_COST};
 use chrono::{DateTime, Utc};
-use rocket_contrib::databases::postgres::error::DbError;
-use rocket_contrib::databases::postgres::GenericClient;
-use rocket_contrib::databases::postgres::Row;
 use serde::{Deserialize, Serialize};
 use serde_json::value::Value;
+use sqlx::{postgres::PgDatabaseError, Error, PgPool};
 use std::str::FromStr;
 use uuid::Uuid;
 
@@ -29,256 +26,429 @@ pub struct User {
 }
 
 impl User {
-    fn from_row(row: &Row) -> User {
-        let password: Option<String> = match row.try_get("password") {
-            Ok(password) => Some(password),
-            Err(_) => None,
-        };
-
-        User {
-            id: row.get("id"),
-            password,
-            display_name: row.get("display_name"),
-            email: row.get("email"),
-            email_verified: row.get("email_verified"),
-            photo_url: row.get("photo_url"),
-            traits: row.get("traits"),
-            data: row.get("data"),
-            provider_id: row.get("provider_id"),
-            created_at: row.get("created_at"),
-            updated_at: row.get("updated_at"),
-            disabled: row.get("disabled"),
-        }
-    }
-
-    pub fn get_by_email<C: GenericClient>(
-        client: &mut C,
+    pub async fn get_by_email(
+        pool: &PgPool,
         email: &str,
         project: Uuid,
     ) -> Result<Option<User>, ApiError> {
-        let query = get_query("user/get_by_email")?;
-        let rows = match client.query(query, &[&email, &project]) {
-            Err(_) => return Err(ApiError::InternalServerError),
-            Ok(rows) => rows,
-        };
+        let row = sqlx::query!(
+            r#"
+                select id
+                     , display_name
+                     , email
+                     , email_verified
+                     , photo_url
+                     , traits
+                     , data
+                     , provider_id
+                     , created_at
+                     , updated_at
+                     , disabled
+                  from users
+                 where email = $1
+                   and project_id = $2
+            "#,
+            email,
+            project,
+        )
+        .fetch_optional(pool)
+        .await
+        .map_err(|_| ApiError::InternalServerError)?;
 
-        match rows.get(0) {
-            None => Ok(None),
-            Some(row) => Ok(Some(User::from_row(row))),
-        }
+        let user = row.map(|u| User {
+            id: u.id,
+            password: None,
+            display_name: u.display_name,
+            email: u.email,
+            email_verified: u.email_verified,
+            photo_url: u.photo_url,
+            traits: u.traits,
+            data: u.data,
+            provider_id: u.provider_id,
+            created_at: u.created_at,
+            updated_at: u.updated_at,
+            disabled: u.disabled,
+        });
+
+        Ok(user)
     }
 
-    pub fn get_by_id<C: GenericClient>(
-        client: &mut C,
-        id: Uuid,
-        project: Uuid,
-    ) -> Result<User, ApiError> {
-        let query = get_query("user/get_by_id")?;
-        let row = client.query_one(query, &[&id, &project]);
+    pub async fn get_by_id(pool: &PgPool, id: &Uuid, project: &Uuid) -> Result<User, ApiError> {
+        let row = sqlx::query!(
+            r#"
+             select id
+                 , display_name
+                 , email
+                 , email_verified
+                 , photo_url
+                 , traits
+                 , data
+                 , provider_id
+                 , created_at
+                 , updated_at
+                 , disabled
+               from users
+              where id = $1
+                and project_id = $2
+            "#,
+            id,
+            project,
+        )
+        .fetch_optional(pool)
+        .await
+        .map_err(|_| ApiError::InternalServerError)?;
 
         match row {
-            Err(_) => Err(ApiError::NotFound),
-            Ok(user) => Ok(User::from_row(&user)),
+            None => Err(ApiError::UserNotFound),
+            Some(u) => {
+                let user = User {
+                    id: u.id,
+                    password: None,
+                    display_name: u.display_name,
+                    email: u.email,
+                    email_verified: u.email_verified,
+                    photo_url: u.photo_url,
+                    traits: u.traits,
+                    data: u.data,
+                    provider_id: u.provider_id,
+                    created_at: u.created_at,
+                    updated_at: u.updated_at,
+                    disabled: u.disabled,
+                };
+
+                Ok(user)
+            }
         }
     }
 
-    pub fn password<C: GenericClient>(
-        client: &mut C,
-        email: String,
-        project: Uuid,
-    ) -> Result<User, ApiError> {
-        let query = get_query("user/get_password")?;
+    pub async fn password(pool: &PgPool, email: String, project: Uuid) -> Result<User, ApiError> {
+        let row = sqlx::query_as!(
+            User,
+            r#"
+                select password
+                     , id
+                     , display_name
+                     , email
+                     , email_verified
+                     , photo_url
+                     , traits
+                     , data
+                     , provider_id
+                     , created_at
+                     , updated_at
+                     , disabled
+                  from users
+                 where email = $1
+                   and project_id = $2
+            "#,
+            email,
+            project,
+        )
+        .fetch_optional(pool)
+        .await
+        .map_err(|_| ApiError::InternalServerError)?;
 
-        let row = client.query_one(query, &[&email, &project]);
-
-        let row = match row {
-            Err(_) => return Err(ApiError::UserNotFound),
-            Ok(user) => user,
-        };
-
-        Ok(User::from_row(&row))
+        match row {
+            None => Err(ApiError::UserNotFound),
+            Some(user) => Ok(user),
+        }
     }
 
-    pub fn create<C: GenericClient>(
-        client: &mut C,
-        email: String,
-        password: String,
+    pub async fn create(
+        pool: &PgPool,
+        email: &str,
+        password: &str,
         project: Uuid,
     ) -> Result<User, ApiError> {
-        let query = get_query("user/sign_up")?;
-
         let password = match hash(password.clone(), DEFAULT_COST) {
             Err(_) => return Err(ApiError::InternalServerError),
             Ok(hashed) => hashed,
         };
 
-        let row = client.query_one(query, &[&email, &password, &project]);
-
-        match row {
-            Ok(user) => Ok(User::from_row(&user)),
-            Err(err) => match err.into_source() {
-                None => Err(ApiError::InternalServerError),
-                Some(source) => {
-                    if let Some(db_error) = source.downcast_ref::<DbError>() {
-                        match db_error.constraint() {
-                            Some("users_project_id_fkey") => Err(ApiError::ProjectNotFound),
-                            Some("users_project_id_email_key") => Err(ApiError::UserDuplicate),
-                            _ => Err(ApiError::InternalServerError),
-                        }
-                    } else {
-                        Err(ApiError::InternalServerError)
-                    }
+        let row = sqlx::query!(
+            r#"
+                insert into users
+                    ( email
+                    , password
+                    , project_id
+                    , provider_id
+                    )
+                values
+                    ( $1
+                    , $2
+                    , $3
+                    , 'password'
+                    )
+                returning id
+                        , display_name
+                        , email
+                        , email_verified
+                        , photo_url
+                        , traits
+                        , data
+                        , provider_id
+                        , created_at
+                        , updated_at
+                        , disabled
+            "#,
+            email,
+            password,
+            project,
+        )
+        .fetch_one(pool)
+        .await
+        .map_err(|err| match err {
+            Error::Database(err) => {
+                let err = err.downcast::<PgDatabaseError>();
+                match err.constraint() {
+                    Some("users_project_id_fkey") => ApiError::ProjectNotFound,
+                    Some("users_project_id_email_key") => ApiError::UserDuplicate,
+                    _ => ApiError::InternalServerError,
                 }
-            },
-        }
+            }
+            _ => ApiError::InternalServerError,
+        })?;
+
+        let user = User {
+            id: row.id,
+            password: None,
+            display_name: row.display_name,
+            email: row.email,
+            email_verified: row.email_verified,
+            photo_url: row.photo_url,
+            traits: row.traits,
+            data: row.data,
+            provider_id: row.provider_id,
+            created_at: row.created_at,
+            updated_at: row.updated_at,
+            disabled: row.disabled,
+        };
+
+        Ok(user)
     }
 
-    pub fn create_passwordless<C: GenericClient>(
-        client: &mut C,
+    pub async fn create_passwordless(
+        pool: &PgPool,
         email: &str,
         project: &Uuid,
     ) -> Result<User, ApiError> {
-        let query = get_query("user/passwordless")?;
-        let row = client.query_one(query, &[&email, &project]);
-
-        match row {
-            Ok(user) => Ok(User::from_row(&user)),
-            Err(err) => match err.into_source() {
-                None => Err(ApiError::InternalServerError),
-                Some(source) => {
-                    if let Some(db_error) = source.downcast_ref::<DbError>() {
-                        match db_error.constraint() {
-                            Some("users_project_id_fkey") => Err(ApiError::ProjectNotFound),
-                            Some("users_project_id_email_key") => Err(ApiError::UserDuplicate),
-                            _ => Err(ApiError::InternalServerError),
-                        }
-                    } else {
-                        Err(ApiError::InternalServerError)
-                    }
+        let row = sqlx::query!(
+            r#"
+                        insert into users
+                            ( email
+                            , project_id
+                            , provider_id
+                            , email_verified
+                            )
+                        values
+                            ( $1
+                            , $2
+                            , 'link'
+                            , true
+                            )
+                        returning id
+                                , display_name
+                                , email
+                                , email_verified
+                                , photo_url
+                                , traits
+                                , data
+                                , provider_id
+                                , created_at
+                                , updated_at
+                                , disabled
+                    "#,
+            email,
+            project,
+        )
+        .fetch_one(pool)
+        .await
+        .map_err(|err| match err {
+            Error::Database(err) => {
+                let err = err.downcast::<PgDatabaseError>();
+                match err.constraint() {
+                    Some("users_project_id_fkey") => ApiError::ProjectNotFound,
+                    Some("users_project_id_email_key") => ApiError::UserDuplicate,
+                    _ => ApiError::InternalServerError,
                 }
-            },
-        }
+            }
+            _ => ApiError::InternalServerError,
+        })?;
+
+        let user = User {
+            id: row.id,
+            password: None,
+            display_name: row.display_name,
+            email: row.email,
+            email_verified: row.email_verified,
+            photo_url: row.photo_url,
+            traits: row.traits,
+            data: row.data,
+            provider_id: row.provider_id,
+            created_at: row.created_at,
+            updated_at: row.updated_at,
+            disabled: row.disabled,
+        };
+
+        Ok(user)
     }
 
-    pub fn set_password<C: GenericClient>(
-        client: &mut C,
-        user_id: Uuid,
-        password: String,
+    pub async fn set_password(
+        pool: &PgPool,
+        user_id: &Uuid,
+        password: &str,
     ) -> Result<(), ApiError> {
-        let query = get_query("user/set_password")?;
-
         let password = match hash(password.clone(), DEFAULT_COST) {
             Err(_) => return Err(ApiError::InternalServerError),
             Ok(hashed) => hashed,
         };
 
-        let res = client.query(query, &[&user_id, &password]);
+        sqlx::query!(
+            r#"
+                update users
+                   set password = $2
+                 where id = $1
+            "#,
+            user_id,
+            password,
+        )
+        .execute(pool)
+        .await
+        .map_err(|_| ApiError::InternalServerError)?;
 
-        match res {
-            Err(_) => Err(ApiError::InternalServerError),
-            Ok(_) => Ok(()),
-        }
+        Ok(())
     }
 
-    pub fn list<C: GenericClient>(
-        client: &mut C,
+    // todo: direction
+    pub async fn list(
+        pool: &PgPool,
         project: &Uuid,
         order_by: &UserOrder,
-        direction: SortDirection,
+        _direction: SortDirection,
         offset: i64,
         limit: i64,
     ) -> Result<Vec<PartialUser>, ApiError> {
-        let query = get_query("user/list")?;
-        let direction = direction.to_string();
-        let query = query.replace(":direction", &direction);
-
-        let rows = client.query(
-            query.as_str(),
-            &[&project, &order_by.to_string(), &offset, &limit],
-        );
-
-        let rows = match rows {
-            Err(_) => {
-                return Err(ApiError::InternalServerError);
-            }
-            Ok(rows) => rows,
-        };
-
-        let users: Vec<PartialUser> = rows
-            .iter()
-            .map(|row| PartialUser {
-                id: row.get("id"),
-                email: row.get("email"),
-                email_verified: row.get("email_verified"),
-                provider_id: row.get("provider_id"),
-                created_at: row.get("created_at"),
-                disabled: row.get("disabled"),
-            })
-            .collect();
-
-        Ok(users)
+        sqlx::query_as!(
+            PartialUser,
+            r#"
+                select id
+                     , email
+                     , email_verified
+                     , provider_id
+                     , created_at
+                     , disabled
+                  from users
+                 where project_id = $1
+                 order by case when $2 = 'created_at' then users.created_at end desc,
+                          case when $2 = 'email' then users.email end desc
+                 offset $3
+                 limit $4
+            "#,
+            project,
+            order_by.to_string(),
+            offset,
+            limit,
+        )
+        .fetch_all(pool)
+        .await
+        .map_err(|_| ApiError::InternalServerError)
     }
 
-    pub fn total<C: GenericClient>(client: &mut C, project: &Uuid) -> Result<TotalUsers, ApiError> {
-        let query = get_query("user/total")?;
+    pub async fn total(pool: &PgPool, project: &Uuid) -> Result<TotalUsers, ApiError> {
+        let row = sqlx::query!(
+            r#"
+                select count(users.id) as total_users
+                  from users
+                 where project_id = $1
+            "#,
+            project
+        )
+        .fetch_one(pool)
+        .await
+        .map_err(|_| ApiError::InternalServerError)?;
 
-        let row = client.query_one(query, &[&project]);
-
-        let row = match row {
-            Err(_) => return Err(ApiError::InternalServerError),
-            Ok(count) => count,
-        };
-
-        Ok(TotalUsers {
-            total_users: row.get("total_users"),
-        })
-    }
-
-    pub fn remove<C: GenericClient>(client: &mut C, user_id: &Uuid) -> Result<(), ApiError> {
-        let query = get_query("user/remove")?;
-        let row = client.query(query, &[&user_id]);
-        match row {
-            Ok(_) => Ok(()),
-            Err(_) => Err(ApiError::InternalServerError),
+        match row.total_users {
+            None => Err(ApiError::InternalServerError),
+            Some(total_users) => Ok(TotalUsers { total_users }),
         }
     }
 
-    pub fn remove_by_token<C: GenericClient>(
-        client: &mut C,
-        token_id: &Uuid,
-    ) -> Result<(), ApiError> {
-        let query = get_query("user/remove_by_token")?;
-        let row = client.query(query, &[&token_id]);
-        match row {
-            Ok(_) => Ok(()),
-            Err(_) => Err(ApiError::InternalServerError),
-        }
+    pub async fn remove(pool: &PgPool, user_id: &Uuid) -> Result<(), ApiError> {
+        sqlx::query!(
+            r#"
+                delete from users
+                 where id = $1
+            "#,
+            user_id
+        )
+        .execute(pool)
+        .await
+        .map_err(|_| ApiError::InternalServerError)?;
+
+        Ok(())
     }
 
-    pub fn disable<C: GenericClient>(
-        client: &mut C,
-        user: &Uuid,
-        project: &Uuid,
-    ) -> Result<(), ApiError> {
-        let query = get_query("user/disable")?;
-        let row = client.query(query, &[&user, &project]);
-        match row {
-            Ok(_) => Ok(()),
-            Err(_) => Err(ApiError::InternalServerError),
-        }
+    pub async fn remove_by_token(pool: &PgPool, token_id: &Uuid) -> Result<(), ApiError> {
+        sqlx::query!(
+            r#"
+                delete from users
+                 where id in (
+                    select sessions.user_id as id
+                      from sessions
+                     where sessions.id = $1
+                )
+            "#,
+            token_id
+        )
+        .execute(pool)
+        .await
+        .map_err(|_| ApiError::InternalServerError)?;
+
+        Ok(())
     }
 
-    pub fn enable<C: GenericClient>(
-        client: &mut C,
-        user: &Uuid,
-        project: &Uuid,
-    ) -> Result<(), ApiError> {
-        let query = get_query("user/enable")?;
-        let row = client.query(query, &[&user, &project]);
-        match row {
-            Ok(_) => Ok(()),
-            Err(_) => Err(ApiError::InternalServerError),
-        }
+    pub async fn disable(pool: &PgPool, user: &Uuid, project: &Uuid) -> Result<(), ApiError> {
+        sqlx::query!(
+            r#"
+                with disable_user as (
+                    update users
+                       set disabled = true
+                     where id = $1
+                       and project_id = $2
+                 returning id
+                )
+                delete from sessions
+                 where user_id in (
+                    select id as user_id
+                      from disable_user
+                 ) 
+            "#,
+            user,
+            project
+        )
+        .execute(pool)
+        .await
+        .map_err(|_| ApiError::InternalServerError)?;
+
+        Ok(())
+    }
+
+    pub async fn enable(pool: &PgPool, user: &Uuid, project: &Uuid) -> Result<(), ApiError> {
+        sqlx::query!(
+            r#"
+                update users
+                   set disabled = false
+                 where id = $1
+                   and project_id = $2
+            "#,
+            user,
+            project
+        )
+        .execute(pool)
+        .await
+        .map_err(|_| ApiError::InternalServerError)?;
+
+        Ok(())
     }
 }
 

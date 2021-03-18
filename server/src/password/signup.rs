@@ -1,5 +1,5 @@
 use crate::config::Secrets;
-use crate::db::{AuthDb, Db};
+use crate::db::Db;
 use crate::mail::data::VerifyEmail;
 use crate::mail::Email;
 use crate::password::validate_password_length;
@@ -30,7 +30,6 @@ pub struct SignUp {
 
 #[post("/sign_up", data = "<body>")]
 pub async fn sign_up(
-    conn: AuthDb,
     pool: Db<'_>,
     body: Json<SignUp>,
     project: Project,
@@ -46,10 +45,7 @@ pub async fn sign_up(
     validate_password_length(&body.password)?;
 
     let email = body.email.trim().to_lowercase();
-    let password = body.password.clone();
-    let user = conn
-        .run(move |client| User::create(client, email, password, project.id))
-        .await?;
+    let user = User::create(pool.inner(), &email, &body.password, project.id).await?;
 
     let private_key =
         ProjectKeys::get_private_key(pool.inner(), &project.id, &secrets.secrets_passphrase)
@@ -101,7 +97,7 @@ pub async fn sign_up(
         };
 
         let email = Email {
-            to_email: body.email.clone(),
+            to_email: email,
             subject: settings.subject,
             content,
         };

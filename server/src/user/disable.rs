@@ -1,5 +1,5 @@
 use crate::admin::data::Admin;
-use crate::db::AuthDb;
+use crate::db::Db;
 use crate::response::error::ApiError;
 use crate::user::data::User;
 
@@ -15,15 +15,12 @@ pub struct Disable {
 }
 
 #[post("/disable", data = "<body>")]
-pub async fn handler(conn: AuthDb, body: Json<Disable>, _admin: Admin) -> Result<(), ApiError> {
-    conn.run(move |client| {
-        if body.disabled {
-            User::disable(client, &body.user, &body.project)
-        } else {
-            User::enable(client, &body.user, &body.project)
-        }
-    })
-    .await?;
+pub async fn handler(pool: Db<'_>, body: Json<Disable>, _admin: Admin) -> Result<(), ApiError> {
+    if body.disabled {
+        User::disable(pool.inner(), &body.user, &body.project).await?;
+    } else {
+        User::enable(pool.inner(), &body.user, &body.project).await?;
+    }
 
     Ok(())
 }

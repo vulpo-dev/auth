@@ -37,7 +37,6 @@ use rocket::fairing::AdHoc;
 use rocket::Config;
 use sqlx;
 
-const SQL: Dir = include_dir!("./sql");
 const ADMIN_CLIENT: Dir = include_dir!("../admin/build");
 const TEMPLATE: Dir = include_dir!("./template");
 
@@ -62,12 +61,13 @@ async fn main() {
         .merge(Toml::file("Rocket.toml").nested())
         .merge(Env::prefixed("AUTH_").global());
 
-    let db = figment.clone().select("database");
-    let db_config = db.extract::<DbConfig>().expect("Invalid Database config");
+    let db_config = figment.clone().select("database");
+    let db_config = db_config
+        .extract::<DbConfig>()
+        .expect("Invalid Database config");
 
     if matches.is_present("server") {
         let _ = rocket::custom(figment)
-            .attach(db::AuthDb::fairing())
             .attach(CORS())
             .attach(AdHoc::config::<Secrets>())
             .attach(db::create_pool(&db_config))
