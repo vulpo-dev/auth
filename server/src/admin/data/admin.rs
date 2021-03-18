@@ -51,10 +51,8 @@ pub struct Admin(User);
 
 impl Admin {
     pub async fn create(pool: &PgPool, body: NewAdmin, project: Uuid) -> Result<Uuid, ApiError> {
-        let password = match hash(body.password, DEFAULT_COST) {
-            Err(_) => return Err(ApiError::InternalServerError),
-            Ok(hashed) => hashed,
-        };
+        let password =
+            hash(body.password, DEFAULT_COST).map_err(|_| ApiError::InternalServerError)?;
 
         let row = sqlx::query!(
             r#"
@@ -217,7 +215,7 @@ impl Admin {
 
     pub async fn create_user(pool: &PgPool, user: NewUser) -> Result<Uuid, ApiError> {
         let password = match user.password {
-            Some(ref password) => match hash(password.clone(), DEFAULT_COST) {
+            Some(password) => match hash(password.to_owned(), DEFAULT_COST) {
                 Err(_) => return Err(ApiError::InternalServerError),
                 Ok(hashed) => Some(hashed),
             },
@@ -225,12 +223,12 @@ impl Admin {
         };
 
         let data = match user.data {
-            Some(ref json) => json.clone(),
+            Some(json) => json.to_owned(),
             None => json!({}),
         };
 
         let provider = match user.provider_id {
-            Some(ref id) => id.clone(),
+            Some(id) => id.to_owned(),
             None => String::from("email"),
         };
 

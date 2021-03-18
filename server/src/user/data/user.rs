@@ -148,10 +148,7 @@ impl User {
         .await
         .map_err(|_| ApiError::InternalServerError)?;
 
-        match row {
-            None => Err(ApiError::UserNotFound),
-            Some(user) => Ok(user),
-        }
+        row.ok_or_else(|| ApiError::UserNotFound)
     }
 
     pub async fn create(
@@ -160,10 +157,8 @@ impl User {
         password: &str,
         project: Uuid,
     ) -> Result<User, ApiError> {
-        let password = match hash(password.clone(), DEFAULT_COST) {
-            Err(_) => return Err(ApiError::InternalServerError),
-            Ok(hashed) => hashed,
-        };
+        let password =
+            hash(password.clone(), DEFAULT_COST).map_err(|_| ApiError::InternalServerError)?;
 
         let row = sqlx::query!(
             r#"

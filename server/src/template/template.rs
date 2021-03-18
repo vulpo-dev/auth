@@ -221,20 +221,18 @@ impl Template {
                     .contents_utf8()
                     .unwrap()
             })
-            .unwrap()
+            .unwrap_or("")
     }
 
     pub fn render(template: String, ctx: TemplateCtx) -> Result<String, RenderError> {
         let handlebars = Template::init_handlebars();
-        let content = match handlebars.render_template(&template, &ctx) {
-            Err(_) => return Err(RenderError),
-            Ok(value) => value,
-        };
+        let content = handlebars
+            .render_template(&template, &ctx)
+            .map_err(|_| RenderError)?;
 
-        match handlebars.render("index", &json!({ "content": content })) {
-            Err(_) => Err(RenderError),
-            Ok(val) => Ok(val),
-        }
+        handlebars
+            .render("index", &json!({ "content": content }))
+            .map_err(|_| RenderError)
     }
 }
 

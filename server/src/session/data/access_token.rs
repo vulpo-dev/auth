@@ -33,25 +33,16 @@ impl AccessToken {
         };
 
         let header = Header::new(Algorithm::RS256);
-        match encode(&header, &self.0, &encodeing_key) {
-            Ok(token) => Ok(token),
-            Err(_) => Err(ApiError::InternalServerError),
-        }
+        encode(&header, &self.0, &encodeing_key).map_err(|_| ApiError::InternalServerError)
     }
 
     pub fn from_rsa(token: String, key: &String) -> Result<Claims, ApiError> {
-        let decodeing_key = match DecodingKey::from_rsa_pem(key.as_bytes()) {
-            Ok(key) => key,
-            Err(_) => {
-                return Err(ApiError::InternalServerError);
-            }
-        };
+        let decodeing_key =
+            DecodingKey::from_rsa_pem(key.as_bytes()).map_err(|_| ApiError::InternalServerError)?;
 
         match decode::<Claims>(&token, &decodeing_key, &Validation::new(Algorithm::RS256)) {
             Ok(token_data) => Ok(token_data.claims),
-            Err(_) => {
-                return Err(ApiError::InternalServerError);
-            }
+            Err(_) => Err(ApiError::InternalServerError),
         }
     }
 }

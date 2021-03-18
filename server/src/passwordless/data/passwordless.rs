@@ -65,10 +65,7 @@ impl Passwordless {
         .await
         .map_err(|_| ApiError::InternalServerError)?;
 
-        match row {
-            None => Err(ApiError::NotFound),
-            Some(row) => Ok(row),
-        }
+        row.ok_or_else(|| ApiError::NotFound)
     }
 
     pub async fn confirm(pool: &PgPool, id: &Uuid) -> Result<(), ApiError> {
@@ -114,9 +111,6 @@ impl Passwordless {
     }
 
     pub fn compare(&self, token: &str) -> bool {
-        match bcrypt::verify(token, &self.token) {
-            Err(_) => false,
-            Ok(result) => result,
-        }
+        bcrypt::verify(token, &self.token).unwrap_or(false)
     }
 }

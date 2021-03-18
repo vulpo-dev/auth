@@ -53,10 +53,7 @@ impl Session {
         .await
         .map_err(|_| ApiError::InternalServerError)?;
 
-        match row {
-            None => Err(ApiError::TokenInvalid),
-            Some(session) => Ok(session),
-        }
+        row.ok_or_else(|| ApiError::TokenInvalid)
     }
 
     pub async fn confirm(

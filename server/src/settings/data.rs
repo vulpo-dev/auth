@@ -50,14 +50,14 @@ impl ProjectEmail {
         let row = sqlx::query!(
             r#"
                 select email_settings.host
-                     , coalesce(nullif(templates.from_name, ''), email_settings.from_name) as from_name
+                     , coalesce(nullif(templates.from_name, ''), email_settings.from_name) as "from_name!"
                      , email_settings.from_email
                      , email_settings.password
                      , email_settings.username
                      , email_settings.port
-                     , coalesce(templates.subject, null) as subject
-                     , coalesce(templates.body, null) as body
-                     , coalesce(templates.redirect_to, null) as redirect_to
+                     , templates.subject as "subject?"
+                     , templates.body as "body?"
+                     , templates.redirect_to as "redirect_to?"
                      , project_settings.domain
                      , project_settings.name
                   from email_settings
@@ -71,34 +71,26 @@ impl ProjectEmail {
         .await
         .map_err(|_| ApiError::InternalServerError)?;
 
-        let port: i32 = row.port;
-
         let email = EmailSettings {
-            from_name: row.from_name.unwrap(),
+            from_name: row.from_name,
             from_email: row.from_email,
             password: row.password,
             username: row.username,
-            port: u16::try_from(port).unwrap(),
+            port: u16::try_from(row.port).unwrap(),
             host: row.host,
         };
 
-        let subject: Option<String> = row.subject;
-        let subject = match subject {
-            None => DefaultSubject::from_template(template),
-            Some(value) => value,
-        };
+        let subject = row
+            .subject
+            .unwrap_or_else(|| DefaultSubject::from_template(template));
 
-        let body: Option<String> = row.body;
-        let body = match body {
-            None => Template::get_body(template).to_string(),
-            Some(value) => value,
-        };
+        let body = row
+            .body
+            .unwrap_or_else(|| Template::get_body(template).to_string());
 
-        let redirect_to: Option<String> = row.redirect_to;
-        let redirect_to = match redirect_to {
-            None => DefaultRedirect::from_template(template),
-            Some(value) => value,
-        };
+        let redirect_to = row
+            .redirect_to
+            .unwrap_or_else(|| DefaultRedirect::from_template(template));
 
         Ok(TemplateEmail {
             email,

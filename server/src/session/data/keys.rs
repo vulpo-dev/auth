@@ -44,16 +44,18 @@ impl ProjectKeys {
         .await
         .map_err(|_| ApiError::InternalServerError)?;
 
-        // TODO: Refactor this mess of unwraps
         let key = PKey::private_key_from_pem_passphrase(
             row.private_key.as_bytes(),
             passphrase.as_bytes(),
         )
-        .unwrap();
+        .map_err(|_| ApiError::InternalServerError)?;
 
-        let private_key = String::from_utf8(key.private_key_to_pem_pkcs8().unwrap()).unwrap();
+        let private_key = key
+            .private_key_to_pem_pkcs8()
+            .map(|bytes| String::from_utf8(bytes))
+            .map_err(|_| ApiError::InternalServerError)?;
 
-        Ok(private_key)
+        private_key.map_err(|_| ApiError::InternalServerError)
     }
 
     pub async fn get_public_key(pool: &PgPool, project_id: &Uuid) -> Result<String, ApiError> {

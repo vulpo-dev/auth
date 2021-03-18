@@ -41,10 +41,7 @@ impl PasswordReset {
         .await
         .map_err(|_| ApiError::InternalServerError)?;
 
-        match row {
-            None => Err(ApiError::ResetTokenNotFound),
-            Some(entry) => Ok(entry),
-        }
+        row.ok_or_else(|| ApiError::ResetTokenNotFound)
     }
 
     pub async fn remove(pool: &PgPool, user_id: &Uuid) -> Result<(), ApiError> {

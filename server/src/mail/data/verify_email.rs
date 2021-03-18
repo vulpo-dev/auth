@@ -41,10 +41,7 @@ impl VerifyEmail {
         .await
         .map_err(|_| ApiError::InternalServerError)?;
 
-        match row {
-            None => Err(ApiError::TokenNotFound),
-            Some(entry) => Ok(entry),
-        }
+        row.ok_or_else(|| ApiError::TokenNotFound)
     }
 
     pub async fn verify(pool: &PgPool, user_id: &Uuid) -> Result<(), ApiError> {
