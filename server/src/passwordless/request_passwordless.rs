@@ -49,26 +49,20 @@ pub async fn request_passwordless(
     }
 
     let user_id = user.clone().map(|u| u.id);
-    let session_id = body.session.clone();
-    let public_key = body.public_key.clone();
-    let session = conn
-        .run(move |client| {
-            let session = Session {
-                id: session_id,
-                public_key,
-                user_id,
-                expire_at: Utc::now() + Duration::minutes(30),
-            };
 
-            Session::create(client, session)
-        })
-        .await?;
+    let session = Session {
+        id: body.session,
+        public_key: body.public_key.to_owned(),
+        user_id,
+        expire_at: Utc::now() + Duration::days(30),
+    };
+
+    let session = Session::create(pool.inner(), session).await?;
 
     let verification_token = Token::create();
     let hashed_token = Token::hash(&verification_token)?;
 
     let email = body_email.clone();
-    let user_id = user.clone().map(|u| u.id);
     let session_id = body.session.clone();
     let id = Passwordless::create_token(
         pool.inner(),
@@ -103,7 +97,7 @@ pub async fn request_passwordless(
     };
 
     let email = Email {
-        to_email: body.email.clone(),
+        to_email: body.email.to_owned(),
         subject: settings.subject,
         content,
     };

@@ -1,4 +1,4 @@
-use crate::db::AuthDb;
+use crate::db::Db;
 use crate::project::Project;
 use crate::response::error::ApiError;
 use crate::session::data::AccessToken;
@@ -294,18 +294,14 @@ impl<'a, 'r> FromRequest<'a, 'r> for Admin {
             Some(project) => project,
         };
 
-        let db = match AuthDb::from_request(req).await.succeeded() {
+        let db = match Db::from_request(req).await.succeeded() {
             None => {
                 return Outcome::Failure((Status::ServiceUnavailable, ApiError::AuthTokenMissing))
             }
             Some(pool) => pool,
         };
 
-        let row = db
-            .run(move |client| ProjectKeys::get_public_key(client, &project.id))
-            .await;
-
-        let key = match row {
+        let key = match ProjectKeys::get_public_key(db.inner(), &project.id).await {
             Ok(key) => key,
             Err(_) => {
                 return Outcome::Failure((Status::InternalServerError, ApiError::AuthTokenMissing));

@@ -1,11 +1,10 @@
-use crate::db::get_query;
 use crate::response::error::ApiError;
 
 use chrono::{DateTime, Utc};
 use jsonwebtoken as jwt;
 use jsonwebtoken::{Algorithm, DecodingKey, Validation};
-use rocket_contrib::databases::postgres::GenericClient;
 use serde::Deserialize;
+use sqlx::PgPool;
 use uuid::Uuid;
 
 pub struct Session {
@@ -16,97 +15,143 @@ pub struct Session {
 }
 
 impl Session {
-    pub fn create<C: GenericClient>(client: &mut C, session: Session) -> Result<Session, ApiError> {
-        let query = get_query("session/create")?;
-        match client.query_one(
-            query,
-            &[
-                &session.id,
-                &session.public_key,
-                &session.expire_at,
-                &session.user_id,
-            ],
-        ) {
-            Err(_) => Err(ApiError::InternalServerError),
-            Ok(row) => Ok(Session {
-                id: row.get("id"),
-                public_key: row.get("public_key"),
-                expire_at: row.get("expire_at"),
-                user_id: row.get("user_id"),
-            }),
+    pub async fn create(pool: &PgPool, session: Session) -> Result<Session, ApiError> {
+        sqlx::query_as!(
+            Session,
+            r#"
+            insert into sessions(id, public_key, expire_at, user_id)
+            values($1, $2, $3, $4)
+            on conflict(id)
+               do update
+                     set id = uuid_generate_v4()
+            returning id, public_key, expire_at, user_id
+        "#,
+            session.id,
+            session.public_key,
+            session.expire_at,
+            session.user_id,
+        )
+        .fetch_one(pool)
+        .await
+        .map_err(|_| ApiError::InternalServerError)
+    }
+
+    pub async fn get(pool: &PgPool, session: &Uuid) -> Result<Session, ApiError> {
+        let row = sqlx::query_as!(
+            Session,
+            r#"
+            select id
+                 , public_key
+                 , expire_at
+                 , user_id
+              from sessions
+             where id = $1 
+        "#,
+            session
+        )
+        .fetch_optional(pool)
+        .await
+        .map_err(|_| ApiError::InternalServerError)?;
+
+        match row {
+            None => Err(ApiError::TokenInvalid),
+            Some(session) => Ok(session),
         }
     }
 
-    pub fn get<C: GenericClient>(client: &mut C, session: &Uuid) -> Result<Session, ApiError> {
-        let query = get_query("session/get")?;
-        let rows = match client.query(query, &[&session]) {
-            Err(_) => return Err(ApiError::InternalServerError),
-            Ok(rows) => rows,
-        };
-
-        match rows.get(0) {
-            None => return Err(ApiError::TokenInvalid),
-            Some(row) => Ok(Session {
-                id: row.get("id"),
-                public_key: row.get("public_key"),
-                expire_at: row.get("expire_at"),
-                user_id: row.get("user_id"),
-            }),
-        }
-    }
-
-    pub fn confirm<C: GenericClient>(
-        client: &mut C,
+    pub async fn confirm(
+        pool: &PgPool,
         session: &Uuid,
         user_id: &Uuid,
         expire_at: &DateTime<Utc>,
     ) -> Result<Session, ApiError> {
-        let query = get_query("session/confirm")?;
-        match client.query_one(query, &[&session, &user_id, &expire_at]) {
-            Err(_) => Err(ApiError::InternalServerError),
-            Ok(row) => Ok(Session {
-                id: row.get("id"),
-                public_key: row.get("public_key"),
-                expire_at: row.get("expire_at"),
-                user_id: row.get("user_id"),
-            }),
-        }
+        sqlx::query_as!(
+            Session,
+            r#"
+                update sessions
+                   set user_id = $2
+                     , expire_at = $3
+                 where id = $1
+                returning id, expire_at, user_id, public_key
+            "#,
+            &session,
+            &user_id,
+            &expire_at
+        )
+        .fetch_one(pool)
+        .await
+        .map_err(|_| ApiError::InternalServerError)
     }
 
-    pub fn extend<C: GenericClient>(
-        client: &mut C,
+    pub async fn extend(
+        pool: &PgPool,
         session: &Uuid,
         expire_at: &DateTime<Utc>,
     ) -> Result<(), ApiError> {
-        let query = get_query("session/extend")?;
-        match client.query(query, &[&session, &expire_at]) {
-            Err(_) => Err(ApiError::InternalServerError),
-            Ok(_) => Ok(()),
-        }
+        sqlx::query!(
+            r#"
+                update sessions
+                   set expire_at = $2
+                 where id = $1
+            "#,
+            session,
+            expire_at
+        )
+        .execute(pool)
+        .await
+        .map_err(|_| ApiError::InternalServerError)?;
+
+        Ok(())
     }
 
-    pub fn delete<C: GenericClient>(client: &mut C, session: &Uuid) -> Result<(), ApiError> {
-        let query = get_query("session/delete")?;
-        match client.query(query, &[&session]) {
-            Err(_) => Err(ApiError::InternalServerError),
-            Ok(_) => Ok(()),
-        }
+    pub async fn delete(pool: &PgPool, session: &Uuid) -> Result<(), ApiError> {
+        sqlx::query!(
+            r#"
+                delete from sessions
+                 where id = $1
+            "#,
+            session,
+        )
+        .execute(pool)
+        .await
+        .map_err(|_| ApiError::InternalServerError)?;
+
+        Ok(())
     }
 
-    pub fn delete_all<C: GenericClient>(client: &mut C, session: &Uuid) -> Result<(), ApiError> {
-        let query = get_query("session/delete_all")?;
-        match client.query(query, &[&session]) {
-            Err(_) => Err(ApiError::InternalServerError),
-            Ok(_) => Ok(()),
-        }
+    pub async fn delete_all(pool: &PgPool, session: &Uuid) -> Result<(), ApiError> {
+        sqlx::query!(
+            r#"
+               delete from sessions
+                where user_id in (
+                    select user_sessions.user_id
+                      from sessions
+                      join sessions user_sessions on user_sessions.user_id = sessions.id
+                     where sessions.id = $1 
+                )
+            "#,
+            session,
+        )
+        .execute(pool)
+        .await
+        .map_err(|_| ApiError::InternalServerError)?;
+
+        Ok(())
     }
 
-    pub fn delete_by_user<C: GenericClient>(client: &mut C, user: &Uuid) -> Result<(), ApiError> {
-        let query = get_query("session/delete_by_user")?;
-        match client.query(query, &[&user]) {
-            Err(_) => Err(ApiError::InternalServerError),
-            Ok(_) => Ok(()),
-        }
+    pub async fn delete_by_user(pool: &PgPool, user: &Uuid) -> Result<(), ApiError> {
+        sqlx::query!(
+            r#"
+               delete from sessions
+                where user_id = $1 
+            "#,
+            user,
+        )
+        .execute(pool)
+        .await
+        .map_err(|_| ApiError::InternalServerError)?;
+
+        Ok(())
     }
 }
 

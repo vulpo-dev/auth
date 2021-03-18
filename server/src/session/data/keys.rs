@@ -1,11 +1,10 @@
-use crate::db::get_query;
 use crate::response::error::ApiError;
 
 use chrono::{DateTime, Utc};
 use openssl::pkey::PKey;
 use openssl::rsa::Rsa;
 use openssl::symm::Cipher;
-use rocket_contrib::databases::postgres::GenericClient;
+use sqlx::PgPool;
 use uuid::Uuid;
 
 pub struct ProjectKeys {
@@ -27,42 +26,50 @@ pub struct NewProjectKeys {
 }
 
 impl ProjectKeys {
-    pub fn get_private_key<C: GenericClient>(
-        client: &mut C,
+    pub async fn get_private_key(
+        pool: &PgPool,
         project_id: &Uuid,
         passphrase: &str,
     ) -> Result<String, ApiError> {
-        let query = get_query("project_keys/get_private_key")?;
+        let row = sqlx::query!(
+            r#"
+            select private_key
+              from project_keys
+             where project_id = $1
+               and is_active = true
+        "#,
+            project_id
+        )
+        .fetch_one(pool)
+        .await
+        .map_err(|_| ApiError::InternalServerError)?;
 
         // TODO: Refactor this mess of unwraps
-        match client.query_one(query, &[&project_id]) {
-            Err(_) => Err(ApiError::InternalServerError),
-            Ok(row) => {
-                let private_key: String = row.get("private_key");
-                let key = PKey::private_key_from_pem_passphrase(
-                    private_key.as_bytes(),
-                    passphrase.as_bytes(),
-                )
-                .unwrap();
+        let key = PKey::private_key_from_pem_passphrase(
+            row.private_key.as_bytes(),
+            passphrase.as_bytes(),
+        )
+        .unwrap();
 
-                let private_key =
-                    String::from_utf8(key.private_key_to_pem_pkcs8().unwrap()).unwrap();
+        let private_key = String::from_utf8(key.private_key_to_pem_pkcs8().unwrap()).unwrap();
 
-                Ok(private_key)
-            }
-        }
+        Ok(private_key)
     }
 
-    pub fn get_public_key<C: GenericClient>(
-        client: &mut C,
-        project_id: &Uuid,
-    ) -> Result<String, ApiError> {
-        let query = get_query("project_keys/get_public_key")?;
-
-        match client.query_one(query, &[&project_id]) {
-            Err(_) => Err(ApiError::InternalServerError),
-            Ok(row) => Ok(row.get("public_key")),
-        }
+    pub async fn get_public_key(pool: &PgPool, project_id: &Uuid) -> Result<String, ApiError> {
+        sqlx::query!(
+            r#"
+            select public_key
+              from project_keys
+             where project_id = $1
+               and is_active = true
+        "#,
+            project_id
+        )
+        .fetch_one(pool)
+        .await
+        .map(|row| row.public_key)
+        .map_err(|_| ApiError::InternalServerError)
     }
 
     pub fn create_keys(
@@ -85,27 +92,4 @@ impl ProjectKeys {
             private_key: String::from_utf8(private_key).unwrap(),
         }
     }
-
-    // pub fn insert<C: GenericClient>(
-    //     client: &mut C,
-    //     keys: &NewProjectKeys,
-    // ) -> Result<Uuid, ApiError> {
-    //     let query = get_query("project_keys/create")?;
-
-    //     let row = client.query_one(
-    //         query,
-    //         &[
-    //             &keys.project_id,
-    //             &keys.public_key,
-    //             &keys.private_key,
-    //             &keys.is_active,
-    //             &keys.expire_at,
-    //         ],
-    //     );
-
-    //     match row {
-    //         Err(_) => Err(ApiError::InternalServerError),
-    //         Ok(row) => Ok(row.get("id")),
-    //     }
-    // }
 }

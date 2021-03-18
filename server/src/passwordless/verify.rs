@@ -44,21 +44,14 @@ pub async fn handler(
 
     Passwordless::remove_all(pool.inner(), &token.email, &token.project_id).await?;
 
-    let session_id = body.session.clone();
-    let current_session = conn
-        .run(move |client| Session::get(client, &session_id))
-        .await?;
+    let current_session = Session::get(pool.inner(), &body.session).await?;
 
     let rat = RefreshAccessToken {
         value: body.into_inner().token,
     };
 
     let claims = Session::validate_token(&current_session, &rat)?;
-
-    let session_id = current_session.id.clone();
-    let is_valid = conn
-        .run(move |client| Token::is_valid(client, &claims, &session_id))
-        .await?;
+    let is_valid = Token::is_valid(pool.inner(), &claims, &current_session.id).await?;
 
     if !is_valid {
         return Err(ApiError::Forbidden);
@@ -74,19 +67,12 @@ pub async fn handler(
             .await?
     };
 
-    let user_id = user.id;
-    let session = conn
-        .run(move |client| {
-            let expire_at = Utc::now() + Duration::days(30);
-            Session::confirm(client, &current_session.id, &user_id, &expire_at)
-        })
-        .await?;
+    let expire_at = Utc::now() + Duration::days(30);
+    let session = Session::confirm(pool.inner(), &current_session.id, &user.id, &expire_at).await?;
 
-    let phassphrase = secrets.secrets_passphrase.clone();
-    let project_id = token.project_id.clone();
-    let private_key = conn
-        .run(move |client| ProjectKeys::get_private_key(client, &project_id, &phassphrase))
-        .await?;
+    let private_key =
+        ProjectKeys::get_private_key(pool.inner(), &token.project_id, &secrets.secrets_passphrase)
+            .await?;
 
     let exp = Utc::now() + Duration::minutes(15);
     let access_token = AccessToken::new(&user, exp);

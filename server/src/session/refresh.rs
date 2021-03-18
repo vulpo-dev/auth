@@ -1,5 +1,5 @@
 use crate::config::Secrets;
-use crate::db::AuthDb;
+use crate::db::{AuthDb, Db};
 use crate::project::Project;
 use crate::response::error::ApiError;
 use crate::session::data::AccessToken;
@@ -18,35 +18,27 @@ use rocket_contrib::uuid::Uuid;
 #[post("/refresh/<session_id>", data = "<rat>")]
 pub async fn handler(
     conn: AuthDb,
+    pool: Db<'_>,
     project: Project,
     session_id: Uuid,
     rat: Json<RefreshAccessToken>,
     secrets: State<'_, Secrets>,
 ) -> Result<SessionResponse, ApiError> {
-    let session = session_id.into_inner().clone();
-    let session = conn
-        .run(move |client| Session::get(client, &session))
-        .await?;
-
+    let session = Session::get(pool.inner(), &session_id.into_inner()).await?;
     let claims = Session::validate_token(&session, &rat)?;
 
-    let is_valid = conn
-        .run(move |client| Token::is_valid(client, &claims, &session_id.into_inner()))
-        .await?;
+    let is_valid = Token::is_valid(pool.inner(), &claims, &session_id.into_inner()).await?;
 
     if !is_valid {
         return Err(ApiError::Forbidden);
     }
 
-    let session_id = session.id;
     let expire_at = Utc::now() + Duration::days(30);
-    conn.run(move |client| Session::extend(client, &session_id, &expire_at))
-        .await?;
+    Session::extend(pool.inner(), &session.id, &expire_at).await?;
 
-    let passphrase = secrets.secrets_passphrase.clone();
-    let private_key = conn
-        .run(move |client| ProjectKeys::get_private_key(client, &project.id, &passphrase))
-        .await?;
+    let private_key =
+        ProjectKeys::get_private_key(pool.inner(), &project.id, &secrets.secrets_passphrase)
+            .await?;
 
     let user_id = match session.user_id {
         None => return Err(ApiError::Forbidden),

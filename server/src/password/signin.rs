@@ -62,26 +62,18 @@ pub async fn sign_in(
         return Err(ApiError::UserInvalidPassword);
     };
 
-    let user_id = user.id;
-    let session_id = body.session.clone();
-    let public_key = body.public_key.clone();
-    let session = conn
-        .run(move |client| {
-            let session = Session {
-                id: session_id,
-                public_key,
-                user_id: Some(user_id),
-                expire_at: Utc::now() + Duration::days(30),
-            };
+    let session = Session {
+        id: body.session,
+        public_key: body.public_key.to_owned(),
+        user_id: Some(user.id),
+        expire_at: Utc::now() + Duration::days(30),
+    };
 
-            Session::create(client, session)
-        })
-        .await?;
+    let session = Session::create(pool.inner(), session).await?;
 
-    let phassphrase = secrets.secrets_passphrase.clone();
-    let private_key = conn
-        .run(move |client| ProjectKeys::get_private_key(client, &project.id, &phassphrase))
-        .await?;
+    let private_key =
+        ProjectKeys::get_private_key(pool.inner(), &project.id, &secrets.secrets_passphrase)
+            .await?;
 
     let exp = Utc::now() + Duration::minutes(15);
     let access_token = AccessToken::new(&user, exp);
