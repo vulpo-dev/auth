@@ -1,4 +1,4 @@
-use crate::db::AuthDb;
+use crate::db::Db;
 use crate::project::data::Project;
 
 use rocket::fairing::{Fairing, Info, Kind};
@@ -31,8 +31,8 @@ impl Fairing for CORS {
                 response.set_header(Header::new("Access-Control-Allow-Origin", "*"));
             }
             Some(id) => {
-                if let Some(db) = AuthDb::from_request(request).await.succeeded() {
-                    let row = db.run(move |client| Project::domain(client, &id)).await;
+                if let Some(db) = Db::from_request(request).await.succeeded() {
+                    let row = Project::domain(db.inner(), &id).await;
                     if let Ok(domain) = row {
                         response.set_header(Header::new("Access-Control-Allow-Origin", domain));
                     }

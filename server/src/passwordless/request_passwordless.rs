@@ -35,8 +35,7 @@ pub async fn request_passwordless(
     project: Project,
     body: Json<RequestPasswordless>,
 ) -> Result<Json<PasswordlessResponse>, ApiError> {
-    conn.run(move |client| Flags::has_flags(client, &project.id, &[Flags::AuthenticationLink]))
-        .await?;
+    Flags::has_flags(pool.inner(), &project.id, &[Flags::AuthenticationLink]).await?;
 
     let body_email = body.email.trim().to_lowercase();
 

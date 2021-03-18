@@ -1,5 +1,5 @@
 use crate::admin::data::Admin;
-use crate::db::AuthDb;
+use crate::db::Db;
 use crate::project::data::Project;
 use crate::response::error::ApiError;
 
@@ -16,12 +16,10 @@ pub struct SetProjectSettings {
 
 #[post("/project", data = "<body>")]
 pub async fn set_settings(
-    conn: AuthDb,
+    pool: Db<'_>,
     body: Json<SetProjectSettings>,
     _admin: Admin,
 ) -> Result<(), ApiError> {
-    conn.run(move |client| Project::set_settings(client, &body.project, &body.name, &body.domain))
-        .await?;
-
+    Project::set_settings(pool.inner(), &body.project, &body.name, &body.domain).await?;
     Ok(())
 }

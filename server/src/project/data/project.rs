@@ -1,30 +1,47 @@
-use crate::db::get_query;
 use crate::response::error::ApiError;
 
-use rocket_contrib::databases::postgres::GenericClient;
+use sqlx::PgPool;
 use uuid::Uuid;
 
 pub struct Project;
 
 impl Project {
-    pub fn set_settings<C: GenericClient>(
-        client: &mut C,
+    pub async fn set_settings(
+        pool: &PgPool,
         project: &Uuid,
         email: &str,
         domain: &str,
     ) -> Result<(), ApiError> {
-        let query = get_query("project/set_settings")?;
-        match client.query(query, &[&project, &email, &domain]) {
-            Ok(_) => Ok(()),
-            Err(_) => Err(ApiError::InternalServerError),
-        }
+        sqlx::query!(
+            r#"
+            update project_settings
+               set name = $2
+                 , domain = $3
+             where project_id = $1
+        "#,
+            project,
+            email,
+            domain
+        )
+        .execute(pool)
+        .await
+        .map_err(|_| ApiError::InternalServerError)?;
+
+        Ok(())
     }
 
-    pub fn domain<C: GenericClient>(client: &mut C, project: &Uuid) -> Result<String, ApiError> {
-        let query = get_query("project/domain")?;
-        match client.query_one(query, &[&project]) {
-            Err(_) => Err(ApiError::InternalServerError),
-            Ok(row) => Ok(row.get("domain")),
-        }
+    pub async fn domain(pool: &PgPool, project: &Uuid) -> Result<String, ApiError> {
+        sqlx::query!(
+            r#"
+            select domain
+              from project_settings
+             where project_id = $1 
+        "#,
+            project
+        )
+        .fetch_one(pool)
+        .await
+        .map(|row| row.domain)
+        .map_err(|_| ApiError::InternalServerError)
     }
 }

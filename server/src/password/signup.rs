@@ -36,13 +36,11 @@ pub async fn sign_up(
     project: Project,
     secrets: State<'_, Secrets>,
 ) -> Result<SessionResponse, ApiError> {
-    conn.run(move |client| {
-        Flags::has_flags(
-            client,
-            &project.id,
-            &[Flags::SignUp, Flags::EmailAndPassword],
-        )
-    })
+    Flags::has_flags(
+        pool.inner(),
+        &project.id,
+        &[Flags::SignUp, Flags::EmailAndPassword],
+    )
     .await?;
 
     validate_password_length(&body.password)?;
@@ -81,9 +79,7 @@ pub async fn sign_up(
         })
         .await?;
 
-    let verify = conn
-        .run(move |client| Flags::has_flags(client, &project.id, &[Flags::VerifyEmail]))
-        .await;
+    let verify = Flags::has_flags(pool.inner(), &project.id, &[Flags::VerifyEmail]).await;
 
     if verify.is_ok() {
         let settings = conn

@@ -1,8 +1,7 @@
-use crate::db::get_query;
 use crate::response::error::ApiError;
 
-use rocket_contrib::databases::postgres::GenericClient;
 use serde::{Deserialize, Serialize};
+use sqlx::PgPool;
 use uuid::Uuid;
 
 #[derive(Debug, Copy, Clone, Deserialize, Serialize, PartialEq)]
@@ -22,20 +21,21 @@ pub enum Flags {
 }
 
 impl Flags {
-    pub fn from_project<C: GenericClient>(
-        client: &mut C,
-        id: &Uuid,
-    ) -> Result<Vec<Flags>, ApiError> {
-        let query = get_query("project/get_flags")?;
+    pub async fn from_project(pool: &PgPool, id: &Uuid) -> Result<Vec<Flags>, ApiError> {
+        let row = sqlx::query!(
+            r#"
+            select flags
+              from projects
+             where id = $1 
+        "#,
+            id
+        )
+        .fetch_one(pool)
+        .await
+        .map_err(|_| ApiError::InternalServerError)?;
 
-        let row = client.query_one(query, &[&id]);
-
-        let flags: Vec<String> = match row {
-            Err(_) => return Err(ApiError::InternalServerError),
-            Ok(row) => row.get("flags"),
-        };
-
-        let flags: Vec<Flags> = flags
+        let flags: Vec<Flags> = row
+            .flags
             .iter()
             .map(|flag| Flags::from_str(&flag))
             .filter(|result| result.is_some())
@@ -45,30 +45,35 @@ impl Flags {
         Ok(flags)
     }
 
-    pub fn set_flags<C: GenericClient>(
-        client: &mut C,
-        project: &Uuid,
-        flags: &[Flags],
-    ) -> Result<(), ApiError> {
+    pub async fn set_flags(pool: &PgPool, project: &Uuid, flags: &[Flags]) -> Result<(), ApiError> {
         let flags = flags
             .into_iter()
             .map(|flag| flag.to_string())
             .filter(|flag| flag.is_empty() == false)
             .collect::<Vec<String>>();
 
-        let query = get_query("project/set_flags")?;
-        match client.query(query, &[&project, &flags]) {
-            Ok(_) => Ok(()),
-            Err(_) => Err(ApiError::InternalServerError),
-        }
+        sqlx::query!(
+            r#"
+            update projects
+               set flags = $2
+             where id = $1 
+        "#,
+            project,
+            &flags
+        )
+        .execute(pool)
+        .await
+        .map_err(|_| ApiError::InternalServerError)?;
+
+        Ok(())
     }
 
-    pub fn has_flags<C: GenericClient>(
-        c: &mut C,
+    pub async fn has_flags(
+        pool: &PgPool,
         project: &Uuid,
         flags: &[Flags],
     ) -> Result<bool, ApiError> {
-        let project_flags = Flags::from_project(c, project)?;
+        let project_flags = Flags::from_project(pool, project).await?;
 
         let contains: Vec<bool> = flags
             .iter()

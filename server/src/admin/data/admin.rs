@@ -21,7 +21,7 @@ use uuid::Uuid;
 pub struct PartialProject {
     pub id: Uuid,
     pub name: String,
-    pub domain: Option<String>,
+    pub domain: String,
 }
 
 #[derive(Debug, Deserialize)]
