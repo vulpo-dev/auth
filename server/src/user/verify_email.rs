@@ -1,5 +1,5 @@
 use crate::admin::data::Admin;
-use crate::db::{AuthDb, Db};
+use crate::db::Db;
 use crate::mail::data::VerifyEmail;
 use crate::mail::Email;
 use crate::project::Project;
@@ -52,7 +52,6 @@ pub struct SendEmailVerification {
 
 #[post("/send_email_verification", data = "<body>")]
 pub async fn admin(
-    conn: AuthDb,
     pool: Db<'_>,
     body: Json<SendEmailVerification>,
     _admin: Admin,
@@ -60,11 +59,9 @@ pub async fn admin(
     let to_email = VerifyEmail::unverify(pool.inner(), &body.user_id).await?;
 
     let project_id = body.project_id;
-    let settings = conn
-        .run(move |client| {
-            ProjectEmail::from_project_template(client, project_id, Templates::VerifyEmail)
-        })
-        .await?;
+    let settings =
+        ProjectEmail::from_project_template(pool.inner(), project_id, Templates::VerifyEmail)
+            .await?;
 
     let reset_token = Token::create();
     let hashed_token = Token::hash(&reset_token)?;

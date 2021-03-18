@@ -74,11 +74,9 @@ pub async fn sign_up(
     let verify = Flags::has_flags(pool.inner(), &project.id, &[Flags::VerifyEmail]).await;
 
     if verify.is_ok() {
-        let settings = conn
-            .run(move |client| {
-                ProjectEmail::from_project_template(client, project.id, Templates::VerifyEmail)
-            })
-            .await?;
+        let settings =
+            ProjectEmail::from_project_template(pool.inner(), project.id, Templates::VerifyEmail)
+                .await?;
 
         let reset_token = Token::create();
         let hashed_token = Token::hash(&reset_token)?;

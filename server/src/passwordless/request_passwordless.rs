@@ -74,11 +74,9 @@ pub async fn request_passwordless(
     )
     .await?;
 
-    let settings = conn
-        .run(move |client| {
-            ProjectEmail::from_project_template(client, project.id, Templates::Passwordless)
-        })
-        .await?;
+    let settings =
+        ProjectEmail::from_project_template(pool.inner(), project.id, Templates::Passwordless)
+            .await?;
 
     let link: String = format!(
         "{}{}?id={}&token={}",

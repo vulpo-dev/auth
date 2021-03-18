@@ -1,81 +1,100 @@
-use crate::db::get_query;
 use crate::response::error::ApiError;
 use crate::template::{DefaultRedirect, DefaultSubject, Template, Templates};
 
-use rocket_contrib::databases::postgres::GenericClient;
 use serde::{Deserialize, Serialize};
+use sqlx::PgPool;
 use std::convert::TryFrom;
 use uuid::Uuid;
 
 pub struct ProjectEmail;
 
 impl ProjectEmail {
-    pub fn from_project<C: GenericClient>(
-        client: &mut C,
+    pub async fn from_project(
+        pool: &PgPool,
         project_id: Uuid,
     ) -> Result<Option<EmailSettings>, ApiError> {
-        let query = get_query("settings/get_email")?;
-        let rows = client.query(query, &[&project_id]);
+        let row = sqlx::query!(
+            r#"
+                select host
+                     , from_name
+                     , from_email
+                     , password
+                     , username
+                     , port
+                  from email_settings
+                 where project_id = $1
+            "#,
+            project_id
+        )
+        .fetch_optional(pool)
+        .await
+        .map_err(|_| ApiError::InternalServerError)?;
 
-        let settings = match rows {
-            Err(_) => return Err(ApiError::InternalServerError),
-            Ok(value) => value,
-        };
+        let settings = row.map(|row| EmailSettings {
+            from_name: row.from_name,
+            from_email: row.from_email,
+            password: row.password,
+            username: row.username,
+            port: u16::try_from(row.port).unwrap(),
+            host: row.host,
+        });
 
-        let row = match settings.get(0) {
-            None => return Ok(None),
-            Some(val) => val,
-        };
-
-        let port: i32 = row.get("port");
-
-        let settings = EmailSettings {
-            from_name: row.get("from_name"),
-            from_email: row.get("from_email"),
-            password: row.get("password"),
-            username: row.get("username"),
-            port: u16::try_from(port).unwrap(),
-            host: row.get("host"),
-        };
-
-        Ok(Some(settings))
+        Ok(settings)
     }
 
-    pub fn from_project_template<C: GenericClient>(
-        client: &mut C,
+    pub async fn from_project_template(
+        pool: &PgPool,
         project_id: Uuid,
         template: Templates,
     ) -> Result<TemplateEmail, ApiError> {
-        let query = get_query("settings/template_email")?;
-        let row = match client.query_one(query, &[&project_id, &template.to_string()]) {
-            Err(_) => return Err(ApiError::InternalServerError),
-            Ok(row) => row,
-        };
+        let row = sqlx::query!(
+            r#"
+                select email_settings.host
+                     , coalesce(nullif(templates.from_name, ''), email_settings.from_name) as from_name
+                     , email_settings.from_email
+                     , email_settings.password
+                     , email_settings.username
+                     , email_settings.port
+                     , coalesce(templates.subject, null) as subject
+                     , coalesce(templates.body, null) as body
+                     , coalesce(templates.redirect_to, null) as redirect_to
+                     , project_settings.domain
+                     , project_settings.name
+                  from email_settings
+                  left join templates on templates.project_id = email_settings.project_id
+                                     and templates.of_type = $2
+                  left join project_settings on project_settings.project_id = email_settings.project_id
+                 where email_settings.project_id = $1
+            "#, project_id, template.to_string()
+        )
+        .fetch_one(pool)
+        .await
+        .map_err(|_| ApiError::InternalServerError)?;
 
-        let port: i32 = row.get("port");
+        let port: i32 = row.port;
 
         let email = EmailSettings {
-            from_name: row.get("from_name"),
-            from_email: row.get("from_email"),
-            password: row.get("password"),
-            username: row.get("username"),
+            from_name: row.from_name.unwrap(),
+            from_email: row.from_email,
+            password: row.password,
+            username: row.username,
             port: u16::try_from(port).unwrap(),
-            host: row.get("host"),
+            host: row.host,
         };
 
-        let subject: Option<String> = row.get("subject");
+        let subject: Option<String> = row.subject;
         let subject = match subject {
             None => DefaultSubject::from_template(template),
             Some(value) => value,
         };
 
-        let body: Option<String> = row.get("body");
+        let body: Option<String> = row.body;
         let body = match body {
             None => Template::get_body(template).to_string(),
             Some(value) => value,
         };
 
-        let redirect_to: Option<String> = row.get("redirect_to");
+        let redirect_to: Option<String> = row.redirect_to;
         let redirect_to = match redirect_to {
             None => DefaultRedirect::from_template(template),
             Some(value) => value,
@@ -86,39 +105,43 @@ impl ProjectEmail {
             redirect_to,
             subject,
             body,
-            domain: row.get("domain"),
-            name: row.get("name"),
+            domain: row.domain,
+            name: row.name,
         })
     }
 
-    pub fn insert<C: GenericClient>(
-        client: &mut C,
+    pub async fn insert(
+        pool: &PgPool,
         project_id: Uuid,
         settings: EmailSettings,
     ) -> Result<(), ApiError> {
-        let query = get_query("settings/set_email")?;
         let port = settings.port as i32;
+        sqlx::query!(
+            r#"
+                insert into email_settings(project_id, host, from_name, from_email, password, username, port)
+                values($1, $2, $3, $4, $5, $6, $7)
+                on conflict (project_id)
+                  do update
+                        set host = $2
+                          , from_name = $3
+                          , from_email = $4
+                          , password = $5
+                          , username = $6
+                          , port = $7 
+            "#,
+            project_id,
+            settings.host,
+            settings.from_name,
+            settings.from_email,
+            settings.password,
+            settings.username,
+            port,
+        )
+        .execute(pool)
+        .await
+        .map_err(|_| ApiError::InternalServerError)?;
 
-        let row = client.query(
-            query,
-            &[
-                &project_id,
-                &settings.host,
-                &settings.from_name,
-                &settings.from_email,
-                &settings.password,
-                &settings.username,
-                &port,
-            ],
-        );
-
-        match row {
-            Err(err) => {
-                println!("{:?}", err);
-                Err(ApiError::InternalServerError)
-            }
-            Ok(_) => Ok(()),
-        }
+        Ok(())
     }
 }
 

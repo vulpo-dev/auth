@@ -46,11 +46,9 @@ pub async fn request_password_reset(
     let hashed_token = Token::hash(&reset_token)?;
     let token_id = PasswordReset::insert(pool.inner(), &user.id, hashed_token).await?;
 
-    let settings = conn
-        .run(move |client| {
-            ProjectEmail::from_project_template(client, project.id, Templates::PasswordReset)
-        })
-        .await?;
+    let settings =
+        ProjectEmail::from_project_template(pool.inner(), project.id, Templates::PasswordReset)
+            .await?;
 
     let link: String = format!(
         "{}{}?id={}&token={}",
