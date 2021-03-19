@@ -10,8 +10,8 @@ use uuid::Uuid;
 pub struct ProjectKeys {
     pub id: Uuid,
     pub project_id: Uuid,
-    pub public_key: String,
-    pub private_key: String,
+    pub public_key: Vec<u8>,
+    pub private_key: Vec<u8>,
     pub is_active: bool,
     pub expire_at: Option<DateTime<Utc>>,
     pub created_at: DateTime<Utc>,
@@ -19,8 +19,8 @@ pub struct ProjectKeys {
 
 #[derive(Debug)]
 pub struct NewProjectKeys {
-    pub public_key: String,
-    pub private_key: String,
+    pub public_key: Vec<u8>,
+    pub private_key: Vec<u8>,
     pub expire_at: Option<DateTime<Utc>>,
     pub is_active: bool,
 }
@@ -44,11 +44,8 @@ impl ProjectKeys {
         .await
         .map_err(|_| ApiError::InternalServerError)?;
 
-        let key = PKey::private_key_from_pem_passphrase(
-            row.private_key.as_bytes(),
-            passphrase.as_bytes(),
-        )
-        .map_err(|_| ApiError::InternalServerError)?;
+        let key = PKey::private_key_from_pem_passphrase(&row.private_key, passphrase.as_bytes())
+            .map_err(|_| ApiError::InternalServerError)?;
 
         let private_key = key
             .private_key_to_pem_pkcs8()
@@ -58,7 +55,7 @@ impl ProjectKeys {
         private_key.map_err(|_| ApiError::InternalServerError)
     }
 
-    pub async fn get_public_key(pool: &PgPool, project_id: &Uuid) -> Result<String, ApiError> {
+    pub async fn get_public_key(pool: &PgPool, project_id: &Uuid) -> Result<Vec<u8>, ApiError> {
         sqlx::query!(
             r#"
             select public_key
@@ -90,8 +87,8 @@ impl ProjectKeys {
         NewProjectKeys {
             is_active,
             expire_at,
-            public_key: String::from_utf8(public_key).unwrap(),
-            private_key: String::from_utf8(private_key).unwrap(),
+            public_key,
+            private_key,
         }
     }
 }

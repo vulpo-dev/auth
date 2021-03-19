@@ -4,7 +4,6 @@ use crate::db::Db;
 use crate::response::error::ApiError;
 use crate::session::data::ProjectKeys;
 
-use rocket::Config;
 use rocket::State;
 use rocket_contrib::json::Json;
 use serde::Serialize;
@@ -25,7 +24,6 @@ pub async fn has(pool: Db<'_>) -> Result<Json<Project>, ApiError> {
 pub async fn create_admin(
     pool: Db<'_>,
     secrets: State<'_, Secrets>,
-    config: State<'_, Config>,
 ) -> Result<Json<Project>, ApiError> {
     let project = Admin::get_project(pool.inner()).await?;
 
@@ -33,7 +31,7 @@ pub async fn create_admin(
         return Err(ApiError::AdminProjectExists);
     }
 
-    let domain = format!("http://127.0.0.1:{}", config.port);
+    let domain = format!("http://127.0.0.1:{}", 8000);
 
     let project = NewProject {
         name: "Admin".to_string(),

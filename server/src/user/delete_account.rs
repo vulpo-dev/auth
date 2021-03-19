@@ -1,12 +1,13 @@
 use crate::admin::data::Admin;
 use crate::db::Db;
 use crate::response::error::ApiError;
+use crate::session::data::Token;
+use crate::session::data::{RefreshAccessToken, Session};
 use crate::user::data::User;
 
 use rocket;
-use rocket::http::CookieJar;
+use rocket_contrib::json::Json;
 use rocket_contrib::uuid::Uuid;
-use uuid;
 
 #[post("/delete_account/<user_id>")]
 pub async fn admin_delete_account(
@@ -19,20 +20,22 @@ pub async fn admin_delete_account(
     Ok(())
 }
 
-// todo: authenticate caller
-#[post("/delete_account")]
-pub async fn delete_account(pool: Db<'_>, cookies: &CookieJar<'_>) -> Result<(), ApiError> {
-    let cookie = match cookies.get("refresh_token") {
-        Some(token) => token,
-        None => return Err(ApiError::AuthRefreshTokenMissing),
-    };
+#[post("/delete_account/<session_id>", data = "<rat>", rank = 2)]
+pub async fn delete_account(
+    pool: Db<'_>,
+    session_id: Uuid,
+    rat: Json<RefreshAccessToken>,
+) -> Result<(), ApiError> {
+    let session = Session::get(pool.inner(), &session_id.into_inner()).await?;
+    let claims = Session::validate_token(&session, &rat)?;
 
-    let id = match uuid::Uuid::parse_str(cookie.value()) {
-        Err(_) => return Err(ApiError::AuthRefreshTokenInvalidFormat),
-        Ok(id) => id,
-    };
+    let is_valid = Token::is_valid(pool.inner(), &claims, &session_id.into_inner()).await?;
 
-    User::remove_by_token(pool.inner(), &id).await?;
+    if !is_valid {
+        return Err(ApiError::Forbidden);
+    }
+
+    User::remove_by_token(pool.inner(), &session.user_id.unwrap()).await?;
 
     Ok(())
 }

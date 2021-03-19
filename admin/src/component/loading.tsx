@@ -29,7 +29,7 @@ export let PageLoad = () => {
 export let GhostPage = () => (
 	<Fragment>
 		<Header>
-			<h1>Authentication</h1>
+			<h1>...Loading</h1>
 		</Header>
 	</Fragment>
 )

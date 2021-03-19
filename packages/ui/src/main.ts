@@ -1,7 +1,7 @@
 
 export { Overview } from 'overview'
 export { default as Password } from 'password'
-export { DefaultConfig, AuthConfig } from 'context/config'
+export { DefaultConfig, AuthConfig, FlagsCtx } from 'context/config'
 
 export {
 	DefaultTranslation,

@@ -1,6 +1,6 @@
 import type {
 	UserState,
-	User as UserId,
+	User,
 	AuthCallback,
 	SessionResponse,
 	Config,
@@ -130,5 +130,9 @@ export class Session {
 		this.listener.forEach(entry => {
 			entry.cb(session)
 		})
+	}
+
+	getActiveUser(): User | null {
+		return this.active?.user ?? null
 	}
 }

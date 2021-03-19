@@ -116,6 +116,9 @@ impl ApiError {
             ApiError::InternalServerError => Status::InternalServerError,
             ApiError::NotFound => Status::NotFound,
             ApiError::Forbidden => Status::Forbidden,
+            ApiError::TokenInvalid => Status::Forbidden,
+            ApiError::ProjectNameExists | ApiError::UserExists => Status::Conflict,
+            ApiError::ProjectNotFound => Status::NotFound,
             _ => Status::InternalServerError,
         }
     }

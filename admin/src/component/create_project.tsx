@@ -1,5 +1,5 @@
 import React from 'react'
-import { SyntheticEvent, useState, FC } from 'react'
+import { SyntheticEvent, useState, FunctionComponent } from 'react'
 import styled from 'styled-components'
 import { useForm, useMounted } from '@biotic-ui/std'
 import { Input, Label, Section } from '@biotic-ui/input'
@@ -21,7 +21,7 @@ type Props = {
 	onSuccess: (p: PartialProject) => void;
 }
 
-let CreateProject: FC<Props> = ({ onSuccess }) => {
+let CreateProject: FunctionComponent<Props> = ({ onSuccess, ...props }) => {
 	let isMounted = useMounted()
 	let [error, setError] = useState<ApiError | null>(null)
 	let [loading, setLoading] = useState<boolean>(false)
@@ -50,8 +50,8 @@ let CreateProject: FC<Props> = ({ onSuccess }) => {
 	}
 
 	return (
-		<Wrapper>
-			<h1>Create New Project</h1>
+		<Wrapper {...props}>
+			<h2>Create New Project</h2>
 			<form onSubmit={handleSubmit}>
 				<Section>
 					<Label>Project Name:</Label>

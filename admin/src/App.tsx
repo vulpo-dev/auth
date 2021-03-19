@@ -1,46 +1,64 @@
 import React from 'react'
 import { useState } from 'react'
-import { Switch, Route, useHistory, useLocation } from 'react-router-dom'
+import { Switch, Route, useHistory, useLocation, Redirect } from 'react-router-dom'
 import { useAuthStateChange, useAuth } from '@riezler/auth-react'
 import { UserState } from '@riezler/auth-sdk'
 import { PageLoad } from 'component/loading'
 
 import Dashboard from 'dashboard'
 import Auth from 'auth'
+import CreateProject from 'project/create'
 
 export default function App() {
 	let history = useHistory()
 	let location = useLocation()
 
-	let [user, setUser] = useState<UserState>()
+	let [referrer] = useState(() => {
+		if (window.location.pathname.includes('/auth')) {
+			return '/'
+		}
+
+		let admin = '/admin'
+		return window.location.pathname.slice(admin.length)
+	}) 
+
 	let auth = useAuth()
+	let [currentUser, setUser] = useState<UserState>(() => {
+		return auth.getUser() ?? undefined
+	})
 
 	useAuthStateChange((user: UserState) => {
-		console.log(user)
 		setUser(user)
 		if (user === null) {
 			history.replace('/auth/#/signin')
 		}
 
-		if (user) {
-			history.replace({
-				pathname: '/'
-			})
+		if (user && !currentUser) {
+			history.replace(referrer)
 		}
 	})
 
-	if (user === undefined) {
+	if (currentUser === undefined) {
 		return <PageLoad />
 	}
 
 	return (
 		<Switch>
 			<Route path='/auth'>
-				<Auth />
+				{	!currentUser &&
+					<Auth />
+				}
+				{ currentUser &&
+					<Redirect to={referrer} />
+				}
+			</Route>
+
+			<Route path='/project/create'>
+				<CreateProject />
 			</Route>
 
 			<Route path='/'>
-				{ user === null ? <PageLoad /> : <Dashboard /> }
+				{ currentUser === null ? <PageLoad /> : <Dashboard /> }
 			</Route>
 
 		</Switch>

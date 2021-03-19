@@ -284,6 +284,10 @@ export class AuthClient {
 			.get<{ items: Array<Flag> }>(`${Url.Flags}?project=${this.config.project}`, config)
 			.then(res => res.data.items)
 	}
+
+	getUser(): User | null {
+		return this.session.getActiveUser()
+	}
 }
 
 export let Auth = {
@@ -296,11 +300,11 @@ export let Auth = {
 			}
 		})
 
-		let user = new Session(config)
-		let tokens = new Tokens(user, http)
+		let sessions = new Session(config)
+		let tokens = new Tokens(sessions, http)
 
 		let client = new AuthClient(
-			user,
+			sessions,
 			tokens,
 			http,
 			config,

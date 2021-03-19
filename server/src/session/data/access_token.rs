@@ -1,8 +1,14 @@
+use crate::db::Db;
+use crate::project::Project;
 use crate::response::error::ApiError;
+use crate::session::data::ProjectKeys;
 use crate::user::data::User;
 
 use chrono::{DateTime, Utc};
 use jsonwebtoken::{decode, encode, Algorithm, DecodingKey, EncodingKey, Header, Validation};
+use rocket::http::Status;
+use rocket::request::Outcome;
+use rocket::request::{FromRequest, Request};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -36,13 +42,55 @@ impl AccessToken {
         encode(&header, &self.0, &encodeing_key).map_err(|_| ApiError::InternalServerError)
     }
 
-    pub fn from_rsa(token: String, key: &String) -> Result<Claims, ApiError> {
+    pub fn from_rsa(token: String, key: &[u8]) -> Result<Claims, ApiError> {
         let decodeing_key =
-            DecodingKey::from_rsa_pem(key.as_bytes()).map_err(|_| ApiError::InternalServerError)?;
+            DecodingKey::from_rsa_pem(key).map_err(|_| ApiError::InternalServerError)?;
 
         match decode::<Claims>(&token, &decodeing_key, &Validation::new(Algorithm::RS256)) {
             Ok(token_data) => Ok(token_data.claims),
             Err(_) => Err(ApiError::InternalServerError),
         }
+    }
+}
+
+#[rocket::async_trait]
+impl<'a, 'r> FromRequest<'a, 'r> for AccessToken {
+    type Error = ApiError;
+
+    async fn from_request(req: &'a Request<'r>) -> Outcome<Self, Self::Error> {
+        let token_string = match req.headers().get_one("Authorization") {
+            None => return Outcome::Failure((Status::BadRequest, ApiError::AuthTokenMissing)),
+            Some(token) => token,
+        };
+
+        let project = match Project::from_request(req).await.succeeded() {
+            None => return Outcome::Failure((Status::BadRequest, ApiError::AuthTokenMissing)),
+            Some(project) => project,
+        };
+
+        let db = match Db::from_request(req).await.succeeded() {
+            None => {
+                return Outcome::Failure((Status::ServiceUnavailable, ApiError::AuthTokenMissing))
+            }
+            Some(pool) => pool,
+        };
+
+        let key = match ProjectKeys::get_public_key(db.inner(), &project.id).await {
+            Ok(key) => key,
+            Err(_) => {
+                return Outcome::Failure((Status::InternalServerError, ApiError::AuthTokenMissing));
+            }
+        };
+
+        let end = token_string.len();
+        let start = "Bearer ".len();
+        let token = &token_string[start..end];
+        let claims = match AccessToken::from_rsa(token.to_string(), &key) {
+            Ok(token) => token,
+            Err(_) => {
+                return Outcome::Failure((Status::Unauthorized, ApiError::BadRequest));
+            }
+        };
+        Outcome::Success(AccessToken(claims))
     }
 }

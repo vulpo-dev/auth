@@ -16,7 +16,6 @@ mod user;
 
 use crate::config::{DbConfig, Secrets};
 use crate::cors::CORS;
-use crate::db::Db;
 
 #[macro_use]
 extern crate rocket;
@@ -24,8 +23,6 @@ extern crate rocket;
 #[macro_use]
 extern crate diesel_migrations;
 extern crate openssl;
-
-use serde::Deserialize;
 
 use clap::App;
 use figment::{
@@ -35,16 +32,9 @@ use figment::{
 use include_dir::{include_dir, Dir};
 use rocket::fairing::AdHoc;
 use rocket::Config;
-use sqlx;
 
 const ADMIN_CLIENT: Dir = include_dir!("../admin/build");
 const TEMPLATE: Dir = include_dir!("./template");
-
-#[derive(Deserialize, Debug)]
-struct AppConfig {
-    url: String,
-    pool_size: Option<i32>,
-}
 
 #[rocket::main]
 async fn main() {
@@ -79,7 +69,6 @@ async fn main() {
             .mount("/project", project::routes())
             .mount("/settings", settings::routes())
             .mount("/template", template::routes())
-            .mount("/test", routes![test_db])
             .launch()
             .await;
     }
@@ -93,17 +82,4 @@ async fn main() {
             }
         };
     }
-}
-
-#[get("/db")]
-async fn test_db(pool: Db<'_>) -> rocket::http::Status {
-    println!("AAAAAAAAAAAAA");
-    let row = sqlx::query!("select count(*) from users")
-        .fetch_one(pool.inner())
-        .await
-        .unwrap();
-
-    println!("{:?}", row);
-
-    rocket::http::Status::Ok
 }

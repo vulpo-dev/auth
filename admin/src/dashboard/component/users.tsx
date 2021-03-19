@@ -60,15 +60,19 @@ let Users: FC<Props> = ({ project }) => {
 
 
 	async function handleDelete() {
-		await deleteUser.run(selected[0]!)
-		users.reload()
-		setSelected([])
+		if (selected[0]) {
+			await deleteUser.run(selected[0]!)
+			users.reload()
+			setSelected([])
+		}
 	}
 
 	async function handleVerify() {
-		await verifyEmail.run(selected[0]!)
-		users.reload()
-		setSelected([])
+		if (selected[0]) {
+			await verifyEmail.run(selected[0]!)
+			users.reload()
+			setSelected([])
+		}
 	}
 
 	let user = users.items?.find(user =>  user.id === selected[0])
@@ -80,9 +84,11 @@ let Users: FC<Props> = ({ project }) => {
 			return
 		}
 
-		await disableUser.run(selected[0]!, !user?.disabled)
-		users.reload()
-		setSelected([])
+		if (selected[0]) {
+			await disableUser.run(selected[0]!, !user?.disabled)
+			users.reload()
+			setSelected([])
+		}
 	}
 
 	return (
