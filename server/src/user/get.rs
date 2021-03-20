@@ -12,8 +12,14 @@ pub async fn handler(
     pool: Db<'_>,
     id: Uuid,
     project: Project,
-    _token: AccessToken,
+    token: AccessToken,
 ) -> Result<Json<User>, ApiError> {
-    let user = User::get_by_id(pool.inner(), &id.into_inner(), &project.id).await?;
+    let user_id = id.into_inner();
+
+    if !token.is_user(&user_id) {
+        return Err(ApiError::Forbidden);
+    }
+
+    let user = User::get_by_id(pool.inner(), &user_id, &project.id).await?;
     Ok(Json(user))
 }

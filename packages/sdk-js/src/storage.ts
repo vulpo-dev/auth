@@ -1,4 +1,4 @@
-import type { User, SessionId } from 'types'
+import type { User, SessionId, SessionInfo } from 'types'
 import { createStore, get, set, del } from 'idb-keyval'
 import { makeId } from 'utils'
 
@@ -6,6 +6,7 @@ export type Key = {
 	privateKey: CryptoKey,
 	publicKey: CryptoKey,
 }
+
 
 class KeyStorage {
 	store = createStore('auth-db', 'keys')
@@ -24,12 +25,6 @@ class KeyStorage {
 }
 
 export let Keys = new KeyStorage()
-
-export type SessionInfo = {
-	id: SessionId,
-	user?: User,
-	expire_at?: string
-}
 
 type SessionsChangeCallback = (sessions: Array<SessionInfo>) => void
 

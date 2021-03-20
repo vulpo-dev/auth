@@ -1,7 +1,7 @@
 use crate::db::Db;
+use crate::keys::data::ProjectKeys;
 use crate::project::Project;
 use crate::response::error::ApiError;
-use crate::session::data::ProjectKeys;
 use crate::user::data::User;
 
 use chrono::{DateTime, Utc};
@@ -10,20 +10,31 @@ use rocket::http::Status;
 use rocket::request::Outcome;
 use rocket::request::{FromRequest, Request};
 use serde::{Deserialize, Serialize};
+use uuid::Uuid;
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct Claims {
-    pub user: User,
+    pub sub: Uuid,
     pub exp: i64,
+    pub iss: Uuid,
+    pub traits: Vec<String>,
 }
 
 pub struct AccessToken(Claims);
 
 impl AccessToken {
-    pub fn new(user: &User, exp: DateTime<Utc>) -> AccessToken {
+    pub fn is_user(&self, user_id: &Uuid) -> bool {
+        self.0.sub == *user_id
+    }
+}
+
+impl AccessToken {
+    pub fn new(user: &User, exp: DateTime<Utc>, project: &Uuid) -> AccessToken {
         let claims = Claims {
-            user: user.clone(),
+            sub: user.id.clone(),
             exp: exp.timestamp(),
+            traits: user.traits.clone(),
+            iss: project.clone(),
         };
 
         AccessToken(claims)
@@ -43,10 +54,10 @@ impl AccessToken {
     }
 
     pub fn from_rsa(token: String, key: &[u8]) -> Result<Claims, ApiError> {
-        let decodeing_key =
+        let decoding_key =
             DecodingKey::from_rsa_pem(key).map_err(|_| ApiError::InternalServerError)?;
 
-        match decode::<Claims>(&token, &decodeing_key, &Validation::new(Algorithm::RS256)) {
+        match decode::<Claims>(&token, &decoding_key, &Validation::new(Algorithm::RS256)) {
             Ok(token_data) => Ok(token_data.claims),
             Err(_) => Err(ApiError::InternalServerError),
         }

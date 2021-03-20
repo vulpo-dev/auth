@@ -6,11 +6,17 @@ import type {
 	Config,
 	Unsubscribe,
 	SessionId,
+	Claims,
+	AccessToken,
+	SessionInfo,
 } from 'types'
 
-import Storage, { Sessions, SessionInfo } from 'storage'
+import Storage, { Sessions } from 'storage'
 import { shallowEqualObjects } from 'shallow-equal'
-import { makeId, getUser } from 'utils'
+import { makeId } from 'utils'
+import jwtDecode from 'jwt-decode'
+import { AxiosInstance } from 'axios'
+import { ApiError } from 'error'
 
 type Listener = {
 	id: number;
@@ -24,8 +30,10 @@ export class Session {
 
 	private getId = makeId()
 	private listener: Array<Listener> = []
+	private http: AxiosInstance;
+	private error: ApiError = new ApiError();
 
-	constructor(config: Config) {
+	constructor(config: Config, http: AxiosInstance) {
 		let id = Storage.getActive()
 			
 		Sessions.getAll().forEach(session => {
@@ -54,6 +62,7 @@ export class Session {
 		})
 
 		this.config = config
+		this.http = http
 	}
 
 	current(session?: SessionId): SessionInfo | null {
@@ -87,8 +96,23 @@ export class Session {
 		return { unsubscribe }
 	}
 
-	fromResponse(data: SessionResponse): SessionInfo {
-		let user = getUser(data.access_token)
+	async fromResponse(data: SessionResponse): Promise<SessionInfo> {
+		let user = await this.getUser(data.access_token)
+			.catch(res => Promise.reject(this.error.fromResponse(res)))
+
+		let staleSessions = Sessions
+			.getAll()
+			.filter(session => (
+				session.id !== data.session &&
+				(!session.user || session.user.id === user.id)
+			))
+
+		await Promise.all(
+			staleSessions.map(session =>  {
+				Sessions.delete(session.id)
+			})
+		)
+		
 		let session = Sessions.upsert({
 			id: data.session,
 			expire_at: data.expire_at,
@@ -97,6 +121,17 @@ export class Session {
 
 		return session
 	};
+
+	async getUser(token: AccessToken): Promise<User> {
+		let claims = jwtDecode<Claims>(token)
+		return this.http
+			.get<User>(`/user/get/${claims.sub}`, {
+				headers: {
+					'Authorization': `Bearer ${token}`,
+				}
+			})
+			.then(res => res.data)
+	}
 
 	async remove(session: SessionId) {
 		await Sessions.delete(session)

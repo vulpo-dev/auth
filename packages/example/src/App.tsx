@@ -13,6 +13,22 @@ function App() {
     })
   }
 
+  async function callApi() {
+    try {
+      let res = await auth.withToken((token: string) => {
+        return fetch('http://127.0.0.1:8001', {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          }
+        })
+      })
+
+      console.log(await res.text())
+    } catch(err) {
+      console.log({ err })
+    }
+  }
+
   return (
     <div className="App">
       <header className="App-header">
@@ -23,6 +39,9 @@ function App() {
         <Link className="App-link" to="/page">
           Page
         </Link>
+        <button onClick={callApi}>
+          Call Api
+        </button>
       </header>
 
       <button className="signOut" onClick={signOut}>Sign Out</button>

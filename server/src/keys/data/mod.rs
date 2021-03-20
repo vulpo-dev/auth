@@ -4,6 +4,7 @@ use chrono::{DateTime, Utc};
 use openssl::pkey::PKey;
 use openssl::rsa::Rsa;
 use openssl::symm::Cipher;
+use serde::Serialize;
 use sqlx::PgPool;
 use uuid::Uuid;
 
@@ -90,5 +91,27 @@ impl ProjectKeys {
             public_key,
             private_key,
         }
+    }
+}
+
+#[derive(Serialize)]
+pub struct PublicKey {
+    id: Uuid,
+    key: Vec<u8>,
+}
+
+impl PublicKey {
+    pub async fn get_all(pool: &PgPool) -> Result<Vec<PublicKey>, ApiError> {
+        sqlx::query_as!(
+            PublicKey,
+            r#"
+                select project_id as id
+                     , public_key as key
+                  from project_keys 
+            "#
+        )
+        .fetch_all(pool)
+        .await
+        .map_err(|_| ApiError::InternalServerError)
     }
 }

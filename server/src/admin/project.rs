@@ -1,8 +1,8 @@
 use crate::admin::data::{Admin, NewProject, PartialProject};
 use crate::config::Secrets;
 use crate::db::Db;
+use crate::keys::data::ProjectKeys;
 use crate::response::error::ApiError;
-use crate::session::data::ProjectKeys;
 
 use rocket::State;
 use rocket_contrib::json::Json;

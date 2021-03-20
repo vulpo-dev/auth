@@ -1,9 +1,8 @@
 use crate::db::Db;
+use crate::keys::data::{NewProjectKeys, ProjectKeys};
 use crate::project::Project;
 use crate::response::error::ApiError;
-use crate::session::data::AccessToken;
-use crate::session::data::{NewProjectKeys, ProjectKeys};
-use crate::user::data::User;
+use crate::session::data::{AccessToken, Claims};
 
 use rocket::http::Status;
 use rocket::request::Outcome;
@@ -47,7 +46,7 @@ pub struct NewUser {
 }
 
 #[derive(Debug)]
-pub struct Admin(User);
+pub struct Admin(Claims);
 
 impl Admin {
     pub async fn create(pool: &PgPool, body: NewAdmin, project: Uuid) -> Result<Uuid, ApiError> {
@@ -316,10 +315,10 @@ impl<'a, 'r> FromRequest<'a, 'r> for Admin {
             }
         };
 
-        if !claims.user.traits.contains(&String::from("Admin")) {
+        if !claims.traits.contains(&String::from("Admin")) {
             return Outcome::Failure((Status::Forbidden, ApiError::AdminAuth));
         }
 
-        Outcome::Success(Admin(claims.user))
+        Outcome::Success(Admin(claims))
     }
 }

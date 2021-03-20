@@ -121,7 +121,7 @@ impl User {
         }
     }
 
-    pub async fn password(pool: &PgPool, email: String, project: Uuid) -> Result<User, ApiError> {
+    pub async fn password(pool: &PgPool, email: String, project: &Uuid) -> Result<User, ApiError> {
         let row = sqlx::query_as!(
             User,
             r#"

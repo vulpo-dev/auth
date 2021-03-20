@@ -34,7 +34,7 @@ export enum ErrorCode {
 	SessionKeysNotFound = 'session/keys_not_found',
 }
 
-type ErrorResponse = {
+export type ErrorResponse = {
 	code: ErrorCode
 }
 

@@ -10,6 +10,7 @@ export type {
 	Token,
 	TokenListener,
 	SetPassword,
+	SessionInfo,
 } from 'types'
 
 export {

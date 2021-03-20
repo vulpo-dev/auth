@@ -1,5 +1,6 @@
 use crate::config::Secrets;
 use crate::db::Db;
+use crate::keys::data::ProjectKeys;
 use crate::mail::data::VerifyEmail;
 use crate::mail::Email;
 use crate::password::validate_password_length;
@@ -7,9 +8,7 @@ use crate::project::data::Flags;
 use crate::project::Project;
 use crate::response::error::ApiError;
 use crate::response::SessionResponse;
-use crate::session::data::ProjectKeys;
-use crate::session::data::Session;
-use crate::session::data::{AccessToken, Token};
+use crate::session::data::{AccessToken, Session, Token};
 use crate::settings::data::ProjectEmail;
 use crate::template::{Template, TemplateCtx, Templates};
 use crate::user::data::User;
@@ -52,7 +51,7 @@ pub async fn sign_up(
             .await?;
 
     let exp = Utc::now() + Duration::minutes(15);
-    let access_token = AccessToken::new(&user, exp);
+    let access_token = AccessToken::new(&user, exp, &project.id);
     let access_token = match access_token.to_jwt_rsa(&private_key) {
         Ok(at) => at,
         Err(_) => return Err(ApiError::InternalServerError),

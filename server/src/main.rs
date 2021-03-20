@@ -3,6 +3,7 @@ mod config;
 mod cors;
 mod db;
 mod file;
+mod keys;
 mod mail;
 mod migration;
 mod password;
@@ -69,6 +70,7 @@ async fn main() {
             .mount("/project", project::routes())
             .mount("/settings", settings::routes())
             .mount("/template", template::routes())
+            .mount("/keys", keys::routes())
             .launch()
             .await;
     }

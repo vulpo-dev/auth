@@ -9,15 +9,23 @@ import {
 	SetPassword,
 	Url,
 	Flag,
+	SessionInfo,
 } from 'types'
 
 import { Session } from 'session'
 import { Tokens } from 'tokens'
-import { ApiError, ErrorCode, ClientError, SessionNotFoundError, SessionKeysNotFoundError } from 'error'
+import {
+	ApiError,
+	ErrorCode,
+	ClientError,
+	SessionNotFoundError,
+	SessionKeysNotFoundError,
+	ErrorResponse,
+} from 'error'
 import { createSession, getPublicKey, generateAccessToken, ratPayload } from 'keys'
-import { Sessions, Keys, SessionInfo } from 'storage'
+import { Sessions, Keys } from 'storage'
 
-import Axios, { AxiosInstance, AxiosRequestConfig } from 'axios'
+import Axios, { AxiosInstance, AxiosRequestConfig, AxiosError } from 'axios'
 
 export const CancelToken = Axios.CancelToken;
 
@@ -51,17 +59,22 @@ export class AuthClient {
 			session: session.id,
 		}
 
+		let onError = async (res: AxiosError<ErrorResponse>) => {
+			await Sessions.delete(session.id)
+			return Promise.reject(this.error.fromResponse(res))
+		}
+
 		let { data } = await this.http
 			.post<SessionResponse>(Url.SignIn, payload, config)
-			.catch(async res => {
-				await Sessions.delete(session.id)
-				return Promise.reject(this.error.fromResponse(res))
-			})
+			.catch(onError)
 		
-		let user = await this.session.fromResponse(data)
+		let { user } = await this.session
+			.fromResponse(data)
+			.catch(onError)
+
 		await this.session.activate(data.session)
 		this.tokens.fromResponse(data)
-		return user
+		return user!
 	}
 
 	async signUp(email: string, password: string, config?: AxiosRequestConfig): Promise<User> {
@@ -75,17 +88,22 @@ export class AuthClient {
 			session: session.id,
 		}
 
+		let onError = async (res: AxiosError<ErrorResponse>) => {
+			await Sessions.delete(session.id)
+			return Promise.reject(this.error.fromResponse(res))
+		}
+
 		let { data } = await this.http
 			.post<SessionResponse>(Url.SignUp, payload, config)
-			.catch(async res => {
-				await Sessions.delete(session.id)
-				return Promise.reject(this.error.fromResponse(res))
-			})
+			.catch(onError)
 
-		let user = await this.session.fromResponse(data)
+		let { user } = await this.session
+			.fromResponse(data)
+			.catch(onError)
+
 		await this.session.activate(data.session)
 		this.tokens.fromResponse(data)
-		return user
+		return user!
 	}
 
 	async signOut(sessionId?: string, config?: AxiosRequestConfig): Promise<void> {
@@ -139,8 +157,6 @@ export class AuthClient {
 				? res
 				: this.error.fromResponse(res)
 
-			this.session.setCurrent(null)
-
 			throw err
 		}
 	}
@@ -165,8 +181,6 @@ export class AuthClient {
 			let err = res instanceof ClientError
 				? res
 				: this.error.fromResponse(res)
-
-			this.session.setCurrent(null)
 
 			throw err
 		}
@@ -231,10 +245,10 @@ export class AuthClient {
 				})
 
 				this.tokens.fromResponse(data)
-				let user = await this.session.fromResponse(data)
+				let { user } = await this.session.fromResponse(data)
 
 				this.session.activate(data.session)
-				resolve(user)
+				resolve(user!)
 			}
 
 			check().catch(async err => {
@@ -300,7 +314,7 @@ export let Auth = {
 			}
 		})
 
-		let sessions = new Session(config)
+		let sessions = new Session(config, http)
 		let tokens = new Tokens(sessions, http)
 
 		let client = new AuthClient(

@@ -46,7 +46,7 @@ impl Fairing for CORS {
         ));
         response.set_header(Header::new(
             "Access-Control-Allow-Headers",
-            "Content-Type, Bento-Project",
+            "Content-Type, Bento-Project, Authorization",
         ));
         response.set_header(Header::new("Access-Control-Allow-Credentials", "false"));
 

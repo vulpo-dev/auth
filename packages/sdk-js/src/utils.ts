@@ -9,8 +9,3 @@ export let makeId = (): (() => number) => {
 		return tmp
 	}
 }
-
-export function getUser(token: AccessToken): User {
-	let { user } = jwtDecode<{ user: User }>(token)
-	return user 
-}

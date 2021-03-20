@@ -1,9 +1,10 @@
 use crate::config::Secrets;
 use crate::db::Db;
+use crate::keys::data::ProjectKeys;
 use crate::project::Project;
 use crate::response::error::ApiError;
 use crate::response::SessionResponse;
-use crate::session::data::{AccessToken, ProjectKeys, RefreshAccessToken, Session, Token};
+use crate::session::data::{AccessToken, RefreshAccessToken, Session, Token};
 use crate::user::data::User;
 
 use chrono::{Duration, Utc};
@@ -43,7 +44,7 @@ pub async fn handler(
     let user = User::get_by_id(pool.inner(), &user_id, &project.id).await?;
 
     let exp = Utc::now() + Duration::minutes(15);
-    let access_token = AccessToken::new(&user, exp);
+    let access_token = AccessToken::new(&user, exp, &project.id);
     let access_token = match access_token.to_jwt_rsa(&private_key) {
         Ok(at) => at,
         Err(_) => return Err(ApiError::InternalServerError),
