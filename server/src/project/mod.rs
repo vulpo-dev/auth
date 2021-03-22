@@ -20,10 +20,10 @@ pub struct Project {
 }
 
 #[rocket::async_trait]
-impl<'a, 'r> FromRequest<'a, 'r> for Project {
+impl<'r> FromRequest<'r> for Project {
     type Error = ProjectError;
 
-    async fn from_request(req: &'a Request<'r>) -> request::Outcome<Self, Self::Error> {
+    async fn from_request(req: &'r Request<'_>) -> request::Outcome<Self, Self::Error> {
         let id = match req.headers().get_one("Bento-Project") {
             None => return Outcome::Failure((Status::BadRequest, ProjectError::IdMissing)),
             Some(id) => id,

@@ -27,10 +27,10 @@ jsonwebtoken = "7.2.0"
 chrono = { version = "0.4.19", features = ["serde"] }
 openssl-sys = "0.9"
 openssl = { version = "0.10" }
-figment = { version = "0.9.4", features= ["env"] }
+figment = { version = "0.10.3", features= ["env"] }
 
 [dependencies.sqlx]
-version = "0.4.2"
+version = "0.5.1"
 default-features = false
 features = [
 	"runtime-tokio-rustls",
@@ -44,7 +44,7 @@ features = [
 [dependencies.lettre]
 git = "https://github.com/lettre/lettre"
 branch = "master"
-features = ["tokio02", "tokio02-rustls-tls", "tokio02-native-tls"]
+features = ["tokio1", "tokio1-rustls-tls", "tokio1-native-tls"]
 
 [dependencies.rocket_contrib]
 git = "https://github.com/SergioBenitez/Rocket"

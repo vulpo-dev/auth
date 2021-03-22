@@ -17,9 +17,14 @@ use rocket_contrib::uuid::Uuid as RUuid;
 async fn get_template(
     pool: Db<'_>,
     project: RUuid,
-    template: Templates,
+    template: String,
     _admin: Admin,
 ) -> Result<Json<TemplateResponse>, ApiError> {
+    let template = match Templates::from_string(&template) {
+        Some(template) => template,
+        None => return Err(ApiError::BadRequest),
+    };
+
     let project_id = project.into_inner();
     let entry = Template::from_project(pool.inner(), project_id, template).await?;
     let result = match entry {

@@ -3,7 +3,6 @@ use crate::user::data::User;
 use crate::TEMPLATE;
 
 use handlebars::Handlebars;
-use rocket::FromFormValue;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use sqlx::PgPool;
@@ -23,30 +22,24 @@ pub struct TemplateResponse {
     pub language: String,
 }
 
-#[derive(Debug, Deserialize, Serialize, PartialEq, FromFormValue, Copy, Clone)]
+#[derive(Debug, Deserialize, Serialize, PartialEq, Copy, Clone)]
 pub enum Templates {
     #[serde(rename = "change_email")]
-    #[form(value = "change_email")]
     ChangeEmail,
 
     #[serde(rename = "password_reset")]
-    #[form(value = "password_reset")]
     PasswordReset,
 
     #[serde(rename = "passwordless")]
-    #[form(value = "passwordless")]
     Passwordless,
 
     #[serde(rename = "verify_email")]
-    #[form(value = "verify_email")]
     VerifyEmail,
 
     #[serde(rename = "index")]
-    #[form(value = "index")]
     Index,
 
     #[serde(rename = "button")]
-    #[form(value = "button")]
     Button,
 }
 

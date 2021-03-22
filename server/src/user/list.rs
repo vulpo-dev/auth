@@ -4,7 +4,6 @@ use crate::response::error::ApiError;
 use crate::user::data::{PartialUser, SortDirection, TotalUsers, User, UserOrder};
 use rocket_contrib::uuid::Uuid;
 
-use rocket::http::RawStr;
 use rocket_contrib::json::Json;
 use serde::Serialize;
 use std::str::FromStr;
@@ -13,10 +12,10 @@ use std::str::FromStr;
 pub async fn handler(
     pool: Db<'_>,
     project: Uuid,
-    order_by: &RawStr,
-    sort: &RawStr,
-    offset: &RawStr,
-    limit: &RawStr,
+    order_by: String,
+    sort: String,
+    offset: String,
+    limit: String,
     _admin: Admin,
 ) -> Result<Json<Response>, ApiError> {
     let offset = match offset.as_str().parse::<i64>() {

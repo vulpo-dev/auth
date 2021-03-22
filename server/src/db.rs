@@ -33,10 +33,10 @@ impl Db<'_> {
 }
 
 #[rocket::async_trait]
-impl<'a, 'r> FromRequest<'a, 'r> for Db<'r> {
+impl<'r> FromRequest<'r> for Db<'r> {
     type Error = ApiError;
 
-    async fn from_request(request: &'a Request<'r>) -> Outcome<Self, Self::Error> {
+    async fn from_request(request: &'r Request<'_>) -> Outcome<Self, Self::Error> {
         match request.managed_state::<PgPool>() {
             None => Outcome::Failure((Status::InternalServerError, ApiError::AuthTokenMissing)),
             Some(pool) => Outcome::Success(Db(pool)),

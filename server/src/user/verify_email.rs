@@ -58,14 +58,14 @@ pub async fn admin(
 ) -> Result<Status, ApiError> {
     let to_email = VerifyEmail::unverify(pool.inner(), &body.user_id).await?;
 
-    let project_id = body.project_id;
     let settings =
-        ProjectEmail::from_project_template(pool.inner(), project_id, Templates::VerifyEmail)
+        ProjectEmail::from_project_template(pool.inner(), &body.project_id, Templates::VerifyEmail)
             .await?;
 
     let reset_token = Token::create();
     let hashed_token = Token::hash(&reset_token)?;
-    let token_id = VerifyEmail::insert(pool.inner(), &body.user_id, hashed_token).await?;
+    let token_id =
+        VerifyEmail::insert(pool.inner(), &body.user_id, hashed_token, &body.project_id).await?;
 
     let link: String = format!(
         "{}{}?id={}&token={}",

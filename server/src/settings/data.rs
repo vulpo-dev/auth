@@ -44,7 +44,7 @@ impl ProjectEmail {
 
     pub async fn from_project_template(
         pool: &PgPool,
-        project_id: Uuid,
+        project_id: &Uuid,
         template: Templates,
     ) -> Result<TemplateEmail, ApiError> {
         let row = sqlx::query!(

@@ -11,20 +11,26 @@ pub struct VerifyEmail {
 }
 
 impl VerifyEmail {
-    pub async fn insert(pool: &PgPool, user_id: &Uuid, token: String) -> Result<Uuid, ApiError> {
+    pub async fn insert(
+        pool: &PgPool,
+        user_id: &Uuid,
+        token: String,
+        project_id: &Uuid,
+    ) -> Result<Uuid, ApiError> {
         sqlx::query!(
             r#"
-            insert into verify_email (token, user_id)
-            values ($1, $2)
+            insert into verify_email (token, user_id, project_id)
+            values ($1, $2, $3)
             returning id
         "#,
             token,
-            user_id
+            user_id,
+            project_id
         )
         .fetch_one(pool)
         .await
         .map(|row| row.id)
-        .map_err(|_| ApiError::InternalServerError)
+        .map_err(|_err| ApiError::InternalServerError)
     }
 
     pub async fn get(pool: &PgPool, id: &Uuid) -> Result<VerifyEmail, ApiError> {

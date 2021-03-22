@@ -70,14 +70,15 @@ pub async fn sign_up(
 
     if verify.is_ok() {
         let settings =
-            ProjectEmail::from_project_template(pool.inner(), project.id, Templates::VerifyEmail)
+            ProjectEmail::from_project_template(pool.inner(), &project.id, Templates::VerifyEmail)
                 .await?;
 
         let reset_token = Token::create();
         let hashed_token = Token::hash(&reset_token)?;
 
         let user_id = user.clone().id;
-        let token_id = VerifyEmail::insert(pool.inner(), &user_id, hashed_token).await?;
+        let token_id =
+            VerifyEmail::insert(pool.inner(), &user_id, hashed_token, &project.id).await?;
 
         let link: String = format!(
             "{}{}?id={}&token={}",

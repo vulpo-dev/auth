@@ -69,7 +69,7 @@ pub async fn request_passwordless(
     .await?;
 
     let settings =
-        ProjectEmail::from_project_template(pool.inner(), project.id, Templates::Passwordless)
+        ProjectEmail::from_project_template(pool.inner(), &project.id, Templates::Passwordless)
             .await?;
 
     let link: String = format!(

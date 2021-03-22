@@ -277,10 +277,10 @@ impl Admin {
 }
 
 #[rocket::async_trait]
-impl<'a, 'r> FromRequest<'a, 'r> for Admin {
+impl<'r> FromRequest<'r> for Admin {
     type Error = ApiError;
 
-    async fn from_request(req: &'a Request<'r>) -> request::Outcome<Self, Self::Error> {
+    async fn from_request(req: &'r Request<'_>) -> request::Outcome<Self, Self::Error> {
         let token_string = match req.headers().get_one("Authorization") {
             None => return Outcome::Failure((Status::BadRequest, ApiError::AuthTokenMissing)),
             Some(token) => token,

@@ -6,7 +6,7 @@ use crate::settings::data::EmailSettings;
 use lettre::{
     message::{header, MultiPart, SinglePart},
     transport::smtp::authentication::Credentials,
-    AsyncSmtpTransport, Message, Tokio02Connector, Tokio02Transport,
+    AsyncSmtpTransport, AsyncTransport, Message, Tokio1Executor,
 };
 
 #[derive(Debug)]
@@ -36,11 +36,12 @@ impl Email {
             .unwrap();
 
         let creds = Credentials::new(settings.username, settings.password);
-        let mailer = AsyncSmtpTransport::<Tokio02Connector>::relay(&settings.host)
-            .unwrap()
-            .credentials(creds)
-            .port(settings.port)
-            .build();
+        let mailer: AsyncSmtpTransport<Tokio1Executor> =
+            AsyncSmtpTransport::<Tokio1Executor>::relay(&settings.host)
+                .unwrap()
+                .credentials(creds)
+                .port(settings.port)
+                .build();
 
         let res = mailer.send(email).await;
 
