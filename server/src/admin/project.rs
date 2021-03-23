@@ -16,8 +16,10 @@ pub struct Project {
 
 #[get("/__/project/has")]
 pub async fn has(pool: Db<'_>) -> Result<Json<Project>, ApiError> {
-    let id = Admin::get_project(pool.inner()).await?;
-    Ok(Json(Project { id }))
+    Admin::get_project(pool.inner())
+        .await
+        .map(|id| Project { id })
+        .map(Json)
 }
 
 #[post("/__/project/create_admin")]
@@ -53,12 +55,13 @@ pub async fn create(
     _admin: Admin,
 ) -> Result<Json<[Uuid; 1]>, ApiError> {
     let keys = ProjectKeys::create_keys(true, None, &secrets.secrets_passphrase);
-    let id = Admin::create_project(pool.inner(), &body.into_inner(), &keys).await?;
-    Ok(Json([id]))
+    Admin::create_project(pool.inner(), &body.into_inner(), &keys)
+        .await
+        .map(|id| [id])
+        .map(Json)
 }
 
 #[get("/__/project/list")]
 pub async fn list(pool: Db<'_>, _admin: Admin) -> Result<Json<Vec<PartialProject>>, ApiError> {
-    let projects = Admin::project_list(pool.inner()).await?;
-    Ok(Json(projects))
+    Admin::project_list(pool.inner()).await.map(Json)
 }

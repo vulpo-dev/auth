@@ -14,8 +14,10 @@ pub async fn handler(
     project: Project,
     _admin: Admin,
 ) -> Result<Json<[Uuid; 1]>, ApiError> {
-    let id = Admin::create(pool.inner(), body.into_inner(), project.id).await?;
-    Ok(Json([id]))
+    Admin::create(pool.inner(), body.into_inner(), project.id)
+        .await
+        .map(|id| [id])
+        .map(Json)
 }
 
 #[post("/__/create_once", data = "<body>")]
@@ -25,10 +27,13 @@ pub async fn create_once(
     project: Project,
 ) -> Result<Json<[Uuid; 1]>, ApiError> {
     let has_admin = Admin::has_admin(pool.inner()).await?;
+
     if has_admin {
         return Err(ApiError::AdminHasAdmin);
     }
 
-    let id = Admin::create(pool.inner(), body.into_inner(), project.id).await?;
-    Ok(Json([id]))
+    Admin::create(pool.inner(), body.into_inner(), project.id)
+        .await
+        .map(|id| [id])
+        .map(Json)
 }

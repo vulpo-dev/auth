@@ -18,29 +18,23 @@ pub async fn handler(
     limit: String,
     _admin: Admin,
 ) -> Result<Json<Response>, ApiError> {
-    let offset = match offset.as_str().parse::<i64>() {
-        Err(_) => return Err(ApiError::InternalServerError),
-        Ok(offset) => offset,
-    };
+    let offset = offset
+        .as_str()
+        .parse::<i64>()
+        .map_err(|_| ApiError::BadRequest)?;
 
-    let limit = match limit.as_str().parse::<i64>() {
-        Err(_) => return Err(ApiError::InternalServerError),
-        Ok(limit) => limit,
-    };
+    let limit = limit
+        .as_str()
+        .parse::<i64>()
+        .map_err(|_| ApiError::BadRequest)?;
 
-    let order_by = match UserOrder::from_str(order_by.as_str()) {
-        Err(_) => return Err(ApiError::InternalServerError),
-        Ok(order) => order,
-    };
+    let order_by = UserOrder::from_str(order_by.as_str()).map_err(|_| ApiError::BadRequest)?;
+    let direction = SortDirection::from_str(sort.as_str()).map_err(|_| ApiError::BadRequest)?;
 
-    let direction = match SortDirection::from_str(sort.as_str()) {
-        Err(_) => return Err(ApiError::InternalServerError),
-        Ok(sort) => sort,
-    };
-
-    let users = User::list(pool.inner(), &project, &order_by, direction, offset, limit).await?;
-    let result = Response { items: users };
-    Ok(Json(result))
+    User::list(pool.inner(), &project, &order_by, direction, offset, limit)
+        .await
+        .map(|items| Response { items })
+        .map(Json)
 }
 
 #[derive(Serialize)]
@@ -50,6 +44,5 @@ pub struct Response {
 
 #[get("/total?<project>")]
 pub async fn total(pool: Db<'_>, project: Uuid) -> Result<Json<TotalUsers>, ApiError> {
-    let result = User::total(pool.inner(), &project).await?;
-    Ok(Json(result))
+    User::total(pool.inner(), &project).await.map(Json)
 }

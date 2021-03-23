@@ -78,11 +78,7 @@ pub async fn admin(
         user: None,
     };
 
-    let content = match Template::render(settings.body, ctx) {
-        Err(_) => return Err(ApiError::TemplateRender),
-        Ok(v) => v,
-    };
-
+    let content = Template::render(settings.body, ctx).map_err(|_| ApiError::TemplateRender)?;
     let email = Email {
         to_email,
         subject: settings.subject,

@@ -14,7 +14,9 @@ pub struct PublicKeys {
 
 #[get("/")]
 pub async fn handler(pool: Db<'_>) -> Result<Json<PublicKeys>, ApiError> {
-    let keys = PublicKey::get_all(pool.inner()).await?;
     let expire_at = Utc::now() + Duration::hours(6);
-    Ok(Json(PublicKeys { keys, expire_at }))
+    PublicKey::get_all(pool.inner())
+        .await
+        .map(|keys| PublicKeys { keys, expire_at })
+        .map(Json)
 }

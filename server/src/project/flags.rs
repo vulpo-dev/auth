@@ -8,9 +8,10 @@ use serde::Serialize;
 
 #[get("/flags?<project>")]
 pub async fn handler(pool: Db<'_>, project: Uuid) -> Result<Json<Response>, ApiError> {
-    let flags = Flags::from_project(pool.inner(), &project).await?;
-    let result = Response { items: flags };
-    Ok(Json(result))
+    Flags::from_project(pool.inner(), &project)
+        .await
+        .map(|items| Response { items })
+        .map(Json)
 }
 
 #[derive(Serialize)]

@@ -12,6 +12,8 @@ pub async fn handler(
     body: Json<NewUser>,
     _admin: Admin,
 ) -> Result<Json<[Uuid; 1]>, ApiError> {
-    let id = Admin::create_user(pool.inner(), body.into_inner()).await?;
-    Ok(Json([id]))
+    Admin::create_user(pool.inner(), body.into_inner())
+        .await
+        .map(|id| [id])
+        .map(Json)
 }

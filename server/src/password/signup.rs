@@ -51,11 +51,9 @@ pub async fn sign_up(
             .await?;
 
     let exp = Utc::now() + Duration::minutes(15);
-    let access_token = AccessToken::new(&user, exp, &project.id);
-    let access_token = match access_token.to_jwt_rsa(&private_key) {
-        Ok(at) => at,
-        Err(_) => return Err(ApiError::InternalServerError),
-    };
+    let access_token = AccessToken::new(&user, exp, &project.id)
+        .to_jwt_rsa(&private_key)
+        .map_err(|_| ApiError::InternalServerError)?;
 
     let session = Session {
         id: body.session,
@@ -91,10 +89,7 @@ pub async fn sign_up(
             user: None,
         };
 
-        let content = match Template::render(settings.body, ctx) {
-            Err(_) => return Err(ApiError::TemplateRender),
-            Ok(v) => v,
-        };
+        let content = Template::render(settings.body, ctx).map_err(|_| ApiError::TemplateRender)?;
 
         let email = Email {
             to_email: email,

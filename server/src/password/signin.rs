@@ -73,11 +73,9 @@ pub async fn sign_in(
             .await?;
 
     let exp = Utc::now() + Duration::minutes(15);
-    let access_token = AccessToken::new(&user, exp, &project.id);
-    let access_token = match access_token.to_jwt_rsa(&private_key) {
-        Ok(at) => at,
-        Err(_) => return Err(ApiError::InternalServerError),
-    };
+    let access_token = AccessToken::new(&user, exp, &project.id)
+        .to_jwt_rsa(&private_key)
+        .map_err(|_| ApiError::InternalServerError)?;
 
     Ok(SessionResponse {
         access_token,

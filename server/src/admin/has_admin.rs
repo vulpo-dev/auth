@@ -12,6 +12,8 @@ pub struct HasAdmin {
 
 #[get("/__/has_admin")]
 pub async fn handler(pool: Db<'_>) -> Result<Json<HasAdmin>, ApiError> {
-    let has = Admin::has_admin(pool.inner()).await?;
-    Ok(Json(HasAdmin { has_admin: has }))
+    Admin::has_admin(pool.inner())
+        .await
+        .map(|has_admin| HasAdmin { has_admin })
+        .map(Json)
 }

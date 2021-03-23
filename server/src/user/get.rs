@@ -20,6 +20,7 @@ pub async fn handler(
         return Err(ApiError::Forbidden);
     }
 
-    let user = User::get_by_id(pool.inner(), &user_id, &project.id).await?;
-    Ok(Json(user))
+    User::get_by_id(pool.inner(), &user_id, &project.id)
+        .await
+        .map(Json)
 }

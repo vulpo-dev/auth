@@ -58,10 +58,9 @@ pub async fn handler(
         return Err(ApiError::Forbidden);
     }
 
-    let user = if let Some(user_id) = token.user_id {
-        User::get_by_id(pool.inner(), &user_id, &token.project_id).await?
-    } else {
-        User::create_passwordless(pool.inner(), &token.email, &token.project_id).await?
+    let user = match token.user_id {
+        None => User::create_passwordless(pool.inner(), &token.email, &token.project_id).await?,
+        Some(user_id) => User::get_by_id(pool.inner(), &user_id, &token.project_id).await?,
     };
 
     let expire_at = Utc::now() + Duration::days(30);
@@ -72,11 +71,9 @@ pub async fn handler(
             .await?;
 
     let exp = Utc::now() + Duration::minutes(15);
-    let access_token = AccessToken::new(&user, exp, &project.id);
-    let access_token = match access_token.to_jwt_rsa(&private_key) {
-        Ok(at) => at,
-        Err(_) => return Err(ApiError::InternalServerError),
-    };
+    let access_token = AccessToken::new(&user, exp, &project.id)
+        .to_jwt_rsa(&private_key)
+        .map_err(|_| ApiError::InternalServerError)?;
 
     Ok(SessionResponse {
         access_token,
