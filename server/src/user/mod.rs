@@ -11,6 +11,7 @@ mod verify_email;
 pub fn routes() -> Vec<Route> {
     routes![
         get::handler,
+        get::admin_handler,
         list::handler,
         list::total,
         sign_out::sign_out,

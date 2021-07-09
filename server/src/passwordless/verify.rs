@@ -9,8 +9,8 @@ use crate::session::data::{AccessToken, RefreshAccessToken, Session, Token};
 use crate::user::data::User;
 
 use chrono::{Duration, Utc};
+use rocket::serde::json::Json;
 use rocket::State;
-use rocket_contrib::json::Json;
 use serde::Deserialize;
 use uuid::Uuid;
 
@@ -21,11 +21,11 @@ pub struct Veriy {
     pub id: Uuid,
 }
 
-#[post("/verify", data = "<body>")]
+#[post("/verify", format = "json", data = "<body>")]
 pub async fn handler(
     pool: Db<'_>,
     body: Json<Veriy>,
-    secrets: State<'_, Secrets>,
+    secrets: &State<Secrets>,
     project: Project,
 ) -> Result<SessionResponse, ApiError> {
     let token = Passwordless::get(pool.inner(), &body.id).await?;

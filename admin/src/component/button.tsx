@@ -1,9 +1,9 @@
 import React from 'react'
-import { FC } from 'react'
+import { FunctionComponent, ButtonHTMLAttributes } from 'react'
 import styled from 'styled-components'
 import { Plus, X } from 'phosphor-react'
 
-export { Button } from '@biotic-ui/button'
+export { Button, LinkButton } from '@biotic-ui/button'
 
 export let IconButton = styled.button<{ disabled?: boolean }>`
 	background: none;
@@ -17,7 +17,9 @@ export let IconButton = styled.button<{ disabled?: boolean }>`
 	padding: 0;
 `
 
-export let AddButton: FC<{ onClick?: () => void; }> = (props) => {
+type Props = ButtonHTMLAttributes<HTMLButtonElement>
+
+export let AddButton: FunctionComponent<Props> = (props) => {
 	return (
 		<IconButton {...props}>
 			<Plus size={21} />
@@ -25,7 +27,7 @@ export let AddButton: FC<{ onClick?: () => void; }> = (props) => {
 	)
 }
 
-export let CloseButton: FC<{ onClick?: () => void; }> = (props) => {
+export let CloseButton: FunctionComponent<Props> = (props) => {
 	return (
 		<IconButton {...props}>
 			<X size={24} />

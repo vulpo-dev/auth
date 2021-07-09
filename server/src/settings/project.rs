@@ -3,7 +3,7 @@ use crate::db::Db;
 use crate::project::data::Project;
 use crate::response::error::ApiError;
 
-use rocket_contrib::json::Json;
+use rocket::serde::json::Json;
 use serde::Deserialize;
 use uuid::Uuid;
 
@@ -14,7 +14,7 @@ pub struct SetProjectSettings {
     pub domain: String,
 }
 
-#[post("/project", data = "<body>")]
+#[post("/project", format = "json", data = "<body>")]
 pub async fn set_settings(
     pool: Db<'_>,
     body: Json<SetProjectSettings>,

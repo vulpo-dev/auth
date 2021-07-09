@@ -9,14 +9,14 @@ use crate::response::error::ApiError;
 pub use template::{Template, TemplateCtx};
 pub use template::{TemplateResponse, Templates};
 
+use rocket::serde::json::Json;
+use rocket::serde::uuid::Uuid;
 use rocket::Route;
-use rocket_contrib::json::Json;
-use rocket_contrib::uuid::Uuid as RUuid;
 
-#[get("/?<project>&<template>")]
+#[get("/?<project_id>&<template>")]
 async fn get_template(
     pool: Db<'_>,
-    project: RUuid,
+    project_id: Uuid,
     template: String,
     _admin: Admin,
 ) -> Result<Json<TemplateResponse>, ApiError> {
@@ -25,7 +25,6 @@ async fn get_template(
         None => return Err(ApiError::BadRequest),
     };
 
-    let project_id = project.into_inner();
     let entry = Template::from_project(pool.inner(), project_id, template).await?;
     let result = match entry {
         None => {
@@ -36,7 +35,7 @@ async fn get_template(
                 body: body.to_string(),
                 redirect_to: DefaultRedirect::from_template(template),
                 of_type: template,
-                project_id: project.into_inner(),
+                project_id,
                 is_default: true,
                 language: String::from("en"),
             }
@@ -47,7 +46,7 @@ async fn get_template(
     Ok(Json(result))
 }
 
-#[post("/", data = "<body>")]
+#[post("/", format = "json", data = "<body>")]
 async fn set_template(
     pool: Db<'_>,
     body: Json<TemplateResponse>,

@@ -4,8 +4,8 @@ use crate::db::Db;
 use crate::keys::data::ProjectKeys;
 use crate::response::error::ApiError;
 
+use rocket::serde::json::Json;
 use rocket::State;
-use rocket_contrib::json::Json;
 use serde::Serialize;
 use uuid::Uuid;
 
@@ -25,7 +25,7 @@ pub async fn has(pool: Db<'_>) -> Result<Json<Project>, ApiError> {
 #[post("/__/project/create_admin")]
 pub async fn create_admin(
     pool: Db<'_>,
-    secrets: State<'_, Secrets>,
+    secrets: &State<Secrets>,
 ) -> Result<Json<Project>, ApiError> {
     let project = Admin::get_project(pool.inner()).await?;
 
@@ -47,11 +47,11 @@ pub async fn create_admin(
     Ok(Json(Project { id: Some(id) }))
 }
 
-#[post("/__/project/create", data = "<body>")]
+#[post("/__/project/create", format = "json", data = "<body>")]
 pub async fn create(
     pool: Db<'_>,
     body: Json<NewProject>,
-    secrets: State<'_, Secrets>,
+    secrets: &State<Secrets>,
     _admin: Admin,
 ) -> Result<Json<[Uuid; 1]>, ApiError> {
     let keys = ProjectKeys::create_keys(true, None, &secrets.secrets_passphrase);

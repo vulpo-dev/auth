@@ -4,10 +4,10 @@ use crate::project::Project;
 use crate::response::error::ApiError;
 
 use rocket;
-use rocket_contrib::json::Json;
+use rocket::serde::json::Json;
 use uuid::Uuid;
 
-#[post("/__/create", data = "<body>")]
+#[post("/__/create", format = "json", data = "<body>")]
 pub async fn handler(
     pool: Db<'_>,
     body: Json<NewAdmin>,
@@ -20,7 +20,7 @@ pub async fn handler(
         .map(Json)
 }
 
-#[post("/__/create_once", data = "<body>")]
+#[post("/__/create_once", format = "json", data = "<body>")]
 pub async fn create_once(
     pool: Db<'_>,
     body: Json<NewAdmin>,

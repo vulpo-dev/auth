@@ -8,22 +8,22 @@ use crate::session::data::{AccessToken, RefreshAccessToken, Session, Token};
 use crate::user::data::User;
 
 use chrono::{Duration, Utc};
+use rocket::serde::json::Json;
+use rocket::serde::uuid::Uuid;
 use rocket::State;
-use rocket_contrib::json::Json;
-use rocket_contrib::uuid::Uuid;
 
-#[post("/refresh/<session_id>", data = "<rat>")]
+#[post("/refresh/<session_id>", format = "json", data = "<rat>")]
 pub async fn handler(
     pool: Db<'_>,
     project: Project,
     session_id: Uuid,
     rat: Json<RefreshAccessToken>,
-    secrets: State<'_, Secrets>,
+    secrets: &State<Secrets>,
 ) -> Result<SessionResponse, ApiError> {
-    let session = Session::get(pool.inner(), &session_id.into_inner()).await?;
+    let session = Session::get(pool.inner(), &session_id).await?;
     let claims = Session::validate_token(&session, &rat)?;
 
-    let is_valid = Token::is_valid(pool.inner(), &claims, &session_id.into_inner()).await?;
+    let is_valid = Token::is_valid(pool.inner(), &claims, &session_id).await?;
 
     if !is_valid {
         return Err(ApiError::Forbidden);

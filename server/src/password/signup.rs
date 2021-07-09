@@ -14,8 +14,8 @@ use crate::template::{Template, TemplateCtx, Templates};
 use crate::user::data::User;
 
 use chrono::{Duration, Utc};
+use rocket::serde::json::Json;
 use rocket::State;
-use rocket_contrib::json::Json;
 use serde::Deserialize;
 use uuid::Uuid;
 
@@ -27,12 +27,12 @@ pub struct SignUp {
     pub public_key: Vec<u8>,
 }
 
-#[post("/sign_up", data = "<body>")]
+#[post("/sign_up", format = "json", data = "<body>")]
 pub async fn sign_up(
     pool: Db<'_>,
     body: Json<SignUp>,
     project: Project,
-    secrets: State<'_, Secrets>,
+    secrets: &State<Secrets>,
 ) -> Result<SessionResponse, ApiError> {
     Flags::has_flags(
         pool.inner(),

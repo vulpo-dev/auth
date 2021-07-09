@@ -14,7 +14,6 @@ import type {
 import Storage, { Sessions } from 'storage'
 import { shallowEqualObjects } from 'shallow-equal'
 import { makeId } from 'utils'
-import jwtDecode from 'jwt-decode'
 import { AxiosInstance } from 'axios'
 import { ApiError } from 'error'
 
@@ -123,9 +122,8 @@ export class Session {
 	};
 
 	async getUser(token: AccessToken): Promise<User> {
-		let claims = jwtDecode<Claims>(token)
 		return this.http
-			.get<User>(`/user/get/${claims.sub}`, {
+			.get<User>(`/user/get`, {
 				headers: {
 					'Authorization': `Bearer ${token}`,
 				}

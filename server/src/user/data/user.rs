@@ -3,6 +3,7 @@ use crate::response::error::ApiError;
 use bcrypt::{hash, DEFAULT_COST};
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
+use serde_json;
 use serde_json::value::Value;
 use sqlx::{postgres::PgDatabaseError, Error, PgPool};
 use std::str::FromStr;
@@ -25,7 +26,39 @@ pub struct User {
     pub password: Option<String>,
 }
 
+#[derive(Deserialize)]
+pub struct UpdateUser {
+    pub id: Uuid,
+    pub display_name: Option<String>,
+    pub email: String,
+    pub traits: Vec<String>,
+    pub data: Value,
+}
+
 impl User {
+    pub async fn update(pool: &PgPool, user: &UpdateUser) -> Result<(), ApiError> {
+        sqlx::query!(
+            r#"
+                update users
+                   set display_name = $2
+                     , email = $3
+                     , traits = $4
+                     , data = $5
+                 where id = $1
+            "#,
+            user.id,
+            user.display_name,
+            user.email,
+            &user.traits,
+            user.data
+        )
+        .execute(pool)
+        .await
+        .map_err(|_| ApiError::InternalServerError)?;
+
+        Ok(())
+    }
+
     pub async fn get_by_email(
         pool: &PgPool,
         email: &str,
@@ -77,16 +110,16 @@ impl User {
         let row = sqlx::query!(
             r#"
              select id
-                 , display_name
-                 , email
-                 , email_verified
-                 , photo_url
-                 , traits
-                 , data
-                 , provider_id
-                 , created_at
-                 , updated_at
-                 , disabled
+                  , display_name
+                  , email
+                  , email_verified
+                  , photo_url
+                  , traits
+                  , data
+                  , provider_id
+                  , created_at
+                  , updated_at
+                  , disabled
                from users
               where id = $1
                 and project_id = $2

@@ -3,8 +3,7 @@ use crate::keys::data::PublicKey;
 use crate::response::error::ApiError;
 
 use chrono::{DateTime, Duration, Utc};
-use rocket_contrib::json::Json;
-use serde::Serialize;
+use rocket::serde::{json::Json, Serialize};
 
 #[derive(Serialize)]
 pub struct PublicKeys {

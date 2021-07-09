@@ -189,6 +189,7 @@ let Bar = styled.section`
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
+	z-index: 1;
 
 	h3 {
 		margin: 0;

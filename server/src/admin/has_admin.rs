@@ -2,7 +2,7 @@ use crate::admin::data::Admin;
 use crate::db::Db;
 use crate::response::error::ApiError;
 
-use rocket_contrib::json::Json;
+use rocket::serde::json::Json;
 use serde::Serialize;
 
 #[derive(Debug, Serialize)]

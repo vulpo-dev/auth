@@ -23,8 +23,8 @@ pub struct Claims {
 pub struct AccessToken(Claims);
 
 impl AccessToken {
-    pub fn is_user(&self, user_id: &Uuid) -> bool {
-        self.0.sub == *user_id
+    pub fn sub(&self) -> Uuid {
+        self.0.sub
     }
 }
 

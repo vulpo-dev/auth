@@ -4,7 +4,7 @@ use crate::response::error::ApiError;
 
 use chrono::{Duration, Utc};
 use rocket::http::Status;
-use rocket_contrib::json::Json;
+use rocket::serde::json::Json;
 use serde::Deserialize;
 use uuid::Uuid;
 
@@ -14,7 +14,7 @@ pub struct ConfirmPasswordless {
     pub token: String,
 }
 
-#[post("/confirm", data = "<body>")]
+#[post("/confirm", format = "json", data = "<body>")]
 pub async fn handler(pool: Db<'_>, body: Json<ConfirmPasswordless>) -> Result<Status, ApiError> {
     let token = Passwordless::get(pool.inner(), &body.id).await?;
 

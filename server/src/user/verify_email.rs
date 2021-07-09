@@ -10,7 +10,7 @@ use crate::template::{Template, TemplateCtx, Templates};
 
 use chrono::{Duration, Utc};
 use rocket::http::Status;
-use rocket_contrib::json::Json;
+use rocket::serde::json::Json;
 use serde::Deserialize;
 use uuid::Uuid;
 
@@ -20,7 +20,7 @@ pub struct Verify {
     pub token: String,
 }
 
-#[post("/verify_email", data = "<body>")]
+#[post("/verify_email", format = "json", data = "<body>")]
 pub async fn handler(
     pool: Db<'_>,
     body: Json<Verify>,
@@ -50,7 +50,7 @@ pub struct SendEmailVerification {
     pub project_id: Uuid,
 }
 
-#[post("/send_email_verification", data = "<body>")]
+#[post("/send_email_verification", format = "json", data = "<body>")]
 pub async fn admin(
     pool: Db<'_>,
     body: Json<SendEmailVerification>,

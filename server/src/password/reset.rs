@@ -11,8 +11,7 @@ use crate::user::data::User;
 
 use chrono::{Duration, Utc};
 use rocket::http::Status;
-use rocket_contrib::json::Json;
-use serde::Deserialize;
+use rocket::serde::{json::Json, Deserialize};
 use uuid::Uuid;
 
 #[derive(Deserialize)]
@@ -20,7 +19,7 @@ pub struct RequestPasswordReset {
     pub email: String,
 }
 
-#[post("/request_password_reset", data = "<body>")]
+#[post("/request_password_reset", format = "json", data = "<body>")]
 pub async fn request_password_reset(
     pool: Db<'_>,
     body: Json<RequestPasswordReset>,

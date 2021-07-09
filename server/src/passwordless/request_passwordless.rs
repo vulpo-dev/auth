@@ -11,8 +11,7 @@ use crate::template::{Template, TemplateCtx, Templates};
 use crate::user::data::User;
 
 use chrono::{Duration, Utc};
-use rocket_contrib::json::Json;
-use serde::{Deserialize, Serialize};
+use rocket::serde::{json::Json, Deserialize, Serialize};
 use uuid::Uuid;
 
 #[derive(Deserialize)]
@@ -28,7 +27,7 @@ pub struct PasswordlessResponse {
     pub session: Uuid,
 }
 
-#[post("/", data = "<body>")]
+#[post("/", format = "json", data = "<body>")]
 pub async fn request_passwordless(
     pool: Db<'_>,
     project: Project,

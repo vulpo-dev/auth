@@ -3,10 +3,10 @@ use crate::db::Db;
 use crate::response::error::ApiError;
 
 use rocket;
-use rocket_contrib::json::Json;
+use rocket::serde::json::Json;
 use uuid::Uuid;
 
-#[post("/__/create_user", data = "<body>")]
+#[post("/__/create_user", format = "json", data = "<body>")]
 pub async fn handler(
     pool: Db<'_>,
     body: Json<NewUser>,

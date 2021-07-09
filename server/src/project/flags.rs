@@ -1,10 +1,9 @@
 use crate::db::Db;
 use crate::project::data::Flags;
 use crate::response::error::ApiError;
-use rocket_contrib::uuid::Uuid;
+use rocket::serde::uuid::Uuid;
 
-use rocket_contrib::json::Json;
-use serde::Serialize;
+use rocket::serde::{json::Json, Serialize};
 
 #[get("/flags?<project>")]
 pub async fn handler(pool: Db<'_>, project: Uuid) -> Result<Json<Response>, ApiError> {

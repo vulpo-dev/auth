@@ -27,9 +27,7 @@ impl Email {
             .multipart(
                 MultiPart::alternative().singlepart(
                     SinglePart::builder()
-                        .header(header::ContentType(
-                            "text/html; charset=utf8".parse().unwrap(),
-                        ))
+                        .header(header::ContentType::TEXT_HTML)
                         .body(String::from(self.content)),
                 ),
             )

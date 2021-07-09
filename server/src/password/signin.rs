@@ -11,8 +11,8 @@ use crate::user::data::User;
 use bcrypt::verify;
 
 use chrono::{Duration, Utc};
+use rocket::serde::json::Json;
 use rocket::State;
-use rocket_contrib::json::Json;
 use serde::Deserialize;
 use uuid::Uuid;
 
@@ -24,12 +24,12 @@ pub struct SignIn {
     pub public_key: Vec<u8>,
 }
 
-#[post("/sign_in", data = "<body>")]
+#[post("/sign_in", format = "json", data = "<body>")]
 pub async fn sign_in(
     pool: Db<'_>,
     body: Json<SignIn>,
     project: Project,
-    secrets: State<'_, Secrets>,
+    secrets: &State<Secrets>,
 ) -> Result<SessionResponse, ApiError> {
     Flags::has_flags(
         pool.inner(),
