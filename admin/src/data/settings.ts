@@ -105,7 +105,7 @@ export function useEmailSettings(project: string): [Request<EmailSettings>, ((x:
 		let source = CancelToken.source()
 		let options = {
 			cancelToken: source.token,
-			params: { project }
+			params: { project_id: project }
 		}
 
 		http
@@ -121,6 +121,7 @@ export function useEmailSettings(project: string): [Request<EmailSettings>, ((x:
 			.catch(err => setState(state => {
 				return {
 					...state,
+					data: DefaultEmailSettings,
 					loading: false,
 					error: getErrorCode(err)
 				}

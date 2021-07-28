@@ -63,7 +63,7 @@ export function useTemplate(project: string, template: TemplateType): UseTemplat
 		let source = CancelToken.source()
 		let options = {
 			cancelToken: source.token,
-			params: { project, template }
+			params: { project_id: project, template }
 		}
 
 		setError(null)

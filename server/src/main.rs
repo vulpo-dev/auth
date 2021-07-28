@@ -57,10 +57,18 @@ async fn main() {
         .extract::<DbConfig>()
         .expect("Invalid Database config");
 
+    let secret_config = figment
+        .clone()
+        .select("secrets")
+        .extract::<Secrets>()
+        .expect("Invalid Secrets config");
+
     if matches.is_present("server") {
         let _ = rocket::custom(figment)
             .attach(CORS())
-            .attach(AdHoc::config::<Secrets>())
+            .attach(AdHoc::on_ignite("Add Secrets", |rocket| async move {
+                rocket.manage(secret_config)
+            }))
             .attach(db::create_pool(&db_config))
             .mount("/admin", admin::routes())
             .mount("/user", user::routes())

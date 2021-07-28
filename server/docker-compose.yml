@@ -1,0 +1,16 @@
+version: '2'
+
+services:
+  postgres:
+    image: postgres
+    container_name: auth_db
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+    ports:
+      - 6543:5432
+    volumes:
+      - postgres-data:/var/lib/postgres
+volumes:
+  postgres-data:

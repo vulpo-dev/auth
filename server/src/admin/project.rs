@@ -40,7 +40,7 @@ pub async fn create_admin(
         domain,
     };
 
-    let keys = ProjectKeys::create_keys(true, None, &secrets.secrets_passphrase);
+    let keys = ProjectKeys::create_keys(true, None, &secrets.passphrase);
     let id = Admin::create_project(pool.inner(), &project, &keys).await?;
     Admin::set_admin(pool.inner(), &id).await?;
 
@@ -54,7 +54,7 @@ pub async fn create(
     secrets: &State<Secrets>,
     _admin: Admin,
 ) -> Result<Json<[Uuid; 1]>, ApiError> {
-    let keys = ProjectKeys::create_keys(true, None, &secrets.secrets_passphrase);
+    let keys = ProjectKeys::create_keys(true, None, &secrets.passphrase);
     Admin::create_project(pool.inner(), &body.into_inner(), &keys)
         .await
         .map(|id| [id])

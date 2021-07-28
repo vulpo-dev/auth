@@ -54,10 +54,11 @@ let Bootstrap = () => {
 						<Setup />
 					</Route>
 
-					
-					<Route path='/'>
-						<App />
-					</Route>
+					{ auth &&
+						<Route path='/'>
+							<App />
+						</Route>
+					}
 				</Switch>
 			</Http>
 		</AuthCtx.Provider>

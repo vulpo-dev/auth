@@ -67,8 +67,7 @@ pub async fn handler(
     let session = Session::confirm(pool.inner(), &current_session.id, &user.id, &expire_at).await?;
 
     let private_key =
-        ProjectKeys::get_private_key(pool.inner(), &token.project_id, &secrets.secrets_passphrase)
-            .await?;
+        ProjectKeys::get_private_key(pool.inner(), &token.project_id, &secrets.passphrase).await?;
 
     let exp = Utc::now() + Duration::minutes(15);
     let access_token = AccessToken::new(&user, exp, &project.id)

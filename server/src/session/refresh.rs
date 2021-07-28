@@ -33,8 +33,7 @@ pub async fn handler(
     Session::extend(pool.inner(), &session.id, &expire_at).await?;
 
     let private_key =
-        ProjectKeys::get_private_key(pool.inner(), &project.id, &secrets.secrets_passphrase)
-            .await?;
+        ProjectKeys::get_private_key(pool.inner(), &project.id, &secrets.passphrase).await?;
 
     let user_id = match session.user_id {
         None => return Err(ApiError::Forbidden),

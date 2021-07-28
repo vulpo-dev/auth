@@ -47,8 +47,7 @@ pub async fn sign_up(
     let user = User::create(pool.inner(), &email, &body.password, project.id).await?;
 
     let private_key =
-        ProjectKeys::get_private_key(pool.inner(), &project.id, &secrets.secrets_passphrase)
-            .await?;
+        ProjectKeys::get_private_key(pool.inner(), &project.id, &secrets.passphrase).await?;
 
     let exp = Utc::now() + Duration::minutes(15);
     let access_token = AccessToken::new(&user, exp, &project.id)
