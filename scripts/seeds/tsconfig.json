@@ -5,4 +5,9 @@
       "knexfile.ts": "cjs"
     }
   },
+  "compilerOptions": {
+    "paths": {
+      "@sdk-js*": ["../../packages/sdk-js/src/*"]
+    }
+  }
 }

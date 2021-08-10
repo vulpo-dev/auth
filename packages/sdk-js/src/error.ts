@@ -46,6 +46,10 @@ export class ApiError {
 			return new HttpError(ErrorCode.Unavailable)
 		}
 
+		if (res.response?.status === 403) {
+			return new HttpError(ErrorCode.NotAllowed)
+		}
+
 		switch(res.response?.data?.code) {
 			case ErrorCode.NotFound:
 			case ErrorCode.BadRequest:

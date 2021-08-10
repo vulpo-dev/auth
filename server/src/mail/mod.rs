@@ -35,7 +35,7 @@ impl Email {
 
         let creds = Credentials::new(settings.username, settings.password);
         let mailer: AsyncSmtpTransport<Tokio1Executor> =
-            AsyncSmtpTransport::<Tokio1Executor>::relay(&settings.host)
+            AsyncSmtpTransport::<Tokio1Executor>::starttls_relay(&settings.host)
                 .unwrap()
                 .credentials(creds)
                 .port(settings.port)

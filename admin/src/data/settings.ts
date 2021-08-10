@@ -175,7 +175,7 @@ export function useSaveEmailSettings(project: string) {
 
 		try {
 			await http.post('settings/email', settings, {
-				params: { project },
+				params: { project_id: project },
 			})
 
 			setState({ loading: false, error: null })

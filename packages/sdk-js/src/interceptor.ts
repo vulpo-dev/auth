@@ -2,9 +2,11 @@ import type {
 	AxiosInstance,
 	AxiosRequestConfig,
 	AxiosError,
+    AxiosResponse,
 } from 'axios'
-
 import Axios from 'axios'
+
+import { ErrorCode, HttpError } from 'error'
 
 import type { AuthClient } from 'client'
 
@@ -21,12 +23,22 @@ export function addToken(axios: AxiosInstance, auth: AuthClient) {
 				}
 			}
 		} catch (err) {
+
+			if (err instanceof HttpError && err.code === ErrorCode.NotAllowed) {
+				await auth.signOut()
+			}
+
 			throw new Axios.Cancel(err.message)
 		}
 	})
 
-	axios.interceptors.response.use(res => res, async (error: AxiosError) => {
+	let onResponse = (res: AxiosResponse) => {
+		return res
+	}
+
+	axios.interceptors.response.use(onResponse, async (error: AxiosError) => {
 		const status = error.response ? error.response.status : null
+
 		if (status === 401) {
 			let token = await auth.forceToken()
 		    

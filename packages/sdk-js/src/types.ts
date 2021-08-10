@@ -1,5 +1,12 @@
 import type { AxiosInstance } from 'axios'
 
+export type EmailPasswordPayload = {
+	email: string;
+	password: string;
+	public_key: Array<number>;
+	session: string;
+}
+
 export type SessionInfo = {
 	id: SessionId,
 	user?: User | null,

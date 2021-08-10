@@ -25,7 +25,14 @@ export let adminKeys = {
 export let project = {
 	id: 'ae16cc4a-33be-4b4e-a408-e67018fe453b',
 	is_admin: false,
-	flags: []
+	flags: [
+		'auth::signin',
+		'auth::signup',
+		'action::password_reset',
+		'action::verify_email',
+		'method::email_password',
+		'method::authentication_link',
+	]
 }
 
 export let projectSettings = {

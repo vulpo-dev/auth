@@ -12,7 +12,7 @@ import {
 import { email } from '../data/settings'
 import { adminUser, getUsers } from '../data/users'
 
-import Knex from 'knex'
+import * as Knex from 'knex'
 
 exports.seed = async function(knex: Knex) {
   console.log('Delete Projects')

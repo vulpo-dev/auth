@@ -1,15 +1,14 @@
 import {
-	TokenResponse,
 	Config,
 	AuthCallback,
 	Unsubscribe,
 	User,
 	SessionResponse,
-	CancellablePromise,
 	SetPassword,
 	Url,
 	Flag,
 	SessionInfo,
+	EmailPasswordPayload
 } from 'types'
 
 import { Session } from 'session'
@@ -52,7 +51,7 @@ export class AuthClient {
 		let session = await createSession()
 		let public_key = await getPublicKey(session)
 
-		let payload =  {
+		let payload: EmailPasswordPayload = {
 			email,
 			password,
 			public_key, 
@@ -81,7 +80,7 @@ export class AuthClient {
 		let session = await createSession()
 		let public_key = await getPublicKey(session)
 
-		let payload =  {
+		let payload: EmailPasswordPayload = {
 			email,
 			password,
 			public_key, 
