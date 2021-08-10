@@ -16,8 +16,8 @@ let adminSettings = {
 }
 
 let adminKeys = {
-	public_key: fs.readFileSync(`${keyPath}/admin.pub`, { encoding: 'utf8' }),
-	private_key: fs.readFileSync(`${keyPath}/admin`, { encoding: 'utf8' }),
+	public_key: fs.readFileSync(`${keyPath}/admin.pub`),
+	private_key: fs.readFileSync(`${keyPath}/admin`),
 	is_active: true,
 	project_id: admin.id,
 }
@@ -35,8 +35,8 @@ let projectSettings = {
 }
 
 let projectKeys = {
-	public_key: fs.readFileSync(`${keyPath}/project.pub`, { encoding: 'utf8' }),
-	private_key: fs.readFileSync(`${keyPath}/project`, { encoding: 'utf8' }),
+	public_key: fs.readFileSync(`${keyPath}/project.pub`),
+	private_key: fs.readFileSync(`${keyPath}/project`),
 	is_active: true,
 	project_id: project.id
 }
