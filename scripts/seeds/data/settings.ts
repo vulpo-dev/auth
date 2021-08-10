@@ -1,7 +1,7 @@
 
-let { project } = require('./projects')
+import { project } from './projects'
 
-exports.email = {
+export let email = {
 	project_id: project.id,
 	from_name: 'DEV Localhost',
 	from_email: 'dev@riezler.dev',

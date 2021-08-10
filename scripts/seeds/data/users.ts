@@ -1,11 +1,10 @@
-let { admin, project } = require('./projects')
-let bcrypt = require('bcryptjs')
-let faker = require('faker')
+import { admin, project } from './projects'
+import * as bcrypt from 'bcryptjs'
+import * as faker from 'faker'
 
 let salt = bcrypt.genSaltSync(10);
 
-
-let adminUser = {
+export let adminUser = {
 	email: 'michael@riezler.co',
 	password: hash("password"),
 	project_id: admin.id,
@@ -15,7 +14,7 @@ let adminUser = {
 }
 
 
-function getUsers(total) {
+export function getUsers(total: number) {
 
 	let password = hash("password")
 	let emails = new Set()
@@ -36,13 +35,6 @@ function getUsers(total) {
 	})
 }
 
-
-module.exports =  {
-	getUsers,
-	adminUser
-}
-
-
-function hash(password) {
+function hash(password: string) {
 	return bcrypt.hashSync(password, salt)
 }

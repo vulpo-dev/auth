@@ -1,4 +1,4 @@
-let {
+import {
   admin,
   adminKeys,
   adminSettings,
@@ -6,12 +6,15 @@ let {
   project,
   projectKeys,
   projectSettings,
-} = require('../data/projects')
+} from '../data/projects'
 
-let { email } = require('../data/settings')
-let { adminUser, getUsers } = require('../data/users')
 
-exports.seed = async function(knex) {
+import { email } from '../data/settings'
+import { adminUser, getUsers } from '../data/users'
+
+import Knex from 'knex'
+
+exports.seed = async function(knex: Knex) {
   console.log('Delete Projects')
   await knex('projects').del()
  
