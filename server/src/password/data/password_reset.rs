@@ -11,15 +11,21 @@ pub struct PasswordReset {
 }
 
 impl PasswordReset {
-    pub async fn insert(pool: &PgPool, user_id: &Uuid, token: String) -> Result<Uuid, ApiError> {
+    pub async fn insert(
+        pool: &PgPool,
+        user_id: &Uuid,
+        project_id: &Uuid,
+        token: String,
+    ) -> Result<Uuid, ApiError> {
         sqlx::query!(
             r#"
-            insert into password_change_requests (token, user_id)
-            values ($1, $2)
+            insert into password_change_requests (token, user_id, project_id)
+            values ($1, $2, $3)
             returning id
         "#,
             token,
-            user_id
+            user_id,
+            project_id
         )
         .fetch_one(pool)
         .await

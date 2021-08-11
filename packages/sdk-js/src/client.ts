@@ -4,11 +4,13 @@ import {
 	Unsubscribe,
 	User,
 	SessionResponse,
-	SetPassword,
+	SetPasswordPayload,
 	Url,
 	Flag,
 	SessionInfo,
-	EmailPasswordPayload
+	EmailPasswordPayload,
+	PasswordResetPayload,
+	VerifyResetTokenPayload,
 } from 'types'
 
 import { Session } from 'session'
@@ -186,20 +188,22 @@ export class AuthClient {
 	}
 
 	async resetPassword(email: string, config?: AxiosRequestConfig): Promise<void> {
+		let payload: PasswordResetPayload = { email }
 		await this.http
-			.post(Url.RequestPasswordReset, { email }, config)
+			.post(Url.RequestPasswordReset, payload, config)
 			.catch(err => Promise.reject(this.error.fromResponse(err)))
 	}
 
-	async setPassword(body: SetPassword, config?: AxiosRequestConfig): Promise<void> {
+	async setPassword(body: SetPasswordPayload, config?: AxiosRequestConfig): Promise<void> {
 		await this.http
 			.post(Url.PasswordReset, body, config)
 			.catch(err => Promise.reject(this.error.fromResponse(err)))
 	}
 
 	async verifyToken(id: string, token: string, config?: AxiosRequestConfig): Promise<void> {
+		let payload: VerifyResetTokenPayload = { id, token }
 		await this.http
-			.post(Url.VerifyResetToken, { id, token }, config)
+			.post(Url.VerifyResetToken, payload, config)
 			.catch(err => Promise.reject(this.error.fromResponse(err)))
 	}
 

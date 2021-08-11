@@ -7,6 +7,22 @@ export type EmailPasswordPayload = {
 	session: string;
 }
 
+export type PasswordResetPayload = {
+	email: string;
+}
+
+export type VerifyResetTokenPayload = {
+	id: string;
+	token: string;
+}
+
+export type SetPasswordPayload = {
+	id: string;
+	token: string;
+	password1: string;
+	password2: string;
+}
+
 export type SessionInfo = {
 	id: SessionId,
 	user?: User | null,
@@ -79,13 +95,6 @@ export type AccessToken = string
 
 export interface CancellablePromise<T> extends Promise<T> {
   cancel: () => void
-}
-
-export type SetPassword = {
-	id: string;
-	token: string;
-	password1: string;
-	password2: string;
 }
 
 export enum Url {

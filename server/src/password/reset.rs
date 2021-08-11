@@ -40,7 +40,7 @@ pub async fn request_password_reset(
 
     let reset_token = Token::create();
     let hashed_token = Token::hash(&reset_token)?;
-    let token_id = PasswordReset::insert(pool.inner(), &user.id, hashed_token).await?;
+    let token_id = PasswordReset::insert(pool.inner(), &user.id, &project.id, hashed_token).await?;
 
     let settings =
         ProjectEmail::from_project_template(pool.inner(), &project.id, Templates::PasswordReset)
@@ -101,8 +101,8 @@ pub async fn password_reset(
         return Err(ApiError::ResetInvalidToken);
     }
 
-    let expires_at = reset.created_at - Duration::minutes(30);
-    if expires_at > Utc::now() {
+    let expires_at = reset.created_at + Duration::minutes(30);
+    if Utc::now() > expires_at {
         return Err(ApiError::ResetExpired);
     }
 
@@ -134,8 +134,8 @@ pub async fn verify_token(
         return Err(ApiError::ResetInvalidToken);
     }
 
-    let expires_at = reset.created_at - Duration::minutes(30);
-    if expires_at > Utc::now() {
+    let expires_at = reset.created_at + Duration::minutes(30);
+    if Utc::now() > expires_at {
         return Err(ApiError::ResetExpired);
     }
 
