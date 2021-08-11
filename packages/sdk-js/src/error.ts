@@ -1,4 +1,4 @@
-import { AxiosError, AxiosResponse } from 'axios'
+import { AxiosError } from 'axios'
 
 export enum ErrorCode {
 	InternalServerError = 'internal_error',
@@ -32,6 +32,8 @@ export enum ErrorCode {
 
 	SessionNotFound = 'session/not_found',
 	SessionKeysNotFound = 'session/keys_not_found',
+
+	UserDisabled = 'user/disabled'
 }
 
 export type ErrorResponse = {
@@ -57,6 +59,7 @@ export class ApiError {
 			case ErrorCode.NotAllowed:
 				return new HttpError(res.response.data.code)
 
+			case ErrorCode.UserDisabled:
 			case ErrorCode.AuthTokenMissing:
 			case ErrorCode.PasswordMinLength:
 			case ErrorCode.PasswordMaxLength:

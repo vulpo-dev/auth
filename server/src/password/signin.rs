@@ -41,10 +41,6 @@ pub async fn sign_in(
     let email = body.email.trim().to_lowercase();
     let user = User::password(pool.inner(), email, &project.id).await?;
 
-    if user.disabled {
-        return Err(ApiError::UserDisabled);
-    }
-
     let password = match user.password {
         Some(ref password) => password,
         None => return Err(ApiError::UserInvalidPassword),
@@ -58,6 +54,10 @@ pub async fn sign_in(
     if !password_valid {
         return Err(ApiError::UserInvalidPassword);
     };
+
+    if user.disabled {
+        return Err(ApiError::UserDisabled);
+    }
 
     let session = Session {
         id: body.session,
