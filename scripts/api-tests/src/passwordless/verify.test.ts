@@ -16,6 +16,7 @@ import SessionResponseSchema from '../utils/schema/session-response'
 import uuid from 'uuid/v4'
 import * as bcrypt from 'bcryptjs'
 import * as jwt from 'jsonwebtoken'
+import { Algorithm } from 'jsonwebtoken'
 
 const SALT = bcrypt.genSaltSync(10);
 const EMAIL = 'michael+test_passwordless_verify@riezler.dev'
@@ -223,14 +224,15 @@ describe("Verify Passwordless", () => {
 	})
 })
 
-function generateAccessToken(payload: any, algorithm = 'RS256') {
+function generateAccessToken(payload: any, algorithm: Algorithm = 'RS256') {
 	return jwt.sign(
 		JSON.stringify(payload),
 		KEYS.privateKey,
 		{
 			algorithm,
 			header: {
-				typ: "JWT"
+				typ: "JWT",
+				alg: algorithm,
 			}
 		}
 	)

@@ -21,6 +21,11 @@ pub async fn handler(
     secrets: &State<Secrets>,
 ) -> Result<SessionResponse, ApiError> {
     let session = Session::get(pool.inner(), &session_id).await?;
+
+    if Utc::now() > session.expire_at {
+        return Err(ApiError::SessionExpired);
+    }
+
     let claims = Session::validate_token(&session, &rat)?;
 
     let is_valid = Token::is_valid(pool.inner(), &claims, &session_id).await?;

@@ -60,6 +60,7 @@ export function makeCreateSession(
 				, public_key
 				)
 			values($1, $2, $3, $4)
+			on conflict do nothing
 		`, [sessionId, projectId, userId, publicKey])
 	}
 }

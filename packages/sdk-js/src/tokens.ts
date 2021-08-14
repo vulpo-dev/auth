@@ -4,6 +4,7 @@ import {
 	SessionId,
 	AccessToken,
 	Url,
+	RefreshAccessTokenPayload,
 } from 'types'
 
 import { Session as SessionEntry } from 'storage'
@@ -62,7 +63,13 @@ export class Tokens {
 
 	private async _getToken(session: SessionEntry): Promise<AccessToken> {
 		let value = await generateAccessToken(session.id, ratPayload())
+
+		if (!value) {
+			return Promise.reject(null)
+		}
+
 		let url = Url.TokenRefresh.replace(':session', session.id)
+		let payload: RefreshAccessTokenPayload = { value }
 		let { data } = await this.http.post<SessionResponse>(url, { value })
 		this.fromResponse(data)
 		this.session.fromResponse(data)

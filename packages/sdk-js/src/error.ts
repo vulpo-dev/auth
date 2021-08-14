@@ -33,7 +33,9 @@ export enum ErrorCode {
 	SessionNotFound = 'session/not_found',
 	SessionKeysNotFound = 'session/keys_not_found',
 
-	UserDisabled = 'user/disabled'
+	UserDisabled = 'user/disabled',
+
+	SessionExpired = 'session/expired',
 }
 
 export type ErrorResponse = {
@@ -48,7 +50,7 @@ export class ApiError {
 			return new HttpError(ErrorCode.Unavailable)
 		}
 
-		if (res.response?.status === 403) {
+		if (res.response?.status === 403 && !res.response?.data.code) {
 			return new HttpError(ErrorCode.NotAllowed)
 		}
 
@@ -75,6 +77,7 @@ export class ApiError {
 			case ErrorCode.PasswordlessAwaitConfirm:
 			case ErrorCode.PasswordlessTokenExpire:
 			case ErrorCode.PasswordlessInvalidToken:
+			case ErrorCode.SessionExpired:
 				return new AuthError(res.response?.data.code)
 
 			default:

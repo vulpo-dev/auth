@@ -108,6 +108,9 @@ pub enum ApiError {
 
     #[serde(rename = "user/disabled")]
     UserDisabled,
+
+    #[serde(rename = "session/expired")]
+    SessionExpired,
 }
 
 impl ApiError {

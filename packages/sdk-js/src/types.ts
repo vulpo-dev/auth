@@ -45,6 +45,10 @@ export type VerifyPasswordlessPayload = {
 	session: string;
 }
 
+export type RefreshAccessTokenPayload = {
+	value: string;
+}
+
 export type SessionInfo = {
 	id: SessionId,
 	user?: User | null,
