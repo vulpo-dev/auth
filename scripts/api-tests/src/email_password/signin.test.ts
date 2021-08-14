@@ -8,28 +8,14 @@ import * as bcrypt from 'bcryptjs'
 
 import { Url, EmailPasswordPayload } from '@sdk-js/types'
 import { ErrorCode } from '@sdk-js/error'
-import { project } from '@seeds/data/projects'
+import { PROJECT_ID } from '../utils/env'
 
 const SALT = bcrypt.genSaltSync(10);
-const EMAIL = 'savanna.stanton+test_sign_in@ethereal.email'
+const EMAIL = 'michael+test_sign_in@riezler.dev'
 const PASSWORD = 'password'
 
-beforeEach(() => {
-	return Db.query(`
-		insert into users(email, password, project_id, provider_id)
-		values($1, $2, $3, 'email')
-		on conflict (email, project_id)
-		   do update set password = excluded.password
-	`, [EMAIL, bcrypt.hashSync(PASSWORD, SALT), project.id])
-})
-
-afterAll(() => {
-	return Db.query(`
-		delete from users
-		 where email = $1
-		   and project_id = $2
-	`, [EMAIL, project.id])
-})
+beforeEach(createUser)
+afterAll(cleanUp)
 
 describe("Sign In: Email and Password", () => {
 	test("user can sign in", async () => {
@@ -39,7 +25,7 @@ describe("Sign In: Email and Password", () => {
 		let payload: EmailPasswordPayload = {
 			email: EMAIL,
 			password: PASSWORD,
-			public_key: publicKey,
+			public_key: Array.from(Buffer.from(publicKey)),
 			session: uuid()
 		}
 
@@ -51,6 +37,7 @@ describe("Sign In: Email and Password", () => {
 		let body = SessionResponseSchema.validate(res.data)
 		expect(body).toBeTruthy()
 	})
+
 
 	test("formats email", async () => {
 
@@ -59,7 +46,7 @@ describe("Sign In: Email and Password", () => {
 		let payload: EmailPasswordPayload = {
 			email: `  ${EMAIL.toUpperCase()}   `,
 			password: PASSWORD,
-			public_key: publicKey,
+			public_key: Array.from(Buffer.from(publicKey)),
 			session: uuid()
 		}
 
@@ -72,13 +59,14 @@ describe("Sign In: Email and Password", () => {
 		expect(body).toBeTruthy()
 	})
 
+
 	test("fails for wrong password", async () => {
 		let { publicKey } = generateKeyPair()
 
 		let payload: EmailPasswordPayload = {
 			email: EMAIL,
 			password: `${PASSWORD}-wrong`,
-			public_key: publicKey,
+			public_key: Array.from(Buffer.from(publicKey)),
 			session: uuid()
 		}
 
@@ -89,6 +77,7 @@ describe("Sign In: Email and Password", () => {
 		expect(res.status).toBe(500)
 		expect(res.data.code).toBe(ErrorCode.InvalidEmailPassword)
 	})
+
 
 	test("fails for wrong email", async () => {
 		let { publicKey } = generateKeyPair()
@@ -96,7 +85,7 @@ describe("Sign In: Email and Password", () => {
 		let payload: EmailPasswordPayload = {
 			email: `wrong-${EMAIL}`,
 			password: PASSWORD,
-			public_key: publicKey,
+			public_key: Array.from(Buffer.from(publicKey)),
 			session: uuid()
 		}
 
@@ -107,6 +96,7 @@ describe("Sign In: Email and Password", () => {
 		expect(res.status).toBe(500)
 		expect(res.data.code).toBe(ErrorCode.InvalidEmailPassword)
 	})
+
 
 	test("fails for disabled user", async () => {
 
@@ -115,14 +105,14 @@ describe("Sign In: Email and Password", () => {
 			   set disabled = true
 			 where email = $1
 			   and project_id = $2 
-		`, [EMAIL, project.id])
+		`, [EMAIL, PROJECT_ID])
 
 		let { publicKey } = generateKeyPair()
 
 		let payload: EmailPasswordPayload = {
 			email: EMAIL,
 			password: PASSWORD,
-			public_key: publicKey,
+			public_key: Array.from(Buffer.from(publicKey)),
 			session: uuid()
 		}
 
@@ -134,3 +124,21 @@ describe("Sign In: Email and Password", () => {
 		expect(res.data.code).toBe(ErrorCode.UserDisabled)
 	})
 })
+
+
+function createUser() {
+	return Db.query(`
+		insert into users(email, password, project_id, provider_id)
+		values($1, $2, $3, 'email')
+		on conflict (email, project_id)
+		   do update set password = excluded.password
+	`, [EMAIL, bcrypt.hashSync(PASSWORD, SALT), PROJECT_ID])
+}
+
+function cleanUp() {
+	return Db.query(`
+		delete from users
+		 where email = $1
+		   and project_id = $2
+	`, [EMAIL, PROJECT_ID])
+}

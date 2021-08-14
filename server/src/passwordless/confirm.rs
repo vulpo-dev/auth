@@ -26,8 +26,8 @@ pub async fn handler(pool: Db<'_>, body: Json<ConfirmPasswordless>) -> Result<St
         return Err(ApiError::PasswordlessInvalidToken);
     }
 
-    let expires_at = token.created_at - Duration::minutes(30);
-    if expires_at > Utc::now() {
+    let expires_at = token.created_at + Duration::minutes(30);
+    if Utc::now() > expires_at {
         return Err(ApiError::PasswordlessTokenExpire);
     }
 

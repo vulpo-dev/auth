@@ -20,7 +20,7 @@ pub async fn handler(
         .map(Json)
 }
 
-#[get("/get?<user>&<project>")]
+#[get("/get_by_id?<user>&<project>")]
 pub async fn admin_handler(
     pool: Db<'_>,
     user: Uuid,

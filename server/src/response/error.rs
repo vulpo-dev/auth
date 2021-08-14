@@ -119,6 +119,7 @@ impl ApiError {
             ApiError::TokenInvalid => Status::Forbidden,
             ApiError::ProjectNameExists | ApiError::UserExists => Status::Conflict,
             ApiError::ProjectNotFound => Status::NotFound,
+            ApiError::PasswordlessAwaitConfirm => Status::Unauthorized,
             _ => Status::InternalServerError,
         }
     }

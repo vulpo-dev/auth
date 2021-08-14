@@ -75,7 +75,7 @@ impl Passwordless {
                 update passwordless
                    set confirmed = True
                  where id = $1
-             returning email, project_id, id
+             returning id, email, project_id
             )
             update passwordless
                set is_valid = False

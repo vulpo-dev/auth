@@ -7,37 +7,12 @@ import uuid from 'uuid/v4'
 
 import { Url, EmailPasswordPayload } from '@sdk-js/types'
 import { ErrorCode } from '@sdk-js/error'
-import { project } from '@seeds/data/projects'
+import { PROJECT_ID } from '../utils/env'
 
-const EMAIL = 'savanna.stanton+test_sign_up@ethereal.email'
+const EMAIL = 'michael+test_sign_up@riezler.dev'
 
-function cleanUp() {
-	return Db.query(`
-		delete from users
-		 where email = $1
-		   and project_id = $2
-	`, [EMAIL, project.id])
-}
-
-async function userCreated(): Promise<boolean> {
-	let result = await Db.query(`
-		select count(email)
-		  from users
-		 where email = $1
-		   and project_id = $2
-	`, [EMAIL, project.id])
-
-	let [row] = result.rows
-	return parseInt(row.count, 10) === 1
-}
-
-beforeEach(() => {
-	return cleanUp()
-})
-
-afterAll(() => {
-	return cleanUp()
-})
+beforeEach(cleanUp)
+afterAll(cleanUp)
 
 describe("Sign Up: Email and Password", () => {
 
@@ -48,7 +23,7 @@ describe("Sign Up: Email and Password", () => {
 		let payload: EmailPasswordPayload = {
 			email: EMAIL,
 			password: 'password',
-			public_key: publicKey,
+			public_key: Array.from(Buffer.from(publicKey)),
 			session: uuid()
 		}
 
@@ -65,6 +40,7 @@ describe("Sign Up: Email and Password", () => {
 		expect(userExist).toBeTruthy()
 	})
 
+
 	test("formats email", async () => {
 
 		let { publicKey } = generateKeyPair()
@@ -72,7 +48,7 @@ describe("Sign Up: Email and Password", () => {
 		let payload: EmailPasswordPayload = {
 			email: `  ${EMAIL.toUpperCase()}   `,
 			password: 'password',
-			public_key: publicKey,
+			public_key: Array.from(Buffer.from(publicKey)),
 			session: uuid()
 		}
 
@@ -85,13 +61,14 @@ describe("Sign Up: Email and Password", () => {
 		expect(body).toBeTruthy()
 	})
 
+
 	test("fails when password is to short", async () => {
 		let { publicKey } = generateKeyPair()
 
 		let payload: EmailPasswordPayload = {
 			email: EMAIL,
 			password: '1234567',
-			public_key: publicKey,
+			public_key: Array.from(Buffer.from(publicKey)),
 			session: uuid()
 		}
 
@@ -103,13 +80,14 @@ describe("Sign Up: Email and Password", () => {
 		expect(res.data.code).toBe(ErrorCode.PasswordMinLength)
 	})
 
+
 	test("fails when password is to long", async () => {
 		let { publicKey } = generateKeyPair()
 
 		let payload: EmailPasswordPayload = {
 			email: EMAIL,
 			password: '_3>pKuBc,FMD;m(WK=+=g<GSda{}$Tk0IL#>8]BWcQy.J3?/hQ{4q(hH_c*iLax^!',
-			public_key: publicKey,
+			public_key: Array.from(Buffer.from(publicKey)),
 			session: uuid()
 		}
 
@@ -121,13 +99,14 @@ describe("Sign Up: Email and Password", () => {
 		expect(res.data.code).toBe(ErrorCode.PasswordMaxLength)
 	})
 
+
 	test("fails when user exists", async () => {
 		let { publicKey } = generateKeyPair()
 
 		let payload: EmailPasswordPayload = {
 			email: EMAIL,
 			password: 'password',
-			public_key: publicKey,
+			public_key: Array.from(Buffer.from(publicKey)),
 			session: uuid()
 		}
 
@@ -142,3 +121,25 @@ describe("Sign Up: Email and Password", () => {
 	})
 
 })
+
+
+function cleanUp() {
+	return Db.query(`
+		delete from users
+		 where email = $1
+		   and project_id = $2
+	`, [EMAIL, PROJECT_ID])
+}
+
+
+async function userCreated(): Promise<boolean> {
+	let result = await Db.query(`
+		select count(email)
+		  from users
+		 where email = $1
+		   and project_id = $2
+	`, [EMAIL, PROJECT_ID])
+
+	let [row] = result.rows
+	return parseInt(row.count, 10) === 1
+}

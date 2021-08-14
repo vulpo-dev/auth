@@ -12,36 +12,16 @@ import {
 	SetPasswordPayload,
 } from '@sdk-js/types'
 import { ErrorCode } from '@sdk-js/error'
-import { project } from '@seeds/data/projects'
+import { PROJECT_ID } from '../utils/env'
 
 const SALT = bcrypt.genSaltSync(10);
-const EMAIL = 'savanna.stanton+test_reset@ethereal.email'
+const EMAIL = 'michael+test_reset@riezler.dev'
 const PASSWORD = 'password'
 const ID = '031eb841-9650-4b52-a62f-1aa2742ceb43'
 
-beforeAll(() => {
-	return Db.query(`
-		insert into users(id, email, password, project_id, provider_id)
-		values($1, $2, $3, $4, 'email')
-		on conflict (email, project_id)
-		   do update set password = excluded.password
-	`, [ID, EMAIL, bcrypt.hashSync(PASSWORD, SALT), project.id])
-})
-
-beforeEach(() => {
-	return Db.query(`
-		delete from password_change_requests
-		 where user_id = $1
-	`, [ID])
-})
-
-afterAll(() => {
-	return Db.query(`
-		delete from users
-		 where email = $1
-		   and project_id = $2
-	`, [EMAIL, project.id])
-})
+beforeAll(createUser)
+beforeEach(resetPasswordReset)
+afterAll(cleanUp)
 
 async function getToken(): Promise<{ id: string, token: string } | null> {
 	let { rows } = await Db.query(`
@@ -50,7 +30,7 @@ async function getToken(): Promise<{ id: string, token: string } | null> {
 		  from password_change_requests
 		 where user_id = $1
 		   and project_id = $2
-	`, [ID, project.id])
+	`, [ID, PROJECT_ID])
 
 	return rows[0] ?? null
 }
@@ -71,7 +51,7 @@ async function insertToken(token: string, expired: boolean = false): Promise<str
 		insert into password_change_requests (token, user_id, project_id, created_at)
 		values ($1, $2, $3, $4)
 		returning id
-	`, [token, ID, project.id, createdAt])
+	`, [token, ID, PROJECT_ID, createdAt])
 
 	return rows[0].id
 }
@@ -90,6 +70,7 @@ describe("Reset Password", () => {
 		expect(token).toBeTruthy()
 	})
 
+
 	test("should return ok for non existing user", async () => {
 		let payload: PasswordResetPayload = {
 			email: `wrong-${EMAIL}`
@@ -101,6 +82,7 @@ describe("Reset Password", () => {
 		let token = await getToken()
 		expect(token).toBe(null)
 	})
+
 
 	test("should verify reset token", async () => {
 		let { token, hashed } = generateToken()
@@ -117,6 +99,7 @@ describe("Reset Password", () => {
 
 		expect(res.status).toBe(200)
 	})
+
 
 	test("verify should fail when token is expired", async () => {
 		let { token, hashed } = generateToken()
@@ -135,6 +118,7 @@ describe("Reset Password", () => {
 		expect(res.data.code).toBe(ErrorCode.ResetExpired)
 	})
 
+
 	test("verify should fail when token is invalid", async () => {
 		let { token, hashed } = generateToken()
 		let tokenId = await insertToken(hashed)
@@ -151,6 +135,7 @@ describe("Reset Password", () => {
 		expect(res.status).toBe(500)
 		expect(res.data.code).toBe(ErrorCode.ResetInvalidToken)
 	})
+
 
 	test("should set new password", async () => {
 		let password = 'password'
@@ -181,6 +166,7 @@ describe("Reset Password", () => {
 		expect(passwordSet).toBe(true)
 	})
 
+
 	test("should fail when password is too short", async () => {
 		let password = '1234567'
 
@@ -198,6 +184,7 @@ describe("Reset Password", () => {
 		expect(res.status).toBe(500)
 		expect(res.data.code).toBe(ErrorCode.PasswordMinLength)
 	})
+
 
 	test("should fail when password is too long", async () => {
 		let password = '_3>pKuBc,FMD;m(WK=+=g<GSda{}$Tk0IL#>8]BWcQy.J3?/hQ{4q(hH_c*iLax^!'
@@ -217,6 +204,7 @@ describe("Reset Password", () => {
 		expect(res.data.code).toBe(ErrorCode.PasswordMaxLength)
 	})
 
+
 	test("should fail when passwords do not match", async () => {
 		let password = '12345678'
 
@@ -234,6 +222,7 @@ describe("Reset Password", () => {
 		expect(res.status).toBe(500)
 		expect(res.data.code).toBe(ErrorCode.ResetPasswordMismatch)
 	})
+
 
 	test("set password should fail when token is expired", async () => {
 		let password = 'password'
@@ -255,6 +244,7 @@ describe("Reset Password", () => {
 		expect(res.data.code).toBe(ErrorCode.ResetExpired)
 	})
 
+
 	test("set password should fail when token is invalid", async () => {
 		let password = 'password'
 		let { token, hashed } = generateToken()
@@ -275,3 +265,30 @@ describe("Reset Password", () => {
 		expect(res.data.code).toBe(ErrorCode.ResetInvalidToken)
 	})
 })
+
+
+function createUser() {
+	return Db.query(`
+		insert into users(id, email, password, project_id, provider_id)
+		values($1, $2, $3, $4, 'email')
+		on conflict (email, project_id)
+		   do update set password = excluded.password
+	`, [ID, EMAIL, bcrypt.hashSync(PASSWORD, SALT), PROJECT_ID])
+}
+
+
+function resetPasswordReset() {
+	return Db.query(`
+		delete from password_change_requests
+		 where user_id = $1
+	`, [ID])
+}
+
+
+function cleanUp() {
+	return Db.query(`
+		delete from users
+		 where email = $1
+		   and project_id = $2
+	`, [EMAIL, PROJECT_ID])
+}

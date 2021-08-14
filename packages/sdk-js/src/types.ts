@@ -23,6 +23,28 @@ export type SetPasswordPayload = {
 	password2: string;
 }
 
+export type RequestPasswordlessPayload = {
+	email: string;
+	public_key: Array<number>;
+	session: string;
+}
+
+export type PasswordlessResponse = {
+	id: string;
+	session: string;
+}
+
+export type ConfirmPasswordlessPayload = {
+	id: string;
+	token: string;
+}
+
+export type VerifyPasswordlessPayload = {
+	id: string;
+	token: string;
+	session: string;
+}
+
 export type SessionInfo = {
 	id: SessionId,
 	user?: User | null,

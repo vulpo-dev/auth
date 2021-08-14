@@ -11,6 +11,10 @@ import {
 	EmailPasswordPayload,
 	PasswordResetPayload,
 	VerifyResetTokenPayload,
+    RequestPasswordlessPayload,
+    PasswordlessResponse,
+    ConfirmPasswordlessPayload,
+    VerifyPasswordlessPayload,
 } from 'types'
 
 import { Session } from 'session'
@@ -211,14 +215,14 @@ export class AuthClient {
 		let session = await createSession()
 		let public_key = await getPublicKey(session)
 
-		let payload =  {
+		let payload: RequestPasswordlessPayload = {
 			email,
 			public_key, 
 			session: session.id,
 		}
 
 		let { data } = await this.http
-			.post<{ id: string }>(Url.Passwordless, payload, config)
+			.post<PasswordlessResponse>(Url.Passwordless, payload, config)
 			.catch(async err => {
 				await Sessions.delete(session.id)
 				return Promise.reject(this.error.fromResponse(err))
@@ -228,8 +232,9 @@ export class AuthClient {
 	}
 
 	async confirmPasswordless(id: string, token: string, config?: AxiosRequestConfig): Promise<void> {
+		let payload: ConfirmPasswordlessPayload = { id, token }
 		await this.http
-			.post(Url.PasswordlessConfim, { id, token }, config)
+			.post(Url.PasswordlessConfim, payload, config)
 			.catch(err => Promise.reject(this.error.fromResponse(err)))
 	}
 
@@ -242,10 +247,11 @@ export class AuthClient {
 	verifyPasswordless(id: string, session: string, config?: AxiosRequestConfig): Promise<User | null> {
 		return new Promise((resolve, reject) => {
 			let check = async () => {
-				let { data } = await this.http.get<SessionResponse>(Url.PasswordlessVerify, {
-					...config,
-					params: { token: id, session },
-				})
+				let token = await generateAccessToken(session, ratPayload())
+				let payload: VerifyPasswordlessPayload = { id, token, session }
+
+				let { data } = await this.http
+					.post<SessionResponse>(Url.PasswordlessVerify, payload, config)
 
 				this.tokens.fromResponse(data)
 				let { user } = await this.session.fromResponse(data)
@@ -254,17 +260,21 @@ export class AuthClient {
 				resolve(user!)
 			}
 
-			check().catch(async err => {
-				let error = this.error.fromResponse(err)
-				if (error.code === ErrorCode.PasswordlessAwaitConfirm) {
-					setTimeout(check, 1000)
-				} else if (Axios.isCancel(err)) {
-					resolve(null)
-				} else {
-					await Sessions.delete(session)
-					reject(error)
-				}
-			})
+			let loop = () => {
+				check().catch(async err => {
+					let error = this.error.fromResponse(err)
+					if (error.code === ErrorCode.PasswordlessAwaitConfirm) {
+						setTimeout(loop, 1000)
+					} else if (Axios.isCancel(err)) {
+						resolve(null)
+					} else {
+						await Sessions.delete(session)
+						reject(error)
+					}
+				})	
+			}
+
+			loop()
 		})
 	}
 

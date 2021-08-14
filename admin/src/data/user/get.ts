@@ -55,7 +55,7 @@ export function useUser(userId: string | null, projectId: string): UseUser {
 
 		let source = CancelToken.source()
 
-		http.get<User | null>(`/user/get?user=${userId}&project=${projectId}`)
+		http.get<User | null>(`/user/get_by_id?user=${userId}&project=${projectId}`)
 			.then(res => {
 				setState(state => {
 					return {

@@ -12,5 +12,15 @@ services:
       - 6543:5432
     volumes:
       - postgres-data:/var/lib/postgres
+
+  mailhog:
+    image: mailhog/mailhog
+    container_name: auth_mailhog
+    restart: always
+    ports:
+      - 7654:1025
+      - 8025:8025
+
+
 volumes:
   postgres-data:

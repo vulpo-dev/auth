@@ -2,3 +2,4 @@
 **/packages/**/lib/
 **/packages/**/browser/
 **.log
+**.env

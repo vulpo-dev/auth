@@ -1,9 +1,9 @@
 import Axios from 'axios'
-import { project } from '@seeds/data/projects'
+import { PROJECT_ID, SERVER_URL } from './env'
 
 export default Axios.create({
-	baseURL: "http://localhost:8000",
+	baseURL: SERVER_URL,
 	headers: {
-		'Bento-Project': project.id
+		'Bento-Project': PROJECT_ID
 	}
 })

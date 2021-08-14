@@ -181,7 +181,7 @@ impl Session {
             &public_key.unwrap(),
             &Validation::new(header.alg),
         ) {
-            Err(_err) => return Err(ApiError::Forbidden),
+            Err(_) => return Err(ApiError::Forbidden),
             Ok(body) => body,
         };
 

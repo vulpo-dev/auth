@@ -34,12 +34,15 @@ impl Email {
             .unwrap();
 
         let creds = Credentials::new(settings.username, settings.password);
+
+        let mailer = if settings.host.trim() == "localhost" {
+            AsyncSmtpTransport::<Tokio1Executor>::builder_dangerous("localhost")
+        } else {
+            AsyncSmtpTransport::<Tokio1Executor>::starttls_relay(&settings.host).unwrap()
+        };
+
         let mailer: AsyncSmtpTransport<Tokio1Executor> =
-            AsyncSmtpTransport::<Tokio1Executor>::starttls_relay(&settings.host)
-                .unwrap()
-                .credentials(creds)
-                .port(settings.port)
-                .build();
+            mailer.credentials(creds).port(settings.port).build();
 
         let res = mailer.send(email).await;
 

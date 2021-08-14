@@ -2,8 +2,8 @@ import { generateKeyPairSync } from 'crypto';
 
 
 export function generateKeyPair() {
-  let k = generateKeyPairSync('rsa', {
-    modulusLength: 4096,
+  return generateKeyPairSync('rsa', {
+    modulusLength: 2048,
     publicKeyEncoding: {
       type: 'spki',
       format: 'pem'
@@ -11,13 +11,6 @@ export function generateKeyPair() {
     privateKeyEncoding: {
       type: 'pkcs8',
       format: 'pem',
-      cipher: 'aes-256-cbc',
-      passphrase: 'top secret'
     }
   })
-
-  return {
-    publicKey: Array.from(Buffer.from(k.publicKey)),
-    privateKey: Array.from(Buffer.from(k.privateKey)),
-  }
 }
