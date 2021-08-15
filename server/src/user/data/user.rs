@@ -132,7 +132,7 @@ impl User {
         .map_err(|_| ApiError::InternalServerError)?;
 
         match row {
-            None => Err(ApiError::UserNotFound),
+            None => Err(ApiError::NotFound),
             Some(u) => {
                 let user = User {
                     id: u.id,

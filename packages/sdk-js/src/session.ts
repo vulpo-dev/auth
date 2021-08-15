@@ -1,4 +1,4 @@
-import type {
+import {
 	UserState,
 	User,
 	AuthCallback,
@@ -9,6 +9,7 @@ import type {
 	Claims,
 	AccessToken,
 	SessionInfo,
+    Url,
 } from 'types'
 
 import Storage, { Sessions } from 'storage'
@@ -123,7 +124,7 @@ export class Session {
 
 	async getUser(token: AccessToken): Promise<User> {
 		return this.http
-			.get<User>(`/user/get`, {
+			.get<User>(Url.UserGet, {
 				headers: {
 					'Authorization': `Bearer ${token}`,
 				}

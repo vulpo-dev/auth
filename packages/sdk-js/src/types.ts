@@ -138,6 +138,7 @@ export enum Url {
 	PasswordlessVerify = '/passwordless/verify',
 
 	UserVerifyEmail = '/user/verify_email',
+	UserGet = 'user/get',
 
 	TokenRefresh = '/token/refresh/:session',
 

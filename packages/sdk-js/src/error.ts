@@ -7,6 +7,7 @@ export enum ErrorCode {
 	NotAllowed = 'forbidden',
 	Unavailable = 'unavailable',
 	GenericError = 'generic_error',
+	Unauthorized = 'unauthorized',
 
 	AuthTokenMissing = 'auth/token_missing',
 	PasswordMinLength = 'password/min_length',
@@ -52,6 +53,10 @@ export class ApiError {
 
 		if (res.response?.status === 403 && !res.response?.data.code) {
 			return new HttpError(ErrorCode.NotAllowed)
+		}
+
+		if (res.response?.status === 401 && !res.response?.data.code) {
+			return new HttpError(ErrorCode.Unauthorized)
 		}
 
 		switch(res.response?.data?.code) {

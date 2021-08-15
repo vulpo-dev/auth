@@ -1,7 +1,6 @@
-import Ajv, {JSONSchemaType} from "ajv"
+import {JSONSchemaType} from "ajv"
 import { User } from '@sdk-js/types'
-
-let ajv = new Ajv()
+import Ajv from '../ajv'
 
 let schema: JSONSchemaType<User> = {
   type: "object",
@@ -29,4 +28,5 @@ let schema: JSONSchemaType<User> = {
   additionalProperties: false
 }
 
-export default schema
+export let validate = Ajv.compile(schema)
+export default { schema, validate }

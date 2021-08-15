@@ -42,7 +42,7 @@ impl AccessToken {
 
     pub fn to_jwt_rsa(&self, key: &String) -> Result<String, ApiError> {
         let key = key.as_bytes();
-        let encodeing_key = match EncodingKey::from_rsa_pem(key) {
+        let encoding_key = match EncodingKey::from_rsa_pem(key) {
             Ok(key) => key,
             Err(_) => {
                 return Err(ApiError::InternalServerError);
@@ -50,7 +50,7 @@ impl AccessToken {
         };
 
         let header = Header::new(Algorithm::RS256);
-        encode(&header, &self.0, &encodeing_key).map_err(|_| ApiError::InternalServerError)
+        encode(&header, &self.0, &encoding_key).map_err(|_| ApiError::InternalServerError)
     }
 
     pub fn from_rsa(token: String, key: &[u8]) -> Result<Claims, ApiError> {

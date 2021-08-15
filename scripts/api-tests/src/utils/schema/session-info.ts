@@ -8,7 +8,7 @@ let schema: JSONSchemaType<SessionInfo> = {
 	type: 'object',
 	properties: {
 		id: { type: 'string' },
-		user: { type: UserSchema, nullable: true },
+		user: { type: UserSchema.schema, nullable: true },
 		expire_at: { type: 'string', nullable: true }
 	},
 	required: [],
