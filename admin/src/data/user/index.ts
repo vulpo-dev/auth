@@ -95,7 +95,7 @@ export function useDeleteUser() {
 		setLoading(true)
 		
 		try {
-			await http.post(`/user/delete_account/${userId}`)
+			await http.post(`/user/admin/delete_account/${userId}`)
 		} catch(err) {
 			setError(getErrorCode(err))
 		} finally {

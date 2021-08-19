@@ -416,25 +416,6 @@ impl User {
         Ok(())
     }
 
-    pub async fn remove_by_token(pool: &PgPool, token_id: &Uuid) -> Result<(), ApiError> {
-        sqlx::query!(
-            r#"
-                delete from users
-                 where id in (
-                    select sessions.user_id as id
-                      from sessions
-                     where sessions.id = $1
-                )
-            "#,
-            token_id
-        )
-        .execute(pool)
-        .await
-        .map_err(|_| ApiError::InternalServerError)?;
-
-        Ok(())
-    }
-
     pub async fn disable(pool: &PgPool, user: &Uuid, project: &Uuid) -> Result<(), ApiError> {
         sqlx::query!(
             r#"

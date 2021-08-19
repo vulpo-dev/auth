@@ -9,7 +9,7 @@ use rocket;
 use rocket::serde::json::Json;
 use rocket::serde::uuid::Uuid;
 
-#[post("/delete_account/<user_id>")]
+#[post("/admin/delete_account/<user_id>")]
 pub async fn admin_delete_account(
     pool: Db<'_>,
     user_id: Uuid,
@@ -19,12 +19,7 @@ pub async fn admin_delete_account(
     Ok(())
 }
 
-#[post(
-    "/delete_account/<session_id>",
-    format = "json",
-    data = "<rat>",
-    rank = 2
-)]
+#[post("/delete_account/<session_id>", format = "json", data = "<rat>")]
 pub async fn delete_account(
     pool: Db<'_>,
     session_id: Uuid,
@@ -39,7 +34,7 @@ pub async fn delete_account(
         return Err(ApiError::Forbidden);
     }
 
-    User::remove_by_token(pool.inner(), &session.user_id.unwrap()).await?;
+    User::remove(pool.inner(), &session.user_id.unwrap()).await?;
 
     Ok(())
 }

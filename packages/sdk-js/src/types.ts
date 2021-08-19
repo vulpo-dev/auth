@@ -138,7 +138,8 @@ export enum Url {
 	PasswordlessVerify = '/passwordless/verify',
 
 	UserVerifyEmail = '/user/verify_email',
-	UserGet = 'user/get',
+	UserGet = '/user/get',
+	UserDeleteAccount = '/user/delete_account/:session',
 
 	TokenRefresh = '/token/refresh/:session',
 
