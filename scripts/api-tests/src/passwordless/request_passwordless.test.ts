@@ -3,7 +3,7 @@ import Http from '../utils/http'
 import { generateKeyPair } from '../utils/crypto'
 import PasswordlessResponseSchema from '../utils/schema/passwordless-response'
 
-import uuid from 'uuid/v4'
+import { v4 as uuid } from 'uuid'
 
 import { Url, RequestPasswordlessPayload } from '@sdk-js/types'
 import { ErrorCode } from '@sdk-js/error'

@@ -11,7 +11,7 @@ import {
 import UserResponseSchema from '../utils/schema/user'
 import { projectKeys } from '@seeds/data/projects'
 
-import uuid from 'uuid/v4'
+import { v4 as uuid } from 'uuid'
 import * as jwt from 'jsonwebtoken'
 import { Algorithm } from 'jsonwebtoken'
 import { differenceInDays } from 'date-fns'

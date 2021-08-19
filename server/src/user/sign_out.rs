@@ -28,7 +28,7 @@ pub async fn sign_out(
     Ok(())
 }
 
-#[post("/sign_out/<user_id>", rank = 2)]
+#[post("/admin/sign_out/<user_id>")]
 pub async fn admin_sign_out(pool: Db<'_>, user_id: Uuid, _admin: Admin) -> Result<(), ApiError> {
     Session::delete_by_user(pool.inner(), &user_id).await?;
     Ok(())

@@ -13,7 +13,7 @@ import {
 } from '../utils/passwordless'
 import SessionResponseSchema from '../utils/schema/session-response'
 
-import uuid from 'uuid/v4'
+import { v4 as uuid } from 'uuid'
 import * as bcrypt from 'bcryptjs'
 import * as jwt from 'jsonwebtoken'
 import { Algorithm } from 'jsonwebtoken'

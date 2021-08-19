@@ -3,7 +3,7 @@ import Http from '../utils/http'
 import { generateKeyPair } from '../utils/crypto'
 import SessionResponseSchema from '../utils/schema/session-response'
 
-import uuid from 'uuid/v4'
+import { v4 as uuid } from 'uuid'
 import * as bcrypt from 'bcryptjs'
 
 import { Url, EmailPasswordPayload } from '@sdk-js/types'

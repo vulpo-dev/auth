@@ -10,7 +10,7 @@ import {
 	makeResetPasswordless,
 } from '../utils/passwordless'
 
-import uuid from 'uuid/v4'
+import { v4 as uuid } from 'uuid'
 import * as bcrypt from 'bcryptjs'
 
 const SALT = bcrypt.genSaltSync(10);

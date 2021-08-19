@@ -2,7 +2,7 @@ import Db from '../utils/db'
 import Http from '../utils/http'
 import SessionResponseSchema from '../utils/schema/session-response'
 
-import uuid from 'uuid/v4'
+import { v4 as uuid } from 'uuid'
 import * as bcrypt from 'bcryptjs'
 
 import {
