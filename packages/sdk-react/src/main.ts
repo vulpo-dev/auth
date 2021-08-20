@@ -1,9 +1,7 @@
 import type {
 	AuthClient,
 	AuthCallback,
-	UserState,
 	User,
-	SetPassword,
 } from '@riezler/auth-sdk'
 
 import {
@@ -11,8 +9,6 @@ import {
 	useContext,
 	useEffect,
 	useRef,
-	useState,
-	useCallback,
 } from 'react'
 
 export let Auth = createContext<AuthClient | null>(null)
@@ -53,6 +49,6 @@ export function useAuth(): AuthClient {
 export class AuthClientError extends Error {
 	constructor(name: string) {
 		super(`Can not use auth of null, did you initialize the auth client?`)
-		this.name = 'AuthClientError'
+		this.name = `AuthClientError: ${name}`
 	}
 }

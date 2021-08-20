@@ -9,7 +9,7 @@ export type {
 	PasswordOptions,
 	Token,
 	TokenListener,
-	SetPassword,
+	SetPasswordPayload,
 	SessionInfo,
 } from 'types'
 

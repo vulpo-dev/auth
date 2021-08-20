@@ -78,7 +78,7 @@ export class AuthClient {
 			.fromResponse(data)
 			.catch(onError)
 
-		await this.session.activate(data.session)
+		this.session.activate(data.session)
 		this.tokens.fromResponse(data)
 		return user!
 	}
@@ -107,7 +107,7 @@ export class AuthClient {
 			.fromResponse(data)
 			.catch(onError)
 
-		await this.session.activate(data.session)
+		this.session.activate(data.session)
 		this.tokens.fromResponse(data)
 		return user!
 	}
@@ -138,14 +138,14 @@ export class AuthClient {
 		await this.session.remove(session)
 		let url = Url.SignOutAll.replace(':session', session)
 		await this.http
-			.post(url, undefined, config)
+			.post(url, { value }, config)
 			.catch(err => Promise.reject(this.error.fromResponse(err)))
 	}
 
 	async getToken(sessionId?: string): Promise<string> {
 		try {
 
-			let info = await this.session.current(sessionId)
+			let info = this.session.current(sessionId)
 			if (!info) {
 				return Promise.reject(new SessionNotFoundError())
 			}
@@ -163,6 +163,10 @@ export class AuthClient {
 				? res
 				: this.error.fromResponse(res)
 
+			if (this.session.active) {
+				await this.session.remove(this.session.active.id)
+			}
+
 			throw err
 		}
 	}
@@ -170,7 +174,7 @@ export class AuthClient {
 	async forceToken(sessionId?: string): Promise<string> {
 		try {
 
-			let info = await this.session.current(sessionId)
+			let info = this.session.current(sessionId)
 			if (!info) {
 				return Promise.reject(new SessionNotFoundError())
 			}
@@ -187,6 +191,10 @@ export class AuthClient {
 			let err = res instanceof ClientError
 				? res
 				: this.error.fromResponse(res)
+
+			if (this.session.active) {
+				await this.session.remove(this.session.active.id)
+			}
 
 			throw err
 		}
@@ -346,7 +354,7 @@ export let Auth = {
 		)
 
 		if (config.preload) {
-			client.forceToken().catch(err => {})
+			client.forceToken().catch(() => {})
 		}
 
 		return client

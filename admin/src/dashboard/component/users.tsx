@@ -8,7 +8,6 @@ import {
 	useVerifyEmail,
 	useDisableUser,
 } from 'data/user'
-import { format } from 'data/date'
 import {
 	Wrapper,
 	Header,
@@ -142,7 +141,7 @@ let Users: FC<Props> = ({ project }) => {
 	return (
 		<LayoutWrapper>
 			<SidebarLayout right>
-				<Aside drawer='(max-width: 900px)' open={params.has('user')} width={innerWidth * 0.3} onClose={handleClose}>
+				<Aside drawer='(max-width: 900px)' open={params.has('user')} width={innerWidth * 0.3} onClose={handleClose}>						
 					<CloseUserDetail>
 						{ params.has('user') &&
 							<StyledCloseButton>
@@ -230,6 +229,7 @@ export default Users
 
 let LayoutWrapper = styled.div`
 	height: 100%;
+	overflow-x: hidden;
 
 	aside {
 		overflow: unset;

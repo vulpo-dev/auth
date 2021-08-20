@@ -1387,10 +1387,10 @@
   dependencies:
     "@biotic-ui/leptons" "^0.3.10"
 
-"@biotic-ui/drawer@^0.3.12":
-  version "0.3.12"
-  resolved "https://registry.yarnpkg.com/@biotic-ui/drawer/-/drawer-0.3.12.tgz#2dbc06f5a365677ff726ee598b15987238e5a9f9"
-  integrity sha512-zB0yHA5Nk2MFdihMRbLiwDp/Ndve+Y6UGJD/dw7CE7ifjgTBzK9xdGr+qSmQy1HpwtWDLwAtcoWF+ebHF+iZ5g==
+"@biotic-ui/drawer@^0.3.13":
+  version "0.3.13"
+  resolved "https://registry.yarnpkg.com/@biotic-ui/drawer/-/drawer-0.3.13.tgz#4de02e02bb52d25f579d4b276269b04fde85bac0"
+  integrity sha512-UT8g8AgAQhm0Vl4ix6SG2Ds4QJOUmafw8l2oKMHKrkPR5n9TYx2VdKCY9ObxTjLEoo9uLdGThP2khcbCYCIcaw==
   dependencies:
     "@biotic-ui/leptons" "^0.3.10"
 
@@ -1399,10 +1399,10 @@
   resolved "https://registry.yarnpkg.com/@biotic-ui/input/-/input-0.3.15.tgz#4201966e63bbcab6ce61707b1027b73577521241"
   integrity sha512-Pic9LIy7+0Io23bTo7iHK0mCYplbAi88T54DHht5C6imEB+G7e4xe2+h5YbKUnz6Y53wNutSaEKBa2cyL4zUww==
 
-"@biotic-ui/layout@^0.3.12":
-  version "0.3.12"
-  resolved "https://registry.yarnpkg.com/@biotic-ui/layout/-/layout-0.3.12.tgz#90b5de35bd75270264a56b39a0becf8178d48df1"
-  integrity sha512-7aLNE/G2RtssnCx4Z/x5euL4jF7W9kbeJfFCpqOfEsqX33OBixpvlA6gaL2I7BRTPNJFaDebCsn47x0NyT9eTw==
+"@biotic-ui/layout@^0.3.14":
+  version "0.3.14"
+  resolved "https://registry.yarnpkg.com/@biotic-ui/layout/-/layout-0.3.14.tgz#f227f0a6db4932001977d08f064fe4727511b08e"
+  integrity sha512-96CQo+nclT1lA+yRRdFZN0Wjqv5iSELqropb6qd7CS2CWfwyF63sfIu8CYGvq+UJDqioDrgP3WBp6SjRWKARmw==
 
 "@biotic-ui/leptons@^0.3.10":
   version "0.3.10"
