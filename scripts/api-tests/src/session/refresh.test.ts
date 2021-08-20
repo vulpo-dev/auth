@@ -126,7 +126,7 @@ describe("Session Refresh", () => {
 			.post(url, payload)
 			.catch(err => err.response)
 
-		expect(res.status).toBe(500)
+		expect(res.status).toBe(400)
 		expect(res.data.code).toBe(ErrorCode.SessionExpired)
 	})
 
@@ -226,7 +226,7 @@ describe("Session Refresh", () => {
 			.post(url, payload)
 			.catch(err => err.response)
 
-		expect(res.status).toBe(500)
+		expect(res.status).toBe(400)
 		expect(res.data.code).toBe(ErrorCode.BadRequest)
 	})
 

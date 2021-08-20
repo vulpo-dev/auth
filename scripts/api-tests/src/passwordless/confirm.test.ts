@@ -93,7 +93,7 @@ describe("Confirm Passwordless", () => {
 			.post(Url.PasswordlessConfim, payload)
 			.catch(err => err.response)
 
-		expect(res.status).toBe(500)
+		expect(res.status).toBe(400)
 		expect(res.data.code).toBe(ErrorCode.PasswordlessInvalidToken)
 	})
 
@@ -110,7 +110,7 @@ describe("Confirm Passwordless", () => {
 			.post(Url.PasswordlessConfim, payload)
 			.catch(err => err.response)
 
-		expect(res.status).toBe(500)
+		expect(res.status).toBe(400)
 		expect(res.data.code).toBe(ErrorCode.PasswordlessInvalidToken)
 	})
 
@@ -133,7 +133,7 @@ describe("Confirm Passwordless", () => {
 			.post(Url.PasswordlessConfim, payload)
 			.catch(err => err.response)
 
-		expect(res.status).toBe(500)
+		expect(res.status).toBe(400)
 		expect(res.data.code).toBe(ErrorCode.PasswordlessTokenExpire)
 	})
 

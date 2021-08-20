@@ -76,7 +76,7 @@ describe("Sign Up: Email and Password", () => {
 			.post(Url.SignUp, payload)
 			.catch(err => err.response)
 
-		expect(res.status).toBe(500)
+		expect(res.status).toBe(400)
 		expect(res.data.code).toBe(ErrorCode.PasswordMinLength)
 	})
 
@@ -95,7 +95,7 @@ describe("Sign Up: Email and Password", () => {
 			.post(Url.SignUp, payload)
 			.catch(err => err.response)
 
-		expect(res.status).toBe(500)
+		expect(res.status).toBe(400)
 		expect(res.data.code).toBe(ErrorCode.PasswordMaxLength)
 	})
 
@@ -116,7 +116,7 @@ describe("Sign Up: Email and Password", () => {
 			.post(Url.SignUp, payload)
 			.catch(err => err.response)
 
-		expect(res.status).toBe(500)
+		expect(res.status).toBe(400)
 		expect(res.data.code).toBe(ErrorCode.InvalidEmailPassword)
 	})
 

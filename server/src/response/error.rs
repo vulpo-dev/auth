@@ -119,14 +119,14 @@ pub enum ApiError {
 impl ApiError {
     fn get_status(&self) -> Status {
         match self {
-            ApiError::InternalServerError => Status::InternalServerError,
+            ApiError::InternalServerError | ApiError::TemplateRender => Status::InternalServerError,
             ApiError::NotFound => Status::NotFound,
             ApiError::Forbidden => Status::Forbidden,
             ApiError::TokenInvalid => Status::Forbidden,
             ApiError::ProjectNameExists | ApiError::UserExists => Status::Conflict,
             ApiError::ProjectNotFound => Status::NotFound,
             ApiError::PasswordlessAwaitConfirm => Status::Unauthorized,
-            _ => Status::InternalServerError,
+            _ => Status::BadRequest,
         }
     }
 }

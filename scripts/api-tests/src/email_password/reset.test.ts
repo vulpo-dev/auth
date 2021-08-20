@@ -114,7 +114,7 @@ describe("Reset Password", () => {
 			.post(Url.VerifyResetToken, payload)
 			.catch(err => err.response)
 
-		expect(res.status).toBe(500)
+		expect(res.status).toBe(400)
 		expect(res.data.code).toBe(ErrorCode.ResetExpired)
 	})
 
@@ -132,7 +132,7 @@ describe("Reset Password", () => {
 			.post(Url.VerifyResetToken, payload)
 			.catch(err => err.response)
 
-		expect(res.status).toBe(500)
+		expect(res.status).toBe(400)
 		expect(res.data.code).toBe(ErrorCode.ResetInvalidToken)
 	})
 
@@ -181,7 +181,7 @@ describe("Reset Password", () => {
 			.post(Url.PasswordReset, payload)
 			.catch(err => err.response)
 
-		expect(res.status).toBe(500)
+		expect(res.status).toBe(400)
 		expect(res.data.code).toBe(ErrorCode.PasswordMinLength)
 	})
 
@@ -200,7 +200,7 @@ describe("Reset Password", () => {
 			.post(Url.PasswordReset, payload)
 			.catch(err => err.response)
 
-		expect(res.status).toBe(500)
+		expect(res.status).toBe(400)
 		expect(res.data.code).toBe(ErrorCode.PasswordMaxLength)
 	})
 
@@ -219,7 +219,7 @@ describe("Reset Password", () => {
 			.post(Url.PasswordReset, payload)
 			.catch(err => err.response)
 
-		expect(res.status).toBe(500)
+		expect(res.status).toBe(400)
 		expect(res.data.code).toBe(ErrorCode.ResetPasswordMismatch)
 	})
 
@@ -240,7 +240,7 @@ describe("Reset Password", () => {
 			.post(Url.PasswordReset, payload)
 			.catch(err => err.response)
 
-		expect(res.status).toBe(500)
+		expect(res.status).toBe(400)
 		expect(res.data.code).toBe(ErrorCode.ResetExpired)
 	})
 
@@ -261,7 +261,7 @@ describe("Reset Password", () => {
 			.post(Url.PasswordReset, payload)
 			.catch(err => err.response)
 
-		expect(res.status).toBe(500)
+		expect(res.status).toBe(400)
 		expect(res.data.code).toBe(ErrorCode.ResetInvalidToken)
 	})
 })
