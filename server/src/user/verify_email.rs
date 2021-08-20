@@ -34,9 +34,9 @@ pub async fn handler(
         return Err(ApiError::TokenInvalid);
     }
 
-    let expires_at = verify.created_at - Duration::minutes(30);
-    if expires_at > Utc::now() {
-        return Err(ApiError::ResetExpired);
+    let expires_at = verify.created_at + Duration::minutes(30);
+    if Utc::now() > expires_at {
+        return Err(ApiError::TokenExpired);
     }
 
     VerifyEmail::verify(pool.inner(), &verify.user_id).await?;

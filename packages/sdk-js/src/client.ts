@@ -15,6 +15,7 @@ import {
     PasswordlessResponse,
     ConfirmPasswordlessPayload,
     VerifyPasswordlessPayload,
+    VerifyEmailPayload,
 } from 'types'
 
 import { Session } from 'session'
@@ -239,8 +240,9 @@ export class AuthClient {
 	}
 
 	async verifyEmail(id: string, token: string, config?: AxiosRequestConfig): Promise<void> {
+		let payload: VerifyEmailPayload = { id, token }
 		await this.http
-			.post(Url.UserVerifyEmail, { id, token }, config)
+			.post(Url.UserVerifyEmail, payload, config)
 			.catch(err => Promise.reject(this.error.fromResponse(err)))
 	}
 
@@ -248,6 +250,12 @@ export class AuthClient {
 		return new Promise((resolve, reject) => {
 			let check = async () => {
 				let token = await generateAccessToken(session, ratPayload())
+
+				if (!token) {
+					reject(null)
+					return
+				}
+
 				let payload: VerifyPasswordlessPayload = { id, token, session }
 
 				let { data } = await this.http

@@ -49,6 +49,11 @@ export type RefreshAccessTokenPayload = {
 	value: string;
 }
 
+export type VerifyEmailPayload =  {
+	id: string;
+	token: string;
+}
+
 export type SessionInfo = {
 	id: SessionId,
 	user?: User | null,

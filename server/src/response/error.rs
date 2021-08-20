@@ -82,6 +82,9 @@ pub enum ApiError {
     #[serde(rename = "token/invalid")]
     TokenInvalid,
 
+    #[serde(rename = "token/expired")]
+    TokenExpired,
+
     #[serde(rename = "reset/invalid_token")]
     ResetInvalidToken,
 

@@ -19,6 +19,8 @@ export enum ErrorCode {
 	
 	TokenGenerate = 'token/generate',
 	TokenNotFound = 'token/not_found',
+	TokenInvalid = 'token/invalid',
+	TokenExpired = 'token/expired',
 
 	ResetInvalidToken = 'reset/invalid_token',
 	ResetTokenNotFound = 'reset/token_not_found',
