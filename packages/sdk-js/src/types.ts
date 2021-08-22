@@ -74,6 +74,14 @@ export type User = {
 	disabled: boolean,
 }
 
+export type UpdateUserPayload = Pick<User,
+	"display_name" |
+	"email" |
+	"traits" |
+	"photo_url" |
+	"data" 
+>
+
 export enum ApiError {
 	InternalServerError
 }
@@ -145,6 +153,7 @@ export enum Url {
 	UserVerifyEmail = '/user/verify_email',
 	UserGet = '/user/get',
 	UserDeleteAccount = '/user/delete_account/:session',
+	UserUpdate = '/user/update',
 
 	TokenRefresh = '/token/refresh/:session',
 

@@ -1394,10 +1394,10 @@
   dependencies:
     "@biotic-ui/leptons" "^0.3.10"
 
-"@biotic-ui/input@^0.3.15":
-  version "0.3.15"
-  resolved "https://registry.yarnpkg.com/@biotic-ui/input/-/input-0.3.15.tgz#4201966e63bbcab6ce61707b1027b73577521241"
-  integrity sha512-Pic9LIy7+0Io23bTo7iHK0mCYplbAi88T54DHht5C6imEB+G7e4xe2+h5YbKUnz6Y53wNutSaEKBa2cyL4zUww==
+"@biotic-ui/input@^0.3.19":
+  version "0.3.19"
+  resolved "https://registry.yarnpkg.com/@biotic-ui/input/-/input-0.3.19.tgz#6da78b5704944aa86fe441f1a6f91b64a7e86bcd"
+  integrity sha512-Jtgyc1ERABGpxQ5UC3rGuHcKSyrW2Ve0F1MowqcxCstf0YOsImj08ma2dIz/BPhB9hjUxRDAeKpz2lVxtUlXcQ==
 
 "@biotic-ui/layout@^0.3.14":
   version "0.3.14"

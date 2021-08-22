@@ -304,6 +304,7 @@ let StyledCloseButton = styled.div`
 	padding: calc(var(--baseline) / 2);
 	left: calc(var(--baseline) * -1.5);
 	top: var(--baseline);
+	box-shadow: var(--shadow-2);
 
 	svg {
 		width: var(--baseline-2);

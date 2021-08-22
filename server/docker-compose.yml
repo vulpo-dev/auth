@@ -20,7 +20,10 @@ services:
     ports:
       - 7654:1025
       - 8025:8025
+    volumes:
+      - mailhog-data:/var/lib/mailhog
 
 
 volumes:
   postgres-data:
+  mailhog-data:

@@ -12,7 +12,6 @@ import {
 import {
 	makeGenerateAccessToken,
 	makeGenerateInvalidAccessToken,
-	makeTokenPayload,
 	ratPayload
 } from '../utils/user'
 
@@ -29,7 +28,6 @@ let createSession = makeCreateSession(SESSION_ID, PROJECT_ID, USER_ID, KEYS.publ
 let createUser = makeCreateUser(USER_ID, EMAIL, PROJECT_ID)
 let generateAccessToken = makeGenerateAccessToken(KEYS.privateKey)
 let generateInvalidAccessToken = makeGenerateInvalidAccessToken(INVALID_KEYS.privateKey)
-let tokenPayload = makeTokenPayload(USER_ID, PROJECT_ID)
 
 beforeAll(createUser)
 beforeEach(async () => {

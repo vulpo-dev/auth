@@ -8,7 +8,12 @@ type GenerateAccessToken = {
 	algorithm?: Algorithm;
 }
 
-export function makeGenerateAccessToken(key: string) {
+type PrivateKey = {
+	key: string;
+	passphrase: string;
+}
+
+export function makeGenerateAccessToken(key: string | PrivateKey) {
 	return function generateAccessToken({
 		payload = {},
 		algorithm = 'RS256',

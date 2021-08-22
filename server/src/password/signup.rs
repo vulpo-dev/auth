@@ -1,17 +1,14 @@
 use crate::config::Secrets;
 use crate::db::Db;
 use crate::keys::data::ProjectKeys;
-use crate::mail::data::VerifyEmail;
-use crate::mail::Email;
 use crate::password::validate_password_length;
 use crate::project::data::Flags;
 use crate::project::Project;
 use crate::response::error::ApiError;
 use crate::response::SessionResponse;
-use crate::session::data::{AccessToken, Session, Token};
-use crate::settings::data::ProjectEmail;
-use crate::template::{Template, TemplateCtx, Templates};
+use crate::session::data::{AccessToken, Session};
 use crate::user::data::User;
+use crate::user::verify_email::send as send_email_verification;
 
 use chrono::{Duration, Utc};
 use rocket::serde::json::Json;
@@ -66,37 +63,7 @@ pub async fn sign_up(
     let verify = Flags::has_flags(pool.inner(), &project.id, &[Flags::VerifyEmail]).await;
 
     if verify.is_ok() {
-        let settings =
-            ProjectEmail::from_project_template(pool.inner(), &project.id, Templates::VerifyEmail)
-                .await?;
-
-        let reset_token = Token::create();
-        let hashed_token = Token::hash(&reset_token)?;
-
-        let user_id = user.clone().id;
-        let token_id =
-            VerifyEmail::insert(pool.inner(), &user_id, hashed_token, &project.id).await?;
-
-        let link: String = format!(
-            "{}{}?id={}&token={}",
-            settings.domain, settings.redirect_to, token_id, reset_token
-        );
-
-        let ctx = TemplateCtx {
-            href: link,
-            project: settings.name,
-            user: None,
-        };
-
-        let content = Template::render(settings.body, ctx).map_err(|_| ApiError::TemplateRender)?;
-
-        let email = Email {
-            to_email: email,
-            subject: settings.subject,
-            content,
-        };
-
-        email.send(settings.email).await?;
+        send_email_verification(&pool, &user.id, &project.id, &user.email).await?;
     }
 
     Ok(SessionResponse {

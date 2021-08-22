@@ -28,35 +28,59 @@ pub struct User {
 
 #[derive(Deserialize)]
 pub struct UpdateUser {
-    pub id: Uuid,
     pub display_name: Option<String>,
     pub email: String,
     pub traits: Vec<String>,
     pub data: Value,
 }
 
+pub struct UpdatedUser {
+    pub id: Uuid,
+    pub display_name: Option<String>,
+    pub email: String,
+    pub email_verified: bool,
+    pub traits: Vec<String>,
+    pub data: Value,
+}
+
 impl User {
-    pub async fn update(pool: &PgPool, user: &UpdateUser) -> Result<(), ApiError> {
-        sqlx::query!(
+    pub async fn update(
+        pool: &PgPool,
+        user_id: &Uuid,
+        user: &UpdateUser,
+    ) -> Result<UpdatedUser, ApiError> {
+        let row = sqlx::query_as!(
+            UpdatedUser,
             r#"
                 update users
                    set display_name = $2
                      , email = $3
                      , traits = $4
                      , data = $5
+                     , email_verified =
+                            case when email = $3::text
+                                then True
+                                else False
+                            end  
                  where id = $1
+                returning id
+                        , email_verified
+                        , email
+                        , traits
+                        , display_name
+                        , data
             "#,
-            user.id,
+            user_id,
             user.display_name,
             user.email,
             &user.traits,
             user.data
         )
-        .execute(pool)
+        .fetch_one(pool)
         .await
         .map_err(|_| ApiError::InternalServerError)?;
 
-        Ok(())
+        Ok(row)
     }
 
     pub async fn get_by_email(

@@ -24,6 +24,13 @@ export type PartialUser = Pick<User,
 	'disabled'
 >
 
+export type UpdateUser = Pick<User,
+	'display_name' |
+	'email' |
+	'traits' |
+	'data'
+>
+
 export function partialUserFromResponse(user: PartialUserResponse): PartialUser {
 	return {
 		...user,

@@ -8,7 +8,7 @@ export { useUsers } from './list'
 export { useUser } from './get'
 export type { Users, User } from './types'
 
-import { User } from './types'
+import { User, UpdateUser } from './types'
 
 type TotalUsersResponse = {
 	total_users: number;
@@ -149,7 +149,7 @@ export function useDisableUser(project: string) {
 	return { run, error, loading }
 }
 
-export function useUpdateUser() {
+export function useUpdateUser(projectId: string) {
 	let http = useHttp()
 	let [loading, setLoading] = useState<boolean>(false)
 	let [error, setError] = useState<ApiError | null>(null)
@@ -157,9 +157,21 @@ export function useUpdateUser() {
 	let run = useCallback(async (user: User) => {
 		setError(null)
 		setLoading(true)
+
+		let payload: UpdateUser = {
+			display_name: user.display_name,
+			email: user.email,
+			traits: user.traits,
+			data: user.data,
+		}
 		
 		try {
-			await http.post(`/user/update/${user.id}`)
+			await http.post('/user/admin/update/', payload, {
+				params: {
+					user_id: user.id,
+					project_id: projectId,
+				}
+			})
 		} catch(err) {
 			setError(getErrorCode(err))
 		} finally {

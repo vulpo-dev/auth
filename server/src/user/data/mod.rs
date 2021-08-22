@@ -1,3 +1,3 @@
 mod user;
 
-pub use user::{ParamError, PartialUser, SortDirection, TotalUsers, User, UserOrder};
+pub use user::{ParamError, PartialUser, SortDirection, TotalUsers, UpdateUser, User, UserOrder};

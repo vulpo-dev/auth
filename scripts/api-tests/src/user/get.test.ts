@@ -1,7 +1,7 @@
 import Db from '../utils/db'
 import Http from '../utils/http'
 import { generateKeyPair } from '../utils/crypto'
-import { Url, RefreshAccessTokenPayload } from '@sdk-js/types'
+import { Url } from '@sdk-js/types'
 import { ErrorCode } from '@sdk-js/error'
 import { PROJECT_ID } from '../utils/env'
 import {
@@ -14,11 +14,9 @@ import { projectKeys } from '@seeds/data/projects'
 import { v4 as uuid } from 'uuid'
 import * as jwt from 'jsonwebtoken'
 import { Algorithm } from 'jsonwebtoken'
-import { differenceInDays } from 'date-fns'
 
 const EMAIL = 'michael+test_user_get@riezler.dev'
 const USER_ID = 'a9ad9dd7-c599-4128-8f92-65f14ac87102'
-const SESSION_ID = 'e42fa1fb-1625-4cbb-8eb7-d03f836e3180'
 const KEYS = generateKeyPair()
 
 let createUser = makeCreateUser(

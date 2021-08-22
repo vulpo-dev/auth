@@ -56,16 +56,31 @@ pub async fn admin(
     body: Json<SendEmailVerification>,
     _admin: Admin,
 ) -> Result<Status, ApiError> {
-    let to_email = VerifyEmail::unverify(pool.inner(), &body.user_id).await?;
+    send_email_verification(&pool, body.into_inner()).await?;
+    Ok(Status::Ok)
+}
 
+pub async fn send_email_verification(
+    pool: &Db<'_>,
+    body: SendEmailVerification,
+) -> Result<(), ApiError> {
+    let to_email = VerifyEmail::unverify(pool.inner(), &body.user_id).await?;
+    send(&pool, &body.user_id, &body.project_id, &to_email).await
+}
+
+pub async fn send(
+    pool: &Db<'_>,
+    user_id: &Uuid,
+    project_id: &Uuid,
+    to_email: &String,
+) -> Result<(), ApiError> {
     let settings =
-        ProjectEmail::from_project_template(pool.inner(), &body.project_id, Templates::VerifyEmail)
+        ProjectEmail::from_project_template(pool.inner(), &project_id, Templates::VerifyEmail)
             .await?;
 
     let reset_token = Token::create();
     let hashed_token = Token::hash(&reset_token)?;
-    let token_id =
-        VerifyEmail::insert(pool.inner(), &body.user_id, hashed_token, &body.project_id).await?;
+    let token_id = VerifyEmail::insert(pool.inner(), &user_id, hashed_token, &project_id).await?;
 
     let link: String = format!(
         "{}{}?id={}&token={}",
@@ -80,12 +95,12 @@ pub async fn admin(
 
     let content = Template::render(settings.body, ctx).map_err(|_| ApiError::TemplateRender)?;
     let email = Email {
-        to_email,
+        to_email: to_email.to_string(),
         subject: settings.subject,
         content,
     };
 
     email.send(settings.email).await?;
 
-    Ok(Status::Ok)
+    Ok(())
 }
