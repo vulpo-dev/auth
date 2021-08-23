@@ -9,6 +9,7 @@ use uuid::Uuid;
 
 pub struct Session {
     pub id: Uuid,
+    pub project_id: Option<Uuid>,
     pub public_key: Vec<u8>,
     pub expire_at: DateTime<Utc>,
     pub user_id: Option<Uuid>,
@@ -19,17 +20,18 @@ impl Session {
         sqlx::query_as!(
             Session,
             r#"
-            insert into sessions(id, public_key, expire_at, user_id)
-            values($1, $2, $3, $4)
+            insert into sessions(id, public_key, expire_at, user_id, project_id)
+            values($1, $2, $3, $4, $5)
             on conflict(id)
                do update
                      set id = uuid_generate_v4()
-            returning id, public_key, expire_at, user_id
+            returning id, public_key, expire_at, user_id, project_id
         "#,
             session.id,
             session.public_key,
             session.expire_at,
             session.user_id,
+            session.project_id,
         )
         .fetch_one(pool)
         .await
@@ -44,6 +46,7 @@ impl Session {
                  , public_key
                  , expire_at
                  , user_id
+                 , project_id
               from sessions
              where id = $1 
         "#,
@@ -69,7 +72,7 @@ impl Session {
                    set user_id = $2
                      , expire_at = $3
                  where id = $1
-                returning id, expire_at, user_id, public_key
+                returning id, expire_at, user_id, public_key, project_id
             "#,
             &session,
             &user_id,

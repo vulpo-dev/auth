@@ -50,6 +50,7 @@ pub async fn request_passwordless(
         public_key: body.public_key.to_owned(),
         user_id,
         expire_at: Utc::now() + Duration::days(30),
+        project_id: Some(project.id),
     };
 
     let session = Session::create(pool.inner(), session).await?;

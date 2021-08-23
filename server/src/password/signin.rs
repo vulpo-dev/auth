@@ -64,6 +64,7 @@ pub async fn sign_in(
         public_key: body.public_key.to_owned(),
         user_id: Some(user.id),
         expire_at: Utc::now() + Duration::days(30),
+        project_id: Some(project.id),
     };
 
     let session = Session::create(pool.inner(), session).await?;
