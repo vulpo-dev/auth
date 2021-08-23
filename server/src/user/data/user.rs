@@ -78,7 +78,17 @@ impl User {
         )
         .fetch_one(pool)
         .await
-        .map_err(|_| ApiError::InternalServerError)?;
+        .map_err(|err| match err {
+            Error::Database(err) => {
+                let err = err.downcast::<PgDatabaseError>();
+                match err.constraint() {
+                    Some("users_project_id_fkey") => ApiError::ProjectNotFound,
+                    Some("users_project_id_email_key") => ApiError::UserDuplicate,
+                    _ => ApiError::InternalServerError,
+                }
+            }
+            _ => ApiError::InternalServerError,
+        })?;
 
         Ok(row)
     }

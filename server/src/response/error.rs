@@ -73,8 +73,11 @@ pub enum ApiError {
     #[serde(rename = "auth/invalid_email_password")]
     UserInvalidPassword,
 
-    #[serde(rename = "auth/invalid_email_password")]
+    #[serde(rename = "user/duplicate")]
     UserDuplicate,
+
+    #[serde(rename = "user/disabled")]
+    UserDisabled,
 
     #[serde(rename = "token/not_found")]
     TokenNotFound,
@@ -108,9 +111,6 @@ pub enum ApiError {
 
     #[serde(rename = "template/render")]
     TemplateRender,
-
-    #[serde(rename = "user/disabled")]
-    UserDisabled,
 
     #[serde(rename = "session/expired")]
     SessionExpired,

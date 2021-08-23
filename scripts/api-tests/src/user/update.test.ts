@@ -24,6 +24,9 @@ const SESSION_ID = 'd18477d0-206c-4611-b248-1a25b4378562'
 const KEYS = generateKeyPair()
 const INVALID_KEYS = generateKeyPair()
 
+const DUPLICATE_ID = 'dd4a1cfe-d21f-45aa-8a92-108ce7a93334'
+const DUPLICATE_EMAIL = `michael+${DUPLICATE_ID}@riezler.dev`
+
 
 let createSession = makeCreateSession(SESSION_ID, PROJECT_ID, USER_ID, KEYS.publicKey)
 let createUser = makeCreateUser(USER_ID, EMAIL, PROJECT_ID)
@@ -33,14 +36,23 @@ let generateAccessToken = makeGenerateAccessToken({
 })
 let generateInvalidAccessToken = makeGenerateInvalidAccessToken(INVALID_KEYS.privateKey)
 let cleanUp = makeCleanUp(USER_ID)
+let cleanUpDuplicate = makeCleanUp(DUPLICATE_ID)
 let tokenPayload = makeTokenPayload(USER_ID, PROJECT_ID)
 
 beforeEach(async () => {
-	await cleanUp()
+	await Promise.all([
+		await cleanUpDuplicate(),
+		await cleanUp(),
+	])
 	await createUser()
 	await createSession()
 })
-afterAll(cleanUp)
+afterAll(() => {
+	return Promise.all([
+		cleanUp(),
+		cleanUpDuplicate()
+	])
+})
 
 describe("Update user", () => {
 	test("should update values", async () => {
@@ -151,5 +163,35 @@ describe("Update user", () => {
 		.catch(err => err.response)
 
 		expect(res.status).toBe(401)
+	})
+
+
+	test("fails for duplicate email", async () => {
+		let create = makeCreateUser(DUPLICATE_ID, DUPLICATE_EMAIL, PROJECT_ID)
+		await create()
+
+		let token = generateAccessToken({
+			payload: tokenPayload()
+		})
+
+		let user: UpdateUserPayload = {
+			display_name: 'test',
+			email: DUPLICATE_EMAIL,
+			traits: ['one', 'two'],
+			data: {
+				prop1: 1,
+				prop2: 'bar'
+			},
+		}
+
+		let res = await Http.post(Url.UserUpdate, user, {
+			headers: {
+				'Authorization': `Bearer ${token}`,
+			}
+		})
+		.catch(err => err.response)
+
+		expect(res.status).toBe(400)
+		expect(res.data.code).toBe(ErrorCode.UserDuplicate)
 	})
 })

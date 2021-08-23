@@ -37,6 +37,7 @@ export enum ErrorCode {
 	SessionKeysNotFound = 'session/keys_not_found',
 
 	UserDisabled = 'user/disabled',
+	UserDuplicate = 'user/duplicate',
 
 	SessionExpired = 'session/expired',
 }
