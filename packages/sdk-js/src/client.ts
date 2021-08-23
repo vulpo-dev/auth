@@ -19,6 +19,7 @@ import {
 } from 'types'
 
 import { Session } from 'session'
+import { Session as SessionEntry } from 'storage'
 import { Tokens } from 'tokens'
 import {
 	ApiError,
@@ -54,7 +55,12 @@ export class AuthClient {
 		this.config = config
 	}
 
-	async signIn(email: string, password: string, config?: AxiosRequestConfig): Promise<User> {
+	private async emailPasswordAuth(
+		url: Url.SignIn | Url.SignUp,
+		email: string,
+		password: string,
+		config?: AxiosRequestConfig
+	) {
 		let session = await createSession()
 		let public_key = await getPublicKey(session)
 
@@ -71,7 +77,7 @@ export class AuthClient {
 		}
 
 		let { data } = await this.http
-			.post<SessionResponse>(Url.SignIn, payload, config)
+			.post<SessionResponse>(url, payload, config)
 			.catch(onError)
 		
 		let { user } = await this.session
@@ -83,36 +89,29 @@ export class AuthClient {
 		return user!
 	}
 
-	async signUp(email: string, password: string, config?: AxiosRequestConfig): Promise<User> {
-		let session = await createSession()
-		let public_key = await getPublicKey(session)
-
-		let payload: EmailPasswordPayload = {
+	async signIn(email: string, password: string, config?: AxiosRequestConfig): Promise<User> {
+		return await this.emailPasswordAuth(
+			Url.SignIn,
 			email,
 			password,
-			public_key, 
-			session: session.id,
-		}
-
-		let onError = async (res: AxiosError<ErrorResponse>) => {
-			await Sessions.delete(session.id)
-			return Promise.reject(this.error.fromResponse(res))
-		}
-
-		let { data } = await this.http
-			.post<SessionResponse>(Url.SignUp, payload, config)
-			.catch(onError)
-
-		let { user } = await this.session
-			.fromResponse(data)
-			.catch(onError)
-
-		this.session.activate(data.session)
-		this.tokens.fromResponse(data)
-		return user!
+			config
+		)
 	}
 
-	async signOut(sessionId?: string, config?: AxiosRequestConfig): Promise<void> {
+	async signUp(email: string, password: string, config?: AxiosRequestConfig): Promise<User> {
+		return await this.emailPasswordAuth(
+			Url.SignUp,
+			email,
+			password,
+			config
+		)
+	}
+
+	private async removeSession(
+		url: Url.SignOut | Url.SignOutAll,
+		sessionId?: string,
+		config?: AxiosRequestConfig,
+	) {
 		let session = sessionId ?? this.session.active?.id
 
 		if (!session) {
@@ -121,28 +120,24 @@ export class AuthClient {
 
 		let value = await generateAccessToken(session, ratPayload())
 		await this.session.remove(session)
-		let url = Url.SignOut.replace(':session', session)
-		await this.http
-			.post(url, { value }, config)
+		let _url = url.replace(':session', session)
+		return await this.http
+			.post(_url, { value }, config)
 			.catch(err => Promise.reject(this.error.fromResponse(err)))
 	}
 
-	async signOutAll(sessionId?: string, config?: AxiosRequestConfig): Promise<void> {
-		let session = sessionId ?? this.session.active?.id
-
-		if (!session) {
-			return
-		}
-
-		let value = await generateAccessToken(session, ratPayload())
-		await this.session.remove(session)
-		let url = Url.SignOutAll.replace(':session', session)
-		await this.http
-			.post(url, { value }, config)
-			.catch(err => Promise.reject(this.error.fromResponse(err)))
+	async signOut(sessionId?: string, config?: AxiosRequestConfig): Promise<unknown> {
+		return await this.removeSession(Url.SignOut, sessionId, config)
 	}
 
-	async getToken(sessionId?: string): Promise<string> {
+	async signOutAll(sessionId?: string, config?: AxiosRequestConfig): Promise<unknown> {
+		return await this.removeSession(Url.SignOutAll, sessionId, config)
+	}
+
+	private async getAccessToken(
+		fn: (session: SessionEntry) => Promise<string>,
+		sessionId?: string,
+	) {
 		try {
 
 			let info = this.session.current(sessionId)
@@ -171,33 +166,12 @@ export class AuthClient {
 		}
 	}
 
+	async getToken(sessionId?: string): Promise<string> {
+		return await this.getAccessToken(this.tokens.getToken, sessionId)
+	}
+
 	async forceToken(sessionId?: string): Promise<string> {
-		try {
-
-			let info = this.session.current(sessionId)
-			if (!info) {
-				return Promise.reject(new SessionNotFoundError())
-			}
-
-			let keys = await Keys.get(info.id)
-			if (!keys) {
-				this.session.setCurrent(null)
-				return Promise.reject(new SessionKeysNotFoundError())
-			}
-
-			let session = { ...info, ...keys }
-			return await this.tokens.forceToken(session)
-		} catch (res) {
-			let err = res instanceof ClientError
-				? res
-				: this.error.fromResponse(res)
-
-			if (this.session.active) {
-				await this.session.remove(this.session.active.id)
-			}
-
-			throw err
-		}
+		return await this.getAccessToken(this.tokens.forceToken, sessionId)
 	}
 
 	async resetPassword(email: string, config?: AxiosRequestConfig): Promise<void> {
