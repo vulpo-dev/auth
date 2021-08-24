@@ -3,6 +3,8 @@ name = "vulpo_rocket"
 version = "0.1.0"
 authors = ["Michael Riezler <michaelriezler@gmail.com>"]
 edition = "2018"
+description = "Rocket SDK for use with the Vulpo authentication server"
+license="MPL-2.0"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -12,7 +14,10 @@ jsonwebtoken = "7.2.0"
 chrono = { version = "0.4.19", features = ["serde"] }
 reqwest = { version = "0.11.4", features = ["json"] }
 serde = { version = "1.0", features = ["derive"] }
-vulpo = { path = "../sdk-rs" }
+
+[dependencies.vulpo]
+path = "../sdk-rs"
+version = "0.1.0"
 
 [dependencies.rocket]
 version = "0.5.0-rc.1"
