@@ -2656,7 +2656,6 @@ dependencies = [
  "reqwest",
  "serde",
  "uuid",
- "vulpo_server",
 ]
 
 [[package]]
@@ -2697,6 +2696,7 @@ dependencies = [
  "serde_json",
  "sqlx",
  "uuid",
+ "vulpo",
 ]
 
 [[package]]

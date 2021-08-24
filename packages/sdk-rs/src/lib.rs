@@ -2,13 +2,20 @@ use chrono::{DateTime, Utc};
 use jsonwebtoken as jwt;
 use jsonwebtoken::{Algorithm, DecodingKey, Validation};
 use reqwest;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fmt;
 use std::mem;
 use std::sync::Mutex;
 use uuid::Uuid;
-pub use vulpo_server::session::data::Claims;
+
+#[derive(Debug, Deserialize, Serialize)]
+pub struct Claims {
+    pub sub: Uuid,
+    pub exp: i64,
+    pub iss: Uuid,
+    pub traits: Vec<String>,
+}
 
 type Key = Vec<u8>;
 

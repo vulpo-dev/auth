@@ -9,16 +9,9 @@ use jsonwebtoken::{decode, encode, Algorithm, DecodingKey, EncodingKey, Header, 
 use rocket::http::Status;
 use rocket::request::Outcome;
 use rocket::request::{FromRequest, Request};
-use serde::{Deserialize, Serialize};
-use uuid::Uuid;
 
-#[derive(Debug, Deserialize, Serialize)]
-pub struct Claims {
-    pub sub: Uuid,
-    pub exp: i64,
-    pub iss: Uuid,
-    pub traits: Vec<String>,
-}
+use uuid::Uuid;
+pub use vulpo::Claims;
 
 pub struct AccessToken(Claims);
 
