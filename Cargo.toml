@@ -1,0 +1,7 @@
+[workspace]
+
+members = [
+    "server",
+    "packages/sdk-rs",
+    "packages/sdk-rocket",
+]
