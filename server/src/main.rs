@@ -63,7 +63,7 @@ async fn main() {
         .extract::<Secrets>()
         .expect("Invalid Secrets config");
 
-    if matches.is_present("server") {
+    if let Some(_) = matches.subcommand_matches("server") {
         let _ = rocket::custom(figment)
             .attach(CORS())
             .attach(AdHoc::on_ignite("Add Secrets", |rocket| async move {
@@ -83,7 +83,7 @@ async fn main() {
             .await;
     }
 
-    if matches.is_present("migrate") {
+    if let Some(_) = matches.subcommand_matches("migrate") {
         match migration::run(&db_config) {
             Ok(_) => println!("Migrations done"),
             Err(err) => {
