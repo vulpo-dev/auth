@@ -109,6 +109,31 @@ async fn verify_token() {
 }
 
 #[tokio::test]
+async fn verify_token_expired() {
+    let keypairs = get_keypairs("http://localhost:7000/keys/list")
+        .await
+        .unwrap();
+
+    let auth = AuthKeys::get_keys("http://localhost:7000/keys")
+        .await
+        .unwrap();
+
+    let expire_at = Utc::now() - Duration::minutes(15);
+    for keypair in keypairs.iter() {
+        let payload = Claims {
+            iss: keypair.id,
+            exp: expire_at.timestamp(),
+            sub: Uuid::new_v4(),
+            traits: vec![],
+        };
+
+        let token = access_token(&keypair.private_key, &payload).unwrap();
+        let claims = auth.verify_token(&token).await;
+        assert_eq!(claims.unwrap_err(), Error::Expired);
+    }
+}
+
+#[tokio::test]
 async fn verify_token_fails_for_missing_key() {
     let keypairs = get_keypairs("http://localhost:7000/keys/list")
         .await

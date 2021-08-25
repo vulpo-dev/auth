@@ -89,7 +89,6 @@ app.get("/keys", async (
 		if (prop) {
 			delete payload[prop]
 		}
-		console.log(payload)
 	}
 
 	res.json(payload)

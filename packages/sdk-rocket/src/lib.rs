@@ -3,9 +3,15 @@ use rocket::http::Status;
 use rocket::request::Outcome;
 use rocket::request::{FromRequest, Request};
 
-use vulpo::{AuthKeys, Claims};
+use vulpo::{AuthKeys, Claims, Error};
 
 pub struct Auth(Claims);
+
+impl Auth {
+    pub fn inner(self) -> Claims {
+        self.0
+    }
+}
 
 #[rocket::async_trait]
 impl<'r> FromRequest<'r> for Auth {
@@ -23,12 +29,19 @@ impl<'r> FromRequest<'r> for Auth {
         };
 
         let token = match AuthKeys::bearer_token(token_string) {
-            None => return Outcome::Failure((Status::InternalServerError, ())),
+            None => return Outcome::Failure((Status::BadRequest, ())),
             Some(t) => t,
         };
 
         let claims = match auth.verify_token(&token).await {
-            Err(_) => return Outcome::Failure((Status::BadRequest, ())),
+            Err(err) => {
+                let status = if err == Error::Expired {
+                    Status::Unauthorized
+                } else {
+                    Status::BadRequest
+                };
+                return Outcome::Failure((status, ()));
+            }
             Ok(claims) => claims,
         };
 

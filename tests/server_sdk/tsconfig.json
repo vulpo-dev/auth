@@ -1,0 +1,11 @@
+{
+	"compilerOptions": {
+		"baseUrl": ".",
+		"esModuleInterop": true,
+		"strictNullChecks": true,
+		"paths": {
+			"@sdk-js*": ["../../packages/sdk-js/src/*"],
+			"@seeds*": ["../../scripts/seeds/*"]
+		}
+	}
+}

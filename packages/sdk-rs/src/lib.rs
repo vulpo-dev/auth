@@ -1,6 +1,6 @@
 use chrono::{DateTime, Utc};
 use jsonwebtoken as jwt;
-use jsonwebtoken::{Algorithm, DecodingKey, Validation};
+use jsonwebtoken::{errors::ErrorKind, Algorithm, DecodingKey, Validation};
 use reqwest;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -30,6 +30,7 @@ pub enum Error {
     InvalidPayload,
     GetKeysRequest,
     InvalidTimestamp,
+    Expired,
 }
 
 impl fmt::Display for Error {
@@ -124,7 +125,10 @@ impl AuthKeys {
 
     fn dangerous_claims(token: &String) -> Result<Claims, Error> {
         match jwt::dangerous_insecure_decode::<Claims>(&token) {
-            Err(_) => Err(Error::InvalidClaims),
+            Err(err) => match err.into_kind() {
+                ErrorKind::ExpiredSignature => Err(Error::Expired),
+                _ => Err(Error::InvalidClaims),
+            },
             Ok(token_data) => Ok(token_data.claims),
         }
     }
@@ -143,7 +147,10 @@ impl AuthKeys {
         };
 
         match jwt::decode::<Claims>(&token, &decoding_key, &Validation::new(Algorithm::RS256)) {
-            Err(_) => return Err(Error::InvalidClaims),
+            Err(err) => match err.into_kind() {
+                ErrorKind::ExpiredSignature => Err(Error::Expired),
+                _ => Err(Error::InvalidClaims),
+            },
             Ok(td) => Ok(td.claims),
         }
     }

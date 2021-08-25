@@ -1,0 +1,17 @@
+[package]
+name = "vulpo_rocket_example"
+version = "0.1.0"
+authors = ["Michael Riezler <michaelriezler@gmail.com>"]
+edition = "2018"
+description = "Rocket SDK for use with the Vulpo authentication server"
+license="MPL-2.0"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies.vulpo_rocket]
+path = "../"
+
+[dependencies.rocket]
+version = "0.5.0-rc.1"
+
+[workspace]
