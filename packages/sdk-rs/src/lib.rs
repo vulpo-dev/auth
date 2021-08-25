@@ -9,6 +9,9 @@ use std::mem;
 use std::sync::Mutex;
 use uuid::Uuid;
 
+#[cfg(test)]
+mod test;
+
 #[derive(Debug, Deserialize, Serialize)]
 pub struct Claims {
     pub sub: Uuid,
@@ -19,13 +22,14 @@ pub struct Claims {
 
 type Key = Vec<u8>;
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum Error {
     KeyMissing,
     InvalidKey,
     InvalidClaims,
     InvalidPayload,
     GetKeysRequest,
+    InvalidTimestamp,
 }
 
 impl fmt::Display for Error {
@@ -47,6 +51,10 @@ impl AuthKeys {
             Err(_) => return Err(Error::GetKeysRequest),
             Ok(res) => res,
         };
+
+        if res.status() != 200 {
+            return Err(Error::GetKeysRequest);
+        }
 
         let res = match res.json::<PublicKeys>().await {
             Err(_) => return Err(Error::InvalidPayload),
@@ -103,13 +111,18 @@ impl AuthKeys {
         }
     }
 
-    pub fn bearer_token(value: &str) -> String {
+    pub fn bearer_token(value: &str) -> Option<String> {
         let end = value.len();
         let start = "Bearer ".len();
-        value[start..end].to_string()
+
+        if start > end {
+            return None;
+        }
+
+        Some(value[start..end].to_string())
     }
 
-    pub fn dangerous_claims(token: &String) -> Result<Claims, Error> {
+    fn dangerous_claims(token: &String) -> Result<Claims, Error> {
         match jwt::dangerous_insecure_decode::<Claims>(&token) {
             Err(_) => Err(Error::InvalidClaims),
             Ok(token_data) => Ok(token_data.claims),

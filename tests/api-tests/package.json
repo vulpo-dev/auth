@@ -1,5 +1,6 @@
 {
-  "name": "api-tests",
+  "name": "vulpo-api-tests",
+  "private": true,
   "version": "1.0.0",
   "description": "",
   "main": "index.js",

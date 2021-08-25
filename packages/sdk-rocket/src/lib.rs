@@ -22,7 +22,11 @@ impl<'r> FromRequest<'r> for Auth {
             Some(auth) => auth,
         };
 
-        let token = AuthKeys::bearer_token(token_string);
+        let token = match AuthKeys::bearer_token(token_string) {
+            None => return Outcome::Failure((Status::InternalServerError, ())),
+            Some(t) => t,
+        };
+
         let claims = match auth.verify_token(&token).await {
             Err(_) => return Outcome::Failure((Status::BadRequest, ())),
             Ok(claims) => claims,
@@ -37,7 +41,7 @@ impl Auth {
         AdHoc::on_ignite("Get PublicKeys", move |rocket| async move {
             let auth = AuthKeys::get_keys(&key_url)
                 .await
-                .expect("Failed to load public auth keys");
+                .expect("Failed to load public keys");
 
             rocket.manage(auth)
         })

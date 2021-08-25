@@ -6,6 +6,6 @@ module.exports = {
   globalTeardown: './src/utils/config/global_teardown.ts',
   moduleNameMapper: {
     '^@sdk-js/(.*)$': '<rootDir>/../../packages/sdk-js/src/$1',
-    '^@seeds/(.*)$': '<rootDir>/../seeds/$1',
+    '^@seeds/(.*)$': '<rootDir>/../../seeds/$1',
   },
 };

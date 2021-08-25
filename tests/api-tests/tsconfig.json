@@ -5,7 +5,7 @@
 		"strictNullChecks": true,
 		"paths": {
 			"@sdk-js*": ["../../packages/sdk-js/src/*"],
-			"@seeds*": ["../seeds/*"]
+			"@seeds*": ["../../scripts/seeds/*"]
 		}
 	}
 }

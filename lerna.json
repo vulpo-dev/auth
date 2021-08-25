@@ -1,7 +1,9 @@
 {
   "packages": [
     "packages/*",
-    "admin"
+    "admin",
+    "scripts/*",
+    "tests/*"
   ],
   "version": "independent",
   "npmClient": "yarn"
