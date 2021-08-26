@@ -2,45 +2,45 @@
 extern crate rocket;
 
 use rocket::http::Status;
-
 use serde::Deserialize;
-use uuid::Uuid;
-use vulpo::Authorize;
+use vulpo::{AccessToken, Authorize};
 use vulpo_rocket::{Auth, AuthClient, Claims};
 
+type User = Auth<AccessToken>;
+
 #[get("/")]
-fn test(_auth: Auth<Claims>) -> Status {
+fn test(_auth: User) -> Status {
     Status::Ok
 }
 
 #[derive(Deserialize)]
-struct Admin {
-    pub sub: Uuid,
-    pub exp: i64,
-    pub iss: Uuid,
-    pub traits: Vec<String>,
-}
+struct Admin;
 
 impl Authorize for Admin {
-    type Error = ();
-    fn authorize(&self) -> Result<bool, Self::Error> {
-        Ok(self.traits.contains(&String::from("admin")))
-    }
-
-    fn issuer(&self) -> Uuid {
-        self.iss
+    fn authorize(claims: &Claims) -> Result<bool, u16> {
+        Ok(claims.traits.contains(&String::from("admin")))
     }
 }
 
-#[get("/admin")]
-fn admin(auth: Auth<Admin>) -> Status {
-    let claims = auth.inner();
+type AdminUser = Auth<Admin>;
 
-    if claims.traits.contains(&String::from("admin")) {
-        Status::Ok
-    } else {
-        Status::Forbidden
+#[get("/admin")]
+fn admin(_auth: AdminUser) -> Status {
+    Status::Ok
+}
+
+#[derive(Deserialize)]
+struct InternalError;
+
+impl Authorize for InternalError {
+    fn authorize(_claims: &Claims) -> Result<bool, u16> {
+        Err(500)
     }
+}
+
+#[get("/error")]
+fn internal_error(_auth: Auth<InternalError>) -> Status {
+    Status::Ok
 }
 
 #[launch]
@@ -49,5 +49,5 @@ fn rocket() -> _ {
         .attach(AuthClient::fairing(
             "http://127.0.0.1:7000/keys".to_string(),
         ))
-        .mount("/", routes![test, admin])
+        .mount("/", routes![test, admin, internal_error])
 }

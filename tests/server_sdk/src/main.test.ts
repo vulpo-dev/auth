@@ -34,6 +34,37 @@ describe("Server SDK", () => {
 		expect(result.every(status => status === 200)).toBe(true)
 	})
 
+
+	test("returns 500", async () => {
+		let keys = await getKeys()
+		let sink = keys.map(async key => {
+			let claims: Claims = {
+				sub: uuid(),
+				exp: Date.now() + 15 * minute,
+				iss: key.id,
+				traits: [],
+			}
+
+			let token = generateAccessToken(claims, Buffer.from(key.private_key))
+			let config = {
+				headers: {
+					'Authorization': `Bearer ${token}`
+				}
+			}
+
+			let res = await axios
+				.get('http://localhost:8000/error', config)
+				.catch(err => err.response)
+
+			return res.status
+		})
+
+
+		let result = await Promise.all(sink)
+		expect(result.every(status => status === 500)).toBe(true)
+	})
+
+
 	test("returns forbidden", async () => {
 		let keys = await getKeys()
 		let sink = keys.map(async key => {

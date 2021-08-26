@@ -1711,7 +1711,6 @@ version = "0.1.0"
 dependencies = [
  "rocket",
  "serde",
- "uuid",
  "vulpo",
  "vulpo_rocket",
 ]

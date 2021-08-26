@@ -2,7 +2,6 @@ use chrono::{DateTime, Utc};
 use jsonwebtoken as jwt;
 use jsonwebtoken::{errors::ErrorKind, Algorithm, DecodingKey, Validation};
 use reqwest;
-use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fmt;
@@ -11,9 +10,15 @@ use std::sync::Mutex;
 use uuid::Uuid;
 
 pub trait Authorize {
-    type Error;
-    fn authorize(&self) -> Result<bool, Self::Error>;
-    fn issuer(&self) -> Uuid;
+    fn authorize(claims: &Claims) -> Result<bool, u16>;
+}
+
+pub struct AccessToken;
+
+impl Authorize for AccessToken {
+    fn authorize(_: &Claims) -> Result<bool, u16> {
+        Ok(true)
+    }
 }
 
 #[cfg(test)]
@@ -25,17 +30,6 @@ pub struct Claims {
     pub exp: i64,
     pub iss: Uuid,
     pub traits: Vec<String>,
-}
-
-impl Authorize for Claims {
-    type Error = ();
-    fn authorize(&self) -> Result<bool, Self::Error> {
-        Ok(true)
-    }
-
-    fn issuer(&self) -> Uuid {
-        self.iss
-    }
 }
 
 type Key = Vec<u8>;
@@ -141,8 +135,8 @@ impl AuthKeys {
         Some(value[start..end].to_string())
     }
 
-    fn dangerous_claims<C: Authorize + DeserializeOwned>(token: &String) -> Result<C, Error> {
-        match jwt::dangerous_insecure_decode::<C>(&token) {
+    fn dangerous_claims(token: &String) -> Result<Claims, Error> {
+        match jwt::dangerous_insecure_decode::<Claims>(&token) {
             Err(err) => match err.into_kind() {
                 ErrorKind::ExpiredSignature => Err(Error::Expired),
                 _ => Err(Error::InvalidClaims),
@@ -151,13 +145,10 @@ impl AuthKeys {
         }
     }
 
-    pub async fn verify_token<C: Authorize + DeserializeOwned>(
-        &self,
-        token: &String,
-    ) -> Result<C, Error> {
-        let claims = AuthKeys::dangerous_claims::<C>(&token)?;
+    pub async fn verify_token(&self, token: &String) -> Result<Claims, Error> {
+        let claims = AuthKeys::dangerous_claims(&token)?;
 
-        let key = match self.key(&claims.issuer()).await {
+        let key = match self.key(&claims.iss).await {
             None => return Err(Error::KeyMissing),
             Some(key) => key,
         };
@@ -167,7 +158,7 @@ impl AuthKeys {
             Ok(dk) => dk,
         };
 
-        match jwt::decode::<C>(&token, &decoding_key, &Validation::new(Algorithm::RS256)) {
+        match jwt::decode::<Claims>(&token, &decoding_key, &Validation::new(Algorithm::RS256)) {
             Err(err) => match err.into_kind() {
                 ErrorKind::ExpiredSignature => Err(Error::Expired),
                 _ => Err(Error::InvalidClaims),

@@ -2,15 +2,15 @@ use rocket::fairing::{AdHoc, Fairing};
 use rocket::http::Status;
 use rocket::request::Outcome;
 use rocket::request::{FromRequest, Request};
-use serde::de::DeserializeOwned;
+use std::marker::PhantomData;
 use vulpo::{AuthKeys, Authorize, Error};
 
 pub use vulpo::Claims;
 
-pub struct Auth<C: Authorize + DeserializeOwned>(C);
+pub struct Auth<C: Authorize>(Claims, PhantomData<C>);
 
-impl<C: Authorize + DeserializeOwned> Auth<C> {
-    pub fn inner(self) -> C {
+impl<C: Authorize> Auth<C> {
+    pub fn inner(self) -> Claims {
         self.0
     }
 }
@@ -18,7 +18,7 @@ impl<C: Authorize + DeserializeOwned> Auth<C> {
 #[rocket::async_trait]
 impl<'r, C> FromRequest<'r> for Auth<C>
 where
-    C: Authorize + DeserializeOwned + Send + Sync,
+    C: Authorize + Send + Sync,
 {
     type Error = ();
 
@@ -38,7 +38,7 @@ where
             Some(t) => t,
         };
 
-        let claims: C = match auth.verify_token(&token).await {
+        let claims = match auth.verify_token(&token).await {
             Err(err) => {
                 let status = if err == Error::Expired {
                     Status::Unauthorized
@@ -50,8 +50,8 @@ where
             Ok(claims) => claims,
         };
 
-        let next = match claims.authorize() {
-            Err(_) => return Outcome::Failure((Status::InternalServerError, ())),
+        let next = match C::authorize(&claims) {
+            Err(code) => return Outcome::Failure((Status::new(code), ())),
             Ok(next) => next,
         };
 
@@ -59,7 +59,7 @@ where
             return Outcome::Failure((Status::Forbidden, ()));
         }
 
-        Outcome::Success(Auth(claims))
+        Outcome::Success(Auth(claims, PhantomData))
     }
 }
 
@@ -67,6 +67,7 @@ pub struct AuthClient;
 
 impl AuthClient {
     pub fn fairing(key_url: String) -> impl Fairing {
+        baz::<Fuu>(5);
         AdHoc::on_ignite("Get PublicKeys", move |rocket| async move {
             let auth = AuthKeys::get_keys(&key_url)
                 .await
@@ -75,4 +76,24 @@ impl AuthClient {
             rocket.manage(auth)
         })
     }
+}
+
+trait Test {
+    fn fuu(x: i64) -> bool;
+}
+
+struct Fuu;
+
+impl Test for Fuu {
+    fn fuu(x: i64) -> bool {
+        if x > 10 {
+            true
+        } else {
+            false
+        }
+    }
+}
+
+fn baz<T: Test>(x: i64) -> bool {
+    T::fuu(x)
 }
