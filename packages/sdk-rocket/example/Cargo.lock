@@ -1710,6 +1710,9 @@ name = "vulpo_rocket_example"
 version = "0.1.0"
 dependencies = [
  "rocket",
+ "serde",
+ "uuid",
+ "vulpo",
  "vulpo_rocket",
 ]
 
