@@ -27,7 +27,7 @@ chrono = { version = "0.4.19", features = ["serde"] }
 openssl-sys = "0.9"
 openssl = { version = "0.10" }
 figment = { version = "0.10", features= ["env"] }
-vulpo = { path = "../packages/sdk-rs" }
+vulpo = { path = "../packages/sdk-rs", version = "0.2.0" }
 
 [dependencies.sqlx]
 version = "0.5"
