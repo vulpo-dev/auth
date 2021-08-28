@@ -2,7 +2,7 @@
 
 create table if not exists sessions
 	( id uuid primary key default uuid_generate_v4()
-	, expire_at timestamptz not null default now() + interval '1 month'
+	, expire_at timestamptz not null default now() + '30 days'
 	, project_id uuid references projects(id) on delete cascade
 	, created_at timestamptz not null default now()
 	, public_key bytea not null

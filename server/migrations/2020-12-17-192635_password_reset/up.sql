@@ -6,6 +6,7 @@ create table if not exists password_change_requests
 	, user_id uuid not null references users(id) on delete cascade
 	, token text not null
 	, project_id uuid not null references projects(id) on delete cascade
+	, expire_at timestamptz not null default now() + '30 minutes'
 	);
 
 create index password_change_requests_user_idx on password_change_requests(user_id);

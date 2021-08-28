@@ -9,6 +9,7 @@ use uuid::Uuid;
 pub struct Passwordless {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
+    pub expire_at: DateTime<Utc>,
     pub user_id: Option<Uuid>,
     pub email: String,
     pub token: String,
@@ -41,7 +42,7 @@ impl Passwordless {
         .fetch_one(pool)
         .await
         .map(|row| row.id)
-        .map_err(|_| ApiError::InternalServerError)
+        .map_err(|err| ApiError::InternalServerError)
     }
 
     pub async fn get(pool: &PgPool, id: &Uuid) -> Result<Passwordless, ApiError> {
@@ -56,6 +57,7 @@ impl Passwordless {
                  , is_valid
                  , project_id
                  , confirmed
+                 , expire_at
               from passwordless
              where id = $1
         "#,

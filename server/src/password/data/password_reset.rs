@@ -8,6 +8,7 @@ pub struct PasswordReset {
     pub token: String,
     pub user_id: Uuid,
     pub created_at: DateTime<Utc>,
+    pub expire_at: DateTime<Utc>,
 }
 
 impl PasswordReset {
@@ -37,7 +38,10 @@ impl PasswordReset {
         let row = sqlx::query_as!(
             PasswordReset,
             r#"
-            select token, user_id, created_at
+            select token
+                 , user_id
+                 , created_at
+                 , expire_at
               from password_change_requests
              where id = $1
         "#,

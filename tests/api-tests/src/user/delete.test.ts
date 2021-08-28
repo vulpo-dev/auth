@@ -78,7 +78,7 @@ describe("Delete Account", () => {
 		})
 
 		await Db.query(`
-			insert into tokens(id, session_id, expire_at)
+			insert into refresh_access_tokens(id, session_id, expire_at)
 			values($1, $2, now() + '5 minutes')
 		`, [jti, SESSION_ID])
 

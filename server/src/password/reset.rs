@@ -9,7 +9,7 @@ use crate::settings::data::ProjectEmail;
 use crate::template::{Template, TemplateCtx, Templates};
 use crate::user::data::User;
 
-use chrono::{Duration, Utc};
+use chrono::Utc;
 use rocket::http::Status;
 use rocket::serde::{json::Json, Deserialize};
 use uuid::Uuid;
@@ -101,8 +101,7 @@ pub async fn password_reset(
         return Err(ApiError::ResetInvalidToken);
     }
 
-    let expires_at = reset.created_at + Duration::minutes(30);
-    if Utc::now() > expires_at {
+    if Utc::now() > reset.expire_at {
         return Err(ApiError::ResetExpired);
     }
 
@@ -134,8 +133,7 @@ pub async fn verify_token(
         return Err(ApiError::ResetInvalidToken);
     }
 
-    let expires_at = reset.created_at + Duration::minutes(30);
-    if Utc::now() > expires_at {
+    if Utc::now() > reset.expire_at {
         return Err(ApiError::ResetExpired);
     }
 

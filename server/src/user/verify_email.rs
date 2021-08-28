@@ -8,7 +8,7 @@ use crate::session::data::Token;
 use crate::settings::data::ProjectEmail;
 use crate::template::{Template, TemplateCtx, Templates};
 
-use chrono::{Duration, Utc};
+use chrono::Utc;
 use rocket::http::Status;
 use rocket::serde::json::Json;
 use serde::Deserialize;
@@ -34,8 +34,7 @@ pub async fn handler(
         return Err(ApiError::TokenInvalid);
     }
 
-    let expires_at = verify.created_at + Duration::minutes(30);
-    if Utc::now() > expires_at {
+    if Utc::now() > verify.expire_at {
         return Err(ApiError::TokenExpired);
     }
 

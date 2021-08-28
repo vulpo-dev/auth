@@ -1,7 +1,7 @@
 use crate::response::error::ApiError;
 use crate::session::data::SessionClaims;
 
-use chrono::NaiveDateTime;
+use chrono::{TimeZone, Utc};
 use rand::distributions::Alphanumeric;
 use rand::{thread_rng, Rng};
 use sqlx::PgPool;
@@ -16,11 +16,11 @@ impl Token {
         claims: &SessionClaims,
         session: &Uuid,
     ) -> Result<bool, ApiError> {
-        let exp = NaiveDateTime::from_timestamp(claims.exp.into(), 0);
+        let exp = Utc.timestamp(claims.exp.into(), 0);
         let row = sqlx::query!(
             r#"
                 with add_token as (
-                    insert into tokens(id, session_id, expire_at)
+                    insert into refresh_access_tokens(id, session_id, expire_at)
                     values($1, $2, $3)
                     on conflict(id) do nothing
                     returning id

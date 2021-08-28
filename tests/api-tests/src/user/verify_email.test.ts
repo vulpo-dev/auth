@@ -95,9 +95,9 @@ describe("Verify Email", () => {
 
 		await Db.query(`
 			update verify_email
-			   set created_at = $2
+			   set expire_at = now() - interval '1 minutes'
 			 where id = $1  
-		`, [TOKEN_ID, new Date(Date.now() - 32 * 60 * 1000)])
+		`, [TOKEN_ID])
 
 		let payload: VerifyEmailPayload = {
 			id: TOKEN_ID,

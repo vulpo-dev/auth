@@ -2,7 +2,7 @@ use crate::db::Db;
 use crate::passwordless::data::Passwordless;
 use crate::response::error::ApiError;
 
-use chrono::{Duration, Utc};
+use chrono::Utc;
 use rocket::http::Status;
 use rocket::serde::json::Json;
 use serde::Deserialize;
@@ -26,8 +26,7 @@ pub async fn handler(pool: Db<'_>, body: Json<ConfirmPasswordless>) -> Result<St
         return Err(ApiError::PasswordlessInvalidToken);
     }
 
-    let expires_at = token.created_at + Duration::minutes(30);
-    if Utc::now() > expires_at {
+    if Utc::now() > token.expire_at {
         return Err(ApiError::PasswordlessTokenExpire);
     }
 

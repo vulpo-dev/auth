@@ -120,9 +120,9 @@ describe("Confirm Passwordless", () => {
 
 		await Db.query(`
 			update passwordless
-			   set created_at = $2
+			   set expire_at = now() - interval '1 minutes'
 			 where id = $1 
-		`, [id, new Date(Date.now() - 32 * 60 * 1000)])
+		`, [id])
 		
 		let payload: ConfirmPasswordlessPayload = {
 			id,

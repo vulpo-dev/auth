@@ -1,6 +1,5 @@
 import Db from '../utils/db'
 import Http from '../utils/http'
-import SessionResponseSchema from '../utils/schema/session-response'
 
 import { v4 as uuid } from 'uuid'
 import * as bcrypt from 'bcryptjs'
@@ -43,15 +42,15 @@ function generateToken() {
 
 async function insertToken(token: string, expired: boolean = false): Promise<string> {
 
-	let createdAt = !expired
-		? new Date()
-		: new Date(Date.now() - 32 * 60 * 1000)
+	let expiredAt = !expired
+		? new Date(Date.now() + 32 * 60 * 1000)
+		: new Date(Date.now() - 1 * 60 * 1000)
 
 	let { rows } = await Db.query(`
-		insert into password_change_requests (token, user_id, project_id, created_at)
+		insert into password_change_requests (token, user_id, project_id, expire_at)
 		values ($1, $2, $3, $4)
 		returning id
-	`, [token, ID, PROJECT_ID, createdAt])
+	`, [token, ID, PROJECT_ID, expiredAt])
 
 	return rows[0].id
 }

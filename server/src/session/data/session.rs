@@ -35,7 +35,7 @@ impl Session {
         )
         .fetch_one(pool)
         .await
-        .map_err(|_| ApiError::InternalServerError)
+        .map_err(|err| ApiError::InternalServerError)
     }
 
     pub async fn get(pool: &PgPool, session: &Uuid) -> Result<Session, ApiError> {

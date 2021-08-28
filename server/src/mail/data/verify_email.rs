@@ -8,6 +8,7 @@ pub struct VerifyEmail {
     pub token: String,
     pub user_id: Uuid,
     pub created_at: DateTime<Utc>,
+    pub expire_at: DateTime<Utc>,
 }
 
 impl VerifyEmail {
@@ -37,7 +38,10 @@ impl VerifyEmail {
         let row = sqlx::query_as!(
             VerifyEmail,
             r#"
-            select token, user_id, created_at
+            select token
+                 , user_id
+                 , created_at
+                 , expire_at
               from verify_email
              where id = $1
         "#,
