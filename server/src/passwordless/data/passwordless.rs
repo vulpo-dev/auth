@@ -42,7 +42,7 @@ impl Passwordless {
         .fetch_one(pool)
         .await
         .map(|row| row.id)
-        .map_err(|err| ApiError::InternalServerError)
+        .map_err(|_| ApiError::InternalServerError)
     }
 
     pub async fn get(pool: &PgPool, id: &Uuid) -> Result<Passwordless, ApiError> {

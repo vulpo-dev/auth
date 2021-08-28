@@ -49,6 +49,3 @@ features = ["tokio1", "tokio1-rustls-tls", "tokio1-native-tls"]
 [dependencies.rocket]
 version = "0.5.0-rc.1"
 features = ["uuid", "json"]
-
-[lib]
-path = "src/lib.rs"
