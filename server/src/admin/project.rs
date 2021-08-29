@@ -15,19 +15,16 @@ pub struct Project {
 }
 
 #[get("/__/project/has")]
-pub async fn has(pool: Db<'_>) -> Result<Json<Project>, ApiError> {
-    Admin::get_project(pool.inner())
+pub async fn has(pool: Db) -> Result<Json<Project>, ApiError> {
+    Admin::get_project(&pool)
         .await
         .map(|id| Project { id })
         .map(Json)
 }
 
 #[post("/__/project/create_admin")]
-pub async fn create_admin(
-    pool: Db<'_>,
-    secrets: &State<Secrets>,
-) -> Result<Json<Project>, ApiError> {
-    let project = Admin::get_project(pool.inner()).await?;
+pub async fn create_admin(pool: Db, secrets: &State<Secrets>) -> Result<Json<Project>, ApiError> {
+    let project = Admin::get_project(&pool).await?;
 
     if project.is_some() {
         return Err(ApiError::AdminProjectExists);
@@ -41,27 +38,27 @@ pub async fn create_admin(
     };
 
     let keys = ProjectKeys::create_keys(true, None, &secrets.passphrase);
-    let id = Admin::create_project(pool.inner(), &project, &keys).await?;
-    Admin::set_admin(pool.inner(), &id).await?;
+    let id = Admin::create_project(&pool, &project, &keys).await?;
+    Admin::set_admin(&pool, &id).await?;
 
     Ok(Json(Project { id: Some(id) }))
 }
 
 #[post("/__/project/create", format = "json", data = "<body>")]
 pub async fn create(
-    pool: Db<'_>,
+    pool: Db,
     body: Json<NewProject>,
     secrets: &State<Secrets>,
     _admin: Admin,
 ) -> Result<Json<[Uuid; 1]>, ApiError> {
     let keys = ProjectKeys::create_keys(true, None, &secrets.passphrase);
-    Admin::create_project(pool.inner(), &body.into_inner(), &keys)
+    Admin::create_project(&pool, &body.into_inner(), &keys)
         .await
         .map(|id| [id])
         .map(Json)
 }
 
 #[get("/__/project/list")]
-pub async fn list(pool: Db<'_>, _admin: Admin) -> Result<Json<Vec<PartialProject>>, ApiError> {
-    Admin::project_list(pool.inner()).await.map(Json)
+pub async fn list(pool: Db, _admin: Admin) -> Result<Json<Vec<PartialProject>>, ApiError> {
+    Admin::project_list(&pool).await.map(Json)
 }

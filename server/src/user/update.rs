@@ -12,13 +12,13 @@ use rocket::serde::uuid::Uuid;
 
 #[post("/update", format = "json", data = "<body>")]
 pub async fn handler(
-    pool: Db<'_>,
+    pool: Db,
     body: Json<UpdateUser>,
     token: AccessToken,
     project: Project,
 ) -> Result<Status, ApiError> {
     let user_id = token.sub();
-    let user = User::update(pool.inner(), &user_id, &body).await?;
+    let user = User::update(&pool, &user_id, &body).await?;
 
     if user.email_verified == false {
         let options = SendEmailVerification {
@@ -38,13 +38,13 @@ pub async fn handler(
     data = "<body>"
 )]
 pub async fn admin_handler(
-    pool: Db<'_>,
+    pool: Db,
     user_id: Uuid,
     project_id: Uuid,
     body: Json<UpdateUser>,
     _admin: Admin,
 ) -> Result<Status, ApiError> {
-    let user = User::update(pool.inner(), &user_id, &body).await?;
+    let user = User::update(&pool, &user_id, &body).await?;
 
     if user.email_verified == false {
         let options = SendEmailVerification {

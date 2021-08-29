@@ -6,8 +6,8 @@ use rocket::serde::uuid::Uuid;
 use rocket::serde::{json::Json, Serialize};
 
 #[get("/flags?<project>")]
-pub async fn handler(pool: Db<'_>, project: Uuid) -> Result<Json<Response>, ApiError> {
-    Flags::from_project(pool.inner(), &project)
+pub async fn handler(pool: Db, project: Uuid) -> Result<Json<Response>, ApiError> {
+    Flags::from_project(&pool, &project)
         .await
         .map(|items| Response { items })
         .map(Json)

@@ -15,7 +15,7 @@ use rocket::Route;
 
 #[get("/?<project_id>&<template>")]
 async fn get_template(
-    pool: Db<'_>,
+    pool: Db,
     project_id: Uuid,
     template: String,
     _admin: Admin,
@@ -25,7 +25,7 @@ async fn get_template(
         None => return Err(ApiError::BadRequest),
     };
 
-    let entry = Template::from_project(pool.inner(), project_id, template).await?;
+    let entry = Template::from_project(&pool, project_id, template).await?;
     let result = match entry {
         None => {
             let body = Template::get_body(template);
@@ -48,7 +48,7 @@ async fn get_template(
 
 #[post("/", format = "json", data = "<body>")]
 async fn set_template(
-    pool: Db<'_>,
+    pool: Db,
     body: Json<TemplateResponse>,
     _admin: Admin,
 ) -> Result<(), ApiError> {
@@ -60,7 +60,7 @@ async fn set_template(
         ..body
     };
 
-    Template::set_template(pool.inner(), &template).await?;
+    Template::set_template(&pool, &template).await?;
 
     Ok(())
 }

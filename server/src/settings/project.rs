@@ -16,10 +16,10 @@ pub struct SetProjectSettings {
 
 #[post("/project", format = "json", data = "<body>")]
 pub async fn set_settings(
-    pool: Db<'_>,
+    pool: Db,
     body: Json<SetProjectSettings>,
     _admin: Admin,
 ) -> Result<(), ApiError> {
-    Project::set_settings(pool.inner(), &body.project, &body.name, &body.domain).await?;
+    Project::set_settings(&pool, &body.project, &body.name, &body.domain).await?;
     Ok(())
 }

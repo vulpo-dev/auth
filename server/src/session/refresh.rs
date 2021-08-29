@@ -14,13 +14,13 @@ use rocket::State;
 
 #[post("/refresh/<session_id>", format = "json", data = "<rat>")]
 pub async fn handler(
-    pool: Db<'_>,
+    pool: Db,
     project: Project,
     session_id: Uuid,
     rat: Json<RefreshAccessToken>,
     secrets: &State<Secrets>,
 ) -> Result<SessionResponse, ApiError> {
-    let session = Session::get(pool.inner(), &session_id).await?;
+    let session = Session::get(&pool, &session_id).await?;
 
     if Utc::now() > session.expire_at {
         return Err(ApiError::SessionExpired);
@@ -28,24 +28,23 @@ pub async fn handler(
 
     let claims = Session::validate_token(&session, &rat)?;
 
-    let is_valid = Token::is_valid(pool.inner(), &claims, &session_id).await?;
+    let is_valid = Token::is_valid(&pool, &claims, &session_id).await?;
 
     if !is_valid {
         return Err(ApiError::Forbidden);
     }
 
     let expire_at = Utc::now() + Duration::days(30);
-    Session::extend(pool.inner(), &session.id, &expire_at).await?;
+    Session::extend(&pool, &session.id, &expire_at).await?;
 
-    let private_key =
-        ProjectKeys::get_private_key(pool.inner(), &project.id, &secrets.passphrase).await?;
+    let private_key = ProjectKeys::get_private_key(&pool, &project.id, &secrets.passphrase).await?;
 
     let user_id = match session.user_id {
         None => return Err(ApiError::Forbidden),
         Some(id) => id,
     };
 
-    let user = User::get_by_id(pool.inner(), &user_id, &project.id).await?;
+    let user = User::get_by_id(&pool, &user_id, &project.id).await?;
 
     let exp = Utc::now() + Duration::minutes(15);
     let access_token = AccessToken::new(&user, exp, &project.id)

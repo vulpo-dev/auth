@@ -10,24 +10,22 @@ use rocket::serde::uuid::Uuid;
 
 #[get("/get")]
 pub async fn handler(
-    pool: Db<'_>,
+    pool: Db,
     project: Project,
     token: AccessToken,
 ) -> Result<Json<User>, ApiError> {
     let user_id = token.sub();
-    User::get_by_id(pool.inner(), &user_id, &project.id)
+    User::get_by_id(&pool, &user_id, &project.id)
         .await
         .map(Json)
 }
 
 #[get("/get_by_id?<user>&<project>")]
 pub async fn admin_handler(
-    pool: Db<'_>,
+    pool: Db,
     user: Uuid,
     project: Uuid,
     _admin: Admin,
 ) -> Result<Json<User>, ApiError> {
-    User::get_by_id(pool.inner(), &user, &project)
-        .await
-        .map(Json)
+    User::get_by_id(&pool, &user, &project).await.map(Json)
 }

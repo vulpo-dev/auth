@@ -21,12 +21,12 @@ pub struct RequestPasswordReset {
 
 #[post("/request_password_reset", format = "json", data = "<body>")]
 pub async fn request_password_reset(
-    pool: Db<'_>,
+    pool: Db,
     body: Json<RequestPasswordReset>,
     project: Project,
 ) -> Result<Status, ApiError> {
     let to_email = body.email.trim().to_lowercase();
-    let row = User::get_by_email(pool.inner(), &to_email, project.id).await;
+    let row = User::get_by_email(&pool, &to_email, project.id).await;
 
     let user = match row {
         Err(_) => return Ok(Status::Ok),
@@ -40,11 +40,10 @@ pub async fn request_password_reset(
 
     let reset_token = Token::create();
     let hashed_token = Token::hash(&reset_token)?;
-    let token_id = PasswordReset::insert(pool.inner(), &user.id, &project.id, hashed_token).await?;
+    let token_id = PasswordReset::insert(&pool, &user.id, &project.id, hashed_token).await?;
 
     let settings =
-        ProjectEmail::from_project_template(pool.inner(), &project.id, Templates::PasswordReset)
-            .await?;
+        ProjectEmail::from_project_template(&pool, &project.id, Templates::PasswordReset).await?;
 
     let link: String = format!(
         "{}{}?id={}&token={}",
@@ -83,7 +82,7 @@ pub struct ResetPassword {
 
 #[post("/password_reset", data = "<body>")]
 pub async fn password_reset(
-    pool: Db<'_>,
+    pool: Db,
     body: Json<ResetPassword>,
     _project: Project,
 ) -> Result<Status, ApiError> {
@@ -93,7 +92,7 @@ pub async fn password_reset(
 
     validate_password_length(&body.password1)?;
 
-    let reset = PasswordReset::get(pool.inner(), &body.id).await?;
+    let reset = PasswordReset::get(&pool, &body.id).await?;
 
     let is_valid = Token::verify(&body.token, &reset.token)?;
 
@@ -106,8 +105,8 @@ pub async fn password_reset(
     }
 
     // todo: move "remove password reset token" into "set_password" query
-    PasswordReset::remove(pool.inner(), &reset.user_id).await?;
-    User::set_password(pool.inner(), &reset.user_id, &body.password1).await?;
+    PasswordReset::remove(&pool, &reset.user_id).await?;
+    User::set_password(&pool, &reset.user_id, &body.password1).await?;
 
     Ok(Status::Ok)
 }
@@ -120,12 +119,12 @@ pub struct VerifyToken {
 
 #[post("/verify_reset_token", data = "<body>")]
 pub async fn verify_token(
-    pool: Db<'_>,
+    pool: Db,
     body: Json<VerifyToken>,
     _project: Project,
 ) -> Result<Status, ApiError> {
     let id = body.id;
-    let reset = PasswordReset::get(pool.inner(), &id).await?;
+    let reset = PasswordReset::get(&pool, &id).await?;
 
     let is_valid = Token::verify(&body.token, &reset.token)?;
 

@@ -29,15 +29,15 @@ pub struct PasswordlessResponse {
 
 #[post("/", format = "json", data = "<body>")]
 pub async fn request_passwordless(
-    pool: Db<'_>,
+    pool: Db,
     project: Project,
     body: Json<RequestPasswordless>,
 ) -> Result<Json<PasswordlessResponse>, ApiError> {
-    Flags::has_flags(pool.inner(), &project.id, &[Flags::AuthenticationLink]).await?;
+    Flags::has_flags(&pool, &project.id, &[Flags::AuthenticationLink]).await?;
 
     let body_email = body.email.trim().to_lowercase();
 
-    let user = User::get_by_email(pool.inner(), &body_email, project.id).await?;
+    let user = User::get_by_email(&pool, &body_email, project.id).await?;
 
     if user.clone().map_or(false, |u| u.disabled) {
         return Err(ApiError::UserDisabled);
@@ -53,13 +53,13 @@ pub async fn request_passwordless(
         project_id: Some(project.id),
     };
 
-    let session = Session::create(pool.inner(), session).await?;
+    let session = Session::create(&pool, session).await?;
 
     let verification_token = Token::create();
     let hashed_token = Token::hash(&verification_token)?;
 
     let id = Passwordless::create_token(
-        pool.inner(),
+        &pool,
         user_id,
         &body_email,
         &hashed_token,
@@ -69,8 +69,7 @@ pub async fn request_passwordless(
     .await?;
 
     let settings =
-        ProjectEmail::from_project_template(pool.inner(), &project.id, Templates::Passwordless)
-            .await?;
+        ProjectEmail::from_project_template(&pool, &project.id, Templates::Passwordless).await?;
 
     let link: String = format!(
         "{}{}?id={}&token={}",

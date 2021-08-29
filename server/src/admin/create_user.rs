@@ -8,11 +8,11 @@ use uuid::Uuid;
 
 #[post("/__/create_user", format = "json", data = "<body>")]
 pub async fn handler(
-    pool: Db<'_>,
+    pool: Db,
     body: Json<NewUser>,
     _admin: Admin,
 ) -> Result<Json<[Uuid; 1]>, ApiError> {
-    Admin::create_user(pool.inner(), body.into_inner())
+    Admin::create_user(&pool, body.into_inner())
         .await
         .map(|id| [id])
         .map(Json)

@@ -26,13 +26,13 @@ pub struct SignUp {
 
 #[post("/sign_up", format = "json", data = "<body>")]
 pub async fn sign_up(
-    pool: Db<'_>,
+    pool: Db,
     body: Json<SignUp>,
     project: Project,
     secrets: &State<Secrets>,
 ) -> Result<SessionResponse, ApiError> {
     Flags::has_flags(
-        pool.inner(),
+        &pool,
         &project.id,
         &[Flags::SignUp, Flags::EmailAndPassword],
     )
@@ -41,10 +41,9 @@ pub async fn sign_up(
     validate_password_length(&body.password)?;
 
     let email = body.email.trim().to_lowercase();
-    let user = User::create(pool.inner(), &email, &body.password, project.id).await?;
+    let user = User::create(&pool, &email, &body.password, project.id).await?;
 
-    let private_key =
-        ProjectKeys::get_private_key(pool.inner(), &project.id, &secrets.passphrase).await?;
+    let private_key = ProjectKeys::get_private_key(&pool, &project.id, &secrets.passphrase).await?;
 
     let exp = Utc::now() + Duration::minutes(15);
     let access_token = AccessToken::new(&user, exp, &project.id)
@@ -59,9 +58,9 @@ pub async fn sign_up(
         project_id: Some(project.id),
     };
 
-    let session = Session::create(pool.inner(), session).await?;
+    let session = Session::create(&pool, session).await?;
 
-    let verify = Flags::has_flags(pool.inner(), &project.id, &[Flags::VerifyEmail]).await;
+    let verify = Flags::has_flags(&pool, &project.id, &[Flags::VerifyEmail]).await;
 
     if verify.is_ok() {
         send_email_verification(&pool, &user.id, &project.id, &user.email).await?;

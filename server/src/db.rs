@@ -1,3 +1,5 @@
+use std::ops::Deref;
+
 use crate::config::DbConfig;
 use crate::response::error::ApiError;
 
@@ -24,22 +26,24 @@ pub fn create_pool(config: &DbConfig) -> impl Fairing {
     })
 }
 
-pub struct Db<'r>(&'r PgPool);
+pub struct Db(PgPool);
 
-impl Db<'_> {
-    pub fn inner(&self) -> &PgPool {
-        self.0
+impl Deref for Db {
+    type Target = PgPool;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
     }
 }
 
 #[rocket::async_trait]
-impl<'r> FromRequest<'r> for Db<'r> {
+impl<'r> FromRequest<'r> for Db {
     type Error = ApiError;
 
     async fn from_request(request: &'r Request<'_>) -> Outcome<Self, Self::Error> {
         match request.rocket().state::<PgPool>() {
             None => Outcome::Failure((Status::InternalServerError, ApiError::AuthTokenMissing)),
-            Some(pool) => Outcome::Success(Db(pool)),
+            Some(pool) => Outcome::Success(Db(pool.to_owned())),
         }
     }
 }

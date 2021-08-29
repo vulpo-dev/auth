@@ -10,7 +10,7 @@ use std::str::FromStr;
 
 #[get("/list?<project>&<order_by>&<sort>&<offset>&<limit>")]
 pub async fn handler(
-    pool: Db<'_>,
+    pool: Db,
     project: Uuid,
     order_by: String,
     sort: String,
@@ -31,7 +31,7 @@ pub async fn handler(
     let order_by = UserOrder::from_str(order_by.as_str()).map_err(|_| ApiError::BadRequest)?;
     let direction = SortDirection::from_str(sort.as_str()).map_err(|_| ApiError::BadRequest)?;
 
-    User::list(pool.inner(), &project, &order_by, direction, offset, limit)
+    User::list(&pool, &project, &order_by, direction, offset, limit)
         .await
         .map(|items| Response { items })
         .map(Json)
@@ -43,6 +43,6 @@ pub struct Response {
 }
 
 #[get("/total?<project>")]
-pub async fn total(pool: Db<'_>, project: Uuid) -> Result<Json<TotalUsers>, ApiError> {
-    User::total(pool.inner(), &project).await.map(Json)
+pub async fn total(pool: Db, project: Uuid) -> Result<Json<TotalUsers>, ApiError> {
+    User::total(&pool, &project).await.map(Json)
 }

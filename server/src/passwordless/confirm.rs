@@ -15,8 +15,8 @@ pub struct ConfirmPasswordless {
 }
 
 #[post("/confirm", format = "json", data = "<body>")]
-pub async fn handler(pool: Db<'_>, body: Json<ConfirmPasswordless>) -> Result<Status, ApiError> {
-    let token = Passwordless::get(pool.inner(), &body.id).await?;
+pub async fn handler(pool: Db, body: Json<ConfirmPasswordless>) -> Result<Status, ApiError> {
+    let token = Passwordless::get(&pool, &body.id).await?;
 
     if token.is_valid == false {
         return Err(ApiError::PasswordlessInvalidToken);
@@ -30,7 +30,7 @@ pub async fn handler(pool: Db<'_>, body: Json<ConfirmPasswordless>) -> Result<St
         return Err(ApiError::PasswordlessTokenExpire);
     }
 
-    Passwordless::confirm(pool.inner(), &token.id).await?;
+    Passwordless::confirm(&pool, &token.id).await?;
 
     Ok(Status::Ok)
 }

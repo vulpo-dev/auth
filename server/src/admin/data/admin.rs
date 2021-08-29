@@ -298,7 +298,7 @@ impl<'r> FromRequest<'r> for Admin {
             Some(pool) => pool,
         };
 
-        let key = match ProjectKeys::get_public_key(db.inner(), &project.id).await {
+        let key = match ProjectKeys::get_public_key(&db, &project.id).await {
             Ok(key) => key,
             Err(_) => {
                 return Outcome::Failure((Status::InternalServerError, ApiError::AuthTokenMissing));

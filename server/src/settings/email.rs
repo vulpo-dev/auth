@@ -8,22 +8,22 @@ use rocket::serde::uuid::Uuid;
 
 #[get("/email?<project_id>")]
 pub async fn get_handler(
-    pool: Db<'_>,
+    pool: Db,
     project_id: Uuid,
     _admin: Admin,
 ) -> Result<Json<Option<EmailSettings>>, ApiError> {
-    let settings = ProjectEmail::from_project(pool.inner(), project_id).await?;
+    let settings = ProjectEmail::from_project(&pool, project_id).await?;
     Ok(Json(settings))
 }
 
 #[post("/email?<project_id>", format = "json", data = "<body>")]
 pub async fn create_handler(
-    pool: Db<'_>,
+    pool: Db,
     project_id: Uuid,
     body: Json<EmailSettings>,
 ) -> Result<(), ApiError> {
     let settings = body.into_inner();
-    ProjectEmail::insert(pool.inner(), project_id, settings).await?;
+    ProjectEmail::insert(&pool, project_id, settings).await?;
 
     Ok(())
 }

@@ -21,12 +21,8 @@ pub struct Verify {
 }
 
 #[post("/verify_email", format = "json", data = "<body>")]
-pub async fn handler(
-    pool: Db<'_>,
-    body: Json<Verify>,
-    _project: Project,
-) -> Result<Status, ApiError> {
-    let verify = VerifyEmail::get(pool.inner(), &body.id).await?;
+pub async fn handler(pool: Db, body: Json<Verify>, _project: Project) -> Result<Status, ApiError> {
+    let verify = VerifyEmail::get(&pool, &body.id).await?;
 
     let is_valid = Token::verify(&body.token, &verify.token)?;
 
@@ -38,7 +34,7 @@ pub async fn handler(
         return Err(ApiError::TokenExpired);
     }
 
-    VerifyEmail::verify(pool.inner(), &verify.user_id).await?;
+    VerifyEmail::verify(&pool, &verify.user_id).await?;
 
     Ok(Status::Ok)
 }
@@ -51,7 +47,7 @@ pub struct SendEmailVerification {
 
 #[post("/send_email_verification", format = "json", data = "<body>")]
 pub async fn admin(
-    pool: Db<'_>,
+    pool: Db,
     body: Json<SendEmailVerification>,
     _admin: Admin,
 ) -> Result<Status, ApiError> {
@@ -60,26 +56,25 @@ pub async fn admin(
 }
 
 pub async fn send_email_verification(
-    pool: &Db<'_>,
+    pool: &Db,
     body: SendEmailVerification,
 ) -> Result<(), ApiError> {
-    let to_email = VerifyEmail::unverify(pool.inner(), &body.user_id).await?;
+    let to_email = VerifyEmail::unverify(pool, &body.user_id).await?;
     send(&pool, &body.user_id, &body.project_id, &to_email).await
 }
 
 pub async fn send(
-    pool: &Db<'_>,
+    pool: &Db,
     user_id: &Uuid,
     project_id: &Uuid,
     to_email: &String,
 ) -> Result<(), ApiError> {
     let settings =
-        ProjectEmail::from_project_template(pool.inner(), &project_id, Templates::VerifyEmail)
-            .await?;
+        ProjectEmail::from_project_template(pool, &project_id, Templates::VerifyEmail).await?;
 
     let reset_token = Token::create();
     let hashed_token = Token::hash(&reset_token)?;
-    let token_id = VerifyEmail::insert(pool.inner(), &user_id, hashed_token, &project_id).await?;
+    let token_id = VerifyEmail::insert(pool, &user_id, hashed_token, &project_id).await?;
 
     let link: String = format!(
         "{}{}?id={}&token={}",

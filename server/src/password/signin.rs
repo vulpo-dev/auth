@@ -26,20 +26,20 @@ pub struct SignIn {
 
 #[post("/sign_in", format = "json", data = "<body>")]
 pub async fn sign_in(
-    pool: Db<'_>,
+    pool: Db,
     body: Json<SignIn>,
     project: Project,
     secrets: &State<Secrets>,
 ) -> Result<SessionResponse, ApiError> {
     Flags::has_flags(
-        pool.inner(),
+        &pool,
         &project.id,
         &[Flags::SignIn, Flags::EmailAndPassword],
     )
     .await?;
 
     let email = body.email.trim().to_lowercase();
-    let user = User::password(pool.inner(), email, &project.id).await?;
+    let user = User::password(&pool, email, &project.id).await?;
 
     let password = match user.password {
         Some(ref password) => password,
@@ -67,10 +67,9 @@ pub async fn sign_in(
         project_id: Some(project.id),
     };
 
-    let session = Session::create(pool.inner(), session).await?;
+    let session = Session::create(&pool, session).await?;
 
-    let private_key =
-        ProjectKeys::get_private_key(pool.inner(), &project.id, &secrets.passphrase).await?;
+    let private_key = ProjectKeys::get_private_key(&pool, &project.id, &secrets.passphrase).await?;
 
     let exp = Utc::now() + Duration::minutes(15);
     let access_token = AccessToken::new(&user, exp, &project.id)

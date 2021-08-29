@@ -10,46 +10,46 @@ use rocket::serde::uuid::Uuid;
 
 #[post("/sign_out/<session_id>", format = "json", data = "<rat>")]
 pub async fn sign_out(
-    pool: Db<'_>,
+    pool: Db,
     session_id: Uuid,
     rat: Json<RefreshAccessToken>,
 ) -> Result<(), ApiError> {
-    let session = Session::get(pool.inner(), &session_id).await?;
+    let session = Session::get(&pool, &session_id).await?;
     let claims = Session::validate_token(&session, &rat)?;
 
-    let is_valid = Token::is_valid(pool.inner(), &claims, &session_id).await?;
+    let is_valid = Token::is_valid(&pool, &claims, &session_id).await?;
 
     if !is_valid {
         return Err(ApiError::Forbidden);
     }
 
-    Session::delete(pool.inner(), &session.id).await?;
+    Session::delete(&pool, &session.id).await?;
 
     Ok(())
 }
 
 #[post("/admin/sign_out/<user_id>")]
-pub async fn admin_sign_out(pool: Db<'_>, user_id: Uuid, _admin: Admin) -> Result<(), ApiError> {
-    Session::delete_by_user(pool.inner(), &user_id).await?;
+pub async fn admin_sign_out(pool: Db, user_id: Uuid, _admin: Admin) -> Result<(), ApiError> {
+    Session::delete_by_user(&pool, &user_id).await?;
     Ok(())
 }
 
 #[post("/sign_out_all/<session_id>", format = "json", data = "<rat>")]
 pub async fn sign_out_all(
-    pool: Db<'_>,
+    pool: Db,
     session_id: Uuid,
     rat: Json<RefreshAccessToken>,
 ) -> Result<(), ApiError> {
-    let session = Session::get(pool.inner(), &session_id).await?;
+    let session = Session::get(&pool, &session_id).await?;
     let claims = Session::validate_token(&session, &rat)?;
 
-    let is_valid = Token::is_valid(pool.inner(), &claims, &session_id).await?;
+    let is_valid = Token::is_valid(&pool, &claims, &session_id).await?;
 
     if !is_valid {
         return Err(ApiError::Forbidden);
     }
 
-    Session::delete_all(pool.inner(), &session.id).await?;
+    Session::delete_all(&pool, &session.id).await?;
 
     Ok(())
 }

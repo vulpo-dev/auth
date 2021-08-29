@@ -32,7 +32,7 @@ impl Fairing for CORS {
             }
             Some(id) => {
                 if let Some(db) = Db::from_request(request).await.succeeded() {
-                    let row = Project::domain(db.inner(), &id).await;
+                    let row = Project::domain(&db, &id).await;
                     if let Ok(domain) = row {
                         response.set_header(Header::new("Access-Control-Allow-Origin", domain));
                     }
