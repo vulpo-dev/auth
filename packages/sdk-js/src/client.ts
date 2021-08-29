@@ -28,6 +28,7 @@ import {
 	SessionNotFoundError,
 	SessionKeysNotFoundError,
 	ErrorResponse,
+    AuthError,
 } from 'error'
 import { createSession, getPublicKey, generateAccessToken, ratPayload } from 'keys'
 import { Sessions, Keys } from 'storage'
@@ -139,7 +140,6 @@ export class AuthClient {
 		sessionId?: string,
 	) {
 		try {
-
 			let info = this.session.current(sessionId)
 			if (!info) {
 				return Promise.reject(new SessionNotFoundError())
@@ -152,7 +152,7 @@ export class AuthClient {
 			}
 
 			let session = { ...info, ...keys }
-			return await this.tokens.getToken(session)
+			return await fn(session)
 		} catch (res) {
 			let err = res instanceof ClientError
 				? res
@@ -289,7 +289,16 @@ export class AuthClient {
 		return fn(token).then(async response => {
 			if (response.status === 401) {
 				let token = await this.forceToken(session)
-				return fn(token)
+				return fn(token).catch(async error => {
+		    		let status = error?.response?.status
+
+		    		if (status === 401) {
+		    			await this.signOut()
+		    			return Promise.reject(new AuthError(ErrorCode.SessionExpired))
+		    		}
+
+		    		return Promise.reject(error)
+		    	})
 			}
 
 			return response

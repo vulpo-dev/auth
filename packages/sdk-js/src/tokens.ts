@@ -25,7 +25,7 @@ export class Tokens {
 		this.http = http
 	}
 
-	async getToken(session: SessionEntry): Promise<AccessToken> {
+	getToken = async (session: SessionEntry): Promise<AccessToken> => {
 		let inFlight = this.inFlight.get(session.id)
 		if (inFlight !== undefined) {
 			return inFlight
@@ -42,7 +42,7 @@ export class Tokens {
 		return token
 	}
 
-	async forceToken(session: SessionEntry): Promise<AccessToken> {
+	forceToken = async (session: SessionEntry): Promise<AccessToken> => {
 		let inFlight = this.inFlight.get(session.id)
 		if (inFlight !== undefined) {
 			return inFlight

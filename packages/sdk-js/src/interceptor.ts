@@ -6,7 +6,7 @@ import type {
 } from 'axios'
 import Axios from 'axios'
 
-import { ErrorCode, HttpError } from 'error'
+import { ErrorCode, HttpError, AuthError } from 'error'
 
 import type { AuthClient } from 'client'
 
@@ -23,7 +23,6 @@ export function addToken(axios: AxiosInstance, auth: AuthClient) {
 				}
 			}
 		} catch (err) {
-
 			if (err instanceof HttpError && err.code === ErrorCode.NotAllowed) {
 				await auth.signOut()
 			}
@@ -37,7 +36,7 @@ export function addToken(axios: AxiosInstance, auth: AuthClient) {
 	}
 
 	axios.interceptors.response.use(onResponse, async (error: AxiosError) => {
-		const status = error.response ? error.response.status : null
+		const status = getStatus(error)
 
 		if (status === 401) {
 			let token = await auth.forceToken()
@@ -50,9 +49,24 @@ export function addToken(axios: AxiosInstance, auth: AuthClient) {
 		    	}
 		    }
 
-		    return Axios.request(config)
+		    return Axios
+		    	.request(config)
+		    	.catch(async err => {
+		    		let status = getStatus(error)
+
+		    		if (status === 401) {
+		    			await auth.signOut()
+		    			return Promise.reject(new AuthError(ErrorCode.SessionExpired))
+		    		}
+
+		    		return Promise.reject(err)
+		    	})
 		}
 
 		return Promise.reject(error)
 	})
+}
+
+function getStatus(error: AxiosError): number | null {
+	return error?.response?.status ?? null
 }

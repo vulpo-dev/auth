@@ -35,11 +35,11 @@ export enum ErrorCode {
 
 	SessionNotFound = 'session/not_found',
 	SessionKeysNotFound = 'session/keys_not_found',
+	SessionExpired = 'session/expired',
 
 	UserDisabled = 'user/disabled',
 	UserDuplicate = 'user/duplicate',
 
-	SessionExpired = 'session/expired',
 }
 
 export type ErrorResponse = {
