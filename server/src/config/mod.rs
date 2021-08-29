@@ -1,3 +1,4 @@
+use log::LevelFilter;
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
@@ -13,6 +14,7 @@ pub struct DbConfig {
     pub host: Option<String>,
     pub database_name: Option<String>,
     pub max_connections: Option<u32>,
+    pub log_level: Option<LevelFilter>,
 }
 
 impl ToString for DbConfig {

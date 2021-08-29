@@ -6,3 +6,4 @@ passphrase = "password"
 username = "postgres"
 password = "postgres"
 port = 6543
+log_level = "Off"
