@@ -1,4 +1,53 @@
-use crate::template::Templates;
+use serde;
+use serde::{Deserialize, Serialize};
+
+#[derive(Debug, Deserialize, Serialize, PartialEq, Copy, Clone)]
+pub enum Templates {
+    #[serde(rename = "change_email")]
+    ChangeEmail,
+
+    #[serde(rename = "password_reset")]
+    PasswordReset,
+
+    #[serde(rename = "passwordless")]
+    Passwordless,
+
+    #[serde(rename = "verify_email")]
+    VerifyEmail,
+
+    #[serde(rename = "index")]
+    Index,
+
+    #[serde(rename = "button")]
+    Button,
+}
+
+impl Templates {
+    pub fn from_string(s: &str) -> Option<Templates> {
+        match s {
+            "change_email" => Some(Templates::ChangeEmail),
+            "password_reset" => Some(Templates::PasswordReset),
+            "passwordless" => Some(Templates::Passwordless),
+            "verify_email" => Some(Templates::VerifyEmail),
+            "index" => Some(Templates::Index),
+            "button" => Some(Templates::Button),
+            _ => None,
+        }
+    }
+}
+
+impl ToString for Templates {
+    fn to_string(&self) -> String {
+        match self {
+            Templates::ChangeEmail => String::from("change_email"),
+            Templates::PasswordReset => String::from("password_reset"),
+            Templates::Passwordless => String::from("passwordless"),
+            Templates::VerifyEmail => String::from("verify_email"),
+            Templates::Index => String::from("index"),
+            Templates::Button => String::from("button"),
+        }
+    }
+}
 
 pub enum DefaultRedirect {
     Passwordless,

@@ -27,6 +27,7 @@
     "bcryptjs": "^2.4.3",
     "date-fns": "^2.23.0",
     "dotenv": "^10.0.0",
+    "faker": "^5.5.3",
     "jsonwebtoken": "^8.5.1",
     "uuid": "^8.3.2"
   }

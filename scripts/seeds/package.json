@@ -10,10 +10,12 @@
   "author": "Michael Riezler <michael@riezler.co> (https://riezler.co)",
   "license": "MPL-2.0",
   "dependencies": {
+    "@types/uuid": "^8.3.1",
     "bcryptjs": "^2.4.3",
     "faker": "^5.1.0",
     "knex": "^0.21.13",
-    "pg": "^8.5.1"
+    "pg": "^8.5.1",
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.2",

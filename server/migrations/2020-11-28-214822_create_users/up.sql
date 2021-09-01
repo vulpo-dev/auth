@@ -14,6 +14,7 @@ create table if not exists users
 	, updated_at timestamptz not null default now()
 	, project_id uuid references projects(id) on delete cascade
 	, disabled boolean not null default false
+	, device_language text not null default 'en'
 	, unique(project_id, email)
 	);
 

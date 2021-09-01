@@ -36,7 +36,7 @@ export function addToken(axios: AxiosInstance, auth: AuthClient) {
 	}
 
 	axios.interceptors.response.use(onResponse, async (error: AxiosError) => {
-		const status = getStatus(error)
+		let status = getStatus(error)
 
 		if (status === 401) {
 			let token = await auth.forceToken()

@@ -87,7 +87,7 @@ pub async fn send(
         user: None,
     };
 
-    let content = Template::render(settings.body, ctx).map_err(|_| ApiError::TemplateRender)?;
+    let content = Template::render(&pool, settings.body, ctx).await?;
     let email = Email {
         to_email: to_email.to_string(),
         subject: settings.subject,

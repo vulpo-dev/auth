@@ -52,7 +52,10 @@ impl AccessToken {
 
         match decode::<Claims>(&token, &decoding_key, &Validation::new(Algorithm::RS256)) {
             Ok(token_data) => Ok(token_data.claims),
-            Err(_) => Err(ApiError::InternalServerError),
+            Err(err) => {
+                println!("{:?}", err);
+                Err(ApiError::InternalServerError)
+            }
         }
     }
 }

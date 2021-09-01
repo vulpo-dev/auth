@@ -11,18 +11,18 @@ import {
 
 import { email } from '../data/settings'
 import { adminUser, getUsers } from '../data/users'
+import { Templates } from '../data/template'
 
 import * as Knex from 'knex'
+import { v4 as uuid } from 'uuid'
 
 exports.seed = async function(knex: Knex) {
   console.log('Delete Projects')
   await knex('projects').del()
  
   console.log('Insert Projects')
-  await knex('projects').insert([
-    admin,
-    project
-  ])
+  let projects = [admin, project]
+  await knex('projects').insert(projects)
 
   console.log('Insert Settings')
   await knex('project_settings').insert([
@@ -45,4 +45,46 @@ exports.seed = async function(knex: Knex) {
     ...getUsers(1000),
     adminUser,
   ])
+
+  console.log('Insert Templates')
+  let templates = projects.flatMap(project => {
+    return Templates.map(template => {
+      return { ...template, id: uuid(), project_id: project.id }
+    })
+  })
+
+  await knex('templates').insert(
+    templates.map(t => {
+      return {
+        id: t.id,
+        body: t.body ?? "",
+        of_type: t.template_type,
+        name: t.of_type,
+        project_id: t.project_id,
+      }
+    })
+  )
+
+  await knex('template_data').insert(
+    templates.filter(t => t.template_type === 'view').map(t => {
+      return {
+        template_id: t.id,
+        from_name: t.from_name,
+        subject: t.subject,
+        redirect_to: t.redirect_to,
+        of_type: t.of_type,
+      }
+    })
+  )
+
+  console.log('Insert Translations')
+  await knex('template_translations').insert(
+    templates.filter(t => t.template_type === 'view').map(t => {
+      return {
+        template_id: t.id,
+        language: 'en',
+        content: t.translation,
+      }
+    })
+  )
 };

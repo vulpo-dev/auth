@@ -3,6 +3,7 @@ use crate::config::Secrets;
 use crate::db::Db;
 use crate::keys::data::ProjectKeys;
 use crate::response::error::ApiError;
+use crate::template::Template;
 
 use rocket::serde::json::Json;
 use rocket::State;
@@ -38,8 +39,11 @@ pub async fn create_admin(pool: Db, secrets: &State<Secrets>) -> Result<Json<Pro
     };
 
     let keys = ProjectKeys::create_keys(true, None, &secrets.passphrase);
+
+    // todo: transaction
     let id = Admin::create_project(&pool, &project, &keys).await?;
     Admin::set_admin(&pool, &id).await?;
+    Template::insert_defaults(&pool, &id).await?;
 
     Ok(Json(Project { id: Some(id) }))
 }
@@ -52,10 +56,11 @@ pub async fn create(
     _admin: Admin,
 ) -> Result<Json<[Uuid; 1]>, ApiError> {
     let keys = ProjectKeys::create_keys(true, None, &secrets.passphrase);
-    Admin::create_project(&pool, &body.into_inner(), &keys)
-        .await
-        .map(|id| [id])
-        .map(Json)
+
+    // todo: transaction
+    let id = Admin::create_project(&pool, &body.into_inner(), &keys).await?;
+    Template::insert_defaults(&pool, &id).await?;
+    Ok(Json([id]))
 }
 
 #[get("/__/project/list")]

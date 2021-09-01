@@ -7,5 +7,6 @@ module.exports = {
   moduleNameMapper: {
     '^@sdk-js/(.*)$': '<rootDir>/../../packages/sdk-js/src/$1',
     '^@seeds/(.*)$': '<rootDir>/../../scripts/seeds/$1',
+    '^@admin/(.*)$': '<rootDir>/../../admin/src/$1',
   },
 };

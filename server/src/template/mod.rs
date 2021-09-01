@@ -1,17 +1,21 @@
 mod config;
+mod data;
 mod template;
+mod translations;
 
 pub use config::{DefaultRedirect, DefaultSubject};
 
 use crate::admin::data::Admin;
 use crate::db::Db;
 use crate::response::error::ApiError;
-pub use template::{Template, TemplateCtx};
-pub use template::{TemplateResponse, Templates};
+pub use config::Templates;
+pub use template::{Template, TemplateCtx, TemplateResponse};
 
 use rocket::serde::json::Json;
 use rocket::serde::uuid::Uuid;
 use rocket::Route;
+
+use self::template::SetTemplateView;
 
 #[get("/?<project_id>&<template>")]
 async fn get_template(
@@ -36,8 +40,6 @@ async fn get_template(
                 redirect_to: DefaultRedirect::from_template(template),
                 of_type: template,
                 project_id,
-                is_default: true,
-                language: String::from("en"),
             }
         }
         Some(t) => t,
@@ -49,11 +51,12 @@ async fn get_template(
 #[post("/", format = "json", data = "<body>")]
 async fn set_template(
     pool: Db,
-    body: Json<TemplateResponse>,
+    body: Json<SetTemplateView>,
     _admin: Admin,
 ) -> Result<(), ApiError> {
     let body = body.into_inner();
-    let template = TemplateResponse {
+
+    let template = SetTemplateView {
         from_name: body.from_name.trim().to_string(),
         subject: body.subject.trim().to_string(),
         redirect_to: body.redirect_to.trim().to_string(),
@@ -66,5 +69,11 @@ async fn set_template(
 }
 
 pub fn routes() -> Vec<Route> {
-    routes![get_template, set_template]
+    routes![
+        get_template,
+        set_template,
+        translations::get_translations,
+        translations::set_translation,
+        translations::delete_translation,
+    ]
 }

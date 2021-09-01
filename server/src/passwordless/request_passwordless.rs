@@ -82,7 +82,7 @@ pub async fn request_passwordless(
         user,
     };
 
-    let content = Template::render(settings.body, ctx).map_err(|_| ApiError::TemplateRender)?;
+    let content = Template::render(&pool, settings.body, ctx).await?;
 
     let email = Email {
         to_email: body.email.to_owned(),

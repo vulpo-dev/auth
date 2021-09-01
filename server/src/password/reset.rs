@@ -56,10 +56,7 @@ pub async fn request_password_reset(
         user: Some(user),
     };
 
-    let content = match Template::render(settings.body, ctx) {
-        Err(_) => return Err(ApiError::TemplateRender),
-        Ok(v) => v,
-    };
+    let content = Template::render(&pool, settings.body, ctx).await?;
 
     let email = Email {
         to_email,
