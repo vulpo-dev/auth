@@ -19,6 +19,7 @@ pub struct Veriy {
     pub token: String,
     pub session: Uuid,
     pub id: Uuid,
+    pub device_languages: Vec<String>,
 }
 
 #[post("/verify", format = "json", data = "<body>")]
@@ -47,6 +48,7 @@ pub async fn handler(
 
     let current_session = Session::get(&pool, &body.session).await?;
 
+    let device_languages = body.device_languages.clone();
     let rat = RefreshAccessToken {
         value: body.into_inner().token,
     };
@@ -59,7 +61,10 @@ pub async fn handler(
     }
 
     let user = match token.user_id {
-        None => User::create_passwordless(&pool, &token.email, &token.project_id).await?,
+        None => {
+            User::create_passwordless(&pool, &token.email, &token.project_id, &device_languages)
+                .await?
+        }
         Some(user_id) => User::get_by_id(&pool, &user_id, &token.project_id).await?,
     };
 

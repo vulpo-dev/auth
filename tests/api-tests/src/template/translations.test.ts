@@ -3,7 +3,6 @@ import Db from '../utils/db'
 import { generateAdminToken } from '../utils/admin'
 import { PROJECT_ID } from '../utils/env'
 import TranslationSchema from '../utils/schema/translations'
-import faker from 'faker'
 import { Languages } from '@admin/data/languages'
 import { admin } from '@seeds/data/projects'
 
@@ -60,6 +59,7 @@ afterAll(() => {
 		 where id = $1
 	`, [TEMPLATE_ID])
 })
+afterAll(() => Db.end())
 
 describe("Translations", () => {
 	test("get all project translations", async () => {

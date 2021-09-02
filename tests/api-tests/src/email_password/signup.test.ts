@@ -13,6 +13,7 @@ const EMAIL = 'michael+test_sign_up@riezler.dev'
 
 beforeEach(cleanUp)
 afterAll(cleanUp)
+afterAll(() => Db.end())
 
 describe("Sign Up: Email and Password", () => {
 
@@ -24,7 +25,8 @@ describe("Sign Up: Email and Password", () => {
 			email: EMAIL,
 			password: 'password',
 			public_key: Array.from(Buffer.from(publicKey)),
-			session: uuid()
+			session: uuid(),
+			device_languages: ['de-AT', 'de'],
 		}
 
 		let res = await Http.post(Url.SignUp, payload)
@@ -36,8 +38,26 @@ describe("Sign Up: Email and Password", () => {
 
 		expect(body).toBeTruthy()
 
-		let userExist = await userCreated()
-		expect(userExist).toBeTruthy()
+		let { rows } = await Db.query(`
+			select device_languages
+			  from users
+			 where email = $1
+			   and project_id = $2
+		`, [EMAIL, PROJECT_ID])
+
+		let createdUser = rows[0]
+		expect(createdUser).toBeTruthy()
+		expect(createdUser.device_languages).toEqual(['de-AT', 'de'])
+
+
+		let { rows: sessions } = await Db.query(`
+			select public_key
+			  from sessions
+			 where id = $1
+		`, [payload.session])
+
+		expect(Array.from(Buffer.from(sessions[0].public_key))).toEqual(payload.public_key)
+
 	})
 
 
@@ -49,7 +69,8 @@ describe("Sign Up: Email and Password", () => {
 			email: `  ${EMAIL.toUpperCase()}   `,
 			password: 'password',
 			public_key: Array.from(Buffer.from(publicKey)),
-			session: uuid()
+			session: uuid(),
+			device_languages: ['de-AT', 'de'],
 		}
 
 		let res = await Http.post(Url.SignUp, payload)
@@ -69,7 +90,8 @@ describe("Sign Up: Email and Password", () => {
 			email: EMAIL,
 			password: '1234567',
 			public_key: Array.from(Buffer.from(publicKey)),
-			session: uuid()
+			session: uuid(),
+			device_languages: ['de-AT', 'de'],
 		}
 
 		let res = await Http
@@ -88,7 +110,8 @@ describe("Sign Up: Email and Password", () => {
 			email: EMAIL,
 			password: '_3>pKuBc,FMD;m(WK=+=g<GSda{}$Tk0IL#>8]BWcQy.J3?/hQ{4q(hH_c*iLax^!',
 			public_key: Array.from(Buffer.from(publicKey)),
-			session: uuid()
+			session: uuid(),
+			device_languages: ['de-AT', 'de'],
 		}
 
 		let res = await Http
@@ -107,7 +130,8 @@ describe("Sign Up: Email and Password", () => {
 			email: EMAIL,
 			password: 'password',
 			public_key: Array.from(Buffer.from(publicKey)),
-			session: uuid()
+			session: uuid(),
+			device_languages: ['de-AT', 'de'],
 		}
 
 		await Http.post(Url.SignUp, payload)
@@ -129,17 +153,4 @@ function cleanUp() {
 		 where email = $1
 		   and project_id = $2
 	`, [EMAIL, PROJECT_ID])
-}
-
-
-async function userCreated(): Promise<boolean> {
-	let result = await Db.query(`
-		select count(email)
-		  from users
-		 where email = $1
-		   and project_id = $2
-	`, [EMAIL, PROJECT_ID])
-
-	let [row] = result.rows
-	return parseInt(row.count, 10) === 1
 }

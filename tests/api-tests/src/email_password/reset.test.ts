@@ -21,6 +21,7 @@ const ID = '031eb841-9650-4b52-a62f-1aa2742ceb43'
 beforeAll(createUser)
 beforeEach(resetPasswordReset)
 afterAll(cleanUp)
+afterAll(() => Db.end())
 
 async function getToken(): Promise<{ id: string, token: string } | null> {
 	let { rows } = await Db.query(`

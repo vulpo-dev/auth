@@ -16,7 +16,6 @@ import {
 } from '../utils/user'
 
 import { v4 as uuid } from 'uuid'
-import * as jwt from 'jsonwebtoken'
 
 const EMAIL = 'michael+test_user_sign_out@riezler.dev'
 const USER_ID = 'df26e3cf-a5a0-4469-966a-a5dc9b273489'
@@ -39,6 +38,7 @@ beforeEach(async () => {
 	return createSession()
 })
 afterAll(makeCleanUp(USER_ID))
+afterAll(() => Db.end())
 
 describe("User Sign Out", () => {
 	describe("current session", () => {

@@ -33,6 +33,7 @@ beforeEach(async () => {
 	await createSession()
 })
 afterAll(makeCleanUp(USER_ID))
+afterAll(() => Db.end())
 
 describe("Delete Account", () => {
 	test("Remove from DB", async () => {
@@ -44,6 +45,7 @@ describe("Delete Account", () => {
 		let res = await Http.post(url, {
 			value: token
 		})
+		.catch(err => err.response)
 
 		expect(res.status).toBe(200)
 

@@ -33,6 +33,7 @@ beforeEach(async () => {
 	`, [TOKEN_ID, HASHED_TOKEN, USER_ID, PROJECT_ID])	
 })
 afterAll(makeCleanUp(USER_ID))
+afterAll(() => Db.end())
 
 describe("Verify Email", () => {
 	test("Sets user.email_verified to true", async () => {

@@ -45,6 +45,7 @@ let resetPasswordless = makeResetPasswordless(
 beforeAll(createUser)
 beforeEach(resetPasswordless)
 afterAll(cleanUp)
+afterAll(() => Db.end())
 
 describe("Confirm Passwordless", () => {
 	test("returns ok for valid token", async () => {

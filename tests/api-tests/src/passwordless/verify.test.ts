@@ -56,9 +56,10 @@ let createUser = makeCreateUser(
 beforeAll(createUser)
 beforeEach(resetPasswordless)
 afterAll(makeCleanUp(USER_ID))
+afterAll(() => Db.end())
 
 describe("Verify Passwordless", () => {
-	test("returns session data for valid token", async () => {
+	test("returns session data for valid token/existing user", async () => {
 		let id = await createToken()
 		let token = generateAccessToken(ratPayload())
 
@@ -72,6 +73,7 @@ describe("Verify Passwordless", () => {
 			id,
 			session: SESSION_ID,
 			token,
+			device_languages: ['de-AT', 'de'],
 		}
 
 		let res = await Http
@@ -83,8 +85,16 @@ describe("Verify Passwordless", () => {
 
 		let body = SessionResponseSchema.validate(res.data)
 		expect(body).toBeTruthy()
-	})
 
+		let { rows: sessions } = await Db.query(`
+			select public_key
+			  from sessions
+			 where id = $1
+		`, [payload.session])
+
+		expect(Array.from(Buffer.from(sessions[0].public_key)))
+			.toEqual(Array.from(Buffer.from(KEYS.publicKey)))
+	})
 
 	test("returns passwordless/await_confirm while token is not confirmed", async () => {
 		let id = await createToken()
@@ -94,6 +104,7 @@ describe("Verify Passwordless", () => {
 			id,
 			session: SESSION_ID,
 			token,
+			device_languages: ['de-AT', 'de'],
 		}
 
 		let wait = await Http
@@ -136,6 +147,7 @@ describe("Verify Passwordless", () => {
 			id,
 			session: SESSION_ID,
 			token,
+			device_languages: ['de-AT', 'de'],
 		}
 
 		let res = await Http
@@ -162,6 +174,7 @@ describe("Verify Passwordless", () => {
 			id,
 			session: SESSION_ID,
 			token,
+			device_languages: ['de-AT', 'de'],
 		}
 
 		let res = await Http
@@ -187,6 +200,7 @@ describe("Verify Passwordless", () => {
 			id,
 			session: SESSION_ID,
 			token,
+			device_languages: ['de-AT', 'de'],
 		}
 
 		let res = await Http
@@ -213,6 +227,7 @@ describe("Verify Passwordless", () => {
 			id,
 			session: SESSION_ID,
 			token,
+			device_languages: ['de-AT', 'de'],
 		}
 
 		let res = await Http
@@ -238,7 +253,7 @@ function generateAccessToken(payload: any, algorithm: Algorithm = 'RS256') {
 	)
 }
 
-export function ratPayload(minutes = 5) {
+export function ratPayload(minutes = 10) {
 	let now = new Date()
 	let exp = Math.ceil(now.setMinutes(now.getMinutes() + minutes) / 1000)
 	return {

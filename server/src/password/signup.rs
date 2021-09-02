@@ -22,6 +22,7 @@ pub struct SignUp {
     pub password: String,
     pub session: Uuid,
     pub public_key: Vec<u8>,
+    pub device_languages: Vec<String>,
 }
 
 #[post("/sign_up", format = "json", data = "<body>")]
@@ -41,7 +42,14 @@ pub async fn sign_up(
     validate_password_length(&body.password)?;
 
     let email = body.email.trim().to_lowercase();
-    let user = User::create(&pool, &email, &body.password, project.id).await?;
+    let user = User::create(
+        &pool,
+        &email,
+        &body.password,
+        project.id,
+        &body.device_languages,
+    )
+    .await?;
 
     let private_key = ProjectKeys::get_private_key(&pool, &project.id, &secrets.passphrase).await?;
 

@@ -44,6 +44,7 @@ beforeEach(async () => {
 	return createSession()
 })
 afterAll(makeCleanUp(USER_ID))
+afterAll(() => Db.end())
 
 describe("Session Refresh", () => {
 	test("returns session data for valid token", async () => {

@@ -32,6 +32,7 @@ import {
 } from 'error'
 import { createSession, getPublicKey, generateAccessToken, ratPayload } from 'keys'
 import { Sessions, Keys } from 'storage'
+import { getLanguages } from 'utils'
 
 import Axios, { AxiosInstance, AxiosRequestConfig, AxiosError } from 'axios'
 
@@ -70,6 +71,7 @@ export class AuthClient {
 			password,
 			public_key, 
 			session: session.id,
+			device_languages: getLanguages([...navigator.languages]),
 		}
 
 		let onError = async (res: AxiosError<ErrorResponse>) => {
@@ -238,7 +240,12 @@ export class AuthClient {
 					return
 				}
 
-				let payload: VerifyPasswordlessPayload = { id, token, session }
+				let payload: VerifyPasswordlessPayload = {
+					id,
+					token,
+					session,
+					device_languages: getLanguages([...navigator.languages]),
+				}
 
 				let { data } = await this.http
 					.post<SessionResponse>(Url.PasswordlessVerify, payload, config)

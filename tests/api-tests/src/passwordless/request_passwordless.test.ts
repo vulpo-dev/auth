@@ -32,6 +32,7 @@ function cleanUp() {
 
 beforeEach(cleanUp)
 afterAll(cleanUp)
+afterAll(() => Db.end())
 
 describe("Request Passwordless", () => {
 	test("create passwordless token when user does not exist", async () => {
@@ -125,15 +126,14 @@ describe("Request Passwordless", () => {
 })
 
 
-function getPasswordlessToken() {
-	return Db
-		.query(`
-			select *
-			  from passwordless
-			 where email = $1
-			   and project_id = $2
-		`, [EMAIL, PROJECT_ID])
-		.then(({ rows }) => rows[0] ?? null)
+async function getPasswordlessToken() {
+	let { rows } = await Db.query(`
+		select *
+		  from passwordless
+		 where email = $1
+		   and project_id = $2
+	`, [EMAIL, PROJECT_ID])
+	return rows[0] ?? null
 }
 
 

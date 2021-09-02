@@ -5,6 +5,7 @@ export type EmailPasswordPayload = {
 	password: string;
 	public_key: Array<number>;
 	session: string;
+	device_languages?: Array<string>;
 }
 
 export type PasswordResetPayload = {
@@ -43,6 +44,7 @@ export type VerifyPasswordlessPayload = {
 	id: string;
 	token: string;
 	session: string;
+	device_languages: Array<string>;
 }
 
 export type RefreshAccessTokenPayload = {

@@ -16,6 +16,7 @@ const PASSWORD = 'password'
 
 beforeEach(createUser)
 afterAll(cleanUp)
+afterAll(() => Db.end())
 
 describe("Sign In: Email and Password", () => {
 	test("user can sign in", async () => {

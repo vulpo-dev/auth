@@ -223,24 +223,15 @@ impl User {
         email: &str,
         password: &str,
         project: Uuid,
+        languages: &Vec<String>,
     ) -> Result<User, ApiError> {
         let password =
             hash(password.clone(), DEFAULT_COST).map_err(|_| ApiError::InternalServerError)?;
 
         let row = sqlx::query!(
             r#"
-                insert into users
-                    ( email
-                    , password
-                    , project_id
-                    , provider_id
-                    )
-                values
-                    ( $1
-                    , $2
-                    , $3
-                    , 'password'
-                    )
+                insert into users(email, password, project_id, provider_id, device_languages)
+                values($1, $2, $3, 'password', $4)
                 returning id
                         , display_name
                         , email
@@ -256,6 +247,7 @@ impl User {
             email,
             password,
             project,
+            languages,
         )
         .fetch_one(pool)
         .await
@@ -293,35 +285,27 @@ impl User {
         pool: &PgPool,
         email: &str,
         project: &Uuid,
+        languages: &Vec<String>,
     ) -> Result<User, ApiError> {
         let row = sqlx::query!(
             r#"
-                        insert into users
-                            ( email
-                            , project_id
-                            , provider_id
-                            , email_verified
-                            )
-                        values
-                            ( $1
-                            , $2
-                            , 'link'
-                            , true
-                            )
-                        returning id
-                                , display_name
-                                , email
-                                , email_verified
-                                , photo_url
-                                , traits
-                                , data
-                                , provider_id
-                                , created_at
-                                , updated_at
-                                , disabled
+                insert into users(email, project_id, provider_id, email_verified, device_languages)
+                values($1, $2, 'link', true, $3)
+                returning id
+                        , display_name
+                        , email
+                        , email_verified
+                        , photo_url
+                        , traits
+                        , data
+                        , provider_id
+                        , created_at
+                        , updated_at
+                        , disabled
                     "#,
             email,
             project,
+            languages,
         )
         .fetch_one(pool)
         .await

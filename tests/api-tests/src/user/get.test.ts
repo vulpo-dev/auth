@@ -34,6 +34,7 @@ beforeEach(async () => {
 	return createUser()
 })
 afterAll(makeCleanUp(USER_ID))
+afterAll(() => Db.end())
 
 describe("Get User", () => {
 	test("returns valid user", async () => {
