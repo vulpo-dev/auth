@@ -6,7 +6,7 @@ use crate::project::Project;
 use crate::response::error::ApiError;
 use crate::session::data::Token;
 use crate::settings::data::ProjectEmail;
-use crate::template::{Template, TemplateCtx, Templates};
+use crate::template::{Template, TemplateCtx, Templates, Translations};
 
 use chrono::Utc;
 use rocket::http::Status;
@@ -85,12 +85,18 @@ pub async fn send(
         href: link,
         project: settings.name,
         user: None,
+        expire_in: 15,
     };
 
-    let content = Template::render(&pool, settings.body, ctx).await?;
+    let translations =
+        Translations::get_by_user(&pool, &user_id, &Templates::VerifyEmail.to_string()).await?;
+    let translations = Template::translate(&translations, &ctx);
+    let subject = Template::render_subject(&settings.subject, &translations)?;
+    let content = Template::render(&pool, settings.body, ctx, &translations).await?;
+
     let email = Email {
         to_email: to_email.to_string(),
-        subject: settings.subject,
+        subject,
         content,
     };
 

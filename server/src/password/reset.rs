@@ -6,7 +6,7 @@ use crate::project::Project;
 use crate::response::error::ApiError;
 use crate::session::data::Token;
 use crate::settings::data::ProjectEmail;
-use crate::template::{Template, TemplateCtx, Templates};
+use crate::template::{Template, TemplateCtx, Templates, Translations};
 use crate::user::data::User;
 
 use chrono::Utc;
@@ -50,17 +50,24 @@ pub async fn request_password_reset(
         settings.domain, settings.redirect_to, token_id, reset_token
     );
 
+    let user_id = user.id.clone();
     let ctx = TemplateCtx {
         href: link,
         project: settings.name,
         user: Some(user),
+        expire_in: 15,
     };
 
-    let content = Template::render(&pool, settings.body, ctx).await?;
+    let translations =
+        Translations::get_by_user(&pool, &user_id, &Templates::PasswordReset.to_string()).await?;
+
+    let translations = Template::translate(&translations, &ctx);
+    let subject = Template::render_subject(&settings.subject, &translations)?;
+    let content = Template::render(&pool, settings.body, ctx, &translations).await?;
 
     let email = Email {
         to_email,
-        subject: settings.subject,
+        subject,
         content,
     };
 

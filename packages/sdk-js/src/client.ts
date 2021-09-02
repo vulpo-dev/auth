@@ -204,6 +204,7 @@ export class AuthClient {
 			email,
 			public_key, 
 			session: session.id,
+			device_languages: getLanguages([...navigator.languages]),
 		}
 
 		let { data } = await this.http
@@ -232,6 +233,8 @@ export class AuthClient {
 
 	verifyPasswordless(id: string, session: string, config?: AxiosRequestConfig): Promise<User | null> {
 		return new Promise((resolve, reject) => {
+			let device_languages = getLanguages([...navigator.languages])
+
 			let check = async () => {
 				let token = await generateAccessToken(session, ratPayload())
 
@@ -244,7 +247,7 @@ export class AuthClient {
 					id,
 					token,
 					session,
-					device_languages: getLanguages([...navigator.languages]),
+					device_languages,
 				}
 
 				let { data } = await this.http

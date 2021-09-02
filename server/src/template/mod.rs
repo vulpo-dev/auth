@@ -9,6 +9,7 @@ use crate::admin::data::Admin;
 use crate::db::Db;
 use crate::response::error::ApiError;
 pub use config::Templates;
+pub use data::Translations;
 pub use template::{Template, TemplateCtx, TemplateResponse};
 
 use rocket::serde::json::Json;

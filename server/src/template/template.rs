@@ -1,7 +1,8 @@
 use std::collections::HashMap;
 
 use crate::response::error::ApiError;
-use crate::template::config::{DefaultRedirect, DefaultSubject, Templates};
+use crate::template::config::{DefaultRedirect, Templates};
+use crate::template::data::Translation;
 use crate::user::data::User;
 use crate::TEMPLATE;
 
@@ -158,55 +159,6 @@ impl Template {
             .unwrap_or("")
     }
 
-    pub async fn get_translation(
-        pool: &PgPool,
-        project_id: Uuid,
-        lang: &str,
-        name: &str,
-    ) -> Result<serde_json::Value, ApiError> {
-        // todo: get default language from project in case language does not exist
-        let translation = sqlx::query_as!(
-            Translation,
-            r#"
-                select template_translations.content
-                  from templates
-                  join template_translations on template_translations.template_id = templates.id
-                 where templates.project_id = $1
-                   and templates.of_type = $2
-                   and template_translations.language = $3
-            "#,
-            project_id,
-            name,
-            lang
-        )
-        .fetch_optional(pool)
-        .await
-        .map_err(|_| ApiError::InternalServerError)?;
-
-        if let Some(t) = translation {
-            return Ok(t.content);
-        }
-
-        let files = FILES
-            .iter()
-            .filter(|file| file.name == name)
-            .collect::<Vec<&File>>();
-
-        let file = files.get(0);
-
-        if let Some(file) = file {
-            let content = TEMPLATE
-                .get_file(file.translation)
-                .unwrap()
-                .contents_utf8()
-                .unwrap();
-
-            return Ok(serde_json::from_str(content).unwrap());
-        }
-
-        Ok(serde_json::Value::String(String::from("")))
-    }
-
     async fn init_handlebars(pool: &PgPool) -> Result<Handlebars<'static>, ApiError> {
         let files = sqlx::query!(
             r#"
@@ -348,26 +300,41 @@ impl Template {
         Ok(())
     }
 
+    pub fn translate(translations: &Translation, ctx: &TemplateCtx) -> HashMap<String, String> {
+        let handlebars = Handlebars::new();
+        translations
+            .iter()
+            .map(|kv| {
+                (
+                    kv.0.clone(),
+                    handlebars
+                        .render_template(kv.1, &json!({ "ctx": ctx }))
+                        .unwrap(),
+                )
+            })
+            .collect()
+    }
+
+    pub fn render_subject(
+        subject: &str,
+        translations: &HashMap<String, String>,
+    ) -> Result<String, ApiError> {
+        let handlebars = Handlebars::new();
+        handlebars
+            .render_template(&subject, &json!({ "t": translations }))
+            .map_err(|_| ApiError::TemplateRender)
+    }
+
     pub async fn render(
         pool: &PgPool,
         template: String,
         ctx: TemplateCtx,
+        translations: &HashMap<String, String>,
     ) -> Result<String, ApiError> {
         let handlebars = Template::init_handlebars(pool).await?;
 
-        let mut translations: HashMap<String, String> = HashMap::new();
-        translations.insert(
-            "text".to_string(),
-            "Click on the link below to sign in to your {{project}} account".to_string(),
-        );
-
-        let translated: HashMap<&String, String> = translations
-            .iter()
-            .map(|kv| (kv.0, handlebars.render_template(kv.1, &ctx).unwrap()))
-            .collect();
-
         let render_ctx = json!({
-            "t": translated,
+            "t": translations,
             "ctx": ctx,
         });
 
@@ -418,14 +385,10 @@ impl Template {
     }
 }
 
-#[derive(Debug, Deserialize)]
-pub struct Translation {
-    content: serde_json::Value,
-}
-
 #[derive(Serialize)]
 pub struct TemplateCtx {
     pub href: String,
     pub project: String,
     pub user: Option<User>,
+    pub expire_in: i32,
 }

@@ -41,7 +41,8 @@ describe("Request Passwordless", () => {
 		let payload: RequestPasswordlessPayload = {
 			email: EMAIL,
 			public_key: Array.from(Buffer.from(publicKey)),
-			session: uuid()
+			session: uuid(),
+			device_languages: ['de-AT', 'de'],
 		}
 
 		let res = await Http
@@ -67,7 +68,8 @@ describe("Request Passwordless", () => {
 		let payload: RequestPasswordlessPayload = {
 			email: EMAIL,
 			public_key: Array.from(Buffer.from(publicKey)),
-			session: uuid()
+			session: uuid(),
+			device_languages: ['de-AT', 'de'],
 		}
 
 		let res = await Http
@@ -93,7 +95,8 @@ describe("Request Passwordless", () => {
 		let payload: RequestPasswordlessPayload = {
 			email: EMAIL,
 			public_key: Array.from(Buffer.from(publicKey)),
-			session: uuid()
+			session: uuid(),
+			device_languages: ['de-AT', 'de'],
 		}
 
 		let res = await Http
@@ -113,7 +116,8 @@ describe("Request Passwordless", () => {
 		let payload: RequestPasswordlessPayload = {
 			email: `   ${EMAIL.toUpperCase()}   `,
 			public_key: Array.from(Buffer.from(publicKey)),
-			session: uuid()
+			session: uuid(),
+			device_languages: ['de-AT', 'de'],
 		}
 
 		let res = await Http

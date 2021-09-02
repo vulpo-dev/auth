@@ -28,6 +28,7 @@ export type RequestPasswordlessPayload = {
 	email: string;
 	public_key: Array<number>;
 	session: string;
+	device_languages: Array<string>;
 }
 
 export type PasswordlessResponse = {

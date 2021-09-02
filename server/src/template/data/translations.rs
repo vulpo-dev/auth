@@ -25,6 +25,8 @@ pub struct Translations {
     pub value: HashMap<String, serde_json::Value>,
 }
 
+pub type Translation = HashMap<String, String>;
+
 impl Translations {
     pub async fn get_by_project(
         pool: &PgPool,
@@ -105,5 +107,70 @@ impl Translations {
         .map_err(|_| ApiError::InternalServerError)?;
 
         Ok(())
+    }
+
+    pub async fn get_by_user(
+        pool: &PgPool,
+        user_id: &Uuid,
+        name: &str,
+    ) -> Result<HashMap<String, String>, ApiError> {
+        let translation = sqlx::query!(
+            r#"
+                with languages as (
+                    select array_append(users.device_languages, project_settings.default_language) as languages
+                      from users
+                      join project_settings on project_settings.project_id = users.project_id 
+                     where id = $1
+
+                )
+                select lang.prio, template_translations.content
+                  from languages, unnest(languages.languages) WITH ORDINALITY AS lang(code, prio)
+                  join templates on templates.name = $2
+                  join template_translations on template_translations.language = lang.code
+                                            and template_translations.template_id  = templates.id
+                 order by lang.prio
+                 limit 1
+            "#,
+            user_id,
+            name,
+        )
+        .fetch_one(pool)
+        .await
+        .map_err(|_| ApiError::InternalServerError)?;
+
+        serde_json::from_value(translation.content).map_err(|_| ApiError::InternalServerError)
+    }
+
+    pub async fn get_by_languages(
+        pool: &PgPool,
+        project_id: &Uuid,
+        languages: &Vec<String>,
+        name: &str,
+    ) -> Result<HashMap<String, String>, ApiError> {
+        let translation = sqlx::query!(
+            r#"
+                with languages as (
+                    select array_append($2, project_settings.default_language) as languages
+                      from project_settings
+                     where project_id = $1
+
+                )
+                select lang.prio, template_translations.content
+                  from languages, unnest(languages.languages) WITH ORDINALITY AS lang(code, prio)
+                  join templates on templates.name = $3
+                  join template_translations on template_translations.language = lang.code
+                                            and template_translations.template_id  = templates.id
+                 order by lang.prio
+                 limit 1
+            "#,
+            project_id,
+            languages,
+            name,
+        )
+        .fetch_one(pool)
+        .await
+        .map_err(|_| ApiError::InternalServerError)?;
+
+        serde_json::from_value(translation.content).map_err(|_| ApiError::InternalServerError)
     }
 }
