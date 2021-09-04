@@ -1375,10 +1375,10 @@
     lodash "^4.17.19"
     to-fast-properties "^2.0.0"
 
-"@biotic-ui/boson@^0.3.13":
-  version "0.3.13"
-  resolved "https://registry.yarnpkg.com/@biotic-ui/boson/-/boson-0.3.13.tgz#841ad013ecb46f9d7e6b7d7a5bfb2208185ce510"
-  integrity sha512-LAv0lJYpzuMHXNUHjAA3W3m2BAoDrahUZawS5+9RCnNf0nbE7XA31jWTNPcwqUUtmO0p7oO4oqTgiUc/9P6Zjg==
+"@biotic-ui/boson@^0.3.18":
+  version "0.3.18"
+  resolved "https://registry.yarnpkg.com/@biotic-ui/boson/-/boson-0.3.18.tgz#5b213602cca81b885e3e60fd0d39a3e7aed97d29"
+  integrity sha512-Gv3h9oIunKDaZJTczue/EzXbtI1MRrRa97eVGFZ9UnLQdJAKnUHNWetsdIVnRDhfcZWLkNcvsfFsqd/QlTw3PQ==
 
 "@biotic-ui/button@^0.3.10":
   version "0.3.10"
@@ -1411,10 +1411,10 @@
   dependencies:
     "@riezler/react-utils" "^0.1.1"
 
-"@biotic-ui/select@^0.3.12":
-  version "0.3.12"
-  resolved "https://registry.yarnpkg.com/@biotic-ui/select/-/select-0.3.12.tgz#316efb572416e5c9069296cfb59beb240129e0fa"
-  integrity sha512-uGZVFUmS1J65llbchXWxa5Q/V7DNvfnbTaV3Vd/u5XLH41P9+rGtn618JeOwvl/4OUby9NO9SPIkzTrb9iqKFA==
+"@biotic-ui/select@^0.3.15":
+  version "0.3.15"
+  resolved "https://registry.yarnpkg.com/@biotic-ui/select/-/select-0.3.15.tgz#284a92c00fddb8db4d9c018a1cc2137e0264c542"
+  integrity sha512-CldFaCpbr2RuEK3DHUOAo3TQ91MsI+JuIn880Grz2P9wEkuWE5ekdF6Eg9qZanPz46P+eTnh0MxHAoC0PCFxpQ==
 
 "@biotic-ui/std@^0.3.6":
   version "0.3.6"

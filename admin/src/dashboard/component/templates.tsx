@@ -13,6 +13,7 @@ import { Section, Label, Input, Textarea } from '@biotic-ui/input'
 import { TemplateForm } from 'templates/form'
 import { TemplateList } from 'templates/list'
 import { Translations } from 'templates/translations'
+import { TemplateCtx } from 'templates/ctx'
 
 enum Tab {
 	Template = 'template',
@@ -46,34 +47,40 @@ let Templates = () => {
 				</Aside>
 				<Main>
 					{ (match && isTemplate(match.params.template)) &&
-						<Layout>
-							<TemplateNav>
-								<StyledListItem
-									$isActive={currentTab === Tab.Template}
-									to={navigate(Tab.Template)}
-								>
-									Template
-								</StyledListItem>
+						<TemplateCtx.Provider value={{ project: project.id, template: match.params.template }}>						
+							<Layout>
+								<TemplateNav>
+									<StyledListItem
+										$isActive={currentTab === Tab.Template}
+										to={navigate(Tab.Template)}
+									>
+										Template
+									</StyledListItem>
 
-								<StyledListItem
-									$isActive={currentTab === Tab.Translations}
-									to={navigate(Tab.Translations)}
-								>
-									Translations
-								</StyledListItem>
-							</TemplateNav>
+									<StyledListItem
+										$isActive={currentTab === Tab.Translations}
+										to={navigate(Tab.Translations)}
+									>
+										Translations
+									</StyledListItem>
+								</TemplateNav>
 
-							{ currentTab === Tab.Template &&
-								<TemplateForm
-									project={project.id}
-									template={match.params.template}
-								/>
-							}
+								<Content>
+									{ currentTab === Tab.Template &&
+										<TemplateForm
+											project={project.id}
+											template={match.params.template}
+										/>
+									}
 
-							{ currentTab === Tab.Translations &&
-								<Translations />
-							}
-						</Layout>
+									{ currentTab === Tab.Translations &&
+										<Translations
+
+										/>
+									}
+								</Content>
+							</Layout>
+						</TemplateCtx.Provider>
 					}
 
 					{ (!match || !isTemplate(match.params.template)) &&
@@ -91,11 +98,22 @@ let Wrapper = styled.div`
 	--drawer-background: var(--color-background);
 	--aside-background: none;
 	height: 100%;
+
+	--template-nav-height: var(--baseline-5);
+
+`
+
+let Content = styled.div`
+	display: flex;
+
+	@media screen and (min-width: 1330px) {
+		margin-left: -250px;
+	}
 `
 
 let Layout = styled.div`
 	display: grid;
-	grid-template-rows: var(--baseline-5) auto;
+	grid-template-rows: var(--template-nav-height) auto;
 	height: 100%;
 `
 
@@ -104,6 +122,7 @@ let TemplateNav = styled.nav`
 	align-items: center;
 	justify-content: center;
 	column-gap: var(--baseline-5);
+	margin-left: -250px;
 `
 
 let StyledListItem = styled(Link)<{ $isActive?: boolean }>`

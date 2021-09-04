@@ -7,27 +7,36 @@ import { TemplateType } from 'data/template'
 
 export let TemplateList = () => {
 	return (
-		<List>
-			<ListItem type={TemplateType.Passwordless}>
-				Passwordless
-			</ListItem>
-			<ListItem type={TemplateType.PasswordReset}>
-				Reset Password
-			</ListItem>
-			<ListItem type={TemplateType.ChangeEmail}>
-				Change Email
-			</ListItem>
-			<ListItem  type={TemplateType.VerifyEmail}>
-				Verify Email
-			</ListItem>
-		</List>
+		<Wrapper>
+			<div></div>
+			<List>
+				<ListItem type={TemplateType.Passwordless}>
+					Passwordless
+				</ListItem>
+				<ListItem type={TemplateType.PasswordReset}>
+					Reset Password
+				</ListItem>
+				<ListItem type={TemplateType.ChangeEmail}>
+					Change Email
+				</ListItem>
+				<ListItem  type={TemplateType.VerifyEmail}>
+					Verify Email
+				</ListItem>
+			</List>
+		</Wrapper>
 	)
 }
+
+let Wrapper = styled.div`
+	display: grid;
+	grid-template-rows: var(--template-nav-height) auto;
+`
 
 let List = styled.ul`
 	list-style-type: none;
 	margin: 0;
 	padding: var(--baseline-3) var(--baseline-2);
+	padding-top: 0;
 `
 
 let StyledListItem = styled.li<{ $isActive: boolean }>`
@@ -54,13 +63,13 @@ type ListItemProps = {
 let ListItem: FunctionComponent<ListItemProps> = ({ children, type }) => {
 	let location = useLocation()
 	let [project] = useProject()
-	let url = `/${project.id}/templates/${type}`
+	let pathname = `/${project.id}/templates/${type}`
 
-	let active = location.pathname === url
+	let active = location.pathname === pathname
 
 	return (
 		<StyledListItem $isActive={active}>
-			<Link to={url}>
+			<Link to={{ pathname, search: location.search }}>
 				{children}
 			</Link>
 		</StyledListItem>
