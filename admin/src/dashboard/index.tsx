@@ -30,7 +30,7 @@ import Templates from 'dashboard/component/templates'
 
 function Dashboard() {
 	let history = useHistory()
-	let [projects] = useProjects()
+	let [{ data: projects }] = useProjects()
 	let match = useRouteMatch<{ project: string }>('/:project')
 	let project = match?.params?.project ?? ''
 

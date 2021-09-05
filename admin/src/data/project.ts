@@ -6,13 +6,11 @@ import {
 } from 'react'
 
 import { useHttp } from 'data/http'
-import { useProject as useProjectId } from 'data/admin'
 
 import {
 	boson,
-	useBoson,
 	useSetBoson,
-	SetterOrUpdater,
+	useQuery,
 } from '@biotic-ui/boson'
 
 import { AuthClient } from '@riezler/auth-sdk'
@@ -30,29 +28,14 @@ let projectsAtom = boson<ProjectList | undefined>({
 	defaultValue: undefined
 })
 
-type UseProjects = [
-	ProjectList | undefined,
-	(nextState: SetterOrUpdater<ProjectList | undefined>) => void,
-]
 
-export function useProjects(): UseProjects {
+export function useProjects() {
 	let http = useHttp()
-	let [projects, setProjects] = useBoson(projectsAtom)
 
-	useEffect(() => {
-
-		if (projects !== undefined) {
-			return
-		}
-
-		http.get<ProjectList>('/admin/__/project/list')
-			.then(async res => {
-				setProjects(res.data)
-			})
-			.catch(err => console.log(err))
-	}, [http, setProjects])
-
-	return [projects, setProjects]
+	return useQuery(projectsAtom, async () => {
+		let res = await http.get<ProjectList>('/admin/__/project/list')
+		return res.data
+	})
 }
 
 export function useCreateProject() {
@@ -81,11 +64,11 @@ export let ProjectCtx = createContext<PartialProject | undefined>(undefined)
 
 export function useProject(): [PartialProject, (p: PartialProject) => void] {
 	let current = useContext(ProjectCtx)
-	let [projects, setProjects] = useProjects()
+	let [{ data: projects }, actions] = useProjects()
 	let project = projects?.find(p => p.id === current?.id)
 
 	let set = (p: PartialProject) => {
-		setProjects((state = []) => {
+		actions.set((state = []) => {
 			let index = state.findIndex(item => item.id === p.id)
 
 			if (index === -1) {

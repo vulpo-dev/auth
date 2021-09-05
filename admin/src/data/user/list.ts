@@ -1,29 +1,14 @@
-import { useEffect, useState } from 'react'
-import { useHttp, CancelToken } from 'data/http'
-import { ApiError, getErrorCode } from 'error'
-import { bosonFamily, useBoson } from '@biotic-ui/boson'
+import { useHttp } from 'data/http'
+import { bosonFamily, useQuery } from '@biotic-ui/boson'
 import { PartialUser, PartialUserResponse, partialUserFromResponse } from 'data/user/types'
-import Axios from 'axios'
 
 type Response = {
 	items: Array<PartialUserResponse>;
 }
 
-type UsersState = {
-	items?: Array<PartialUser> | null;
-	loading: boolean;
-	error: null | ApiError;
-}
-
-let DefaultState: UsersState = {
-	items: undefined,
-	loading: true,
-	error: null,
-}
-
-let usersFamily = bosonFamily<[Filter], UsersState>(filter => {
+let usersFamily = bosonFamily<[Filter], Array<PartialUser> | null>(() => {
 	return {
-		defaultValue: DefaultState,
+		defaultValue: null,
 	}
 }, filterToKey)
 
@@ -39,20 +24,14 @@ function filterToKey(f: Filter) {
 	return `${f.project}:${f.orderBy}:${f.sort}:${f.offset}:${f.limit}`
 }
 
-type Reload = {
-	reload: () => void;
-}
-
-
 export function useUsers({
 	project,
 	orderBy = 'created_at',
 	sort = 'desc',
 	offset = 0,
 	limit = 50
-}: Filter): UsersState & Reload {
+}: Filter) {
 	let http = useHttp()
-	let [shouldReload, setReload] = useState<boolean>(false)
 
 	let key = {
 		project,
@@ -62,20 +41,7 @@ export function useUsers({
 		limit,
 	}
 
-	let [state, setState] = useBoson(usersFamily(key))
-	
-	useEffect(() => {
-
-		setState(state => {
-			return {
-				...state,
-				loading: true,
-				error: null,
-			}
-		})
-
-		let source = CancelToken.source()
-
+	return useQuery(usersFamily(key), async () => {
 		let params = {
 			order_by: orderBy,
 			sort: sort,
@@ -84,49 +50,10 @@ export function useUsers({
 			project: project
 		}
 
-		let config = {
-			params,
-			cancelToken: source.token,
-		}
+		let res = await http.get<Response>('/user/list', { params })
 
-		http
-			.get<Response>('/user/list', config)
-			.then(({ data }) => {
-
-				let users = data.items.map(user => {
-					return partialUserFromResponse(user)
-				})
-
-				setState(state => {
-					return {
-						...state,
-						loading: false,
-						items: users,
-					}
-				})
-			})
-			.catch(err => {
-
-				if (Axios.isCancel(err)) {
-					return
-				}
-
-				setState(state => {
-					return {
-						...state,
-						loading: false,
-						error: getErrorCode(err),
-					}
-				})
-			})
-
-		return () => {
-			source.cancel()
-		}
-	}, [project, orderBy, sort, offset, limit, http, setState, shouldReload])
-
-	return {
-		...state,
-		reload: () => setReload(state => !state)
-	}
+		return res.data.items.map(user => {
+			return partialUserFromResponse(user)
+		})
+	})
 }

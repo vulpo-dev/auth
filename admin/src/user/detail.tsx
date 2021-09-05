@@ -3,9 +3,9 @@ import styled from 'styled-components'
 import { useUser, useUpdateUser } from 'data/user'
 import { useProject } from 'data/project'
 import { Input, Label, Section, ChipsInput } from '@biotic-ui/input'
-// import ReactJson from 'react-json-view'
 import { Button, LinkButton, IconButton } from 'component/button'
 import { X } from 'phosphor-react'
+
 type Props = {
 	userId: string | null
 }
@@ -13,38 +13,59 @@ type Props = {
 export default function UserDetails({ userId }: Props) {
 	let [project] = useProject()
 	let updateUser = useUpdateUser(project.id)
-	let [user, setUser] = useUser(userId, project.id)
+	let [{ data: user, initialData }, { set: setUser, reset }] = useUser(userId, project.id)
 	let [focus, setFocus] = useState<number | null>(null)
 
 	function onChange(event: ChangeEvent<HTMLInputElement>) {
 		let { name, value } = event.target
-		setUser({ [name]: value })
+		setUser(user => {
+			if (!user) {
+				return
+			}
+
+			return {
+				...user,
+				[name]: value
+			}
+		})
+	}
+
+	function setTraits(traits: Array<string>) {
+		setUser(user => {
+			if (!user) {
+				return
+			}
+
+			return {
+				...user,
+				traits,
+			}
+		})
 	}
 
 	function onTraitsChange(newTraits: Array<string>) {
 		let traits = [
-			...user?.value?.traits ?? [],
+			...user?.traits ?? [],
 			...newTraits,
-		] 
-		setUser({ traits })
+		]
+
+		setTraits(traits)
 	}
 
 	function removeTrait(trait: string) {
 		return function() {
-			let currentTraits = user?.value?.traits ?? []
+			let currentTraits = user?.traits ?? []
 			let traits = currentTraits.filter(t => t !== trait)
-			setUser({ traits })
+			setTraits(traits)
 		}
 	}
 
 	function handleDelete() {
-		let traits = user?.value?.traits ?? [] 
+		let traits = user?.traits ?? [] 
 		let lastIndex = traits.length - 1
 
 		if (focus !== null) {
-			setUser({
-				traits: traits.slice(0, lastIndex)
-			})
+			setTraits(traits.slice(0, lastIndex))
 			setFocus(null)
 		} else {
 			setFocus(lastIndex)
@@ -58,28 +79,23 @@ export default function UserDetails({ userId }: Props) {
 	async function handleSubmit(e: FormEvent) {
 		e.preventDefault()
 
-		if (!user.value) {
+		if (!user) {
 			return
 		}
 
 		try {
-			await updateUser.run(user.value)
+			await updateUser.run(user)
 		} catch(err) {
 			console.log(err)
 		}
 	}
 
-	function reset() {
-		if (user.initalData) {
-			setUser(user.initalData)
-		}
-	}
 
-	if (user.value === null || userId === null) {
+	if (user === null || userId === null) {
 		return null
 	}
 
-	if (user.value === undefined) {
+	if (user === undefined) {
 		return <p>...loading</p>
 	}
 
@@ -88,18 +104,18 @@ export default function UserDetails({ userId }: Props) {
 			<form onSubmit={handleSubmit}>
 				<Header>
 					<LinkButton
-						onClick={reset}
+						onClick={() => reset()}
 						disabled={updateUser.loading}
 						type='button'
 					>Reset</LinkButton>
 					<Button loading={updateUser.loading}>Save</Button>
 				</Header>
 				<Section>
-					<Title>User: { user?.initalData?.email }</Title>
+					<Title>User: { initialData?.email }</Title>
 				</Section>
 				<Section>
 					<Label>User Id</Label>
-					<Input value={user.value.id} readOnly />
+					<Input value={user.id} readOnly />
 				</Section>
 				<Section>	
 					<Label htmlFor='email'>Email:</Label>	
@@ -108,7 +124,7 @@ export default function UserDetails({ userId }: Props) {
 						type='email'
 						name='email'
 						onChange={onChange}
-						value={user.value.email}
+						value={user.email}
 					/>
 				</Section>
 				<Section>	
@@ -116,7 +132,7 @@ export default function UserDetails({ userId }: Props) {
 					<Input
 						name='display_name'
 						onChange={onChange}
-						value={user.value.display_name ?? ''}
+						value={user.display_name ?? ''}
 					/>
 				</Section>
 				<Section>	
@@ -126,7 +142,7 @@ export default function UserDetails({ userId }: Props) {
 						onDelete={handleDelete}
 						onCancelDelete={handleCancel}
 					>
-						{ user.value.traits.map((trait, index) =>
+						{ user.traits.map((trait, index) =>
 							<Chip key={trait} $focus={index === focus}>
 								{trait}
 								<IconButton onClick={removeTrait(trait)}>
@@ -139,11 +155,11 @@ export default function UserDetails({ userId }: Props) {
 			</form>
 			<Section>
 				<Label>Updated At:</Label>
-				<p>{user.value.updated_at}</p>
+				<p>{user.updated_at}</p>
 			</Section>
 			<Section>
 				<Label>Created At:</Label>
-				<p>{user.value.created_at}</p>
+				<p>{user.created_at}</p>
 			</Section>
 		</Wrapper>
 	)

@@ -8,7 +8,6 @@ import { Input, Section as ISection, Label } from '@biotic-ui/input'
 
 import {
 	useEmailSettings,
-	EmailProvider,
 	DefaultEmailSettings,
 	useSaveEmailSettings,
 	useSetEmailSettings,
@@ -22,7 +21,7 @@ type Props = {
 let EmailSettings: FunctionComponent<Props> = () => {
 	let [project] = useProject()
 	let setForm = useSetEmailSettings(project.id)
-	let [{ data, initialData }, setSettings] = useEmailSettings(project.id)
+	let [{ data, state }] = useEmailSettings(project.id)
 	let save = useSaveEmailSettings(project.id)
 
 	function handleSubmit(e: FormEvent) {
@@ -30,8 +29,8 @@ let EmailSettings: FunctionComponent<Props> = () => {
 		save.handler()
 	}
 
-	let isLoading = data === undefined
-
+	let isLoading = state === 'loading'
+	console.log({ data })
 	return (
 		<form onSubmit={handleSubmit}>
 			<Section>

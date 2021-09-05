@@ -1,8 +1,7 @@
-import { useEffect, useState, useCallback } from 'react'
-import { useHttp, CancelToken } from 'data/http'
+import { useState, useCallback } from 'react'
+import { useHttp } from 'data/http'
 import { ApiError, getErrorCode } from 'error'
-import { bosonFamily, useBoson } from '@biotic-ui/boson'
-import { useMounted } from '@biotic-ui/std'
+import { bosonFamily, useQuery } from '@biotic-ui/boson'
 
 export { useUsers } from './list'
 export { useUser } from './get'
@@ -14,74 +13,24 @@ type TotalUsersResponse = {
 	total_users: number;
 }
 
-type TotalState = {
-	value?: number | null;
-	loading: boolean;
-	error: null | ApiError; 
-}
-
-let userTotalFamily = bosonFamily<[string], TotalState>(id => {
+let userTotalFamily = bosonFamily<[string], number | null>(() => {
 	return {
-		defaultValue: {
-			value: undefined,
-			loading: true,
-			error: null,
-		}
+		defaultValue: null
 	}
 })
 
-export function useTotalUsers(project: string): TotalState {
-	let mounted = useMounted()
+export function useTotalUsers(project: string) {
 	let http = useHttp()
-	let [state, setState] = useBoson(userTotalFamily(project))
 
-	useEffect(() => {
-		setState(state => {
-			return {
-				...state,
-				loading: true,
-				error: null,
+	return useQuery(userTotalFamily(project), async () => {
+		let res = await http.get<TotalUsersResponse>('/user/total', {
+			params: {
+				project
 			}
 		})
 
-		let source = CancelToken.source()
-
-		let params = {
-			project
-		}
-
-		let config = {
-			params,
-			cancelToken: source.token,
-		}
-
-		http
-			.get<TotalUsersResponse>('/user/total', config)
-			.then(res => {
-				setState(state => {
-					return {
-						...state,
-						loading: false,
-						value: res.data.total_users,
-					} 
-				})
-			})
-			.catch(err => {
-				setState(state => {
-					return {
-						...state,
-						loading: false,
-						error: getErrorCode(err),
-					}
-				})
-			})
-
-		return () => {
-			source.cancel()
-		}
-	}, [project, http, setState])
-
-	return state
+		return res.data.total_users
+	})
 }
 
 export function useDeleteUser() {

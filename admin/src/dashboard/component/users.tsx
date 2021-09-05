@@ -60,9 +60,9 @@ let Users: FC<Props> = ({ project }) => {
 		setPage(page => page + add)
 	}
 
-	let users = useUsers({ project, limit, offset: page * limit })
-	let total = useTotalUsers(project)
-	let pages = total.value ? Math.ceil(total.value / limit) : 0
+	let [{ data: users, state }, actions] = useUsers({ project, limit, offset: page * limit })
+	let [{ data: total }] = useTotalUsers(project)
+	let pages = total ? Math.ceil(total / limit) : 0
 
 	let [selected, setSelected] = useState<Array<string>>([])
 
@@ -91,9 +91,9 @@ let Users: FC<Props> = ({ project }) => {
 		}
 	})
 
-	let rows = users.items
+	let rows = users
 		? <Rows
-			items={users.items}
+			items={users}
 			onSelect={handleSelect}
 			selected={selected}
 			onOpen={handleOpen}
@@ -109,7 +109,7 @@ let Users: FC<Props> = ({ project }) => {
 				handleClose()
 			}
 
-			users.reload()
+			actions.reload()
 			setSelected([])
 		}
 	}
@@ -117,26 +117,28 @@ let Users: FC<Props> = ({ project }) => {
 	async function handleVerify() {
 		if (selected[0]) {
 			await verifyEmail.run(selected[0]!)
-			users.reload()
+			actions.reload()
 			setSelected([])
 		}
 	}
 
-	let user = users.items?.find(user =>  user.id === selected[0])
+	let user = users?.find(user =>  user.id === selected[0])
 	async function handleDisable() {
 
-		if (!users.items) {
-			users.reload()
+		if (!users) {
+			actions.reload()
 			setSelected([])
 			return
 		}
 
 		if (selected[0]) {
 			await disableUser.run(selected[0]!, !user?.disabled)
-			users.reload()
+			actions.reload()
 			setSelected([])
 		}
 	}
+
+	let isLoading = state === 'loading'
 
 	return (
 		<LayoutWrapper>
@@ -157,11 +159,11 @@ let Users: FC<Props> = ({ project }) => {
 				<Main>	
 					<Container>
 						<HeaderInfo>
-							<h3>Users: { total?.value }</h3>
+							<h3>Users: { total }</h3>
 							<LoadingWrapper>
-								{ users.loading && <Pulse /> }
+								{ isLoading && <Pulse /> }
 								<Tooltip content='Reload' delay={[500, null]}>
-									<IconButton onClick={users.reload}>
+									<IconButton onClick={() => actions.reload()}>
 										<ArrowClockwise size={20} weight='bold' />
 									</IconButton>
 								</Tooltip>

@@ -1,5 +1,4 @@
 import {
-	useEffect,
 	useCallback,
 	ChangeEvent,
 	useState,
@@ -7,22 +6,13 @@ import {
 
 import {
 	bosonFamily,
-	useBoson,
 	useSetBoson,
 	useBosonValue,
+	useQuery,
 } from '@biotic-ui/boson'
 
-import { CancelToken, useHttp } from 'data/http'
+import { useHttp } from 'data/http'
 import { ApiError, getErrorCode } from 'error'
-
-type SetterOrUpdater<T>
-	= T
-	| ((currentState: T) => T)
-
-export enum EmailProvider {
-	MailGun = 'mailgun',
-	None = 'none',
-}
 
 export type EmailSettings = {
 	host: string;
@@ -53,101 +43,32 @@ export function hasEmailProvider(settings?: EmailSettings | null) {
 	return true
 }
 
-
-type Request<T> = {
-	data: T | undefined,
-	loading: boolean,
-	error: ApiError | null,
-	initialData: T | undefined | null,
-}
-
-
-let createEmailSettings = bosonFamily<[string], Request<EmailSettings>>((id) => {
+let createEmailSettings = bosonFamily<[string], EmailSettings>(() => {
 	return {
-		defaultValue: {
-			data: undefined,
-			initialData: undefined,
-			loading: true,
-			error: null,
-		}
+		defaultValue: DefaultEmailSettings
 	}
 })
 
-export function useEmailSettings(project: string): [Request<EmailSettings>, ((x: SetterOrUpdater<EmailSettings>) => void)] {
+export function useEmailSettings(project: string) {
 	let http = useHttp()
 
-	let [state, setState] = useBoson(createEmailSettings(project))
-
-	function handleSetState(valOrFn: SetterOrUpdater<EmailSettings>) {
-		setState(currentState => {
-			let nextState = valOrFn instanceof Function
-				? valOrFn(currentState.data ?? DefaultEmailSettings)
-				: (valOrFn as EmailSettings)
-
-			return {
-				...currentState,
-				data: nextState!
-			}
-		})
-	}
-
-	useEffect(() => {
-
-		setState(state => {
-			return {
-				...state,
-				loading: true,
-				error: null
-			}
-		})
-
-		let source = CancelToken.source()
-		let options = {
-			cancelToken: source.token,
+	return useQuery(createEmailSettings(project), async () => {
+		let res = await http.get<EmailSettings | null>('settings/email', {
 			params: { project_id: project }
-		}
+		})
 
-		http
-			.get<EmailSettings | null>('settings/email', options)
-			.then(res => {
-				setState({
-					data: res.data ?? DefaultEmailSettings,
-					initialData: res.data,
-					loading: false,
-					error: null,
-				})
-			})
-			.catch(err => setState(state => {
-				return {
-					...state,
-					data: DefaultEmailSettings,
-					loading: false,
-					error: getErrorCode(err)
-				}
-			}))
-
-		return () => {
-			source.cancel()
-		}
-
-	}, [project])
-
-	return [state, handleSetState]
+		return res.data ?? DefaultEmailSettings
+	})
 }
 
 export function useSetEmailSettings(project: string) {
-	let atom = createEmailSettings(project)
-	let setState = useSetBoson<Request<EmailSettings>>(atom)
-
+	let setState = useSetBoson<EmailSettings>(createEmailSettings(project))
 	return useCallback((e: ChangeEvent<HTMLInputElement>) => {
-			setState(state => {
+			setState((state) => {
 				let { name, value } = e.target
 				return {
 					...state,
-					data: {
-						...(state.data ?? DefaultEmailSettings),
-						[name]: value
-					}
+					[name]: value
 				}
 			})
 	}, [setState])
@@ -161,8 +82,7 @@ export function useSaveEmailSettings(project: string) {
 		error: null
 	})
 
-	let atom = createEmailSettings(project)
-	let { data } = useBosonValue(atom)
+	let data = useBosonValue(createEmailSettings(project))
 
 	let handler = useCallback(async () => {
 		setState({ loading: true, error: null })
