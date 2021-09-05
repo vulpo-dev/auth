@@ -27,10 +27,10 @@ export let TemplateForm: FunctionComponent<TemplateFormProps> = ({
 
 	return (
 		<FormWrapper>
-			<form onSubmit={onSubmit.save}>
+			<form onSubmit={onSubmit}>
 				<FormHeader>
 					<LinkButton onClick={() => actions.reset()}>Reset</LinkButton>
-					<Button>Save</Button>
+					<Button disabled={onSubmit.loading}>Save</Button>
 				</FormHeader>
 				<Section>
 					<Label>From Name:</Label>

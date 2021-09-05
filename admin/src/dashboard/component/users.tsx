@@ -46,8 +46,8 @@ let Users: FC<Props> = ({ project }) => {
 
 	let { innerWidth } = useWindowSize()
 
-	let [{ initialData }] = useEmailSettings(project)
-	let hasEmail = hasEmailProvider(initialData)
+	let [{ data: emailSettings }] = useEmailSettings(project)
+	let hasEmail = hasEmailProvider(emailSettings)
 
 	let deleteUser = useDeleteUser()
 	let verifyEmail = useVerifyEmail(project)
@@ -103,7 +103,7 @@ let Users: FC<Props> = ({ project }) => {
 
 	async function handleDelete() {
 		if (selected[0]) {
-			await deleteUser.run(selected[0]!)
+			await deleteUser(selected[0]!)
 
 			if (params.get('user') === selected[0]) {
 				handleClose()
@@ -116,7 +116,7 @@ let Users: FC<Props> = ({ project }) => {
 
 	async function handleVerify() {
 		if (selected[0]) {
-			await verifyEmail.run(selected[0]!)
+			await verifyEmail(selected[0]!)
 			actions.reload()
 			setSelected([])
 		}
@@ -132,7 +132,7 @@ let Users: FC<Props> = ({ project }) => {
 		}
 
 		if (selected[0]) {
-			await disableUser.run(selected[0]!, !user?.disabled)
+			await disableUser(selected[0]!, !user?.disabled)
 			actions.reload()
 			setSelected([])
 		}
@@ -207,7 +207,7 @@ let Users: FC<Props> = ({ project }) => {
 								<ArchiveBox weight='bold' size={24} />
 								<ActionLabel>{ user?.disabled ? 'Enable' : 'Disable' }Account</ActionLabel>
 							</ActionItem>
-							<ActionItem disabled={!hasEmail}>
+							<ActionItem disabled={!hasEmail || true}>
 								<ClockClockwise weight='bold' size={24} />
 								<ActionLabel>Reset Password</ActionLabel>
 							</ActionItem>

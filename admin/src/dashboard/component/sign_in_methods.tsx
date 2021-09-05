@@ -1,5 +1,5 @@
 import React from 'react'
-import { FC, useState } from 'react'
+import { FunctionComponent } from 'react'
 import styled from 'styled-components'
 import { Container } from 'component/layout'
 import { useFlags, Flags, useToggleFlags, useUpdateFlags } from 'data/flags'
@@ -10,13 +10,13 @@ type Props = {
 	project: string;
 }
 
-let SignInMethods: FC<Props> = ({ project }) => {
+let SignInMethods: FunctionComponent<Props> = ({ project }) => {
 	let [{ data, state }] = useFlags(project)
 	let items = data ?? []
 	let toggleFlag = useToggleFlags(project)
-	let [updateFlags, updating] = useUpdateFlags(project)
-	let [{ initialData }] = useEmailSettings(project)
-	let hasEmail = hasEmailProvider(initialData)
+	let updateFlags = useUpdateFlags(project)
+	let [{ data: emailSettings }] = useEmailSettings(project)
+	let hasEmail = hasEmailProvider(emailSettings)
 
 	return (
 		<Container>
@@ -50,9 +50,9 @@ let SignInMethods: FC<Props> = ({ project }) => {
 					/>
 				</Flag>
 				<Flag>
-					<FlagTitle htmlFor='emai_password'>Email and Password</FlagTitle>
+					<FlagTitle htmlFor='email_password'>Email and Password</FlagTitle>
 					<input
-						id='emai_password'
+						id='email_password'
 						type='checkbox'
 						checked={items.includes(Flags.EmailAndPassword)}
 						onChange={toggleFlag(Flags.EmailAndPassword)}
@@ -87,7 +87,7 @@ let SignInMethods: FC<Props> = ({ project }) => {
 				<Button
 					onClick={() => updateFlags(data ?? [])}
 					disabled={state !== 'loaded'}
-					loading={updating.loading}
+					loading={updateFlags.loading}
 				>
 					Save
 				</Button>

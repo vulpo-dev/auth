@@ -9,6 +9,8 @@ import {
 	useSetBoson,
 	useBosonValue,
 	useQuery,
+	useMutation,
+	usePost,
 } from '@biotic-ui/boson'
 
 import { useHttp } from 'data/http'
@@ -76,35 +78,20 @@ export function useSetEmailSettings(project: string) {
 
 export function useSaveEmailSettings(project: string) {
 	let http = useHttp()
-
-	let [state, setState] = useState<{ loading: boolean; error: ApiError | null }>({
-		loading: false,
-		error: null
-	})
-
 	let data = useBosonValue(createEmailSettings(project))
-
-	let handler = useCallback(async () => {
-		setState({ loading: true, error: null })
+	return usePost<void, ApiError>(async () => {
 
 		let settings = {
 			...data,
 			port: typeof data?.port === 'string' ? parseInt(data.port, 10) : (data?.port ?? 465)
 		}
 
-		try {
-			await http.post('settings/email', settings, {
+		await http
+			.post('settings/email', settings, {
 				params: { project_id: project },
 			})
-
-			setState({ loading: false, error: null })
-		} catch (err) {
-			setState({ loading: false, error: getErrorCode(err) })
-		}
-
-	}, [project, data, http])
-
-	return { handler, ...state }
+			.catch(err => Promise.reject(getErrorCode(err)))
+	})
 }
 
 export type ProjectSettings = {
@@ -115,26 +102,15 @@ export type ProjectSettings = {
 
 export function useSetProjectSettings() {
 	let http = useHttp()
-	let [loading, setLoading] = useState<boolean>(false)
-	let [error, setError] = useState<ApiError | null>(null)
-
-	let run = useCallback(async (settings: ProjectSettings) => {
-		try {
-			setLoading(true)
-
-			let payload = {
-				project: settings.id,
-				name: settings.name,
-				domain: settings.domain,
-			}
-
-			await http.post('/settings/project', payload)
-			setLoading(false)
-		} catch (err) {
-			setLoading(false)
-			setError(getErrorCode(err))
+	return usePost<void, ApiError>(async (settings: ProjectSettings) => {
+		let payload = {
+			project: settings.id,
+			name: settings.name,
+			domain: settings.domain,
 		}
-	}, [setLoading, setError, http])
 
-	return { run, loading, error }
+		await http
+			.post('/settings/project', payload)
+			.catch(err => Promise.reject(getErrorCode(err)))
+	})
 }

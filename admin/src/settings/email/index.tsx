@@ -24,13 +24,12 @@ let EmailSettings: FunctionComponent<Props> = () => {
 	let [{ data, state }] = useEmailSettings(project.id)
 	let save = useSaveEmailSettings(project.id)
 
-	function handleSubmit(e: FormEvent) {
+	async function handleSubmit(e: FormEvent) {
 		e.preventDefault()
-		save.handler()
+		await save()
 	}
 
 	let isLoading = state === 'loading'
-	console.log({ data })
 	return (
 		<form onSubmit={handleSubmit}>
 			<Section>

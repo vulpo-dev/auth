@@ -1,16 +1,13 @@
-import { useEffect, useState, useCallback } from 'react'
+import { useCallback } from 'react'
 
 import {
 	bosonFamily,
-	useBoson,
 	useSetBoson,
 	useQuery,
+	usePost,
 } from '@biotic-ui/boson'
 
-import { Reload } from 'types/utils'
-import { CancelToken, useHttp } from 'data/http'
-import { ApiError, getErrorCode } from 'error'
-import { FastForwardCircle } from 'phosphor-react'
+import { useHttp } from 'data/http'
 
 export enum Flags {
 	SignIn = 'auth::signin',
@@ -51,8 +48,6 @@ let flagsFamily = bosonFamily<[string], ProjectFlags>(() => {
 })
 
 export function useFlags(project: string) {
-	let [state, setState] = useBoson(flagsFamily(project))
-	let [reload, setReload] = useState<boolean>(false)
 	let http = useHttp()
 
 	return useQuery(flagsFamily(project), async () => {
@@ -96,58 +91,10 @@ type UpdateFlags = {
 	flags: Array<Flags>;
 }
 
-type UpdateFlagsRequest = {
-	loading: boolean;
-	error: null | ApiError;
-}
-
-let updateFamily = bosonFamily<[string], UpdateFlagsRequest>(id => {
-	return {
-		defaultValue: {
-			loading: false,
-			error: null
-		}
-	}
-})
-
-type UseUpdateFlags = [
-	(f: Array<Flags>) => Promise<void>,
-	UpdateFlagsRequest,
-]
-
-export function useUpdateFlags(project: string): UseUpdateFlags {
+export function useUpdateFlags(project: string) {
 	let http = useHttp()
-	let [state, setState] = useState<UpdateFlagsRequest>({
-		loading: false,
-		error: null,
-	})
-
-	let update = useCallback(async (flags: Array<Flags>) => {
-
-		setState({
-			loading: true,
-			error: null,
-		})
-
+	return usePost(async (flags: Array<Flags>) => {
 		let payload: UpdateFlags = { project, flags }
-
-		try {
-			await http
-				.post<void>('project/set_flags', payload)
-
-			setState({
-				loading: false,
-				error: null,
-			})
-
-		} catch (err) {
-			setState({
-				loading: false,
-				error: getErrorCode(err),
-			})
-		}
-
-	}, [project, http, setState])
-
-	return [update, state]
+		await http.post<void>('project/set_flags', payload)
+	})
 }

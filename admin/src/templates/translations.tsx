@@ -66,7 +66,7 @@ export let Translations = () => {
 	}
 
 	function toOption([code, lang]: [string, { name: string }]) {
-		return <Option value={code}>{lang.name}</Option>
+		return <Option value={code} key={code}>{lang.name}</Option>
 	}
 
 	let hasTranslation = languages
@@ -86,7 +86,7 @@ export let Translations = () => {
 					}
 
 					{ data !== undefined &&
-						<Select value={currentLanguage} onChange={handleLanguage}>
+						<Select disabled={update.loading} value={currentLanguage} onChange={handleLanguage}>
 							{ hasTranslation }
 							<optgroup label="Add Language">
 								{ addLanguage }
@@ -98,7 +98,7 @@ export let Translations = () => {
 				</section>
 				<section className="buttons">
 					<LinkButton onClick={() => action.reset()}>Reset</LinkButton>
-					<Button onClick={() => handleUpdate()}>Save</Button>
+					<Button disabled={update.loading} onClick={() => handleUpdate()}>Save</Button>
 				</section>
 			</FormHeader>
 

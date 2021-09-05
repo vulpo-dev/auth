@@ -1,9 +1,5 @@
-import { CancelToken, useHttp } from 'data/http'
-import { bosonFamily, useQuery } from '@biotic-ui/boson'
-import { LanguageCode } from 'data/languages'
-import { useCallback } from 'react';
-
-type CancelFn = (fn: () => void) => void;
+import { useHttp } from 'data/http'
+import { bosonFamily, useQuery, usePost } from '@biotic-ui/boson'
 
 type Translation = { [key: string]: string }
 type Translations = { [code: string]: string; }
@@ -15,10 +11,7 @@ let translationFamily = bosonFamily<[string, string], Translations | undefined>(
 	}
 })
 
-export function useTranslations(
-	project: string,
-	template: string,
-) {
+export function useTranslations(project: string, template: string) {
 	let http = useHttp()
 	return useQuery(translationFamily(project, template), async () => {
 		let options = {
@@ -35,17 +28,14 @@ export function useTranslations(
 	})
 }
 
-export function useSetTranslation(
-	project: string,
-	template: string,
-) {
+export function useSetTranslation(project: string, template: string) {
 	let http = useHttp()
-	return useCallback(async (language: string, content: Translation) => {
+	return usePost(async (language: string, content: Translation) => {
 		return await http.post('/template/translations/set', {
 			project,
 			template,
 			language,
 			content,
 		})
-	}, [project, template])
+	})
 }

@@ -7,7 +7,7 @@ type UserState
 	| undefined
 	| null 
 
-let userFamily = bosonFamily<[string], UserState>(() => {
+export let userFamily = bosonFamily<[string], UserState>(() => {
 	return {
 		defaultValue: undefined
 	}

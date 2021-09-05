@@ -1,6 +1,4 @@
 import {
-	useEffect,
-	useCallback,
 	createContext,
 	useContext
 } from 'react'
@@ -11,9 +9,10 @@ import {
 	boson,
 	useSetBoson,
 	useQuery,
+	usePost,
 } from '@biotic-ui/boson'
 
-import { AuthClient } from '@riezler/auth-sdk'
+import { ApiError } from 'error'
 
 export type PartialProject = {
 	id: string;
@@ -41,10 +40,10 @@ export function useProjects() {
 export function useCreateProject() {
 	let http = useHttp()
 	let setProjects = useSetBoson(projectsAtom)
-
-	return useCallback(async (name: string, domain: string): Promise<PartialProject> => {
+	return usePost<PartialProject, ApiError>(async (name: string, domain: string) => {
 		let { data } = await http
 			.post<[string]>('/admin/__/project/create', { name, domain })
+			.catch(err => Promise.reject(err))
 
 		let project: PartialProject = {
 			id: data[0],
@@ -57,7 +56,7 @@ export function useCreateProject() {
 		})
 
 		return project
-	}, [http, setProjects])
+	})
 }
 
 export let ProjectCtx = createContext<PartialProject | undefined>(undefined)

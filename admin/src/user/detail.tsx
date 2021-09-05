@@ -84,7 +84,7 @@ export default function UserDetails({ userId }: Props) {
 		}
 
 		try {
-			await updateUser.run(user)
+			await updateUser(user)
 		} catch(err) {
 			console.log(err)
 		}

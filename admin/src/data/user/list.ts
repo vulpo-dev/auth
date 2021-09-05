@@ -6,7 +6,7 @@ type Response = {
 	items: Array<PartialUserResponse>;
 }
 
-let usersFamily = bosonFamily<[Filter], Array<PartialUser> | null>(() => {
+export let usersFamily = bosonFamily<[Filter], Array<PartialUser> | null>(() => {
 	return {
 		defaultValue: null,
 	}

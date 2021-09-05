@@ -20,7 +20,7 @@ let ProjectSettings = () => {
 
 	function handleSubmit(e: FormEvent) {
 		e.preventDefault()
-		save.run(project)
+		save(project)
 	}
 
 	return (

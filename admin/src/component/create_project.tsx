@@ -1,11 +1,11 @@
 import React from 'react'
-import { SyntheticEvent, useState, FunctionComponent } from 'react'
+import { SyntheticEvent, FunctionComponent } from 'react'
 import styled from 'styled-components'
 import { useForm, useMounted } from '@biotic-ui/std'
 import { Input, Label, Section } from '@biotic-ui/input'
 import { Button } from 'component/button'
 import { useCreateProject, PartialProject } from 'data/project'
-import { ApiError, getErrorCode } from 'error'
+import { ApiError } from 'error'
 
 type Form = {
 	name: string;
@@ -23,30 +23,19 @@ type Props = {
 
 let CreateProject: FunctionComponent<Props> = ({ onSuccess, ...props }) => {
 	let isMounted = useMounted()
-	let [error, setError] = useState<ApiError | null>(null)
-	let [loading, setLoading] = useState<boolean>(false)
-
 	let [form, setForm, set] = useForm<Form>(DefaultForm)
-
 	let createProject = useCreateProject()
 
 	async function handleSubmit(e: SyntheticEvent) {
 		e.preventDefault()
-		setLoading(true)
 
 		try {
 			let project = await createProject(form.name, form.domain)
-			if (isMounted) {
-				setLoading(false)
+			if (isMounted && project) {
 				set(DefaultForm)
 				onSuccess(project)
 			}
-		} catch (err) {
-			if (isMounted) {
-				setLoading(false)
-				setError(getErrorCode(err))
-			}
-		}
+		} catch (err) {}
 	}
 
 	return (
@@ -73,14 +62,14 @@ let CreateProject: FunctionComponent<Props> = ({ onSuccess, ...props }) => {
 					/>
 				</Section>
 				<Section>
-					<Button loading={loading}>
+					<Button loading={createProject.loading}>
 						Create Project
 					</Button>
 				</Section>
 
-				{ error &&
+				{ createProject.error &&
 					<Section>
-						<p>{getErrorMessage(error)}</p>
+						<p>{getErrorMessage(createProject.error)}</p>
 					</Section>
 				}
 			</form>

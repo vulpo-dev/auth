@@ -1,8 +1,7 @@
-import { useEffect, useCallback, useState, FormEvent } from 'react'
-import { bosonFamily, useQuery } from '@biotic-ui/boson'
-import { CancelToken, useHttp } from 'data/http'
+import { FormEvent } from 'react'
+import { bosonFamily, useQuery, usePost } from '@biotic-ui/boson'
+import { useHttp } from 'data/http'
 import { ApiError, getErrorCode } from 'error'
-import Axios from 'axios'
 
 export enum TemplateType {
 	ChangeEmail = "change_email",
@@ -52,25 +51,18 @@ export function useTemplate(project: string, template: TemplateType) {
 export function useSaveTemplate(project: string, template: TemplateType) {
 	let http = useHttp()
 	let [value, action] = useTemplate(project, template)
-	let [loading, setLoading] = useState(false)
-	let [error, setError] = useState<ApiError | null>(null)
 	
-	let save = useCallback(async (e: FormEvent) => {
+	return usePost<void, ApiError>(async (e: FormEvent) => {
 		e.preventDefault()
 		
-		try {
-			setLoading(true)
-			await http.post('/template/', {
+		await http
+			.post('/template/', {
 				...value.data,
 				name: value.data?.of_type,
 				
 			})
-			action.reload()
-		} catch (err) {
-			setLoading(false)
-			setError(getErrorCode(err))
-		}
-	}, [value])
+			.catch(err => Promise.reject(getErrorCode(err)))
 
-	return { save, loading, error }
+		action.reload()
+	})
 }
