@@ -7,7 +7,7 @@ import { useForm } from '@biotic-ui/std'
 import { Button } from '@biotic-ui/button'
 import { useBosonValue } from '@biotic-ui/boson'
 import { ErrorMessage } from '@biotic-ui/text'
-import { projectIdAtom, createAdmin, CreateAdmin } from 'data/admin'
+import { projectId, createAdmin, CreateAdmin } from 'data/admin'
 import { ApiError, getErrorCode } from 'error'
 
 export type Props = {
@@ -82,7 +82,7 @@ export let User = ({ onSubmit, loading = false, error }: Props) => {
 
 let UserContainer = () => {
 	let history = useHistory()
-	let project = useBosonValue(projectIdAtom)
+	let project = useBosonValue(projectId)
 	let [loading, setLoading] = useState(false)
 	let [error, setError] = useState<null | ApiError>(null)
 

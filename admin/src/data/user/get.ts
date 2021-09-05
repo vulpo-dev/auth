@@ -19,7 +19,6 @@ type RequestState = {
 
 let userFamily = bosonFamily<[string], RequestState>(() => {
 	return {
-		key: 'user',
 		defaultValue: {
 			value: undefined,
 			initalData: undefined,

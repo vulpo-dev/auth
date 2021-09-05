@@ -4,11 +4,13 @@ import {
 	bosonFamily,
 	useBoson,
 	useSetBoson,
+	useQuery,
 } from '@biotic-ui/boson'
 
 import { Reload } from 'types/utils'
 import { CancelToken, useHttp } from 'data/http'
 import { ApiError, getErrorCode } from 'error'
+import { FastForwardCircle } from 'phosphor-react'
 
 export enum Flags {
 	SignIn = 'auth::signin',
@@ -35,117 +37,53 @@ export function getFlagsFromRequest(flags: Array<string>): Array<Flags> {
 }
 
 
-type ProjectFlags = {
-	items?: Array<Flags>;
-	loading: boolean;
-	error: null | ApiError;
-}
+type ProjectFlags = Array<Flags>
 
 type Response = {
 	items: Array<string>
 }
 
 
-let flagsFamily = bosonFamily<[string], ProjectFlags>((id) => {
+let flagsFamily = bosonFamily<[string], ProjectFlags>(() => {
 	return {
-		key: `project_flags:${id}`,
-		defaultValue: {
-			items: undefined,
-			loading: true,
-			error: null,
-		}
+		defaultValue: []
 	}
 })
 
-export function useFlags(project: string): ProjectFlags & Reload {
+export function useFlags(project: string) {
 	let [state, setState] = useBoson(flagsFamily(project))
 	let [reload, setReload] = useState<boolean>(false)
 	let http = useHttp()
 
-	useEffect(() => {
-
-		setState(state => {
-			return {
-				...state,
-				loading: true,
-				error: null,
+	return useQuery(flagsFamily(project), async () => {
+		let res = await http.get<Response>('project/flags',  {
+			params: {
+				project
 			}
 		})
 
-		let source = CancelToken.source()
-
-		let params = {
-			project
-		}
-
-		let config = {
-			params,
-			cancelToken: source.token,
-		}
-
-		http
-			.get<Response>('project/flags', config)
-			.then(res => {
-				let flags = getFlagsFromRequest(res.data.items)
-				setState(state => {
-					return {
-						items: flags,
-						loading: false,
-						error: null,
-					}
-				})
-			})
-			.catch(err => {
-				setState(state => {
-					return {
-						...state,
-						loading: false,
-						error: getErrorCode(err)
-					}
-				})
-			})
-
-		return () => {
-			source.cancel()
-		}
-
-	}, [project, reload, setState, http])
-
-	return {
-		...state,
-		reload: () => setReload(r => !r)
-	}
+		return getFlagsFromRequest(res.data.items)
+	})
 }
 
 export function useToggleFlags(project: string) {
 	let setState = useSetBoson(flagsFamily(project))
 	
 	let set = useCallback((flag: Flags) => () => {
-		setState(state => {
-			let { items = [] } = state
-
+		setState((items = []) => {
 			if (items.includes(flag) && flag === Flags.EmailAndPassword) {
-				return {
-					...state,
-					items: items.filter(f => (
-						f !== Flags.EmailAndPassword &&
-						f !== Flags.PasswordReset &&
-						f !== Flags.VerifyEmail
-					))
-				}
+				return items.filter(f => (
+					f !== Flags.EmailAndPassword &&
+					f !== Flags.PasswordReset &&
+					f !== Flags.VerifyEmail
+				))
 			}
 
 			if (items.includes(flag)) {
-				return {
-					...state,
-					items: items.filter(f => f !== flag)
-				}
+				return items.filter(f => f !== flag)
 			}
 
-			return {
-				...state,
-				items: items.concat([flag])
-			}
+			return items.concat([flag])
 		})
 	}, [setState])
 
@@ -165,7 +103,6 @@ type UpdateFlagsRequest = {
 
 let updateFamily = bosonFamily<[string], UpdateFlagsRequest>(id => {
 	return {
-		key: `update_project_flags:${id}`,
 		defaultValue: {
 			loading: false,
 			error: null
@@ -180,7 +117,10 @@ type UseUpdateFlags = [
 
 export function useUpdateFlags(project: string): UseUpdateFlags {
 	let http = useHttp()
-	let [state, setState] = useBoson(updateFamily(project))
+	let [state, setState] = useState<UpdateFlagsRequest>({
+		loading: false,
+		error: null,
+	})
 
 	let update = useCallback(async (flags: Array<Flags>) => {
 

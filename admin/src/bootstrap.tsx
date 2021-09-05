@@ -7,7 +7,7 @@ import {
 	Route
 } from 'react-router-dom'
 import App from 'app'
-import { useProject, projectIdAtom } from 'data/admin'
+import { useProject } from 'data/admin'
 import { Http } from 'data/http'
 import { useSetBoson } from '@biotic-ui/boson'
 import { Auth as AuthCtx } from '@riezler/auth-react'
@@ -17,8 +17,7 @@ import Setup from 'setup'
 
 let Bootstrap = () => {
 	let history = useHistory()
-	let { project } = useProject()
-	let setProjectId = useSetBoson(projectIdAtom)
+	let [{ data: project, state }, { set: setProjectId }] = useProject()
 
 	let auth = useMemo(() => {
 		if (!project) {
@@ -33,16 +32,12 @@ let Bootstrap = () => {
 
 	useEffect(() => {
 		let isSetup = window.location.pathname.startsWith('/setup')
-		if (project === null && !isSetup) {
+		if (project === null && !isSetup && state === 'loaded') {
 			history.replace('/setup/')
-		}
-
-		if (project) {
-			setProjectId(project)
 		}
 	}, [project, history, setProjectId])
 
-	if (project === undefined) {
+	if (state === 'loading') {
 		return <GhostPage />
 	}
 

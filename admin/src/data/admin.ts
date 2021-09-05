@@ -5,9 +5,8 @@ import { useMounted } from 'utils/hook'
 import {
 	boson,
 	bosonFamily,
-	useBoson,
 	useSetBoson,
-	useBosonValue,
+	useQuery,
 } from '@biotic-ui/boson'
 
 let axios = Axios.create({
@@ -16,28 +15,14 @@ let axios = Axios.create({
 
 type HasResponse = { id: null | string }
 
-type UseProject = {
-	project: string | null | undefined
+export function useProject() {
+	return useQuery(projectId, async () => {
+		let res = await axios.get<HasResponse>('/admin/__/project/has')
+		return res.data.id
+	})
 }
 
-export function useProject(): UseProject {
-	let mounted = useMounted()
-	let [loading, setLoading] = useState(true)
-	let [state, setState] = useBoson(projectIdAtom)
-
-	useEffect(() => {
-		axios.get<HasResponse>('/admin/__/project/has').then((res) => {
-			if (mounted.current) {
-				setState(res.data.id)
-				setLoading(false)
-			}
-		})
-	}, [setState, setLoading, mounted])
-
-	return { project: loading ? undefined : state }
-}
-
-export let projectIdAtom = boson<string | null>({
+export let projectId = boson<string | null>({
 	key: 'project_id',
 	defaultValue: null
 })
@@ -60,7 +45,7 @@ export function useCreateProject(): UseCreateProject {
 		error: false,
 	})
 
-	let setProjectId = useSetBoson(projectIdAtom)
+	let setProjectId = useSetBoson(projectId)
 
 	useEffect(() => {
 		axios.post<CreateProject>('/admin/__/project/create_admin')
@@ -97,7 +82,6 @@ export function createAdmin(data: CreateAdmin, project: string) {
 
 export let getLatesUrl = bosonFamily<[string], string>(id => {
 	return {
-		key: 'latest_url',
 		defaultValue: `/${id}/`
 	}
 })

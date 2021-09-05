@@ -4,6 +4,7 @@ import styled from 'styled-components'
 import { TemplateType, useTemplate, useSaveTemplate } from 'data/template'
 import { Button, LinkButton } from '@biotic-ui/button'
 import { Section, Label, Input, Textarea } from '@biotic-ui/input'
+import { QueryState } from '@biotic-ui/boson'
 
 type TemplateFormProps = {
 	project: string;
@@ -14,22 +15,21 @@ export let TemplateForm: FunctionComponent<TemplateFormProps> = ({
 	project,
 	template: type
 }) => {
-	let [template, setTemplate, resetTemplate] = useTemplate(project, type)
+	let [{ state, data: template }, actions] = useTemplate(project, type)
 	let onSubmit = useSaveTemplate(project, type)
 
 	function handleChange(e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
-		let t = template!
 		let { name, value } = e.target
-		setTemplate({ ...t, [name]: value })
+		actions.set({ ...template!, [name]: value })
 	}
 
-	let isLoading = template === undefined
+	let isLoading = state === QueryState.Loading
 
 	return (
 		<FormWrapper>
 			<form onSubmit={onSubmit.save}>
 				<FormHeader>
-					<LinkButton onClick={resetTemplate}>Reset</LinkButton>
+					<LinkButton onClick={() => actions.reset()}>Reset</LinkButton>
 					<Button>Save</Button>
 				</FormHeader>
 				<Section>

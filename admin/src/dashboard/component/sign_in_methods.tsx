@@ -11,8 +11,8 @@ type Props = {
 }
 
 let SignInMethods: FC<Props> = ({ project }) => {
-	let flags = useFlags(project)
-	let items = flags.items ?? []
+	let [{ data, state }] = useFlags(project)
+	let items = data ?? []
 	let toggleFlag = useToggleFlags(project)
 	let [updateFlags, updating] = useUpdateFlags(project)
 	let [{ initialData }] = useEmailSettings(project)
@@ -85,8 +85,8 @@ let SignInMethods: FC<Props> = ({ project }) => {
 			</FlagList>
 			<ButtonWrapper>
 				<Button
-					onClick={() => updateFlags(flags.items ?? [])}
-					disabled={flags.items === undefined}
+					onClick={() => updateFlags(data ?? [])}
+					disabled={state !== 'loaded'}
 					loading={updating.loading}
 				>
 					Save

@@ -1375,10 +1375,13 @@
     lodash "^4.17.19"
     to-fast-properties "^2.0.0"
 
-"@biotic-ui/boson@^0.3.18":
-  version "0.3.18"
-  resolved "https://registry.yarnpkg.com/@biotic-ui/boson/-/boson-0.3.18.tgz#5b213602cca81b885e3e60fd0d39a3e7aed97d29"
-  integrity sha512-Gv3h9oIunKDaZJTczue/EzXbtI1MRrRa97eVGFZ9UnLQdJAKnUHNWetsdIVnRDhfcZWLkNcvsfFsqd/QlTw3PQ==
+"@biotic-ui/boson@^0.3.19":
+  version "0.3.19"
+  resolved "https://registry.yarnpkg.com/@biotic-ui/boson/-/boson-0.3.19.tgz#e33f5f6d547ece21379aebc61ff647cdb8bfa4da"
+  integrity sha512-txqWpvntUgnV6dE0C8uuGPnBpaGco2QGe8Yxl+vLrk7rIG/CsVs9/iIFffOlNc2XnmXdk3zBx272nssvrE5V0A==
+  dependencies:
+    "@types/nanoid" "^3.0.0"
+    nanoid "^3.1.25"
 
 "@biotic-ui/button@^0.3.10":
   version "0.3.10"
@@ -2289,6 +2292,13 @@
   version "3.0.3"
   resolved "https://registry.yarnpkg.com/@types/minimatch/-/minimatch-3.0.3.tgz#3dca0e3f33b200fc7d1139c0cd96c1268cadfd9d"
   integrity sha512-tHq6qdbT9U1IRSGf14CL0pUlULksvY9OZ+5eEgl1N7t+OA3tGvNpxJCzuKQlsNgCVwbAs670L1vcVQi8j9HjnA==
+
+"@types/nanoid@^3.0.0":
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/@types/nanoid/-/nanoid-3.0.0.tgz#c757b20f343f3a1dd76e80a9a431b6290fc20f35"
+  integrity sha512-UXitWSmXCwhDmAKe7D3hNQtQaHeHt5L8LO1CB8GF8jlYVzOv5cBWDNqiJ+oPEWrWei3i3dkZtHY/bUtd0R/uOQ==
+  dependencies:
+    nanoid "*"
 
 "@types/node-fetch@^2.5.7":
   version "2.5.8"
@@ -7420,6 +7430,11 @@ nan@^2.12.1:
   version "2.14.2"
   resolved "https://registry.yarnpkg.com/nan/-/nan-2.14.2.tgz#f5376400695168f4cc694ac9393d0c9585eeea19"
   integrity sha512-M2ufzIiINKCuDfBSAUr1vWQ+vuVcA9kqx8JJUsbQi6yf1uGRyb7HfpdfUr5qLXf3B/t8dPvcjhKMmlfnP47EzQ==
+
+nanoid@*, nanoid@^3.1.25:
+  version "3.1.25"
+  resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-3.1.25.tgz#09ca32747c0e543f0e1814b7d3793477f9c8e152"
+  integrity sha512-rdwtIXaXCLFAQbnfqDRnI6jaRHp9fTcYBjtFKE8eezcZ7LuLjhUaQGNeMXf1HmRoCH32CLz6XwX0TtxEOS/A3Q==
 
 nanoid@^3.1.20:
   version "3.1.20"

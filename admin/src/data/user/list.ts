@@ -23,7 +23,6 @@ let DefaultState: UsersState = {
 
 let usersFamily = bosonFamily<[Filter], UsersState>(filter => {
 	return {
-		key: 'users',
 		defaultValue: DefaultState,
 	}
 }, filterToKey)

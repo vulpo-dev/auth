@@ -11,7 +11,6 @@ type TranslationsResponse = { [code: string]: Translation; }
 
 let translationFamily = bosonFamily<[string, string], Translations | undefined>((project, template) => {
 	return {
-		key: `${project}:${template}`,
 		defaultValue: undefined,
 	}
 })
@@ -21,15 +20,8 @@ export function useTranslations(
 	template: string,
 ) {
 	let http = useHttp()
-	return useQuery(translationFamily(project, template), async (cancel: CancelFn) => {
-		let source = CancelToken.source()
-
-		cancel(() => {
-			source.cancel()
-		})
-
+	return useQuery(translationFamily(project, template), async () => {
 		let options = {
-			cancelToken: source.token,
 			params: { project, template }
 		}
 

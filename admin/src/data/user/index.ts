@@ -22,7 +22,6 @@ type TotalState = {
 
 let userTotalFamily = bosonFamily<[string], TotalState>(id => {
 	return {
-		key: `toal_users:${id}`,
 		defaultValue: {
 			value: undefined,
 			loading: true,

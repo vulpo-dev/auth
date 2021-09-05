@@ -1,5 +1,5 @@
 import { useEffect, useCallback, useState, FormEvent } from 'react'
-import { bosonFamily, useBoson, useBosonValue } from '@biotic-ui/boson'
+import { bosonFamily, useQuery } from '@biotic-ui/boson'
 import { CancelToken, useHttp } from 'data/http'
 import { ApiError, getErrorCode } from 'error'
 import Axios from 'axios'
@@ -30,96 +30,28 @@ type Template = {
 	language: string,
 }
 
-type State = {
-	initalValue: Template | undefined;
-	currentValue: Template | undefined;
-}
-
-let getTemplate = bosonFamily<[string, TemplateType], State>(() => {
+let getTemplate = bosonFamily<[string, TemplateType], Template | undefined>(() => {
 	return {
-		key: 'template',
-		defaultValue: {
-			initalValue: undefined,
-			currentValue: undefined,
-		}
+		defaultValue: undefined
 	}
 })
 
-type UseTemplate = [
-	Template | undefined,
-	(t: Template) => void,
-	() => void,
-	ApiError | null,
-]
-
-export function useTemplate(project: string, template: TemplateType): UseTemplate {
+export function useTemplate(project: string, template: TemplateType) {
 	let http = useHttp()
 
-	let [state, setState] = useBoson(getTemplate(project, template))
-	let [error, setError] = useState<ApiError | null>(null)
-
-	useEffect(() => {
-
-		let source = CancelToken.source()
+	return useQuery(getTemplate(project, template), async () => {
 		let options = {
-			cancelToken: source.token,
 			params: { project_id: project, template }
 		}
 
-		setError(null)
-		http.get<Template>('/template/', options)
-			.then(res => {
-				setState(state => {
-					return {
-						initalValue: res.data,
-						currentValue: {
-							...res.data,
-							...(state.currentValue ?? {})
-						},
-					}
-				})
-			})
-			.catch(err => {
-				if (Axios.isCancel(err)) {
-					return
-				}
-
-				setError(getErrorCode(err))
-			})
-
-		return () => {
-			source.cancel()
-		}
-
-	}, [project, template, http])
-
-	let setValue = useCallback((t: Template) => {
-		setState(state => {
-			return {
-				...state,
-				currentValue: {
-					...(state.currentValue ?? {}),
-					...t,
-				}
-			}
-		})
-	}, [setState])
-
-	let resetValue = useCallback(() => {
-		setState(state => {
-			return {
-				...state,
-				currentValue: state.initalValue,
-			}
-		})
-	}, [setState])
-
-	return [state.currentValue, setValue, resetValue, error]
+		let res = await http.get<Template>('/template/', options)
+		return res.data
+	})
 }
 
 export function useSaveTemplate(project: string, template: TemplateType) {
 	let http = useHttp()
-	let [value, setValue] = useBoson(getTemplate(project, template))
+	let [value, action] = useTemplate(project, template)
 	let [loading, setLoading] = useState(false)
 	let [error, setError] = useState<ApiError | null>(null)
 	
@@ -128,13 +60,12 @@ export function useSaveTemplate(project: string, template: TemplateType) {
 		
 		try {
 			setLoading(true)
-			await http.post('/template/', value.currentValue)
-			setValue(state => {
-				return {
-					currentValue: state.currentValue,
-					initalValue: state.currentValue,
-				}
+			await http.post('/template/', {
+				...value.data,
+				name: value.data?.of_type,
+				
 			})
+			action.reload()
 		} catch (err) {
 			setLoading(false)
 			setError(getErrorCode(err))

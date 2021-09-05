@@ -64,7 +64,6 @@ type Request<T> = {
 
 let createEmailSettings = bosonFamily<[string], Request<EmailSettings>>((id) => {
 	return {
-		key: `email_settings:${id}`,
 		defaultValue: {
 			data: undefined,
 			initialData: undefined,
