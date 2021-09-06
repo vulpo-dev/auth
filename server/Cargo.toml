@@ -37,7 +37,8 @@ features = [
 	"postgres",
 	"uuid",
 	"chrono",
-	"json"
+	"json",
+	"offline"
 ]
 
 [dependencies.lettre]
