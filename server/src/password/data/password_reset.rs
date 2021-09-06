@@ -18,12 +18,8 @@ impl PasswordReset {
         project_id: &Uuid,
         token: String,
     ) -> Result<Uuid, ApiError> {
-        sqlx::query!(
-            r#"
-            insert into password_change_requests (token, user_id, project_id)
-            values ($1, $2, $3)
-            returning id
-        "#,
+        sqlx::query_file!(
+            "src/password/sql/insert_password_change_request.sql",
             token,
             user_id,
             project_id
@@ -35,16 +31,9 @@ impl PasswordReset {
     }
 
     pub async fn get(pool: &PgPool, id: &Uuid) -> Result<PasswordReset, ApiError> {
-        let row = sqlx::query_as!(
+        let row = sqlx::query_file_as!(
             PasswordReset,
-            r#"
-            select token
-                 , user_id
-                 , created_at
-                 , expire_at
-              from password_change_requests
-             where id = $1
-        "#,
+            "src/password/sql/get_password_change_request.sql",
             id
         )
         .fetch_optional(pool)
@@ -55,11 +44,8 @@ impl PasswordReset {
     }
 
     pub async fn remove(pool: &PgPool, user_id: &Uuid) -> Result<(), ApiError> {
-        sqlx::query!(
-            r#"
-            delete from password_change_requests
-             where user_id = $1
-        "#,
+        sqlx::query_file!(
+            "src/password/sql/remove_password_change_request.sql",
             user_id
         )
         .execute(pool)

@@ -49,27 +49,9 @@ impl User {
         user_id: &Uuid,
         user: &UpdateUser,
     ) -> Result<UpdatedUser, ApiError> {
-        let row = sqlx::query_as!(
+        let row = sqlx::query_file_as!(
             UpdatedUser,
-            r#"
-                update users
-                   set display_name = $2
-                     , email = $3
-                     , traits = $4
-                     , data = $5
-                     , email_verified =
-                            case when email = $3::text
-                                then True
-                                else False
-                            end  
-                 where id = $1
-                returning id
-                        , email_verified
-                        , email
-                        , traits
-                        , display_name
-                        , data
-            "#,
+            "src/user/sql/set_user.sql",
             user_id,
             user.display_name,
             user.email,
@@ -98,29 +80,10 @@ impl User {
         email: &str,
         project: Uuid,
     ) -> Result<Option<User>, ApiError> {
-        let row = sqlx::query!(
-            r#"
-                select id
-                     , display_name
-                     , email
-                     , email_verified
-                     , photo_url
-                     , traits
-                     , data
-                     , provider_id
-                     , created_at
-                     , updated_at
-                     , disabled
-                  from users
-                 where email = $1
-                   and project_id = $2
-            "#,
-            email,
-            project,
-        )
-        .fetch_optional(pool)
-        .await
-        .map_err(|_| ApiError::InternalServerError)?;
+        let row = sqlx::query_file!("src/user/sql/get_by_email.sql", email, project)
+            .fetch_optional(pool)
+            .await
+            .map_err(|_| ApiError::InternalServerError)?;
 
         let user = row.map(|u| User {
             id: u.id,
@@ -141,29 +104,10 @@ impl User {
     }
 
     pub async fn get_by_id(pool: &PgPool, id: &Uuid, project: &Uuid) -> Result<User, ApiError> {
-        let row = sqlx::query!(
-            r#"
-             select id
-                  , display_name
-                  , email
-                  , email_verified
-                  , photo_url
-                  , traits
-                  , data
-                  , provider_id
-                  , created_at
-                  , updated_at
-                  , disabled
-               from users
-              where id = $1
-                and project_id = $2
-            "#,
-            id,
-            project,
-        )
-        .fetch_optional(pool)
-        .await
-        .map_err(|_| ApiError::InternalServerError)?;
+        let row = sqlx::query_file!("src/user/sql/get_by_id.sql", id, project)
+            .fetch_optional(pool)
+            .await
+            .map_err(|_| ApiError::InternalServerError)?;
 
         match row {
             None => Err(ApiError::NotFound),
@@ -189,31 +133,10 @@ impl User {
     }
 
     pub async fn password(pool: &PgPool, email: String, project: &Uuid) -> Result<User, ApiError> {
-        let row = sqlx::query_as!(
-            User,
-            r#"
-                select password
-                     , id
-                     , display_name
-                     , email
-                     , email_verified
-                     , photo_url
-                     , traits
-                     , data
-                     , provider_id
-                     , created_at
-                     , updated_at
-                     , disabled
-                  from users
-                 where email = $1
-                   and project_id = $2
-            "#,
-            email,
-            project,
-        )
-        .fetch_optional(pool)
-        .await
-        .map_err(|_| ApiError::InternalServerError)?;
+        let row = sqlx::query_file_as!(User, "src/user/sql/get_with_password.sql", email, project)
+            .fetch_optional(pool)
+            .await
+            .map_err(|_| ApiError::InternalServerError)?;
 
         row.ok_or_else(|| ApiError::UserNotFound)
     }
@@ -228,22 +151,8 @@ impl User {
         let password =
             hash(password.clone(), DEFAULT_COST).map_err(|_| ApiError::InternalServerError)?;
 
-        let row = sqlx::query!(
-            r#"
-                insert into users(email, password, project_id, provider_id, device_languages)
-                values($1, $2, $3, 'password', $4)
-                returning id
-                        , display_name
-                        , email
-                        , email_verified
-                        , photo_url
-                        , traits
-                        , data
-                        , provider_id
-                        , created_at
-                        , updated_at
-                        , disabled
-            "#,
+        let row = sqlx::query_file!(
+            "src/user/sql/create_user.sql",
             email,
             password,
             project,
@@ -287,22 +196,8 @@ impl User {
         project: &Uuid,
         languages: &Vec<String>,
     ) -> Result<User, ApiError> {
-        let row = sqlx::query!(
-            r#"
-                insert into users(email, project_id, provider_id, email_verified, device_languages)
-                values($1, $2, 'link', true, $3)
-                returning id
-                        , display_name
-                        , email
-                        , email_verified
-                        , photo_url
-                        , traits
-                        , data
-                        , provider_id
-                        , created_at
-                        , updated_at
-                        , disabled
-                    "#,
+        let row = sqlx::query_file!(
+            "src/user/sql/create_passwordless.sql",
             email,
             project,
             languages,
@@ -349,18 +244,10 @@ impl User {
             Ok(hashed) => hashed,
         };
 
-        sqlx::query!(
-            r#"
-                update users
-                   set password = $2
-                 where id = $1
-            "#,
-            user_id,
-            password,
-        )
-        .execute(pool)
-        .await
-        .map_err(|_| ApiError::InternalServerError)?;
+        sqlx::query_file!("src/user/sql/set_password.sql", user_id, password)
+            .execute(pool)
+            .await
+            .map_err(|_| ApiError::InternalServerError)?;
 
         Ok(())
     }
@@ -374,22 +261,9 @@ impl User {
         offset: i64,
         limit: i64,
     ) -> Result<Vec<PartialUser>, ApiError> {
-        sqlx::query_as!(
+        sqlx::query_file_as!(
             PartialUser,
-            r#"
-                select id
-                     , email
-                     , email_verified
-                     , provider_id
-                     , created_at
-                     , disabled
-                  from users
-                 where project_id = $1
-                 order by case when $2 = 'created_at' then users.created_at end desc,
-                          case when $2 = 'email' then users.email end desc
-                 offset $3
-                 limit $4
-            "#,
+            "src/user/sql/get_users.sql",
             project,
             order_by.to_string(),
             offset,
@@ -401,17 +275,10 @@ impl User {
     }
 
     pub async fn total(pool: &PgPool, project: &Uuid) -> Result<TotalUsers, ApiError> {
-        let row = sqlx::query!(
-            r#"
-                select count(users.id) as total_users
-                  from users
-                 where project_id = $1
-            "#,
-            project
-        )
-        .fetch_one(pool)
-        .await
-        .map_err(|_| ApiError::InternalServerError)?;
+        let row = sqlx::query_file!("src/user/sql/get_user_count.sql", project)
+            .fetch_one(pool)
+            .await
+            .map_err(|_| ApiError::InternalServerError)?;
 
         match row.total_users {
             None => Err(ApiError::InternalServerError),
@@ -420,60 +287,28 @@ impl User {
     }
 
     pub async fn remove(pool: &PgPool, user_id: &Uuid) -> Result<(), ApiError> {
-        sqlx::query!(
-            r#"
-                delete from users
-                 where id = $1
-            "#,
-            user_id
-        )
-        .execute(pool)
-        .await
-        .map_err(|_| ApiError::InternalServerError)?;
+        sqlx::query_file!("src/user/sql/remove_user.sql", user_id)
+            .execute(pool)
+            .await
+            .map_err(|_| ApiError::InternalServerError)?;
 
         Ok(())
     }
 
     pub async fn disable(pool: &PgPool, user: &Uuid, project: &Uuid) -> Result<(), ApiError> {
-        sqlx::query!(
-            r#"
-                with disable_user as (
-                    update users
-                       set disabled = true
-                     where id = $1
-                       and project_id = $2
-                 returning id
-                )
-                delete from sessions
-                 where user_id in (
-                    select id as user_id
-                      from disable_user
-                 ) 
-            "#,
-            user,
-            project
-        )
-        .execute(pool)
-        .await
-        .map_err(|_| ApiError::InternalServerError)?;
+        sqlx::query_file!("src/user/sql/disable_user.sql", user, project)
+            .execute(pool)
+            .await
+            .map_err(|_| ApiError::InternalServerError)?;
 
         Ok(())
     }
 
     pub async fn enable(pool: &PgPool, user: &Uuid, project: &Uuid) -> Result<(), ApiError> {
-        sqlx::query!(
-            r#"
-                update users
-                   set disabled = false
-                 where id = $1
-                   and project_id = $2
-            "#,
-            user,
-            project
-        )
-        .execute(pool)
-        .await
-        .map_err(|_| ApiError::InternalServerError)?;
+        sqlx::query_file!("src/user/sql/enable_user.sql", user, project)
+            .execute(pool)
+            .await
+            .map_err(|_| ApiError::InternalServerError)?;
 
         Ok(())
     }

@@ -110,25 +110,10 @@ impl Template {
         template: Templates,
     ) -> Result<Option<TemplateResponse>, ApiError> {
         let template = template.to_string();
-        let row = sqlx::query!(
-            r#"
-                select template_data.from_name
-                     , template_data.subject
-                     , templates.body
-                     , template_data.redirect_to
-                     , template_data.of_type
-                     , templates.project_id
-                  from templates
-                  join template_data on template_data.template_id = templates.id
-                 where templates.project_id = $1
-                   and templates.name = $2
-            "#,
-            project,
-            template
-        )
-        .fetch_optional(pool)
-        .await
-        .map_err(|_| ApiError::InternalServerError)?;
+        let row = sqlx::query_file!("src/template/sql/get_template.sql", project, template)
+            .fetch_optional(pool)
+            .await
+            .map_err(|_| ApiError::InternalServerError)?;
 
         let template = row.map(|template| {
             let of_type = Templates::from_string(&template.of_type).unwrap();
@@ -160,18 +145,10 @@ impl Template {
     }
 
     async fn init_handlebars(pool: &PgPool) -> Result<Handlebars<'static>, ApiError> {
-        let files = sqlx::query!(
-            r#"
-                select body
-                     , name
-                  from templates
-                 where of_type = 'index'
-                    or of_type = 'component'
-            "#
-        )
-        .fetch_all(pool)
-        .await
-        .map_err(|_| ApiError::InternalServerError)?;
+        let files = sqlx::query_file!("src/template/sql/get_components.sql")
+            .fetch_all(pool)
+            .await
+            .map_err(|_| ApiError::InternalServerError)?;
 
         let mut handlebars = Handlebars::new();
 
@@ -217,85 +194,20 @@ impl Template {
 
         let data = serde_json::to_value(&templates).unwrap();
 
-        sqlx::query!(
-            r#"
-                with raw_template_data as (
-                    select *
-                     from jsonb_to_recordset($1)
-                      as x(
-                          id uuid
-                        , body text
-                        , project_id uuid
-                        , template_type text
-                        , name text
-                      )
-                )
-                insert into templates
-                select raw_template_data.id
-                     , raw_template_data.body
-                     , raw_template_data.name
-                     , raw_template_data.template_type as of_type
-                     , raw_template_data.project_id
-                  from raw_template_data
-            "#,
-            &data,
-        )
-        .execute(pool)
-        .await
-        .map_err(|_| ApiError::InternalServerError)?;
+        sqlx::query_file!("src/template/sql/insert_default_templates.sql", &data)
+            .execute(pool)
+            .await
+            .map_err(|_| ApiError::InternalServerError)?;
 
-        sqlx::query!(
-            r#"
-                with raw_template_data as (
-                    select *
-                      from jsonb_to_recordset($1)
-                        as x(
-                           id uuid
-                         , from_name text
-                         , subject text
-                         , redirect_to text
-                         , of_type text
-                         , template_type text
-                         )
-                )
-                insert into template_data
-                select raw_template_data.from_name
-                     , '{{t.subject}}' as subject
-                     , raw_template_data.id as template_id
-                     , raw_template_data.redirect_to
-                     , raw_template_data.of_type
-                  from raw_template_data
-                 where raw_template_data.template_type = 'view'
-            "#,
-            &data,
-        )
-        .execute(pool)
-        .await
-        .map_err(|_| ApiError::InternalServerError)?;
+        sqlx::query_file!("src/template/sql/insert_default_template_data.sql", &data)
+            .execute(pool)
+            .await
+            .map_err(|_| ApiError::InternalServerError)?;
 
-        sqlx::query!(
-            r#"
-                with raw_template_data as (
-                    select *
-                      from jsonb_to_recordset($1)
-                        as x(
-                           id uuid
-                         , translation jsonb
-                         , template_type text
-                         )
-                )
-                insert into template_translations
-                select raw_template_data.id as template_id
-                     , 'en' as language
-                     , raw_template_data.translation
-                  from raw_template_data
-                 where raw_template_data.template_type = 'view'
-            "#,
-            &data,
-        )
-        .execute(pool)
-        .await
-        .map_err(|_| ApiError::InternalServerError)?;
+        sqlx::query_file!("src/template/sql/insert_default_translations.sql", &data)
+            .execute(pool)
+            .await
+            .map_err(|_| ApiError::InternalServerError)?;
 
         Ok(())
     }
@@ -348,27 +260,8 @@ impl Template {
     }
 
     pub async fn set_template(pool: &PgPool, template: &SetTemplateView) -> Result<(), ApiError> {
-        sqlx::query!(
-            r#" 
-                with insert_template as (
-                    insert into templates(body, name, project_id, of_type)
-                    values ($1, $2, $3, 'view')
-                    on conflict (project_id, name) do update set body = $1
-                    returning id
-                )
-                insert into template_data(from_name, subject, template_id, redirect_to, of_type)
-                select $4 as from_name
-                     , $5 as subject
-                     , insert_template.id as template_id
-                     , $6 as redirect_to
-                     , $7 as of_type
-                  from insert_template 
-                on conflict (template_id, of_type)
-                  do update set from_name = $4
-                              , subject = $5
-                              , redirect_to = $6
-                
-            "#,
+        sqlx::query_file!(
+            "src/template/sql/set_template.sql",
             template.body,
             template.name,
             template.project_id,

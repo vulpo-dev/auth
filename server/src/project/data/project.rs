@@ -12,13 +12,8 @@ impl Project {
         email: &str,
         domain: &str,
     ) -> Result<(), ApiError> {
-        sqlx::query!(
-            r#"
-            update project_settings
-               set name = $2
-                 , domain = $3
-             where project_id = $1
-        "#,
+        sqlx::query_file!(
+            "src/project/sql/set_project_settings.sql",
             project,
             email,
             domain
@@ -31,17 +26,10 @@ impl Project {
     }
 
     pub async fn domain(pool: &PgPool, project: &Uuid) -> Result<String, ApiError> {
-        sqlx::query!(
-            r#"
-            select domain
-              from project_settings
-             where project_id = $1 
-        "#,
-            project
-        )
-        .fetch_one(pool)
-        .await
-        .map(|row| row.domain)
-        .map_err(|_| ApiError::InternalServerError)
+        sqlx::query_file!("src/project/sql/get_project_domain.sql", project)
+            .fetch_one(pool)
+            .await
+            .map(|row| row.domain)
+            .map_err(|_| ApiError::InternalServerError)
     }
 }

@@ -13,22 +13,10 @@ impl ProjectEmail {
         pool: &PgPool,
         project_id: Uuid,
     ) -> Result<Option<EmailSettings>, ApiError> {
-        let row = sqlx::query!(
-            r#"
-                select host
-                     , from_name
-                     , from_email
-                     , password
-                     , username
-                     , port
-                  from email_settings
-                 where project_id = $1
-            "#,
-            project_id
-        )
-        .fetch_optional(pool)
-        .await
-        .map_err(|_| ApiError::InternalServerError)?;
+        let row = sqlx::query_file!("src/settings/sql/get_email_settings.sql", project_id)
+            .fetch_optional(pool)
+            .await
+            .map_err(|_| ApiError::InternalServerError)?;
 
         let settings = row.map(|row| EmailSettings {
             from_name: row.from_name,
@@ -47,26 +35,10 @@ impl ProjectEmail {
         project_id: &Uuid,
         template: Templates,
     ) -> Result<TemplateEmail, ApiError> {
-        let row = sqlx::query!(
-            r#"
-                select email_settings.host
-                     , coalesce(nullif(template_data.from_name, ''), email_settings.from_name) as "from_name!"
-                     , email_settings.from_email
-                     , email_settings.password
-                     , email_settings.username
-                     , email_settings.port
-                     , template_data.subject as "subject?"
-                     , templates.body as "body?"
-                     , template_data.redirect_to as "redirect_to?"
-                     , project_settings.domain
-                     , project_settings.name
-                  from email_settings
-                  left join templates on templates.project_id = email_settings.project_id
-                                     and templates.name = $2
-                  left join template_data on template_data.template_id = templates.id
-                  left join project_settings on project_settings.project_id = email_settings.project_id
-                 where email_settings.project_id = $1
-            "#, project_id, template.to_string()
+        let row = sqlx::query_file!(
+            "src/settings/sql/get_template_settings.sql",
+            project_id,
+            template.to_string()
         )
         .fetch_one(pool)
         .await
@@ -109,19 +81,8 @@ impl ProjectEmail {
         settings: EmailSettings,
     ) -> Result<(), ApiError> {
         let port = settings.port as i32;
-        sqlx::query!(
-            r#"
-                insert into email_settings(project_id, host, from_name, from_email, password, username, port)
-                values($1, $2, $3, $4, $5, $6, $7)
-                on conflict (project_id)
-                  do update
-                        set host = $2
-                          , from_name = $3
-                          , from_email = $4
-                          , password = $5
-                          , username = $6
-                          , port = $7 
-            "#,
+        sqlx::query_file!(
+            "src/settings/sql/insert_email_settings.sql",
             project_id,
             settings.host,
             settings.from_name,

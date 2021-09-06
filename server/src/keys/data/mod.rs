@@ -32,18 +32,10 @@ impl ProjectKeys {
         project_id: &Uuid,
         passphrase: &str,
     ) -> Result<String, ApiError> {
-        let row = sqlx::query!(
-            r#"
-            select private_key
-              from project_keys
-             where project_id = $1
-               and is_active = true
-        "#,
-            project_id
-        )
-        .fetch_one(pool)
-        .await
-        .map_err(|_| ApiError::InternalServerError)?;
+        let row = sqlx::query_file!("src/keys/sql/get_private_key.sql", project_id)
+            .fetch_one(pool)
+            .await
+            .map_err(|_| ApiError::InternalServerError)?;
 
         let key = PKey::private_key_from_pem_passphrase(&row.private_key, passphrase.as_bytes())
             .map_err(|_| ApiError::InternalServerError)?;
@@ -57,19 +49,11 @@ impl ProjectKeys {
     }
 
     pub async fn get_public_key(pool: &PgPool, project_id: &Uuid) -> Result<Vec<u8>, ApiError> {
-        sqlx::query!(
-            r#"
-            select public_key
-              from project_keys
-             where project_id = $1
-               and is_active = true
-        "#,
-            project_id
-        )
-        .fetch_one(pool)
-        .await
-        .map(|row| row.public_key)
-        .map_err(|_| ApiError::InternalServerError)
+        sqlx::query_file!("src/keys/sql/get_public_key.sql", project_id)
+            .fetch_one(pool)
+            .await
+            .map(|row| row.public_key)
+            .map_err(|_| ApiError::InternalServerError)
     }
 
     pub fn create_keys(
@@ -102,16 +86,9 @@ pub struct PublicKey {
 
 impl PublicKey {
     pub async fn get_all(pool: &PgPool) -> Result<Vec<PublicKey>, ApiError> {
-        sqlx::query_as!(
-            PublicKey,
-            r#"
-                select project_id as id
-                     , public_key as key
-                  from project_keys 
-            "#
-        )
-        .fetch_all(pool)
-        .await
-        .map_err(|_| ApiError::InternalServerError)
+        sqlx::query_file_as!(PublicKey, "src/keys/sql/get_public_keys.sql")
+            .fetch_all(pool)
+            .await
+            .map_err(|_| ApiError::InternalServerError)
     }
 }

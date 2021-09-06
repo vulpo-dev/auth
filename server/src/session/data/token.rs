@@ -17,17 +17,8 @@ impl Token {
         session: &Uuid,
     ) -> Result<bool, ApiError> {
         let exp = Utc.timestamp(claims.exp.into(), 0);
-        let row = sqlx::query!(
-            r#"
-                with add_token as (
-                    insert into refresh_access_tokens(id, session_id, expire_at)
-                    values($1, $2, $3)
-                    on conflict(id) do nothing
-                    returning id
-                )
-                select count(add_token.id) = 1 as is_valid
-                  from add_token
-            "#,
+        let row = sqlx::query_file!(
+            "src/session/sql/token_is_valid.sql",
             claims.jti,
             session,
             exp

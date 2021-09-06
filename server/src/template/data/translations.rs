@@ -33,15 +33,8 @@ impl Translations {
         project: &Uuid,
         template: &str,
     ) -> Result<Translations, ApiError> {
-        let rows = sqlx::query!(
-            r#"
-    			select template_translations.language
-    			     , template_translations.content
-    			  from templates
-    			  join template_translations on template_translations.template_id = templates.id
-    			 where templates.project_id = $1
-    			   and templates.name = $2
-    		"#,
+        let rows = sqlx::query_file!(
+            "src/template/sql/get_translations_by_project.sql",
             project,
             template,
         )
@@ -58,22 +51,8 @@ impl Translations {
     }
 
     pub async fn set(pool: &PgPool, translation: &SetTranslation) -> Result<(), ApiError> {
-        sqlx::query!(
-            r#"
-    			with template as (
-    				select id
-    				  from templates
-    				 where project_id = $1
-    				   and name = $2
-    			)
-    			insert into template_translations(template_id, language, content)
-    			select template.id as template_id
-    			     , $3 as language
-    			     , $4 as content
-    			  from template
-    			on conflict (template_id, language)
-    			   do update set content = $4
-    		"#,
+        sqlx::query_file!(
+            "src/template/sql/set_translation.sql",
             translation.project,
             translation.template,
             translation.language,
@@ -87,17 +66,8 @@ impl Translations {
     }
 
     pub async fn delete(pool: &PgPool, data: &DeleteTranslation) -> Result<(), ApiError> {
-        sqlx::query!(
-            r#"
-                delete from template_translations
-                 where template_translations.language = $1
-                   and template_translations.template_id in (
-                    select id
-                      from templates
-                     where project_id = $2
-                       and name = $3
-                   )
-            "#,
+        sqlx::query_file!(
+            "src/template/sql/remove_translation.sql",
             data.language,
             data.project,
             data.template,
@@ -114,29 +84,11 @@ impl Translations {
         user_id: &Uuid,
         name: &str,
     ) -> Result<HashMap<String, String>, ApiError> {
-        let translation = sqlx::query!(
-            r#"
-                with languages as (
-                    select array_append(users.device_languages, project_settings.default_language) as languages
-                      from users
-                      join project_settings on project_settings.project_id = users.project_id 
-                     where id = $1
-
-                )
-                select lang.prio, template_translations.content
-                  from languages, unnest(languages.languages) WITH ORDINALITY AS lang(code, prio)
-                  join templates on templates.name = $2
-                  join template_translations on template_translations.language = lang.code
-                                            and template_translations.template_id  = templates.id
-                 order by lang.prio
-                 limit 1
-            "#,
-            user_id,
-            name,
-        )
-        .fetch_one(pool)
-        .await
-        .map_err(|_| ApiError::InternalServerError)?;
+        let translation =
+            sqlx::query_file!("src/template/sql/get_user_translation.sql", user_id, name)
+                .fetch_one(pool)
+                .await
+                .map_err(|_| ApiError::InternalServerError)?;
 
         serde_json::from_value(translation.content).map_err(|_| ApiError::InternalServerError)
     }
@@ -147,22 +99,8 @@ impl Translations {
         languages: &Vec<String>,
         name: &str,
     ) -> Result<HashMap<String, String>, ApiError> {
-        let translation = sqlx::query!(
-            r#"
-                with languages as (
-                    select array_append($2, project_settings.default_language) as languages
-                      from project_settings
-                     where project_id = $1
-
-                )
-                select lang.prio, template_translations.content
-                  from languages, unnest(languages.languages) WITH ORDINALITY AS lang(code, prio)
-                  join templates on templates.name = $3
-                  join template_translations on template_translations.language = lang.code
-                                            and template_translations.template_id  = templates.id
-                 order by lang.prio
-                 limit 1
-            "#,
+        let translation = sqlx::query_file!(
+            "src/template/sql/get_translation_by_lang_code.sql",
             project_id,
             languages,
             name,

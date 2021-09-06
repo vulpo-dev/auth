@@ -53,26 +53,8 @@ impl Admin {
         let password =
             hash(body.password, DEFAULT_COST).map_err(|_| ApiError::InternalServerError)?;
 
-        let row = sqlx::query!(
-            r#"
-            insert into users
-                 ( email
-                 , password
-                 , project_id
-                 , traits
-                 , data
-                 , provider_id
-                 )
-            values
-                 ( $1
-                 , $2
-                 , $3
-                 , '{ "Admin" }'
-                 , '{}'::jsonb
-                 , 'email'
-                 )
-            returning id
-            "#,
+        let row = sqlx::query_file!(
+            "src/admin/sql/create_admin.sql",
             &body.email,
             &password,
             &project
@@ -95,17 +77,10 @@ impl Admin {
     }
 
     pub async fn has_admin(pool: &PgPool) -> Result<bool, ApiError> {
-        let row = sqlx::query!(
-            r#"
-            select count(*) > 0 as has_admin
-              from projects
-              join users on users.id = projects.id
-             where projects.is_admin = True
-        "#
-        )
-        .fetch_one(pool)
-        .await
-        .map_err(|_| ApiError::InternalServerError)?;
+        let row = sqlx::query_file!("src/admin/sql/has_admin.sql")
+            .fetch_one(pool)
+            .await
+            .map_err(|_| ApiError::InternalServerError)?;
 
         row.has_admin.ok_or(ApiError::InternalServerError)
     }
@@ -115,29 +90,8 @@ impl Admin {
         body: &NewProject,
         keys: &NewProjectKeys,
     ) -> Result<Uuid, ApiError> {
-        let row = sqlx::query!(
-            r#"
-            with created_project as (
-                   insert into projects
-                  default values
-                returning id
-            ), create_project_settings as (
-                insert into project_settings(project_id, name, domain)
-                select created_project.id as "project_id"
-                     , $1 as "name"
-                     , $2 as "domain"
-                  from created_project
-                returning project_id
-            )
-            insert into project_keys(project_id, public_key, private_key, is_active, expire_at)
-            select create_project_settings.project_id
-                 , $3 as "public_key"
-                 , $4 as "private_key"
-                 , $5 as "is_active"
-                 , $6 as "expire_at"
-              from create_project_settings
-            returning project_id as id
-        "#,
+        let row = sqlx::query_file!(
+            "src/admin/sql/create_project.sql",
             body.name,
             body.domain,
             keys.public_key,
@@ -162,51 +116,26 @@ impl Admin {
     }
 
     pub async fn project_list(pool: &PgPool) -> Result<Vec<PartialProject>, ApiError> {
-        sqlx::query_as!(
-            PartialProject,
-            r#"
-            select id
-                 , project_settings.name
-                 , project_settings.domain
-              from projects
-              join project_settings on project_settings.project_id = projects.id
-             where is_admin = False
-             order by created_at
-        "#
-        )
-        .fetch_all(pool)
-        .await
-        .map_err(|_| ApiError::InternalServerError)
+        sqlx::query_file_as!(PartialProject, "src/admin/sql/project_list.sql")
+            .fetch_all(pool)
+            .await
+            .map_err(|_| ApiError::InternalServerError)
     }
 
     pub async fn set_admin(pool: &PgPool, id: &Uuid) -> Result<(), ApiError> {
-        sqlx::query!(
-            r#"
-            update projects
-               set is_admin = true
-                 , flags = '{ "auth::signin", "method::email_password" }'
-             where id = $1
-        "#,
-            id,
-        )
-        .execute(pool)
-        .await
-        .map_err(|_| ApiError::InternalServerError)?;
+        sqlx::query_file!("src/admin/sql/set_admin.sql", id)
+            .execute(pool)
+            .await
+            .map_err(|_| ApiError::InternalServerError)?;
 
         Ok(())
     }
 
     pub async fn get_project(pool: &PgPool) -> Result<Option<Uuid>, ApiError> {
-        let rows = sqlx::query!(
-            r#"
-            select id
-              from projects
-             where is_admin = True
-        "#
-        )
-        .fetch_all(pool)
-        .await
-        .map_err(|_err| ApiError::InternalServerError)?;
+        let rows = sqlx::query_file!("src/admin/sql/get_project.sql")
+            .fetch_all(pool)
+            .await
+            .map_err(|_err| ApiError::InternalServerError)?;
 
         let id = rows.get(0).and_then(|row| Some(row.id));
         Ok(id)
@@ -231,26 +160,8 @@ impl Admin {
             None => String::from("email"),
         };
 
-        let row = sqlx::query!(
-            r#"
-            insert into users
-                ( email
-                , password
-                , display_name
-                , data
-                , provider_id
-                , project_id
-                )
-            values
-                ( $1
-                , $2
-                , $3
-                , $4::jsonb
-                , $5
-                , $6
-                )
-            returning id
-        "#,
+        let row = sqlx::query_file!(
+            "src/admin/sql/create_user.sql",
             user.email,
             password,
             user.display_name,

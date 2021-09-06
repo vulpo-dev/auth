@@ -17,16 +17,9 @@ pub struct Session {
 
 impl Session {
     pub async fn create(pool: &PgPool, session: Session) -> Result<Session, ApiError> {
-        sqlx::query_as!(
+        sqlx::query_file_as!(
             Session,
-            r#"
-            insert into sessions(id, public_key, expire_at, user_id, project_id)
-            values($1, $2, $3, $4, $5)
-            on conflict(id)
-               do update
-                     set id = uuid_generate_v4()
-            returning id, public_key, expire_at, user_id, project_id
-        "#,
+            "src/session/sql/create_session.sql",
             session.id,
             session.public_key,
             session.expire_at,
@@ -39,22 +32,10 @@ impl Session {
     }
 
     pub async fn get(pool: &PgPool, session: &Uuid) -> Result<Session, ApiError> {
-        let row = sqlx::query_as!(
-            Session,
-            r#"
-            select id
-                 , public_key
-                 , expire_at
-                 , user_id
-                 , project_id
-              from sessions
-             where id = $1 
-        "#,
-            session
-        )
-        .fetch_optional(pool)
-        .await
-        .map_err(|_| ApiError::InternalServerError)?;
+        let row = sqlx::query_file_as!(Session, "src/session/sql/get_session.sql", session)
+            .fetch_optional(pool)
+            .await
+            .map_err(|_| ApiError::InternalServerError)?;
 
         row.ok_or_else(|| ApiError::TokenInvalid)
     }
@@ -65,15 +46,9 @@ impl Session {
         user_id: &Uuid,
         expire_at: &DateTime<Utc>,
     ) -> Result<Session, ApiError> {
-        sqlx::query_as!(
+        sqlx::query_file_as!(
             Session,
-            r#"
-                update sessions
-                   set user_id = $2
-                     , expire_at = $3
-                 where id = $1
-                returning id, expire_at, user_id, public_key, project_id
-            "#,
+            "src/session/sql/confirm_session.sql",
             &session,
             &user_id,
             &expire_at
@@ -88,67 +63,37 @@ impl Session {
         session: &Uuid,
         expire_at: &DateTime<Utc>,
     ) -> Result<(), ApiError> {
-        sqlx::query!(
-            r#"
-                update sessions
-                   set expire_at = $2
-                 where id = $1
-            "#,
-            session,
-            expire_at
-        )
-        .execute(pool)
-        .await
-        .map_err(|_| ApiError::InternalServerError)?;
+        sqlx::query_file!("src/session/sql/extend_session.sql", session, expire_at)
+            .execute(pool)
+            .await
+            .map_err(|_| ApiError::InternalServerError)?;
 
         Ok(())
     }
 
     pub async fn delete(pool: &PgPool, session: &Uuid) -> Result<(), ApiError> {
-        sqlx::query!(
-            r#"
-                delete from sessions
-                 where id = $1
-            "#,
-            session,
-        )
-        .execute(pool)
-        .await
-        .map_err(|_| ApiError::InternalServerError)?;
+        sqlx::query_file!("src/session/sql/remove_session.sql", session)
+            .execute(pool)
+            .await
+            .map_err(|_| ApiError::InternalServerError)?;
 
         Ok(())
     }
 
     pub async fn delete_all(pool: &PgPool, session: &Uuid) -> Result<(), ApiError> {
-        sqlx::query!(
-            r#"
-               delete from sessions
-                where user_id in (
-                    select sessions.user_id
-                      from sessions
-                     where sessions.id = $1 
-                )
-            "#,
-            session,
-        )
-        .execute(pool)
-        .await
-        .map_err(|_| ApiError::InternalServerError)?;
+        sqlx::query_file!("src/session/sql/remove_all_sessions.sql", session)
+            .execute(pool)
+            .await
+            .map_err(|_| ApiError::InternalServerError)?;
 
         Ok(())
     }
 
     pub async fn delete_by_user(pool: &PgPool, user: &Uuid) -> Result<(), ApiError> {
-        sqlx::query!(
-            r#"
-               delete from sessions
-                where user_id = $1 
-            "#,
-            user,
-        )
-        .execute(pool)
-        .await
-        .map_err(|_| ApiError::InternalServerError)?;
+        sqlx::query_file!("src/session/sql/remove_user_sessions.sql", user)
+            .execute(pool)
+            .await
+            .map_err(|_| ApiError::InternalServerError)?;
 
         Ok(())
     }

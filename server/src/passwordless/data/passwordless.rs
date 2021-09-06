@@ -27,12 +27,8 @@ impl Passwordless {
         project: &Uuid,
         session_id: &Uuid,
     ) -> Result<Uuid, ApiError> {
-        sqlx::query!(
-            r#"
-            insert into passwordless (user_id, email, token, project_id, session_id)
-            values ($1, $2, $3, $4, $5)
-            returning id
-        "#,
+        sqlx::query_file!(
+            "src/passwordless/sql/insert_passwordless_token.sql",
             id,
             email,
             verification_token,
@@ -46,21 +42,9 @@ impl Passwordless {
     }
 
     pub async fn get(pool: &PgPool, id: &Uuid) -> Result<Passwordless, ApiError> {
-        let row = sqlx::query_as!(
+        let row = sqlx::query_file_as!(
             Passwordless,
-            r#"
-            select id
-                 , created_at
-                 , user_id
-                 , email
-                 , token
-                 , is_valid
-                 , project_id
-                 , confirmed
-                 , expire_at
-              from passwordless
-             where id = $1
-        "#,
+            "src/passwordless/sql/get_passwordless.sql",
             id
         )
         .fetch_optional(pool)
@@ -71,43 +55,19 @@ impl Passwordless {
     }
 
     pub async fn confirm(pool: &PgPool, id: &Uuid) -> Result<(), ApiError> {
-        sqlx::query!(
-            r#"
-            with confirm_token as (
-                update passwordless
-                   set confirmed = True
-                 where id = $1
-             returning id, email, project_id
-            )
-            update passwordless
-               set is_valid = False
-              from confirm_token
-             where passwordless.email = confirm_token.email
-               and passwordless.project_id = confirm_token.project_id
-               and passwordless.id != confirm_token.id
-        "#,
-            id
-        )
-        .execute(pool)
-        .await
-        .map_err(|_| ApiError::InternalServerError)?;
+        sqlx::query_file!("src/passwordless/sql/confirm_passwordless.sql", id)
+            .execute(pool)
+            .await
+            .map_err(|_| ApiError::InternalServerError)?;
 
         Ok(())
     }
 
     pub async fn remove_all(pool: &PgPool, email: &str, project: &Uuid) -> Result<(), ApiError> {
-        sqlx::query!(
-            r#"
-            delete from passwordless
-             where email = $1
-               and project_id = $2
-        "#,
-            email,
-            project
-        )
-        .execute(pool)
-        .await
-        .map_err(|_| ApiError::InternalServerError)?;
+        sqlx::query_file!("src/passwordless/sql/remove_all.sql", email, project)
+            .execute(pool)
+            .await
+            .map_err(|_| ApiError::InternalServerError)?;
 
         Ok(())
     }

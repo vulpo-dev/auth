@@ -22,17 +22,10 @@ pub enum Flags {
 
 impl Flags {
     pub async fn from_project(pool: &PgPool, id: &Uuid) -> Result<Vec<Flags>, ApiError> {
-        let row = sqlx::query!(
-            r#"
-            select flags
-              from projects
-             where id = $1 
-        "#,
-            id
-        )
-        .fetch_one(pool)
-        .await
-        .map_err(|_| ApiError::InternalServerError)?;
+        let row = sqlx::query_file!("src/project/sql/get_flags.sql", id)
+            .fetch_one(pool)
+            .await
+            .map_err(|_| ApiError::InternalServerError)?;
 
         let flags: Vec<Flags> = row
             .flags
@@ -52,18 +45,10 @@ impl Flags {
             .filter(|flag| flag.is_empty() == false)
             .collect::<Vec<String>>();
 
-        sqlx::query!(
-            r#"
-            update projects
-               set flags = $2
-             where id = $1 
-        "#,
-            project,
-            &flags
-        )
-        .execute(pool)
-        .await
-        .map_err(|_| ApiError::InternalServerError)?;
+        sqlx::query_file!("src/project/sql/set_flags.sql", project, &flags)
+            .execute(pool)
+            .await
+            .map_err(|_| ApiError::InternalServerError)?;
 
         Ok(())
     }
@@ -88,7 +73,7 @@ impl Flags {
         }
     }
 
-    // TODO do this automatically
+    // TODO figure out how to do this automatically?
     fn from_str(flag: &str) -> Option<Flags> {
         match flag {
             "auth::signin" => Some(Flags::SignIn),
