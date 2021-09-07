@@ -18,7 +18,9 @@ export let Project = ({ error }: Props) => {
 			<h2>Creating Admin Project</h2>
 			<ContentWrapper>
 				{ !error &&
+					<React.Fragment>
 						<Flow />
+					</React.Fragment>
 				}
 				{ error &&
 					<ErrorMessage>Something went wrong</ErrorMessage>

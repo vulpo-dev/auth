@@ -7,6 +7,7 @@ import { PageLoad } from 'component/loading'
 
 import Dashboard from 'dashboard'
 import Auth from 'auth'
+import { CurrentUser } from 'auth/ctx'
 import CreateProject from 'project/create'
 
 export default function App() {
@@ -58,7 +59,9 @@ export default function App() {
 			</Route>
 
 			<Route path='/'>
-				{ currentUser === null ? <PageLoad /> : <Dashboard /> }
+				<CurrentUser.Provider value={currentUser}>
+					{ currentUser === null ? <PageLoad /> : <Dashboard /> }
+				</CurrentUser.Provider>
 			</Route>
 
 		</Switch>

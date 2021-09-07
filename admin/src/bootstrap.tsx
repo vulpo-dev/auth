@@ -35,7 +35,7 @@ let Bootstrap = () => {
 		if (project === null && !isSetup && state === 'loaded') {
 			history.replace('/setup/')
 		}
-	}, [project, history, setProjectId])
+	}, [project, state, history, setProjectId])
 
 	if (state === 'loading') {
 		return <GhostPage />

@@ -1,8 +1,4 @@
-import {
-	createContext,
-	useContext
-} from 'react'
-
+import { createContext, useContext } from 'react'
 import { useHttp } from 'data/http'
 
 import {
@@ -11,8 +7,10 @@ import {
 	useQuery,
 	usePost,
 } from '@biotic-ui/boson'
-
 import { ApiError } from 'error'
+import { useCurrentUser } from 'auth/ctx'
+
+import { Auth as AuthCtx } from '@riezler/auth-react'
 
 export type PartialProject = {
 	id: string;
@@ -30,7 +28,6 @@ let projectsAtom = boson<ProjectList | undefined>({
 
 export function useProjects() {
 	let http = useHttp()
-
 	return useQuery(projectsAtom, async () => {
 		let res = await http.get<ProjectList>('/admin/__/project/list')
 		return res.data

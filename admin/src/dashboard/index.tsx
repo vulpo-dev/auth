@@ -20,7 +20,6 @@ import { AddButton, CloseButton } from 'component/button'
 import CreateProject from 'component/create_project'
 import { Drawer } from '@biotic-ui/drawer'
 import { Scrollbar } from '@biotic-ui/leptons'
-import { Button } from '@biotic-ui/button'
 import Tooltip from 'component/tooltip'
 
 import Users from 'dashboard/component/users'
