@@ -13,3 +13,5 @@ export {
 export { default as Auth } from 'auth'
 export { Container } from 'component/layout'
 export { BoxShadow } from 'component/card'
+export { checkPasswordLength } from 'utils'
+

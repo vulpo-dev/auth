@@ -1,4 +1,4 @@
-import { AxiosError, AxiosResponse } from 'axios'
+import { AxiosError } from 'axios'
 
 export enum ApiError {
 	InternalServerError = "internal_error",
@@ -13,6 +13,8 @@ export enum ApiError {
 
 	ProjectNotFound = "project/not_found",
 	ProjectNameExists = "project/name_exists",
+
+	UserExists = "user/exists",
 
 }
 

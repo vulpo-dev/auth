@@ -1,22 +1,10 @@
 import React from 'react'
 import { Fragment } from 'react'
 import styled from 'styled-components'
-import { HashRouter, Switch, Route, Redirect } from 'react-router-dom'
 import { Header } from 'component/layout'
 import CreateProjectForm from 'component/create_project'
 import { useHistory } from 'react-router-dom'
 import { PartialProject } from 'data/project'
-
-import {
-	DefaultConfig,
-	AuthConfig,
-	DefaultTranslation,
-	Translation,
-	Password,
-	BoxShadow,
-	FlagsCtx,
-} from '@riezler/auth-ui'
-import { Flag } from '@riezler/auth-sdk'
 
 export let CreateProject = () => {
 	let history = useHistory()

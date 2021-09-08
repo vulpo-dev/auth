@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { ChangeEvent } from 'react'
 import { SyntheticEvent, useState } from 'react'
 import styled from 'styled-components'
 import { Card, CardHeader, CardNav, CardTitle } from 'component/card'
@@ -46,9 +46,12 @@ export let Password = ({ onSubmit, onBack, ctx, loading, error }: Props) => {
 
 	let t = useTranslation()
 
-	function setPassword(e: SyntheticEvent) {
-		let target = (e.target as HTMLInputElement)
-		checkPasswordLength(target, t.error)
+	function validatePassword(elm: HTMLInputElement) {
+		checkPasswordLength(elm, t.error)
+	}
+
+	function setPassword(e: ChangeEvent<HTMLInputElement>) {
+		validatePassword(e.target)
 		setForm(e)
 	}
 
@@ -116,6 +119,7 @@ export let Password = ({ onSubmit, onBack, ctx, loading, error }: Props) => {
 				<PasswordSection>
 					<Label htmlFor="password">{t.label.password}</Label>
 					<PasswordInput
+						ref={elm => elm && validatePassword(elm)}
 						id="password"
 						name="password"
 						autoComplete={ctx === 'signin' ? 'current-password' : 'new-password'}
