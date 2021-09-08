@@ -45,9 +45,9 @@ export function hasEmailProvider(settings?: EmailSettings | null) {
 	return true
 }
 
-let createEmailSettings = bosonFamily<[string], EmailSettings>(() => {
+let createEmailSettings = bosonFamily<[string], EmailSettings | null>(() => {
 	return {
-		defaultValue: DefaultEmailSettings
+		defaultValue: null
 	}
 })
 
@@ -59,17 +59,17 @@ export function useEmailSettings(project: string) {
 			params: { project_id: project }
 		})
 
-		return res.data ?? DefaultEmailSettings
+		return res.data
 	})
 }
 
 export function useSetEmailSettings(project: string) {
-	let setState = useSetBoson<EmailSettings>(createEmailSettings(project))
+	let setState = useSetBoson<EmailSettings | null>(createEmailSettings(project))
 	return useCallback((e: ChangeEvent<HTMLInputElement>) => {
 			setState((state) => {
 				let { name, value } = e.target
 				return {
-					...state,
+					...(state ?? DefaultEmailSettings),
 					[name]: value
 				}
 			})

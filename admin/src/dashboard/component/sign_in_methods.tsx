@@ -5,6 +5,7 @@ import { Container } from 'component/layout'
 import { useFlags, Flags, useToggleFlags, useUpdateFlags } from 'data/flags'
 import { Button } from 'component/button'
 import { useEmailSettings, hasEmailProvider } from 'data/settings'
+import Tooltip from 'component/tooltip'
 
 type Props = {
 	project: string;
@@ -39,16 +40,18 @@ let SignInMethods: FunctionComponent<Props> = ({ project }) => {
 						onChange={toggleFlag(Flags.SignUp)}
 					/>
 				</Flag>
-				<Flag disabled={!hasEmail}>
-					<FlagTitle htmlFor='auth_link'>Authentication Link</FlagTitle>
-					<input
-						id='auth_link'
-						type='checkbox'
-						disabled={!hasEmail}
-						checked={items.includes(Flags.AuthenticationLink)}
-						onChange={toggleFlag(Flags.AuthenticationLink)}
-					/>
-				</Flag>
+					<Flag disabled={!hasEmail}>
+						<Tooltip disabled={hasEmail} content="Disabled: Add email settings">
+							<FlagTitle htmlFor='auth_link'>Authentication Link</FlagTitle>
+						</Tooltip>
+						<input
+							id='auth_link'
+							type='checkbox'
+							disabled={!hasEmail}
+							checked={items.includes(Flags.AuthenticationLink)}
+							onChange={toggleFlag(Flags.AuthenticationLink)}
+						/>
+					</Flag>
 				<Flag>
 					<FlagTitle htmlFor='email_password'>Email and Password</FlagTitle>
 					<input
@@ -60,7 +63,9 @@ let SignInMethods: FunctionComponent<Props> = ({ project }) => {
 					{	items.includes(Flags.EmailAndPassword) &&
 						<FlagList>
 							<Flag disabled={!hasEmail}>
-								<FlagTitle htmlFor='reset_password'>Reset Password</FlagTitle>
+								<Tooltip disabled={hasEmail} content="Disabled: Add email settings">
+									<FlagTitle htmlFor='reset_password'>Reset Password</FlagTitle>
+								</Tooltip>
 								<input
 									id='reset_password'
 									type='checkbox'
@@ -70,7 +75,9 @@ let SignInMethods: FunctionComponent<Props> = ({ project }) => {
 								/>
 							</Flag>
 							<Flag disabled={!hasEmail}>
-								<FlagTitle htmlFor='verify_email'>Verify Email</FlagTitle>
+								<Tooltip disabled={hasEmail} content="Disabled: Add email settings">
+									<FlagTitle htmlFor='verify_email'>Verify Email</FlagTitle>
+								</Tooltip>
 								<input
 									id='verify_email'
 									type='checkbox'

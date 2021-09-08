@@ -40,7 +40,7 @@ function Dashboard() {
 			return
 		}
 
-		if (projects.length === 0) {
+		if (projects.length <= 1) {
 			history.replace(`/project/create`)
 			return
 		}
