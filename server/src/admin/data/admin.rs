@@ -4,6 +4,7 @@ use crate::project::Project;
 use crate::response::error::ApiError;
 use crate::session::data::{AccessToken, Claims};
 
+use rocket::futures::join;
 use rocket::http::Status;
 use rocket::request::Outcome;
 use rocket::request::{self, FromRequest, Request};
@@ -197,12 +198,14 @@ impl<'r> FromRequest<'r> for Admin {
             Some(token) => token,
         };
 
-        let project = match Project::from_request(req).await.succeeded() {
+        let (project, db) = join!(Project::from_request(req), Db::from_request(req));
+
+        let project = match project.succeeded() {
             None => return Outcome::Failure((Status::BadRequest, ApiError::AuthTokenMissing)),
             Some(project) => project,
         };
 
-        let db = match Db::from_request(req).await.succeeded() {
+        let db = match db.succeeded() {
             None => {
                 return Outcome::Failure((Status::ServiceUnavailable, ApiError::AuthTokenMissing))
             }
@@ -218,6 +221,11 @@ impl<'r> FromRequest<'r> for Admin {
 
         let end = token_string.len();
         let start = "Bearer ".len();
+
+        if end < start {
+            return Outcome::Failure((Status::BadRequest, ApiError::AuthTokenMissing));
+        }
+
         let token = &token_string[start..end];
         let claims = match AccessToken::from_rsa(token.to_string(), &key) {
             Ok(token) => token,

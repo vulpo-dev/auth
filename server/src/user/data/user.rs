@@ -21,7 +21,7 @@ pub struct User {
     pub provider_id: String,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
-    pub disabled: bool,
+    pub state: String,
     #[serde(skip_serializing)]
     pub password: Option<String>,
 }
@@ -97,7 +97,7 @@ impl User {
             provider_id: u.provider_id,
             created_at: u.created_at,
             updated_at: u.updated_at,
-            disabled: u.disabled,
+            state: u.state,
         });
 
         Ok(user)
@@ -124,7 +124,7 @@ impl User {
                     provider_id: u.provider_id,
                     created_at: u.created_at,
                     updated_at: u.updated_at,
-                    disabled: u.disabled,
+                    state: u.state,
                 };
 
                 Ok(user)
@@ -184,7 +184,7 @@ impl User {
             provider_id: row.provider_id,
             created_at: row.created_at,
             updated_at: row.updated_at,
-            disabled: row.disabled,
+            state: row.state,
         };
 
         Ok(user)
@@ -228,7 +228,7 @@ impl User {
             provider_id: row.provider_id,
             created_at: row.created_at,
             updated_at: row.updated_at,
-            disabled: row.disabled,
+            state: row.state,
         };
 
         Ok(user)
@@ -373,7 +373,7 @@ pub struct PartialUser {
     email_verified: bool,
     provider_id: String,
     created_at: DateTime<Utc>,
-    disabled: bool,
+    state: String,
 }
 
 pub enum ParamError {

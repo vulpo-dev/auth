@@ -48,7 +48,7 @@ async fn main() {
     if let Some(matches) = matches.subcommand_matches("server") {
         let port = server::get_port(matches.value_of("port"));
 
-        let rocket_config = Figment::from(rocket::Config::defaul())
+        let rocket_config = Figment::from(rocket::Config::default())
             .merge(figment.clone().select("server"))
             .merge(Env::prefixed("VULPO_SERVER_").global());
 

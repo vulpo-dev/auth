@@ -74,7 +74,7 @@ export type User = {
 	provider_id: string,
 	created_at: string,
 	updated_at: string,
-	disabled: boolean,
+	state: 'Active' | 'Disabled',
 }
 
 export type UpdateUserPayload = Pick<User,

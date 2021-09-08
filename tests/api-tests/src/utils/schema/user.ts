@@ -22,7 +22,7 @@ let schema: JSONSchemaType<User> = {
     provider_id: { type: "string"  },
     created_at: { type: "string"  },
     updated_at: { type: "string"  },
-    disabled: { type: "boolean"  },
+    state: { type: "string"  },
   },
   required: [],
   additionalProperties: false

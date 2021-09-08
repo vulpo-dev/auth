@@ -18,7 +18,7 @@ fn files(path: Option<PathBuf>) -> Option<File> {
     };
 
     let file = match ADMIN_CLIENT.get_file(&file) {
-        Some(ftile) => file,
+        Some(file) => file,
         None => match ADMIN_CLIENT.get_file("index.html") {
             Some(file) => file,
             None => return None,

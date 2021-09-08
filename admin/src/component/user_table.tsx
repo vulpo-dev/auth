@@ -118,7 +118,7 @@ export let Rows: FC<RowsPops> = ({
 				items.map(user => {
 					return (
 						<Row
-							disabled={user.disabled}
+							disabled={user.state === 'Disabled'}
 							key={user.id}
 							onClick={onClick}
 							selected={selected.includes(user.id)}

@@ -40,7 +40,7 @@ pub async fn request_passwordless(
 
     let user = User::get_by_email(&pool, &body_email, project.id).await?;
 
-    if user.clone().map_or(false, |u| u.disabled) {
+    if user.clone().map_or(false, |u| u.state == "Disabled") {
         return Err(ApiError::UserDisabled);
     }
 

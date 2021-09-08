@@ -21,7 +21,7 @@ export type PartialUser = Pick<User,
 	'email_verified' |
 	'id' |
 	'provider_id' |
-	'disabled'
+	'state'
 >
 
 export type UpdateUser = Pick<User,
@@ -47,7 +47,7 @@ export type PartialUserResponse = {
 	email_verified: boolean;
 	id: string;
 	provider_id: string;
-	disabled: boolean;
+	state: 'Active' | 'Disabled';
 }
 
 export type User = {
@@ -61,5 +61,5 @@ export type User = {
 	provider_id: Provider,
 	created_at: Date,
 	updated_at: Date,
-	disabled: boolean,
+	state: 'Active' | 'Disabled',
 }

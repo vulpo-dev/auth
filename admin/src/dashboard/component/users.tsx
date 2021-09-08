@@ -132,7 +132,7 @@ let Users: FC<Props> = ({ project }) => {
 		}
 
 		if (selected[0]) {
-			await disableUser(selected[0]!, !user?.disabled)
+			await disableUser(selected[0]!, user?.state === 'Active')
 			actions.reload()
 			setSelected([])
 		}
@@ -205,7 +205,7 @@ let Users: FC<Props> = ({ project }) => {
 						<FloatingActionBar open={selected.length > 0} onClose={() => setSelected([])}>
 							<ActionItem onClick={handleDisable}>
 								<ArchiveBox weight='bold' size={24} />
-								<ActionLabel>{ user?.disabled ? 'Enable' : 'Disable' }Account</ActionLabel>
+								<ActionLabel>{ user?.state === 'Disabled' ? 'Enable' : 'Disable' }Account</ActionLabel>
 							</ActionItem>
 							<ActionItem disabled={!hasEmail || true}>
 								<ClockClockwise weight='bold' size={24} />

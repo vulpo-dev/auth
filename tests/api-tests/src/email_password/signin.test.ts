@@ -103,7 +103,7 @@ describe("Sign In: Email and Password", () => {
 
 		await Db.query(`
 			update users
-			   set disabled = true
+			   set state = 'Disabled'
 			 where email = $1
 			   and project_id = $2 
 		`, [EMAIL, PROJECT_ID])

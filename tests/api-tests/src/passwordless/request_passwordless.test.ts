@@ -147,8 +147,8 @@ function createUser(disabled = false) {
 			( email
 			, project_id
 			, provider_id
-			, disabled
+			, state
 			)
 		values($1, $2, 'link', $3)
-	`, [EMAIL, PROJECT_ID, disabled])
+	`, [EMAIL, PROJECT_ID, disabled ? 'Disabled' : 'Active'])
 }

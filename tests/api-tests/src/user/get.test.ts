@@ -68,7 +68,7 @@ describe("Get User", () => {
 				bar: false
 			},
 			provider_id: 'link',
-			disabled: true,
+			state: 'Disabled',
 		} 
 
 		await Db.query(`
@@ -80,7 +80,7 @@ describe("Get User", () => {
 			     , traits = $6
 			     , data = $7
 			     , provider_id = $8
-			     , disabled = $9
+			     , state = $9
 			 where id = $1
 		`, [
 			USER_ID,
@@ -91,7 +91,7 @@ describe("Get User", () => {
 			newUser.traits,
 			newUser.data,
 			newUser.provider_id,
-			newUser.disabled,
+			newUser.state,
 		])
 
 		let token = generateAccessToken({

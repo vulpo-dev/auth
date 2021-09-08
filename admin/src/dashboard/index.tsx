@@ -151,7 +151,7 @@ let Main = () => {
 
 
 type TabItemProps = {
-	project: PartialProject
+	project: Omit<PartialProject, 'domain'>
 }
 
 let TabItem = ({ project }: TabItemProps) => {

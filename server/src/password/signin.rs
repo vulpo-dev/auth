@@ -55,7 +55,7 @@ pub async fn sign_in(
         return Err(ApiError::UserInvalidPassword);
     };
 
-    if user.disabled {
+    if user.state == "Disabled" {
         return Err(ApiError::UserDisabled);
     }
 
