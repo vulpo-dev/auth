@@ -5,13 +5,16 @@ insert into users
     , data
     , provider_id
     , project_id
+    , state
     )
-values
-    ( $1
-    , $2
-    , $3
-    , $4::jsonb
-    , $5
-    , $6
-    )
+select $1 as "email"
+     , $2 as "password"
+     , $3 as "display_name"
+     , $4::jsonb as "data"
+     , $5 as "provider_id"
+     , $6 as "project_id"
+     , case when $5 = 'link'
+            then 'Active'
+            else 'SetPassword'
+        end as "state"
 returning id

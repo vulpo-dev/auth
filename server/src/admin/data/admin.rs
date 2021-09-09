@@ -43,7 +43,7 @@ pub struct NewUser {
     pub password: Option<String>,
     pub display_name: Option<String>,
     pub data: Option<Value>,
-    pub provider_id: Option<String>,
+    pub provider_id: String,
 }
 
 #[derive(Debug)]
@@ -151,15 +151,7 @@ impl Admin {
             None => None,
         };
 
-        let data = match user.data {
-            Some(json) => json.to_owned(),
-            None => json!({}),
-        };
-
-        let provider = match user.provider_id {
-            Some(id) => id.to_owned(),
-            None => String::from("email"),
-        };
+        let data = user.data.unwrap_or(json!({}));
 
         let row = sqlx::query_file!(
             "src/admin/sql/create_user.sql",
@@ -167,7 +159,7 @@ impl Admin {
             password,
             user.display_name,
             data,
-            provider,
+            user.provider_id,
             user.project_id,
         )
         .fetch_one(pool)

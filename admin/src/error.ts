@@ -15,7 +15,7 @@ export enum ApiError {
 	ProjectNameExists = "project/name_exists",
 
 	UserExists = "user/exists",
-
+	UserInvalidProject = "user/invalid_project",
 }
 
 function isApiError(maybeCode: string): maybeCode is ApiError {

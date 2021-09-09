@@ -40,6 +40,7 @@ describe("Sign Up: Email and Password", () => {
 
 		let { rows } = await Db.query(`
 			select device_languages
+			     , state 
 			  from users
 			 where email = $1
 			   and project_id = $2
@@ -48,6 +49,7 @@ describe("Sign Up: Email and Password", () => {
 		let createdUser = rows[0]
 		expect(createdUser).toBeTruthy()
 		expect(createdUser.device_languages).toEqual(['de-AT', 'de'])
+		expect(createdUser.state).toEqual('Active')
 
 
 		let { rows: sessions } = await Db.query(`

@@ -30,7 +30,7 @@ const MIN: usize = 8;
 */
 const MAX: usize = 64;
 
-fn validate_password_length(password: &str) -> Result<(), ApiError> {
+pub fn validate_password_length(password: &str) -> Result<(), ApiError> {
     if password.len() < MIN {
         return Err(ApiError::PasswordMinLength);
     }
