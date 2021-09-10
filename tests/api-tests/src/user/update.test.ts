@@ -17,8 +17,8 @@ import {
 import { projectKeys } from '@seeds/data/projects'
 
 const EMAIL = 'michael+test_user_update@riezler.dev'
-const USER_ID = '90896fe0-d3c2-4f2d-8cce-e6dd628ca584'
-const SESSION_ID = 'd18477d0-206c-4611-b248-1a25b4378562'
+const USER_ID = '1d71bf90-45b8-4409-bc8e-a66639597fac'
+const SESSION_ID = '2aa1cf08-d0a1-45ac-853b-9718c043a1c9'
 const KEYS = generateKeyPair()
 const INVALID_KEYS = generateKeyPair()
 
