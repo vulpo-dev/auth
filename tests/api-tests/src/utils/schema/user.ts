@@ -5,7 +5,7 @@ import Ajv from '../ajv'
 let schema: JSONSchemaType<User> = {
   type: "object",
   properties: {
-    id: {type: "string" },
+    id: { type: "string", uuid: true },
     display_name: { type: "string", nullable: true },
     email: { type: "string" },
     email_verified: { type: "boolean"  },
@@ -20,9 +20,9 @@ let schema: JSONSchemaType<User> = {
     	additionalProperties: true
     },
     provider_id: { type: "string"  },
-    created_at: { type: "string"  },
-    updated_at: { type: "string"  },
-    state: { type: "string"  },
+    created_at: { type: "string", dateTime: true },
+    updated_at: { type: "string", dateTime: true },
+    state: { type: "string", enum: ['Active', 'Disabled', 'SetPassword']  },
   },
   required: [],
   additionalProperties: false

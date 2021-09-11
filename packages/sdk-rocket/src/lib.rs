@@ -67,7 +67,6 @@ pub struct AuthClient;
 
 impl AuthClient {
     pub fn fairing(key_url: String) -> impl Fairing {
-        baz::<Fuu>(5);
         AdHoc::on_ignite("Get PublicKeys", move |rocket| async move {
             let auth = AuthKeys::get_keys(&key_url)
                 .await
@@ -76,24 +75,4 @@ impl AuthClient {
             rocket.manage(auth)
         })
     }
-}
-
-trait Test {
-    fn fuu(x: i64) -> bool;
-}
-
-struct Fuu;
-
-impl Test for Fuu {
-    fn fuu(x: i64) -> bool {
-        if x > 10 {
-            true
-        } else {
-            false
-        }
-    }
-}
-
-fn baz<T: Test>(x: i64) -> bool {
-    T::fuu(x)
 }

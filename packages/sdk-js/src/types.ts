@@ -74,7 +74,7 @@ export type User = {
 	provider_id: string,
 	created_at: string,
 	updated_at: string,
-	state: 'Active' | 'Disabled',
+	state: 'Active' | 'Disabled' | 'SetPassword',
 }
 
 export type UpdateUserPayload = Pick<User,
@@ -157,6 +157,7 @@ export enum Url {
 	UserGet = '/user/get',
 	UserDeleteAccount = '/user/delete_account/:session',
 	UserUpdate = '/user/update',
+	UserSetPassword = '/user/set_password',
 
 	TokenRefresh = '/token/refresh/:session',
 

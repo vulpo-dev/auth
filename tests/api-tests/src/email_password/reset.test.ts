@@ -23,38 +23,6 @@ beforeEach(resetPasswordReset)
 afterAll(cleanUp)
 afterAll(() => Db.end())
 
-async function getToken(): Promise<{ id: string, token: string } | null> {
-	let { rows } = await Db.query(`
-		select id
-		     , token
-		  from password_change_requests
-		 where user_id = $1
-		   and project_id = $2
-	`, [ID, PROJECT_ID])
-
-	return rows[0] ?? null
-}
-
-function generateToken() {
-	let token = (Math.random() * 100000000).toFixed(0).toString()
-	let hashed = bcrypt.hashSync(token, SALT)
-	return { token, hashed }
-}
-
-async function insertToken(token: string, expired: boolean = false): Promise<string> {
-
-	let expiredAt = !expired
-		? new Date(Date.now() + 32 * 60 * 1000)
-		: new Date(Date.now() - 1 * 60 * 1000)
-
-	let { rows } = await Db.query(`
-		insert into password_change_requests (token, user_id, project_id, expire_at)
-		values ($1, $2, $3, $4)
-		returning id
-	`, [token, ID, PROJECT_ID, expiredAt])
-
-	return rows[0].id
-}
 
 describe("Reset Password", () => {
 	test("should create reset token", async () => {
@@ -265,6 +233,42 @@ describe("Reset Password", () => {
 		expect(res.data.code).toBe(ErrorCode.ResetInvalidToken)
 	})
 })
+
+
+async function getToken(): Promise<{ id: string, token: string } | null> {
+	let { rows } = await Db.query(`
+		select id
+		     , token
+		  from password_change_requests
+		 where user_id = $1
+		   and project_id = $2
+	`, [ID, PROJECT_ID])
+
+	return rows[0] ?? null
+}
+
+
+function generateToken() {
+	let token = (Math.random() * 100000000).toFixed(0).toString()
+	let hashed = bcrypt.hashSync(token, SALT)
+	return { token, hashed }
+}
+
+
+async function insertToken(token: string, expired: boolean = false): Promise<string> {
+
+	let expiredAt = !expired
+		? new Date(Date.now() + 32 * 60 * 1000)
+		: new Date(Date.now() - 1 * 60 * 1000)
+
+	let { rows } = await Db.query(`
+		insert into password_change_requests (token, user_id, project_id, expire_at)
+		values ($1, $2, $3, $4)
+		returning id
+	`, [token, ID, PROJECT_ID, expiredAt])
+
+	return rows[0].id
+}
 
 
 function createUser() {

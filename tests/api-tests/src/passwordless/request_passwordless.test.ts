@@ -11,24 +11,6 @@ import { PROJECT_ID } from '../utils/env'
 
 const EMAIL = 'michael+test_passwordless@riezler.dev'
 
-function cleanUp() {
-	let removeToken = Db.query(`
-		delete from passwordless
-		 where email = $1
-		   and project_id = $2
-	`, [EMAIL, PROJECT_ID])
-
-	let removeUser = Db.query(`
-		delete from users
-		 where email = $1
-		   and project_id = $2
-	`, [EMAIL, PROJECT_ID])
-
-	return Promise.all([
-		removeUser,
-		removeToken,
-	])
-}
 
 beforeEach(cleanUp)
 afterAll(cleanUp)
@@ -129,6 +111,25 @@ describe("Request Passwordless", () => {
 	})
 })
 
+
+function cleanUp() {
+	let removeToken = Db.query(`
+		delete from passwordless
+		 where email = $1
+		   and project_id = $2
+	`, [EMAIL, PROJECT_ID])
+
+	let removeUser = Db.query(`
+		delete from users
+		 where email = $1
+		   and project_id = $2
+	`, [EMAIL, PROJECT_ID])
+
+	return Promise.all([
+		removeUser,
+		removeToken,
+	])
+}
 
 async function getPasswordlessToken() {
 	let { rows } = await Db.query(`

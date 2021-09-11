@@ -7,7 +7,7 @@ let ajv = new Ajv()
 let schema: JSONSchemaType<SessionInfo> = {
 	type: 'object',
 	properties: {
-		id: { type: 'string' },
+		id: { type: 'string', uuid: true },
 		user: { type: UserSchema.schema, nullable: true },
 		expire_at: { type: 'string', nullable: true }
 	},
