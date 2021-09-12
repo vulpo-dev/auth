@@ -7,7 +7,6 @@ use diesel::result::Error;
 embed_migrations!();
 
 pub fn run(config: &DbConfig) {
-    // todo: create database if not exist
     let url = config.to_string();
     let conn = PgConnection::establish(&url).expect(&format!("Error connecting to {}", url));
     match embedded_migrations::run(&conn) {

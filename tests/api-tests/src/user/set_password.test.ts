@@ -5,6 +5,7 @@ import * as bcrypt from 'bcryptjs'
 import { makeGenerateAccessToken, makeTokenPayload } from '../utils/user'
 import { generateKeyPair } from '../utils/crypto'
 import { makeCreateSession } from '../utils/passwordless'
+import { projectKeys } from '@seeds/data/projects'
 
 import { ErrorCode } from '@sdk-js/error'
 import { Url } from '@sdk-js/types'
@@ -16,8 +17,13 @@ const KEYS = generateKeyPair()
 const INVALID_KEYS = generateKeyPair()
 
 let createSession = makeCreateSession(SESSION_ID, PROJECT_ID, USER_ID, KEYS.publicKey)
-let getAccessToken = makeGenerateAccessToken(KEYS.privateKey)
+let getAccessToken = makeGenerateAccessToken({
+	key: projectKeys.private_key,
+	passphrase: 'password',
+})
+
 let getInvalidAccessToken = makeGenerateAccessToken(INVALID_KEYS.privateKey)
+
 let tokenPayload = makeTokenPayload(USER_ID, PROJECT_ID)
 
 async function removeUser() {
@@ -56,6 +62,23 @@ describe("Set Password", () => {
 		expect(bcrypt.compare(password, user.password)).toBeTruthy()
 	})
 
+	test("fails when user is in incorrect state", async () => {
+
+		await Db.query(`
+			update users
+			   set state = 'Active'
+			 where id = $1 
+		`, [USER_ID])
+
+		let password = 'password'
+
+		let res = await Http
+			.post(Url.UserSetPassword, { password }, options())
+			.catch(err => err.response)
+
+		expect(res.status).toEqual(403)
+	})
+
 	test("fails when password is too short", async () => {
 		let password = '1234567'
 
@@ -90,15 +113,10 @@ describe("Set Password", () => {
 		let password = 'password'
 		
 		let res = await Http
-			.post(Url.UserSetPassword, { password }, options())
+			.post(Url.UserSetPassword, { password }, options(true))
 			.catch(err => err.response)
 
-		expect(res.status).toBe(403)
-		expect(res.data.code).toBe(ErrorCode.NotAllowed)
-
-		let user = await getUser()
-		expect(user.state).toEqual('SetPassword')
-		expect(user.password).toEqual(null)
+		expect(res.status).toBe(401)
 	})
 })
 

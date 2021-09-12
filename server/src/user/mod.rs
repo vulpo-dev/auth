@@ -8,6 +8,7 @@ mod list;
 mod sign_out;
 mod update;
 pub mod verify_email;
+mod set_password;
 
 pub fn routes() -> Vec<Route> {
     routes![
@@ -25,5 +26,6 @@ pub fn routes() -> Vec<Route> {
         disable::handler,
         update::handler,
         update::admin_handler,
+        set_password::set_password,
     ]
 }
