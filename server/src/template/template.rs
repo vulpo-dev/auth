@@ -55,7 +55,7 @@ struct File {
     pub template_type: &'static str,
 }
 
-const FILES: [File; 6] = [
+const FILES: [File; 7] = [
     File {
         path: "index.hbs",
         translation: "",
@@ -97,6 +97,13 @@ const FILES: [File; 6] = [
         name: "verify_email",
         template_type: "view",
         template: Templates::VerifyEmail,
+    },
+    File {
+        path: "view/password_changed.hbs",
+        translation: "translation/password_changed.json",
+        name: "password_changed",
+        template_type: "view",
+        template: Templates::PasswordChanged,
     },
 ];
 

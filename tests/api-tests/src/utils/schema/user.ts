@@ -23,6 +23,10 @@ let schema: JSONSchemaType<User> = {
     created_at: { type: "string", dateTime: true },
     updated_at: { type: "string", dateTime: true },
     state: { type: "string", enum: ['Active', 'Disabled', 'SetPassword']  },
+    device_languages: {
+      type: "array",
+      items: { type: "string" }
+    }
   },
   required: [],
   additionalProperties: false

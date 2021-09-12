@@ -9,6 +9,9 @@ pub enum Templates {
     #[serde(rename = "password_reset")]
     PasswordReset,
 
+    #[serde(rename = "password_changed")]
+    PasswordChanged,
+
     #[serde(rename = "passwordless")]
     Passwordless,
 
@@ -45,6 +48,7 @@ impl ToString for Templates {
             Templates::VerifyEmail => String::from("verify_email"),
             Templates::Index => String::from("index"),
             Templates::Button => String::from("button"),
+            Templates::PasswordChanged => String::from("password_changed"),
         }
     }
 }
@@ -86,6 +90,7 @@ pub enum DefaultSubject {
     PasswordReset,
     VerifyEmail,
     ChangeEmail,
+    PasswordChanged,
 }
 
 impl ToString for DefaultSubject {
@@ -95,6 +100,7 @@ impl ToString for DefaultSubject {
             DefaultSubject::PasswordReset => "Reset Password",
             DefaultSubject::VerifyEmail => "Verify Email",
             DefaultSubject::ChangeEmail => "Change Email",
+            DefaultSubject::PasswordChanged => "Password Changed",
         };
 
         String::from(url)
@@ -108,6 +114,7 @@ impl DefaultSubject {
             Templates::PasswordReset => DefaultSubject::PasswordReset.to_string(),
             Templates::VerifyEmail => DefaultSubject::VerifyEmail.to_string(),
             Templates::ChangeEmail => DefaultSubject::ChangeEmail.to_string(),
+            Templates::PasswordChanged => DefaultSubject::PasswordChanged.to_string(),
             _ => String::from(""),
         }
     }

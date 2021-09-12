@@ -22,6 +22,7 @@ pub struct User {
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     pub state: String,
+    pub device_languages: Vec<String>,
     #[serde(skip_serializing)]
     pub password: Option<String>,
 }
@@ -98,6 +99,7 @@ impl User {
             created_at: u.created_at,
             updated_at: u.updated_at,
             state: u.state,
+            device_languages: u.device_languages,
         });
 
         Ok(user)
@@ -125,6 +127,7 @@ impl User {
                     created_at: u.created_at,
                     updated_at: u.updated_at,
                     state: u.state,
+                    device_languages: u.device_languages,
                 };
 
                 Ok(user)
@@ -185,6 +188,7 @@ impl User {
             created_at: row.created_at,
             updated_at: row.updated_at,
             state: row.state,
+            device_languages: row.device_languages,
         };
 
         Ok(user)
@@ -229,6 +233,7 @@ impl User {
             created_at: row.created_at,
             updated_at: row.updated_at,
             state: row.state,
+            device_languages: row.device_languages,
         };
 
         Ok(user)

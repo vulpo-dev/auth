@@ -4,12 +4,12 @@ import styled from 'styled-components'
 import { Card, CardHeader, CardNav } from 'component/card'
 import { Input } from '@biotic-ui/input'
 import { Label, Error, Title, Subtitle } from 'component/text'
-import { useForm } from '@biotic-ui/std'
+import { useForm, useQueryParams } from '@biotic-ui/std'
 import { useTranslation, useError } from 'context/translation'
 import { useConfig, useFlags } from 'context/config'
 import { Button, IconButton } from '@biotic-ui/button'
 import { ErrorCode, Flag } from '@riezler/auth-sdk'
-import { useHistory, useRouteMatch, Switch, Route, Redirect } from 'react-router-dom'
+import { useHistory, useRouteMatch, Switch, Route, Redirect, useLocation } from 'react-router-dom'
 import { useAuth } from '@riezler/auth-react'
 
 import CheckEmail from 'password_reset/check'
@@ -32,7 +32,10 @@ export let PasswordReset: React.FC<Props> = ({
 	loading = false,
 	error
 }) => {
-	let [form, setForm] = useForm<Form>({ email: '' })
+	let location = useLocation()
+	let params = useQueryParams(location.search)
+	let [form, setForm] = useForm<Form>({ email: params.get('email') ?? '' })
+	
 	let t = useTranslation()
 	let config = useConfig()
 	let errorMessage = useError(error)

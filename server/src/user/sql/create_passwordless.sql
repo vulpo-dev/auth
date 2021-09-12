@@ -11,3 +11,4 @@ returning id
         , created_at
         , updated_at
         , state
+        , device_languages
