@@ -27,7 +27,7 @@ export function useAuthStateChange(fn: AuthCallback) {
 		}
 
 		let sub = auth.authStateChange((session) => {
-			cb.current(session ? session.user : session)
+			cb.current(session)
 		})
 
 		return () => {

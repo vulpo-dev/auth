@@ -1,6 +1,6 @@
 import React from 'react'
 import { useState } from 'react'
-import { Switch, Route, useHistory, useLocation, Redirect } from 'react-router-dom'
+import { Switch, Route, useHistory, Redirect } from 'react-router-dom'
 import { useAuthStateChange, useAuth } from '@riezler/auth-react'
 import { UserState } from '@riezler/auth-sdk'
 import { PageLoad } from 'component/loading'
@@ -12,7 +12,6 @@ import CreateProject from 'project/create'
 
 export default function App() {
 	let history = useHistory()
-	let location = useLocation()
 
 	let [referrer] = useState(() => {
 		if (window.location.pathname.includes('/auth')) {
@@ -28,13 +27,22 @@ export default function App() {
 		return auth.getUser() ?? undefined
 	})
 
-	useAuthStateChange((user: UserState) => {
+	useAuthStateChange((session) => {
+		console.log({ session })
+		let user = session ? session.user : session
 		setUser(user)
-		if (user === null) {
+
+
+		if (user?.state === 'SetPassword') {
+			history.replace('/auth/#/set_password')
+			return
+		}
+
+		if (session === null) {
 			history.replace('/auth/#/signin')
 		}
 
-		if (user && !currentUser) {
+		if (session && !currentUser) {
 			history.replace(referrer)
 		}
 	})
@@ -46,10 +54,10 @@ export default function App() {
 	return (
 		<Switch>
 			<Route path='/auth'>
-				{	!currentUser &&
-					<Auth />
-				}
-				{ currentUser &&
+
+				<Auth />
+
+				{ (currentUser && currentUser.state !== 'SetPassword') &&
 					<Redirect to={referrer} />
 				}
 			</Route>

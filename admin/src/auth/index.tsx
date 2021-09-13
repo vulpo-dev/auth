@@ -1,7 +1,7 @@
 import React from 'react'
 import { Fragment } from 'react'
 import styled from 'styled-components'
-import { HashRouter, Switch, Route, Redirect } from 'react-router-dom'
+import { HashRouter, Switch, Route } from 'react-router-dom'
 import { Header } from 'component/layout'
 
 import {
@@ -12,6 +12,7 @@ import {
 	Password,
 	BoxShadow,
 	FlagsCtx,
+	SetPassword
 } from '@riezler/auth-ui'
 import { Flag } from '@riezler/auth-sdk'
 
@@ -26,7 +27,15 @@ export let Auth = () => {
 					<Translation.Provider value={DefaultTranslation}>
 						<AuthConfig.Provider value={DefaultConfig}>
 							<BoxShadow>
-								<Password />	
+								<Switch>
+									<Route path='/set_password'>
+										<SetPassword />
+									</Route>
+
+									<Route path='/signin'>
+										<Password redirectTo='/set_password' />	
+									</Route>
+								</Switch>
 							</BoxShadow>
 						</AuthConfig.Provider>
 					</Translation.Provider>

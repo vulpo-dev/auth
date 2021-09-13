@@ -1,6 +1,7 @@
 use crate::db::Db;
 use crate::mail::Email;
 use crate::project::Project;
+use crate::project::data::Project as ProjectData;
 use crate::response::error::ApiError;
 use crate::session::data::AccessToken;
 use crate::settings::data::ProjectEmail;
@@ -36,7 +37,18 @@ pub async fn set_password(
     User::set_password(&pool, &user_id, &body.password).await?;
 
     let settings =
-        ProjectEmail::from_project_template(&pool, &project.id, Templates::PasswordReset).await?;
+        ProjectEmail::from_project_template(&pool, &project.id, Templates::PasswordReset).await;
+
+    if let Err(err) = settings {
+        let is_admin = ProjectData::is_admin(&pool, &project.id).await?;
+        if is_admin {
+            return Ok(Status::Ok);
+        } else {
+            return Err(err);
+        }
+    }
+
+    let settings = settings.unwrap();
 
     let link: String = format!(
         "{}{}?email={}",

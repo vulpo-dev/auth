@@ -32,4 +32,12 @@ impl Project {
             .map(|row| row.domain)
             .map_err(|_| ApiError::InternalServerError)
     }
+
+    pub async fn is_admin(pool: &PgPool, project: &Uuid) -> Result<bool, ApiError> {
+        sqlx::query_file!("src/project/sql/is_admin.sql", project)
+            .fetch_one(pool)
+            .await
+            .map(|row| row.is_admin)
+            .map_err(|_| ApiError::InternalServerError)
+    }
 }

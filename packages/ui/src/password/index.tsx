@@ -160,7 +160,12 @@ export let Password = ({ onSubmit, onBack, ctx, loading, error }: Props) => {
 	)
 }
 
-let PasswordContainer = () => {
+type ContainerProps = {
+	redirect?: boolean;
+	redirectTo?: string;
+}
+
+let PasswordContainer = ({ redirect = true, redirectTo }: ContainerProps) => {
 	let history = useHistory()
 	let location = useLocation()
 
@@ -178,22 +183,20 @@ let PasswordContainer = () => {
 	}
 
 	async function handleSubmit(form: Form) {
-		if (!match) {
+		if (!match?.params?.type) {
 			return
 		}
 
 		setError(null)
 		setLoading(true)
 
-		let fn = match.params.type === Ctx.SignIn
-			? auth.signIn
-			: auth.signUp
-
 		try {
-			let user = await fn(form.email, form.password)
+			let user = Ctx.SignIn
+				? await auth.signIn(form.email, form.password)
+				: await auth.signUp(form.email, form.password)
 
-			if (user.state === 'SetPassword') {
-				history.replace('/user/set_password')
+			if (redirect && user.state === 'SetPassword') {
+				history.replace(redirectTo ?? '/user/set_password')
 			}
 		} catch (err) {
 			setLoading(false)
