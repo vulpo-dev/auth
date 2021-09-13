@@ -4,11 +4,11 @@ import {
 	AccessToken,
 	Url,
 	RefreshAccessTokenPayload,
-} from 'types'
+} from './types'
+import { Session as SessionEntry } from './storage'
+import { generateAccessToken, ratPayload } from './keys'
+import { Session } from './session'
 
-import { Session as SessionEntry } from 'storage'
-import { generateAccessToken, ratPayload } from 'keys'
-import { Session } from 'session'
 import { AxiosInstance } from 'axios'
 
 type InFlight = Promise<string>

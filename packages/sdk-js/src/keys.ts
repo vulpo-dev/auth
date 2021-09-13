@@ -1,5 +1,5 @@
 import { v4 as uuid } from 'uuid'
-import { Keys, Sessions, Session } from 'storage'
+import { Keys, Sessions, Session } from './storage'
 
 export async function createSession(): Promise<Session> {
 	let keys = await generateKeys()

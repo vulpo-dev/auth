@@ -1,13 +1,14 @@
 import React from 'react'
 import { useMemo } from 'react'
 import styled from 'styled-components'
-import { Card } from 'component/card'
 import { OutlineButton, Button } from '@biotic-ui/button'
-import Header from 'component/header'
 import { Link, useLocation, Redirect } from 'react-router-dom'
-import { useTranslation } from 'context/translation'
-import { useFlags } from 'context/config'
 import { Flag } from '@riezler/auth-sdk'
+
+import { Card } from '../component/card'
+import Header from '../component/header'
+import { useTranslation } from '../context/translation'
+import { useFlags } from '../context/config'
 
 export let Overview = () => {
 	let t = useTranslation()

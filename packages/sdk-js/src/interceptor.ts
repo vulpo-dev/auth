@@ -6,9 +6,9 @@ import type {
 } from 'axios'
 import Axios from 'axios'
 
-import { ErrorCode, HttpError, AuthError } from 'error'
+import { ErrorCode, HttpError, AuthError } from './error'
 
-import type { AuthClient } from 'client'
+import type { AuthClient } from './client'
 
 export function addToken(axios: AxiosInstance, auth: AuthClient) {
 

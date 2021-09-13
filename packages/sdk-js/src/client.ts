@@ -16,11 +16,11 @@ import {
     ConfirmPasswordlessPayload,
     VerifyPasswordlessPayload,
     VerifyEmailPayload,
-} from 'types'
+} from './types'
 
-import { Session } from 'session'
-import { Session as SessionEntry } from 'storage'
-import { Tokens } from 'tokens'
+import { Session } from './session'
+import { Session as SessionEntry } from './storage'
+import { Tokens } from './tokens'
 import {
 	ApiError,
 	ErrorCode,
@@ -29,10 +29,10 @@ import {
 	SessionKeysNotFoundError,
 	ErrorResponse,
     AuthError,
-} from 'error'
-import { createSession, getPublicKey, generateAccessToken, ratPayload } from 'keys'
-import { Sessions, Keys } from 'storage'
-import { getLanguages } from 'utils'
+} from './error'
+import { createSession, getPublicKey, generateAccessToken, ratPayload } from './keys'
+import { Sessions, Keys } from './storage'
+import { getLanguages } from './utils'
 
 import Axios, { AxiosInstance, AxiosRequestConfig, AxiosError } from 'axios'
 
@@ -348,6 +348,7 @@ export class AuthClient {
 		return this.http
 			.get<{ items: Array<Flag> }>(`${Url.Flags}?project=${this.config.project}`, config)
 			.then(res => res.data.items)
+			.catch(err => Promise.reject(this.error.fromResponse(err)))
 	}
 
 	getUser(): User | null {

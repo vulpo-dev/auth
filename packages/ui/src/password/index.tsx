@@ -1,19 +1,20 @@
 import React, { ChangeEvent } from 'react'
 import { SyntheticEvent, useState } from 'react'
 import styled from 'styled-components'
-import { Card, CardHeader, CardNav, CardTitle } from 'component/card'
 import { Input, Password as PasswordInput } from '@biotic-ui/input'
 import { useForm } from '@biotic-ui/std'
 import { Button, IconButton } from '@biotic-ui/button'
-import { useTranslation, useError } from 'context/translation'
-import { useConfig, useFlags } from 'context/config'
 import { useHistory, useRouteMatch, Link, useLocation, Redirect } from 'react-router-dom'
-import { Label } from 'component/text'
-import { Disclaimer } from 'component/disclaimer'
-import { Footer, Divider } from 'component/layout'
 import { ErrorCode, Flag } from '@riezler/auth-sdk'
 import { useAuth } from '@riezler/auth-react'
-import { checkPasswordLength } from 'utils'
+
+import { Card, CardHeader, CardNav, CardTitle } from '../component/card'
+import { useTranslation, useError } from '../context/translation'
+import { useConfig, useFlags } from '../context/config'
+import { Label } from '../component/text'
+import { Disclaimer } from '../component/disclaimer'
+import { Footer, Divider } from '../component/layout'
+import { checkPasswordLength } from '../utils'
 
 type Form = {
 	email: string;
@@ -176,7 +177,7 @@ let PasswordContainer = () => {
 		}
 	}
 
-	async function handleSubmit(user: Form) {
+	async function handleSubmit(form: Form) {
 		if (!match) {
 			return
 		}
@@ -184,15 +185,17 @@ let PasswordContainer = () => {
 		setError(null)
 		setLoading(true)
 
+		let fn = match.params.type === Ctx.SignIn
+			? auth.signIn
+			: auth.signUp
+
 		try {
-			if (match.params.type === Ctx.SignIn) {
-				await auth.signIn(user.email, user.password)
-			} else {
-				await auth.signUp(user.email, user.password)
+			let user = await fn(form.email, form.password)
+
+			if (user.state === 'SetPassword') {
+				history.replace('/user/set_password')
 			}
-			// setLoading(false)
 		} catch (err) {
-			console.log({ err })
 			setLoading(false)
 			setError(err.code)
 		}

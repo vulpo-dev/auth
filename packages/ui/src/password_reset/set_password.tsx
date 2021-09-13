@@ -1,17 +1,18 @@
 import React from 'react'
 import { SyntheticEvent, FC, useState, useEffect } from 'react'
 import styled from 'styled-components'
-import { Card, CardHeader, CardTitle } from 'component/card'
 import { Password } from '@biotic-ui/input'
-import { Label, Error } from 'component/text'
 import { Button } from '@biotic-ui/button'
 import { useForm, useQueryParams } from '@biotic-ui/std'
-import { checkPasswordLength } from 'utils'
-import { useTranslation, useError } from 'context/translation'
 import { ErrorCode } from '@riezler/auth-sdk'
 import { useAuth } from '@riezler/auth-react'
-import { useLocation, useHistory, Link } from 'react-router-dom'
 import { Flow } from '@biotic-ui/leptons'
+import { useLocation, useHistory, Link } from 'react-router-dom'
+
+import { Card, CardHeader, CardTitle } from '../component/card'
+import { Label, Error } from '../component/text'
+import { checkPasswordLength } from '../utils'
+import { useTranslation, useError } from '../context/translation'
 
 type Form = {
 	password1: string;

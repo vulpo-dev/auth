@@ -1,7 +1,8 @@
 import React from 'react'
 import { createContext, useContext } from 'react'
-import Arrow from 'component/arrow'
 import { Flag } from '@riezler/auth-sdk'
+
+import Arrow from '../component/arrow'
 
 type $AuthConfig = {
 	tos: string;

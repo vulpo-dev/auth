@@ -11,13 +11,13 @@ export type {
 	TokenListener,
 	SetPasswordPayload,
 	SessionInfo,
-} from 'types'
+} from './types'
 
 export {
 	Flag,
 	Url,
-} from 'types'
+} from './types'
 
-export { default as Auth, CancelToken, AuthClient } from 'client'
-export { addToken } from 'interceptor'
-export { ApiError, ErrorCode, HttpError, AuthError } from 'error'
+export { default as Auth, CancelToken, AuthClient } from './client'
+export { addToken } from './interceptor'
+export { ApiError, ErrorCode, HttpError, AuthError } from './error'

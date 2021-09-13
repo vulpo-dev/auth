@@ -2,10 +2,11 @@ import React from 'react'
 import { useMemo } from 'react'
 import styled from 'styled-components'
 import { useRouteMatch, Link } from 'react-router-dom'
-import { useTranslation } from 'context/translation'
-import { CardHeader, CardTitle } from 'component/card'
-import { useFlags } from 'context/config'
 import { Flag } from '@riezler/auth-sdk'
+
+import { useTranslation } from '../context/translation'
+import { CardHeader, CardTitle } from '../component/card'
+import { useFlags } from '../context/config'
 
 type Props = {
 	title: string | null,

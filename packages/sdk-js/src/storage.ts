@@ -1,12 +1,13 @@
-import type { User, SessionId, SessionInfo } from 'types'
+import type { User, SessionId, SessionInfo } from './types'
+import { makeId } from './utils'
+
 import { createStore, get, set, del } from 'idb-keyval'
-import { makeId } from 'utils'
+
 
 export type Key = {
 	privateKey: CryptoKey,
 	publicKey: CryptoKey,
 }
-
 
 class KeyStorage {
 	store = createStore('auth-db', 'keys')

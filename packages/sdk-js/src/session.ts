@@ -8,13 +8,13 @@ import {
 	AccessToken,
 	SessionInfo,
     Url,
-} from 'types'
+} from './types'
+import Storage, { Sessions } from './storage'
+import { makeId } from './utils'
+import { ApiError } from './error'
 
-import Storage, { Sessions } from 'storage'
-import { shallowEqualObjects } from 'shallow-equal'
-import { makeId } from 'utils'
 import { AxiosInstance } from 'axios'
-import { ApiError } from 'error'
+import { shallowEqualObjects } from 'shallow-equal'
 
 type Listener = {
 	id: number;

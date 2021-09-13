@@ -2,21 +2,21 @@ import React from 'react'
 import { useEffect, useState, Fragment } from 'react'
 import styled from 'styled-components'
 import { HashRouter, Switch, Route, Redirect } from 'react-router-dom'
-
-import Overview from 'overview'
-import Password from 'password'
-import PasswordReset from 'password_reset'
-import Passwordless from 'passwordless'
-import VerifyEmail from 'verify_email'
 import { useAuth } from '@riezler/auth-react'
 import { Flag, ApiError, ErrorCode } from '@riezler/auth-sdk'
 import { Flow } from '@biotic-ui/leptons'
-import { Card } from 'component/card'
 import Axios from 'axios'
-import { Error } from 'component/text'
-import { useTranslation, useError } from 'context/translation'
-import { FlagsCtx } from 'context/config'
-import SetPassword from 'user/set_password'
+
+import Overview from '../overview'
+import Password from '../password'
+import PasswordReset from '../password_reset'
+import Passwordless from '../passwordless'
+import VerifyEmail from '../verify_email'
+import { Card } from '../component/card'
+import { Error } from '../component/text'
+import { useTranslation, useError } from '../context/translation'
+import { FlagsCtx } from '../context/config'
+import SetPassword from '../user/set_password'
 
 let Auth = () => {
 	let auth = useAuth()
@@ -29,7 +29,7 @@ let Auth = () => {
 		let source = Axios.CancelToken.source()
 		auth.flags({ cancelToken: source.token })
 			.then((flags: Array<Flag>) => setFlags(flags))
-			.catch((err: ApiError) => {
+			.catch((err) => {
 				if (!Axios.isCancel(err)) {
 					setError(err.code)
 				}

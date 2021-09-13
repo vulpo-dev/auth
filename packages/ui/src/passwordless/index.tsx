@@ -1,11 +1,12 @@
 import React from 'react'
 import { Switch, Route, Redirect } from 'react-router-dom'
-import { useFlags } from 'context/config'
-
-import EnterEmail from 'passwordless/enter_email'
-import Confirm from 'passwordless/confirm'
-import CheckEmail from 'passwordless/check'
 import { Flag } from '@riezler/auth-sdk'
+
+import { useFlags } from '../context/config'
+
+import EnterEmail from './enter_email'
+import Confirm from './confirm'
+import CheckEmail from './check'
 
 let Passwordless = () => {
 	let flags = useFlags()

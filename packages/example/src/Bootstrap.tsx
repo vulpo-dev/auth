@@ -22,14 +22,13 @@ let Bootstrap = () => {
 		return auth.getUser() ?? undefined
 	})
 
-	useAuthStateChange((newUser: SessionInfo) => {
+	useAuthStateChange((newUser) => {
 		if (window.location.hash.startsWith('#/verify-email')) {
 			return
 		}
 		
 		setUser(newUser?.user)
-		if(newUser && newUser.user.state === 'SetPassword') {
-			history.replace('/auth/#/user/set_password')
+		if(newUser && newUser.user?.state === 'SetPassword') {
 			return
 		}
 

@@ -1,12 +1,13 @@
 import React from 'react'
 import { useEffect, useState } from 'react'
 import styled from 'styled-components'
-import { Card, CardHeader, CardNav, CardTitle } from 'component/card'
-import { useTranslation } from 'context/translation'
 import { useQueryParams } from '@biotic-ui/std'
 import { useLocation, useRouteMatch } from 'react-router-dom'
 import { useAuth } from '@riezler/auth-react'
 import { ErrorCode, ApiError, CancelToken } from '@riezler/auth-sdk'
+
+import { Card, CardHeader, CardNav, CardTitle } from '../component/card'
+import { useTranslation } from '../context/translation'
 
 export type Props = {
 	email: string | null;
@@ -50,7 +51,7 @@ let CheckEmailContainer = () => {
 
 		let source = CancelToken.source()
 		auth.verifyPasswordless(id, session, { cancelToken: source.token })
-			.catch((err: ApiError) => setError(err.code))
+			.catch((err) => setError(err.code))
 
 		return () => {
 			source.cancel()

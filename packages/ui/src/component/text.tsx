@@ -1,6 +1,6 @@
 import styled from 'styled-components'
 
-import { CardTitle } from 'component/card'
+import { CardTitle } from '../component/card'
 
 export let Label = styled.label`
 	margin-block-start: -2px;

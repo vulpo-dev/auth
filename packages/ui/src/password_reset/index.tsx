@@ -1,19 +1,20 @@
 import React from 'react'
 import { SyntheticEvent, useState } from 'react'
 import styled from 'styled-components'
-import { Card, CardHeader, CardNav } from 'component/card'
 import { Input } from '@biotic-ui/input'
-import { Label, Error, Title, Subtitle } from 'component/text'
 import { useForm, useQueryParams } from '@biotic-ui/std'
-import { useTranslation, useError } from 'context/translation'
-import { useConfig, useFlags } from 'context/config'
 import { Button, IconButton } from '@biotic-ui/button'
 import { ErrorCode, Flag } from '@riezler/auth-sdk'
 import { useHistory, useRouteMatch, Switch, Route, Redirect, useLocation } from 'react-router-dom'
 import { useAuth } from '@riezler/auth-react'
 
-import CheckEmail from 'password_reset/check'
-import SetPassword from 'password_reset/set_password'
+import { Card, CardHeader, CardNav } from '../component/card'
+import { Label, Error, Title, Subtitle } from '../component/text'
+import { useTranslation, useError } from '../context/translation'
+import { useConfig, useFlags } from '../context/config'
+
+import CheckEmail from './check'
+import SetPassword from './set_password'
 
 type Form = {
 	email: string;

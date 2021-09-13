@@ -2,14 +2,14 @@ import React from 'react'
 import { FunctionComponent, Fragment, useState, useEffect } from 'react'
 import styled from 'styled-components'
 import { Link, useLocation } from 'react-router-dom'
-
-import { Card, CardHeader, CardTitle } from 'component/card'
 import { Flow } from '@biotic-ui/leptons'
 import { useQueryParams } from '@biotic-ui/std'
 import { ErrorCode } from '@riezler/auth-sdk'
-import { useTranslation, useError } from 'context/translation'
-import { Error } from 'component/text'
 import { useAuth } from '@riezler/auth-react'
+
+import { Card, CardHeader, CardTitle } from '../component/card'
+import { useTranslation, useError } from '../context/translation'
+import { Error } from '../component/text'
 
 type Props = {
 	loading: boolean;

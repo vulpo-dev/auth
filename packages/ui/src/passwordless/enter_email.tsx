@@ -1,18 +1,19 @@
 import React from 'react'
 import { SyntheticEvent, useState } from 'react'
-import { Card, CardHeader, CardNav } from 'component/card'
 import { Button, IconButton } from '@biotic-ui/button'
-import { useConfig } from 'context/config'
-import { useTranslation, useError } from 'context/translation'
-import { Label, Error, Title, Subtitle } from 'component/text'
-import { Section } from 'component/layout'
 import { Input } from '@biotic-ui/input'
 import { useForm } from '@biotic-ui/std'
 import { ErrorCode } from '@riezler/auth-sdk'
 import { useHistory, useRouteMatch } from 'react-router-dom'
 import { useAuth } from '@riezler/auth-react'
-import { Disclaimer } from 'component/disclaimer'
-import { Footer, Divider } from 'component/layout'
+
+import { Card, CardHeader, CardNav } from '../component/card'
+import { useConfig } from '../context/config'
+import { useTranslation, useError } from '../context/translation'
+import { Label, Error, Title, Subtitle } from '../component/text'
+import { Section } from '../component/layout'
+import { Disclaimer } from '../component/disclaimer'
+import { Footer, Divider } from '../component/layout'
 
 type Form = {
 	email: string

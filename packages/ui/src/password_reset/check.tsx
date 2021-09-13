@@ -1,9 +1,10 @@
 import React from 'react'
 import styled from 'styled-components'
-import { Card, CardHeader, CardNav, CardTitle } from 'component/card'
-import { useTranslation } from 'context/translation'
 import { useQueryParams } from '@biotic-ui/std'
 import { useLocation } from 'react-router-dom'
+
+import { Card, CardHeader, CardNav, CardTitle } from '../component/card'
+import { useTranslation } from '../context/translation'
 
 export type Props = {
 	email: string | null;
