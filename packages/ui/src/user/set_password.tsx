@@ -1,16 +1,16 @@
 import React from 'react'
-import { SyntheticEvent, FC, useState, useEffect } from 'react'
+import { SyntheticEvent, FC, useState } from 'react'
 import styled from 'styled-components'
 import { Card, CardHeader, CardTitle } from 'component/card'
 import { Password } from '@biotic-ui/input'
 import { Label, Error } from 'component/text'
 import { Button } from '@biotic-ui/button'
-import { useForm, useQueryParams } from '@biotic-ui/std'
+import { useForm } from '@biotic-ui/std'
 import { checkPasswordLength } from 'utils'
 import { useTranslation, useError } from 'context/translation'
 import { ErrorCode } from '@riezler/auth-sdk'
 import { useAuth } from '@riezler/auth-react'
-import { useLocation, useHistory, Link } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { Flow } from '@biotic-ui/leptons'
 
 type Form = {
@@ -22,14 +22,12 @@ export type Props = {
 	loading: boolean;
 	error: null | ErrorCode;
 	onSubmit: (f: Form) => void;
-	verifyToken: boolean;
 }
 
 export let SetPassword: FC<Props> = ({ 
 	loading = false,
 	error,
 	onSubmit,
-	verifyToken,
 }) => {
 	let [form, setForm] = useForm<Form>({
 		password1: '',
@@ -81,107 +79,60 @@ export let SetPassword: FC<Props> = ({
 				</Section>
 			}
 
+			<form onSubmit={handleSubmit}>
+				<Section>
+					<Label htmlFor="password1">{t.set_password.new_password}</Label>
+					<Password
+						id="password1"
+						name='password1'
+						autoComplete='new-password'
+						value={form.password1}
+						onChange={setPassword1}
+						disabled={loading || tokenError}
+						required
+						autoFocus
+					/>
+				</Section>
+				
+				<Section>
+					<Label htmlFor="password2">{t.set_password.repeat_password}</Label>
+					<Password
+						id="password2"
+						name='password2'
+						value={form.password2}
+						onChange={setPassword2}
+						disabled={loading || tokenError}
+						required
+					/>
+				</Section>
 
-			{ verifyToken &&
-				<LoadingWrapper>
-					<StyledFlow />
-				</LoadingWrapper>
-			}
+				<Section>
+					<Button loading={loading} disabled={tokenError}>
+						{t.set_password.button_label}
+					</Button>
+				</Section>
 
+				{ (error && ! tokenError) &&
+					<Error>{errorMessage}</Error>
+				}
 
-			{ !verifyToken &&
-
-				<form onSubmit={handleSubmit}>
-					<Section>
-						<Label htmlFor="password1">{t.set_password.new_password}</Label>
-						<Password
-							id="password1"
-							name='password1'
-							autoComplete='new-password'
-							value={form.password1}
-							onChange={setPassword1}
-							disabled={loading || tokenError}
-							required
-							autoFocus
-						/>
-					</Section>
-					
-					<Section>
-						<Label htmlFor="password2">{t.set_password.repeat_password}</Label>
-						<Password
-							id="password2"
-							name='password2'
-							value={form.password2}
-							onChange={setPassword2}
-							disabled={loading || tokenError}
-							required
-						/>
-					</Section>
-
-					<Section>
-						<Button loading={loading} disabled={tokenError}>
-							{t.set_password.button_label}
-						</Button>
-					</Section>
-
-					{ (error && ! tokenError) &&
-						<Error>{errorMessage}</Error>
-					}
-
-				</form>
-			}
+			</form>
 		</Card>
 	)
 }
 
 let SetPasswordContainer = () => {
 	let auth = useAuth()
-	let history = useHistory()
-	let location = useLocation()
-	let query = useQueryParams(location.search)
 
 	let [error, setError] = useState<ErrorCode | null>(null)
 	let [loading, setLoading] = useState<boolean>(false)
-	let [verifyToken, setVerifyToken] = useState<boolean>(true)
-
-	useEffect(() => {
-		let id = query.get('id')
-		let token = query.get('token')
-
-		if (!id || !token) {
-			setError(ErrorCode.ResetTokenNotFound)
-			return
-		}
-
-		let sink = Promise.all([
-			wait(2000),
-			auth.verifyToken(id, token)
-		])
-		
-		sink.then(() => setVerifyToken(false))
-			.catch(err => {
-				setVerifyToken(false)
-				setError(err.code)
-			})
-
-	}, [])
 
 	async function handleSubmit(form: Form) {
-
-		let id = query.get('id')
-		let token = query.get('token')
-
-		if (!id || !token) {
-			setError(ErrorCode.ResetTokenNotFound)
-			return
-		}
-
 		setLoading(true)
 		setError(null)
 
 		try {
-			await auth.setResetPassword({ ...form, id, token })
-			history.replace('/signin/email')
+			await auth.setPassword(form.password1)
 		} catch(err) {
 			setLoading(false)
 			setError(err.code)
@@ -193,7 +144,6 @@ let SetPasswordContainer = () => {
 			onSubmit={handleSubmit}
 			loading={loading}
 			error={error}
-			verifyToken={verifyToken}
 		/>
 	)
 }

@@ -9,18 +9,15 @@ import { ErrorMessage } from '@biotic-ui/text'
 import { checkPasswordLength } from '@riezler/auth-ui'
 import { hasEmailProvider, useEmailSettings } from 'data/settings'
 import { useProject } from 'data/project'
-
-export type FormData = {
-	email: string;
-	type: 'passwordless' | 'password';
-	password: string;
-}
+import { NewUser } from 'data/user/types'
+import { useCreateUser, useUsers } from 'data/user'
 
 export type Props = {
-	form: FormData;
+	form: NewUser;
 	onChange: (e: ChangeEvent) => void;
-	onSubmit: (data: FormData) => void;
+	onSubmit: (data: NewUser) => void;
 	error?: ApiError | null;
+	loading?: boolean;
 	passwordless: boolean;
 }
 
@@ -31,7 +28,7 @@ function validatePassword(elm: HTMLInputElement) {
 	})
 }
 
-export let CreateUser = ({ form, onChange, onSubmit, error, passwordless }: Props) => {
+export let CreateUser = ({ form, onChange, onSubmit, error, passwordless, loading }: Props) => {
 
 	function handleSubmit(e: FormEvent) {
 		e.preventDefault()
@@ -64,7 +61,7 @@ export let CreateUser = ({ form, onChange, onSubmit, error, passwordless }: Prop
 					<Label>Authentication Method</Label>
 					<Select name='type' value={form.type} onChange={onChange}>
 						<Option value='password'>Password</Option>
-						<Option disabled={!passwordless} value='passwordless'>Passwordless</Option>
+						<Option disabled={!passwordless} value='link'>Passwordless</Option>
 					</Select>
 				</Section>
 
@@ -75,7 +72,7 @@ export let CreateUser = ({ form, onChange, onSubmit, error, passwordless }: Prop
 							ref={elm => elm && validatePassword(elm)}
 							name='password'
 							type='text'
-							value={form.password}
+							value={form.password ?? ''}
 							onChange={setPassword}
 							required
 						/>
@@ -89,29 +86,57 @@ export let CreateUser = ({ form, onChange, onSubmit, error, passwordless }: Prop
 				}
 
 				<Section>
-					<Button>Create User</Button>
+					<Button loading={loading}>
+						Create User
+					</Button>
 				</Section>
 			</form>
 		</Wrapper>
 	)
 }
 
-let CreateUserContainer = () => {
+
+type ContainerProps = {
+	onCreated: () => void;
+}
+
+let DefaultForm: NewUser = {
+	email: '',
+	type: 'password',
+	password: '',
+}
+
+let CreateUserContainer = ({ onCreated }: ContainerProps) => {
 	let [project] = useProject()
 	let [{ data: emailSettings }] = useEmailSettings(project.id)
 	let hasEmail = hasEmailProvider(emailSettings)
-
-	let [form, setForm] = useForm<FormData>({
-		email: '',
-		type: 'password',
-		password: '',
+	let createUser = useCreateUser(project.id)
+	let [_, actions] = useUsers({
+		project: project.id,
+		limit: 25,
 	})
+
+	let [form, setForm, reset] = useForm<NewUser>(DefaultForm)
+
+	async function handleSubmit(user: NewUser) {
+		try {
+			await createUser(user, form.type)
+			actions.reload()
+			onCreated()
+			reset(DefaultForm)
+		} catch(err) {
+
+		}
+	}
+
 
 	return <CreateUser
 		form={form}
 		onChange={setForm}
-		onSubmit={() => {}}
+		onSubmit={handleSubmit}
 		passwordless={hasEmail}
+		error={createUser.error}
+		loading={createUser.loading}
 	/>
 }
 

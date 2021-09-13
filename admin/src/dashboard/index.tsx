@@ -16,7 +16,7 @@ import { useBosonValue, useSetBoson } from '@biotic-ui/boson'
 import { Tabs, TabBar, Tab } from 'component/tabs'
 import { useProjects, PartialProject, ProjectCtx } from 'data/project'
 import { getLatesUrl } from 'data/admin'
-import { AddButton, CloseButton } from 'component/button'
+import { AddButton, Button, CloseButton } from 'component/button'
 import CreateProject from 'component/create_project'
 import { Drawer } from '@biotic-ui/drawer'
 import { Scrollbar } from '@biotic-ui/leptons'
@@ -26,6 +26,7 @@ import Users from 'dashboard/component/users'
 import SignInMethods from 'dashboard/component/sign_in_methods'
 import Settings from 'dashboard/component/settings'
 import Templates from 'dashboard/component/templates'
+import CreateUser from 'user/create'
 
 function Dashboard() {
 	let history = useHistory()
@@ -101,12 +102,19 @@ let Main = () => {
 		setUrl(location.pathname)
 	}, [location])
 
+
+	let [userDrawer, setUserDrawer] = useState(false)
+
 	return (
 		<Wrapper>
 			<Bar>				
 				<Switch>
 					<Route path={`${base}/users`}>
 						<h3>Users</h3>
+						<Button onClick={() => setUserDrawer(true)}>Add User</Button>
+						<Drawer open={userDrawer} left={false} maxWidth={600} onClose={() => setUserDrawer(false)} >
+							<CreateUser onCreated={() => setUserDrawer(false)} />
+						</Drawer>
 					</Route>
 					<Route path={`${base}/methods`}>
 						<h3>Sign In Methods</h3>

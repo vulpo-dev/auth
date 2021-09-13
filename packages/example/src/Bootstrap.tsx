@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import App from './App'
 import { Switch, Route, useHistory, useLocation, Redirect } from 'react-router-dom'
 import { useAuthStateChange, useAuth } from '@riezler/auth-react'
-import { UserState } from '@riezler/auth-sdk'
+import { UserState, SessionInfo } from '@riezler/auth-sdk'
 import { Auth, Container, BoxShadow } from '@riezler/auth-ui'
 
 let Bootstrap = () => {
@@ -22,15 +22,21 @@ let Bootstrap = () => {
 		return auth.getUser() ?? undefined
 	})
 
-	useAuthStateChange((newUser: UserState) => {
+	useAuthStateChange((newUser: SessionInfo) => {
 		if (window.location.hash.startsWith('#/verify-email')) {
 			return
 		}
 		
-		setUser(newUser)
+		setUser(newUser?.user)
+		if(newUser && newUser.user.state === 'SetPassword') {
+			history.replace('/auth/#/user/set_password')
+			return
+		}
+
 		if (!newUser && !window.location.pathname.startsWith('/auth')) {
 			history.replace('/auth')
 		}
+
 
 		if (!user && newUser) {
 			history.replace(refferrer)
@@ -45,15 +51,13 @@ let Bootstrap = () => {
 		<Switch>
 
 			<Route path='/auth'>
-				{ !user &&
-					<Container>
-						<BoxShadow>
-							<Auth />
-						</BoxShadow>
-					</Container>
-				}
+				<Container>
+					<BoxShadow>
+						<Auth />
+					</BoxShadow>
+				</Container>
 				
-				{ user &&
+				{ (user && user.state !== 'SetPassword') &&
 					<Redirect to={refferrer} />
 				}
 			</Route>

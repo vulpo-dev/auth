@@ -64,3 +64,9 @@ export type User = {
 	state: 'Active' | 'Disabled',
 	device_languages: Array<string>,
 }
+
+export type NewUser = {
+	email: string;
+	type: 'link' | 'password';
+	password?: string;
+}

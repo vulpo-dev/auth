@@ -183,10 +183,39 @@ export class AuthClient {
 			.catch(err => Promise.reject(this.error.fromResponse(err)))
 	}
 
-	async setPassword(body: SetPasswordPayload, config?: AxiosRequestConfig): Promise<void> {
+	async setResetPassword(body: SetPasswordPayload, config?: AxiosRequestConfig): Promise<void> {
 		await this.http
 			.post(Url.PasswordReset, body, config)
 			.catch(err => Promise.reject(this.error.fromResponse(err)))
+	}
+
+	async setPassword(password: string, config?: AxiosRequestConfig): Promise<void> {
+		let currentSession = this.session.current()
+		
+		if (!currentSession) {
+			return
+		}
+
+		let accessToken = await this.getToken(currentSession.id)
+
+		await this.http
+			.post(Url.UserSetPassword, { password }, {
+				...config,
+				headers: {
+					...(config?.headers ?? {}),
+					'Authorization': `Bearer ${accessToken}`,
+				}
+			})
+			.catch(err => Promise.reject(this.error.fromResponse(err)))
+
+
+		await this.session.fromResponse({
+			session: currentSession.id,
+			expire_at: currentSession.expire_at!,
+			access_token: accessToken
+		})
+		
+		this.session.activate(currentSession.id)
 	}
 
 	async verifyToken(id: string, token: string, config?: AxiosRequestConfig): Promise<void> {

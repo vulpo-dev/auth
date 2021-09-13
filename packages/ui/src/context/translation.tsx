@@ -175,7 +175,7 @@ export let DefaultTranslation = {
 		title: 'Set New Password',
 		new_password: 'New Password',
 		repeat_password: 'Repeat Password',
-		button_label: 'Reset Password',
+		button_label: 'Set Password',
 	},
 
 	Disclaimer: ({ tos, privacy }: DisclaimerProps) => {

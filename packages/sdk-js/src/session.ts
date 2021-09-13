@@ -21,6 +21,12 @@ type Listener = {
 	cb: AuthCallback;
 }
 
+type FromSessionResponse = Pick<SessionResponse,
+	"session" |
+	"expire_at" |
+	"access_token"
+>
+
 export class Session {
 	sessions = new Map<SessionId, SessionInfo>()
  	active: SessionInfo | null = null
@@ -94,7 +100,7 @@ export class Session {
 		return { unsubscribe }
 	}
 
-	async fromResponse(data: SessionResponse): Promise<SessionInfo> {
+	async fromResponse(data: FromSessionResponse): Promise<SessionInfo> {
 		let user = await this.getUser(data.access_token)
 			.catch(res => Promise.reject(this.error.fromResponse(res)))
 

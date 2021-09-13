@@ -3,7 +3,6 @@ import { useEffect, useState, Fragment } from 'react'
 import styled from 'styled-components'
 import { HashRouter, Switch, Route, Redirect } from 'react-router-dom'
 
-import { Container } from 'component/layout'
 import Overview from 'overview'
 import Password from 'password'
 import PasswordReset from 'password_reset'
@@ -17,6 +16,7 @@ import Axios from 'axios'
 import { Error } from 'component/text'
 import { useTranslation, useError } from 'context/translation'
 import { FlagsCtx } from 'context/config'
+import SetPassword from 'user/set_password'
 
 let Auth = () => {
 	let auth = useAuth()
@@ -73,6 +73,9 @@ let Auth = () => {
 		<FlagsCtx.Provider value={flags}>
 			<HashRouter>
 				<Switch>
+					<Route path='/user/set_password'>
+						<SetPassword />
+					</Route>
 
 					{ flags.includes(Flag.VerifyEmail) &&
 						<Route path='/verify-email'>
@@ -85,6 +88,7 @@ let Auth = () => {
 							<PasswordReset />
 						</Route>
 					}
+
 
 					{ flags.includes(Flag.EmailAndPassword) &&
 						<Route path='/:type/email'>

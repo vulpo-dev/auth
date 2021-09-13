@@ -20,10 +20,15 @@ type Form = {
 	password: string;
 }
 
+export enum Ctx {
+	SignIn = 'signin',
+	SignUp = 'signup',
+}
+
 export type Props = {
 	onBack: () => void;
 	onSubmit: (user: Form) => void;
-	ctx: 'signin' | 'signup';
+	ctx: Ctx;
 	loading: boolean;
 	error: null | ErrorCode;
 }
@@ -60,15 +65,15 @@ export let Password = ({ onSubmit, onBack, ctx, loading, error }: Props) => {
 		onSubmit(form)
 	}
 
-	let button = ctx === 'signin'
+	let button = ctx === Ctx.SignIn
 		? t.signin.label
 		: t.signup.label
 
-	let navLink = ctx === 'signin'
-		? 'signup'
-		: 'signin'
+	let navLink = ctx === Ctx.SignIn
+		? Ctx.SignUp
+		: Ctx.SignIn
 
-	let linkLabel = ctx === 'signin'
+	let linkLabel = ctx === Ctx.SignIn
 		? t.signup.nav
 		: t.signin.nav
 
@@ -160,7 +165,7 @@ let PasswordContainer = () => {
 
 	let [error, setError] = useState<ErrorCode | null>(null)
 	let [loading, setLoading] = useState<boolean>(false)
-	let match = useRouteMatch<{ type: 'signin' | 'signup' }>('/:type')
+	let match = useRouteMatch<{ type: Ctx }>('/:type')
 	let auth = useAuth()
 
 	function handleBack() {
@@ -180,7 +185,7 @@ let PasswordContainer = () => {
 		setLoading(true)
 
 		try {
-			if (match.params.type === 'signin') {
+			if (match.params.type === Ctx.SignIn) {
 				await auth.signIn(user.email, user.password)
 			} else {
 				await auth.signUp(user.email, user.password)
@@ -197,7 +202,7 @@ let PasswordContainer = () => {
 		<Password
 			onBack={handleBack}
 			onSubmit={handleSubmit}
-			ctx={match?.params?.type ?? 'signin'}
+			ctx={match?.params?.type ?? Ctx.SignIn}
 			loading={loading}
 			error={error}
 		/>

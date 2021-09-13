@@ -5,6 +5,7 @@
   "main": "lib/main.js",
   "types": "./lib/main.d.ts",
   "scripts": {
+    "start": "npm run storybook",
     "test": "echo \"Error: no test specified\" && exit 1",
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook",

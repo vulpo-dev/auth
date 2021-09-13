@@ -1,6 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
-import { CreateUser, FormData } from 'user/create'
+import { CreateUser } from 'user/create'
+import { NewUser } from 'data/user/types'
 import { Header, Wrapper, Content } from 'setup'
 import { Story, Meta } from '@storybook/react/types-6-0';
 import { action } from '@storybook/addon-actions';
@@ -14,9 +15,9 @@ export default {
 } as Meta;
 
 export let Form: Story = () => {
-  let [form, setForm] = useForm<FormData>({
+  let [form, setForm] = useForm<NewUser>({
     email: '',
-    type: 'passwordless',
+    type: 'link',
     password: '',
   })
 
@@ -33,9 +34,9 @@ export let Form: Story = () => {
 };
 
 export let Passwordless: Story = () => {
-  let [form, setForm] = useForm<FormData>({
+  let [form, setForm] = useForm<NewUser>({
     email: '',
-    type: 'passwordless',
+    type: 'link',
     password: '',
   })
 
@@ -53,7 +54,7 @@ export let Passwordless: Story = () => {
 
 
 export let Password: Story = () => {
-  let [form, setForm] = useForm<FormData>({
+  let [form, setForm] = useForm<NewUser>({
     email: '',
     type: 'password',
     password: '',
