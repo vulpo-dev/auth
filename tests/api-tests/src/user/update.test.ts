@@ -15,6 +15,8 @@ import {
 	makeTokenPayload,
 } from '../utils/user'
 import { projectKeys } from '@seeds/data/projects'
+import { generateAdminToken } from '../utils/admin'
+import { admin } from '@seeds/data/projects'
 
 const EMAIL = 'michael+test_user_update@riezler.dev'
 const USER_ID = '1d71bf90-45b8-4409-bc8e-a66639597fac'
@@ -186,6 +188,209 @@ describe("Update user", () => {
 		let res = await Http.post(Url.UserUpdate, user, {
 			headers: {
 				'Authorization': `Bearer ${token}`,
+			}
+		})
+		.catch(err => err.response)
+
+		expect(res.status).toBe(400)
+		expect(res.data.code).toBe(ErrorCode.UserDuplicate)
+	})
+})
+
+
+describe("Admin: Update user", () => {
+	test("should update values", async () => {
+
+		await Db.query(`
+			update users
+	           set display_name = $2
+	             , email = $3
+	             , traits = $4
+	             , data = $5
+	             , email_verified = True
+	         where id = $1 
+		`, [USER_ID, 'abc', 'email', [], {}])
+
+		let token = generateAdminToken()
+
+		let user: UpdateUserPayload = {
+			display_name: 'test',
+			email: EMAIL,
+			traits: ['one', 'two'],
+			data: {
+				prop1: 1,
+				prop2: 'bar'
+			},
+		}
+
+		let res = await Http.post('/user/admin/update', user, {
+			headers: {
+				'Authorization': `Bearer ${token}`,
+				'Bento-Project': admin.id,
+			},
+			params: {
+				user_id: USER_ID,
+				project_id: PROJECT_ID,
+			}
+		})
+		.catch(err => err.response)
+
+		expect(res.status).toBe(200)
+
+		let { rows } = await Db.query(`
+			select display_name
+	             , email
+	             , traits
+	             , data
+	             , email_verified
+	          from users
+	         where id = $1 
+		`, [USER_ID])
+
+		let { email_verified, ...newUser} = rows[0]
+		expect(newUser).toMatchObject(user)
+		expect(email_verified).toBe(false)
+	})
+
+	test("should fail for non admin token", async () => {
+
+		let query = `
+			select display_name
+	             , email
+	             , traits
+	             , data
+	             , email_verified
+	          from users
+	         where id = $1
+		`
+
+		let { rows: current } = await Db.query(query, [USER_ID])
+
+		let token = generateAccessToken({
+			payload: tokenPayload()
+		})
+
+		let user: UpdateUserPayload = {
+			display_name: 'test',
+			email: EMAIL,
+			traits: ['one', 'two'],
+			data: {
+				prop1: 1,
+				prop2: 'bar'
+			},
+		}
+
+		let res = await Http.post('/user/admin/update', user, {
+			headers: {
+				'Authorization': `Bearer ${token}`,
+				'Bento-Project': admin.id,
+			},
+			params: {
+				user_id: USER_ID,
+				project_id: PROJECT_ID,
+			}
+		})
+		.catch(err => err.response)
+
+		expect(res.status).toBe(401)
+
+		let { rows } = await Db.query(query, [USER_ID])
+		expect(rows[0]).toMatchObject(current[0])
+	})
+
+	test("user.email_verified is true when email is stays the same", async () => {
+		let token = generateAdminToken()
+
+		let user: UpdateUserPayload = {
+			display_name: 'test',
+			email: EMAIL,
+			traits: ['one', 'two'],
+			data: {
+				prop1: 1,
+				prop2: 'bar'
+			},
+		}
+
+		let res = await Http.post('/user/admin/update', user, {
+			headers: {
+				'Authorization': `Bearer ${token}`,
+				'Bento-Project': admin.id,
+			},
+			params: {
+				user_id: USER_ID,
+				project_id: PROJECT_ID,
+			}
+		})
+		.catch(err => err.response)
+
+		expect(res.status).toBe(200)
+
+		let { rows } = await Db.query(`
+			select email_verified
+	          from users
+	         where id = $1 
+		`, [USER_ID])
+
+		let { email_verified } = rows[0]
+		expect(email_verified).toBe(true)
+	})
+
+
+	test("fails when access token is invalid", async () => {
+		let token = generateInvalidAccessToken({
+			payload: tokenPayload()
+		})
+
+		let user: UpdateUserPayload = {
+			display_name: 'test',
+			email: EMAIL,
+			traits: ['one', 'two'],
+			data: {
+				prop1: 1,
+				prop2: 'bar'
+			},
+		}
+
+		let res = await Http.post('/user/admin/update', user, {
+			headers: {
+				'Authorization': `Bearer ${token}`,
+				'Bento-Project': admin.id,
+			},
+			params: {
+				user_id: USER_ID,
+				project_id: PROJECT_ID,
+			}
+		})
+		.catch(err => err.response)
+
+		expect(res.status).toBe(401)
+	})
+
+
+	test("fails for duplicate email", async () => {
+		let create = makeCreateUser(DUPLICATE_ID, DUPLICATE_EMAIL, PROJECT_ID)
+		await create()
+
+		let token = generateAdminToken()
+
+		let user: UpdateUserPayload = {
+			display_name: 'test',
+			email: DUPLICATE_EMAIL,
+			traits: ['one', 'two'],
+			data: {
+				prop1: 1,
+				prop2: 'bar'
+			},
+		}
+
+		let res = await Http.post('/user/admin/update', user, {
+			headers: {
+				'Authorization': `Bearer ${token}`,
+				'Bento-Project': admin.id,
+			},
+			params: {
+				user_id: USER_ID,
+				project_id: PROJECT_ID,
 			}
 		})
 		.catch(err => err.response)
