@@ -118,6 +118,7 @@ export let Rows: FC<RowsPops> = ({
 				items.map(user => {
 					return (
 						<Row
+							className='user-table--item'
 							disabled={user.state === 'Disabled'}
 							key={user.id}
 							onClick={onClick}
@@ -134,7 +135,7 @@ export let Rows: FC<RowsPops> = ({
 								</Tooltip>
 							</div>
 							<div>
-								<Text>{user.email}</Text>
+								<Text className='user-table--user-email'>{user.email}</Text>
 							</div>
 							<div>
 								<Text align='right'>{user.email_verified ? 'Yes' : 'No'}</Text>

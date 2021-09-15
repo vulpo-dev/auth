@@ -46,7 +46,7 @@
   },
   "dependencies": {
     "@babel/polyfill": "^7.12.1",
-    "@biotic-ui/boson": "^0.3.22",
+    "@biotic-ui/boson": "^0.3.27",
     "@biotic-ui/button": "^0.3.10",
     "@biotic-ui/drawer": "^0.3.13",
     "@biotic-ui/input": "^0.3.19",
