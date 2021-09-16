@@ -1,8 +1,8 @@
 import { v4 as uuid } from 'uuid'
 import { Keys, Sessions, Session } from './storage'
 
-export async function createSession(): Promise<Session> {
-	let keys = await generateKeys()
+export async function createSession(extractable = false): Promise<Session> {
+	let keys = await generateKeys(extractable)
 	let id = uuid()
 
 	Sessions.insert({ id })
@@ -73,7 +73,7 @@ export async function generateAccessToken(sessionId: string, claims: Object = {}
 	return `${h}.${p}.${base64url(ab2str(signature))}`
 }
 
-async function generateKeys(): Promise<CryptoKeyPair> {
+async function generateKeys(extractable = false): Promise<CryptoKeyPair> {
 	// https://bugzilla.mozilla.org/show_bug.cgi?id=1133698
 	let algo = isFirefox()
 		? 	{
@@ -87,7 +87,7 @@ async function generateKeys(): Promise<CryptoKeyPair> {
 			  namedCurve: "P-384"
 			}
 
-	let keys = await window.crypto.subtle.generateKey(algo, false, ["sign", "verify"])
+	let keys = await window.crypto.subtle.generateKey(algo, extractable, ["sign", "verify"])
 	return keys as CryptoKeyPair
 }
 

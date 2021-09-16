@@ -68,7 +68,7 @@ export default {
 
 let Template: Story<Props & { flags: Array<Flag> }> = ({ flags, ...args }) => {
 	return (
-		<FlagsCtx.Provider value={flags}>
+		<FlagsCtx.Provider value={[...flags, Flag.EmailAndPassword]}>
 			<AuthConfig.Provider value={DefaultConfig}>
 				<Translation.Provider value={DefaultTranslation}>
 					<HashRouter>

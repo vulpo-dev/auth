@@ -4,7 +4,7 @@ import styled from 'styled-components'
 import { Input, Password as PasswordInput } from '@biotic-ui/input'
 import { useForm } from '@biotic-ui/std'
 import { Button, IconButton } from '@biotic-ui/button'
-import { useHistory, useRouteMatch, Link, useLocation, Redirect } from 'react-router-dom'
+import { useHistory, useRouteMatch, Link, Redirect } from 'react-router-dom'
 import { ErrorCode, Flag } from '@riezler/auth-sdk'
 import { useAuth } from '@riezler/auth-react'
 
@@ -147,7 +147,9 @@ export let Password = ({ onSubmit, onBack, ctx, loading, error }: Props) => {
 				</Section>
 
 				{ error &&
-					<Error>{errorMessage}</Error>
+					<Error className="test-error">
+						{errorMessage}
+					</Error>
 				}
 			</Form>
 
@@ -167,7 +169,6 @@ type ContainerProps = {
 
 let PasswordContainer = ({ redirect = true, redirectTo }: ContainerProps) => {
 	let history = useHistory()
-	let location = useLocation()
 
 	let [error, setError] = useState<ErrorCode | null>(null)
 	let [loading, setLoading] = useState<boolean>(false)
@@ -191,7 +192,7 @@ let PasswordContainer = ({ redirect = true, redirectTo }: ContainerProps) => {
 		setLoading(true)
 
 		try {
-			let user = Ctx.SignIn
+			let user = match?.params?.type === Ctx.SignIn
 				? await auth.signIn(form.email, form.password)
 				: await auth.signUp(form.email, form.password)
 

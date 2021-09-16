@@ -20,7 +20,7 @@ export let CheckEmail = ({ email }: Props) => {
 	return (
 		<Card>
 			<Header>
-				<Title>{t.passwordless_check.title}</Title>
+				<Title className="test-check-email">{t.passwordless_check.title}</Title>
 			</Header>
 
 			<p>

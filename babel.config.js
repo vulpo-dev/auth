@@ -8,7 +8,8 @@ module.exports = function (api) {
       }]
     , [ '@babel/preset-env'
       , {
-          "targets": "last 2 versions"
+          "targets": "last 2 versions",
+          "exclude": ["@babel/plugin-transform-regenerator"]
         }
       ]
     ]

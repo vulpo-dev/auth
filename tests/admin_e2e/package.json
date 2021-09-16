@@ -1,10 +1,14 @@
 {
-  "name": "e2e",
+  "private": true,
+  "name": "admin_e2e",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "playwright test --browser=all",
+    "test:chrome": "playwright test --browser=chromium",
+    "test:ff": "playwright test --browser=firefox",
+    "test:webkit": "playwright test --browser=webkit"
   },
   "keywords": [],
   "author": "",

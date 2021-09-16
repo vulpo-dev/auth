@@ -23,7 +23,7 @@ export let Confirm: FunctionComponent<Props> = ({ loading, error }) => {
 	return (
 		<Card>
 			<CardHeader>
-				<Title>Confirm Sign In</Title>
+				<Title className="test-confirm-signin">Confirm Sign In</Title>
 			</CardHeader>
 
 			{ loading &&
