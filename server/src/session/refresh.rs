@@ -4,7 +4,7 @@ use crate::keys::data::ProjectKeys;
 use crate::project::Project;
 use crate::response::error::ApiError;
 use crate::response::SessionResponse;
-use crate::session::data::{AccessToken, RefreshAccessToken, Session, Token};
+use crate::session::data::{AccessToken, RefreshAccessToken, Session};
 use crate::user::data::User;
 
 use chrono::{Duration, Utc};
@@ -27,8 +27,7 @@ pub async fn handler(
     }
 
     let claims = Session::validate_token(&session, &rat)?;
-
-    let is_valid = Token::is_valid(&pool, &claims, &session_id).await?;
+    let is_valid = Session::is_valid(&pool, &claims, &session_id).await?;
 
     if !is_valid {
         return Err(ApiError::Forbidden);

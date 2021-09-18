@@ -1,6 +1,7 @@
 use crate::response::error::ApiError;
+use crate::session::data::SessionClaims;
 
-use chrono::{DateTime, Utc};
+use chrono::{DateTime, Utc, TimeZone};
 use jsonwebtoken as jwt;
 use jsonwebtoken::{Algorithm, DecodingKey, Validation};
 use serde::Deserialize;
@@ -97,6 +98,29 @@ impl Session {
 
         Ok(())
     }
+
+    pub async fn is_valid(
+        pool: &PgPool,
+        claims: &SessionClaims,
+        session: &Uuid,
+    ) -> Result<bool, ApiError> {
+        let exp = Utc.timestamp(claims.exp.into(), 0);
+        let row = sqlx::query_file!(
+            "src/session/sql/token_is_valid.sql",
+            claims.jti,
+            session,
+            exp
+        )
+        .fetch_one(pool)
+        .await
+        .map_err(|_| ApiError::InternalServerError)?;
+
+        match row.is_valid {
+            None => Ok(false),
+            Some(value) => Ok(value),
+        }
+    }
+
 }
 
 #[derive(Deserialize)]

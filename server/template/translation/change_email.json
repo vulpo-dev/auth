@@ -1,8 +1,7 @@
 
 {
-	"subject": "Confirm Email Change",
-	"headline": "Confirm Email Change",
-	"label": "Confirm Email Change",
-	"text": "Click on the link below to verify your changed email address from {{ctx.old}} to {{ctx.new}}.",
-	"expire": "The link is valid for <span class=\"bold\">{{ctx.expire_in}} minutes</span> and can only be used once"
+	"subject": "Email Change Requested",
+	"headline": "Email Change Requested",
+	"label": "Reset Email",
+	"text": "A new email address ({{ctx.new_email}}) has been requested for your {{ctx.project}} account. If you haven't requested the change, you can reset you email by clicking on the link below, otherwise you can ignore this email."
 }

@@ -5,7 +5,7 @@ use crate::project::data::Flags;
 use crate::project::Project;
 use crate::response::error::ApiError;
 use crate::session::data::Session;
-use crate::session::data::Token;
+use crate::crypto::Token;
 use crate::settings::data::ProjectEmail;
 use crate::template::{Template, TemplateCtx, Templates, Translations};
 use crate::user::data::User;
@@ -94,7 +94,7 @@ pub async fn request_passwordless(
 
     let translations = Template::translate(&translations, &ctx);
     let subject = Template::render_subject(&settings.subject, &translations)?;
-    let content = Template::render(&pool, settings.body, ctx, &translations).await?;
+    let content = Template::render(&pool, &settings.body, &ctx, &translations).await?;
 
     let email = Email {
         to_email: body.email.to_owned(),

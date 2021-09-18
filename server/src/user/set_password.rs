@@ -1,5 +1,4 @@
 use crate::db::Db;
-use crate::mail::Email;
 use crate::project::Project;
 use crate::project::data::Project as ProjectData;
 use crate::response::error::ApiError;
@@ -7,7 +6,7 @@ use crate::session::data::AccessToken;
 use crate::settings::data::ProjectEmail;
 use crate::user::data::User;
 use crate::password;
-use crate::template::{Template, TemplateCtx, Templates, Translations};
+use crate::template::{Template, TemplateCtx, Templates};
 
 use rocket::serde::json::Json;
 use rocket::http::Status;
@@ -60,28 +59,12 @@ pub async fn set_password(
 
     let ctx = TemplateCtx {
         href: link,
-        project: settings.name,
+        project: settings.name.clone(),
         user: Some(user),
         expire_in: 15,
     };
 
-    let translations = Translations::get_by_languages(
-        &pool,
-        &project.id,
-        &device_languages,
-        &Templates::PasswordChanged.to_string(),
-    )
-    .await?;
-
-    let translations = Template::translate(&translations, &ctx);
-    let subject = Template::render_subject(&settings.subject, &translations)?;
-    let content = Template::render(&pool, settings.body, ctx, &translations).await?;
-
-    let email = Email {
-        to_email: user_email,
-        subject,
-        content,
-    };
+    let email = Template::create_email(&pool, &project.id, &device_languages, &user_email, &ctx, &settings, Templates::PasswordChanged).await?;
 
     email.send(settings.email).await?;
 

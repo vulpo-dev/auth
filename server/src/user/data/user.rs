@@ -144,6 +144,14 @@ impl User {
         row.ok_or_else(|| ApiError::UserNotFound)
     }
 
+    pub async fn email(pool: &PgPool, user_id: &Uuid) -> Result<String, ApiError> {
+        sqlx::query_file!("src/user/sql/get_email.sql", user_id)
+            .fetch_one(pool)
+            .await
+            .map(|row| row.email)
+            .map_err(|_| ApiError::InternalServerError)
+    }
+
     pub async fn create(
         pool: &PgPool,
         email: &str,

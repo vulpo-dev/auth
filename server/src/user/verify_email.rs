@@ -4,7 +4,7 @@ use crate::mail::data::VerifyEmail;
 use crate::mail::Email;
 use crate::project::Project;
 use crate::response::error::ApiError;
-use crate::session::data::Token;
+use crate::crypto::Token;
 use crate::settings::data::ProjectEmail;
 use crate::template::{Template, TemplateCtx, Templates, Translations};
 
@@ -92,7 +92,7 @@ pub async fn send(
         Translations::get_by_user(&pool, &user_id, &Templates::VerifyEmail.to_string()).await?;
     let translations = Template::translate(&translations, &ctx);
     let subject = Template::render_subject(&settings.subject, &translations)?;
-    let content = Template::render(&pool, settings.body, ctx, &translations).await?;
+    let content = Template::render(&pool, &settings.body, &ctx, &translations).await?;
 
     let email = Email {
         to_email: to_email.to_string(),

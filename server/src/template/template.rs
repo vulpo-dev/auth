@@ -5,6 +5,9 @@ use crate::template::config::{DefaultRedirect, Templates};
 use crate::template::data::Translation;
 use crate::user::data::User;
 use crate::TEMPLATE;
+use crate::settings::data::TemplateEmail;
+use crate::mail::Email;
+use crate::template::Translations;
 
 use handlebars::Handlebars;
 use serde::{Deserialize, Serialize};
@@ -55,7 +58,7 @@ struct File {
     pub template_type: &'static str,
 }
 
-const FILES: [File; 7] = [
+const FILES: [File; 8] = [
     File {
         path: "index.hbs",
         translation: "",
@@ -104,6 +107,13 @@ const FILES: [File; 7] = [
         name: "password_changed",
         template_type: "view",
         template: Templates::PasswordChanged,
+    },
+    File {
+        path: "view/confirm_email_change.hbs",
+        translation: "translation/confirm_email_change.json",
+        name: "password_changed",
+        template_type: "view",
+        template: Templates::ConfirmEmailChange,
     },
 ];
 
@@ -219,7 +229,7 @@ impl Template {
         Ok(())
     }
 
-    pub fn translate(translations: &Translation, ctx: &TemplateCtx) -> HashMap<String, String> {
+    pub fn translate<Ctx: Serialize>(translations: &Translation, ctx: &Ctx) -> HashMap<String, String> {
         let handlebars = Handlebars::new();
         translations
             .iter()
@@ -244,10 +254,10 @@ impl Template {
             .map_err(|_| ApiError::TemplateRender)
     }
 
-    pub async fn render(
+    pub async fn render<Ctx: Serialize>(
         pool: &PgPool,
-        template: String,
-        ctx: TemplateCtx,
+        template: &str,
+        ctx: &Ctx,
         translations: &HashMap<String, String>,
     ) -> Result<String, ApiError> {
         let handlebars = Template::init_handlebars(pool).await?;
@@ -282,6 +292,36 @@ impl Template {
         .map_err(|_| ApiError::InternalServerError)?;
 
         Ok(())
+    }
+
+    pub async fn create_email<Ctx: Serialize>(
+        pool: &PgPool,
+        project_id: &Uuid,
+        device_languages: &Vec<String>,
+        to_email: &str,
+        ctx: &Ctx,
+        settings: &TemplateEmail,
+        template: Templates,
+    ) -> Result<Email, ApiError> {
+        let translations = Translations::get_by_languages(
+            &pool,
+            &project_id,
+            &device_languages,
+            &template.to_string(),
+        )
+        .await?;
+
+        let translations = Template::translate(&translations, &ctx);
+        let subject = Template::render_subject(&settings.subject, &translations)?;
+        let content = Template::render(&pool, &settings.body, ctx, &translations).await?;
+
+        let email = Email {
+            to_email: to_email.to_owned(),
+            subject,
+            content,
+        };
+
+        Ok(email)
     }
 }
 

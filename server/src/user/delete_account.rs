@@ -1,7 +1,7 @@
 use crate::admin::data::Admin;
 use crate::db::Db;
 use crate::response::error::ApiError;
-use crate::session::data::Token;
+
 use crate::session::data::{RefreshAccessToken, Session};
 use crate::user::data::User;
 
@@ -24,7 +24,7 @@ pub async fn delete_account(
     let session = Session::get(&pool, &session_id).await?;
     let claims = Session::validate_token(&session, &rat)?;
 
-    let is_valid = Token::is_valid(&pool, &claims, &session_id).await?;
+    let is_valid = Session::is_valid(&pool, &claims, &session_id).await?;
 
     if !is_valid {
         return Err(ApiError::Forbidden);

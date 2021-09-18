@@ -16,6 +16,7 @@ mod session;
 mod settings;
 mod template;
 mod user;
+mod crypto;
 
 #[macro_use]
 extern crate rocket;
