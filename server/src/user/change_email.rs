@@ -7,12 +7,16 @@ use crate::template::{Templates, Template};
 use crate::user::data::{NewChangeRequest, User, EmailChangeRequest};
 use crate::project::Project;
 
+use chrono::Utc;
 use rocket;
 use rocket::futures::future::join;
 use rocket::http::Status;
 use rocket::serde::json::Json;
 use serde::Deserialize;
 use serde_json::json;
+use uuid::Uuid;
+
+use super::data::EmailChangeState;
 
 #[derive(Deserialize)]
 pub struct EmailChangeRequestPayload {
@@ -94,6 +98,43 @@ pub async fn create_email_change_request(
 	// make sure the reset email get's delivered first
 	reset_email.send(reset_settings.email).await?;
 	confirm_email.send(confirm_settings.email).await?;
+
+	Ok(Status::Ok)
+}
+
+#[derive(Deserialize)]
+pub struct ConfirmEmailChangePayload {
+	pub id: Uuid,
+	pub token: String,
+}
+
+#[post("/email/update/confirm", format="json", data="<body>")]
+pub async fn confirm_email_change(
+	pool: Db,
+	_access_token: AccessToken,
+	body: Json<ConfirmEmailChangePayload>,
+) -> Result<Status, ApiError> {
+
+	let token = EmailChangeRequest::get_confirm_token(&pool, &body.id).await?;
+
+	match token.state {
+		EmailChangeState::Reject | EmailChangeState::Reset => return Err(ApiError::Forbidden),
+		// todo: proper error code
+		EmailChangeState::Accept => return Err(ApiError::Forbidden),
+		EmailChangeState::Request => {}, 
+	};
+
+	if Utc::now() > token.expire_at {
+		return Err(ApiError::Forbidden);
+	}
+
+	let is_valid = Token::verify(&body.token, &token.token)?;
+
+	if !is_valid {
+		return Err(ApiError::Forbidden);
+	}
+
+	EmailChangeRequest::set_email(&pool, &body.id).await?;
 
 	Ok(Status::Ok)
 }

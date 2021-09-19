@@ -24,8 +24,8 @@ impl Token {
         }
     }
 
-    pub fn verify(token: &str, compare: &str) -> Result<bool, ApiError> {
-        match bcrypt::verify(token, compare) {
+    pub fn verify(hashed_token: &str, raw_value: &str) -> Result<bool, ApiError> {
+        match bcrypt::verify(hashed_token, raw_value) {
             Err(_) => Err(ApiError::InternalServerError),
             Ok(valid) => Ok(valid),
         }

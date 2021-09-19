@@ -12,8 +12,7 @@ import { makeGenerateAccessToken, makeTokenPayload } from '../utils/user'
 import { projectKeys } from '@seeds/data/projects'
 
 import { v4 as uuid } from 'uuid'
-import * as jwt from 'jsonwebtoken'
-import { Algorithm } from 'jsonwebtoken'
+import * as bcrypt from 'bcryptjs'
 
 const EMAIL = 'api+test_change_email@vulpo.dev'
 const NEW_EMAIL = 'api+test_change_new_email@vulpo.dev'
@@ -60,4 +59,140 @@ describe("User change email", () => {
 
 		expect(res.status).toEqual(200)
 	})
+
+	test("can confirm email", async () => {
+		let changeRequest = await insertChangeRequestToken()
+
+		let payload = {
+			id: changeRequest.id,
+			token: changeRequest.token,
+		}
+
+		let res = await confirm(payload)
+
+		expect(res.status).toEqual(200)
+
+		let { rows } = await Db.query(`
+			select email_change_request.state
+			     , users.email
+			  from email_change_request
+			  join users on users.id = email_change_request.user_id
+			 where email_change_request.id = $1
+		`, [changeRequest.id])
+
+		expect(rows[0]).toMatchObject({
+			state: 'accept',
+			email: NEW_EMAIL,
+		})
+	})
+
+	test("confirm fails when token is expired", async () => {
+		let changeRequest = await insertChangeRequestToken({ expired: true })
+
+		let payload = {
+			id: changeRequest.id,
+			token: changeRequest.token,
+		}
+
+		let res = await confirm(payload)
+
+		expect(res.status).toEqual(403)
+
+		await dataIsUnchanged(changeRequest.id, 'request')
+	})
+
+	test("confirm fails when token is invalid", async () => {
+		let changeRequest = await insertChangeRequestToken()
+
+		let payload = {
+			id: changeRequest.id,
+			token: changeRequest.resetToken,
+		}
+
+		let res = await confirm(payload)
+
+		expect(res.status).toEqual(403)
+
+		await dataIsUnchanged(changeRequest.id, 'request')
+	})
+
+
+	test("confirm fails when token state is reject", testState('reject'))
+	test("confirm fails when token state is reset", testState('reset'))
+	test("confirm fails when token state is accept", testState('accept'))
 })
+
+
+function testState(state: string) {
+	return async () => {
+		let changeRequest = await insertChangeRequestToken({ expired: true })
+		await setState(changeRequest.id, state)
+
+		let payload = {
+			id: changeRequest.id,
+			token: changeRequest.token,
+		}
+
+		let res = await confirm(payload)
+
+		expect(res.status).toEqual(403)
+
+		await dataIsUnchanged(changeRequest.id, state)
+	}
+}
+
+
+async function insertChangeRequestToken({ expired = false } = {}) {
+	let token = uuid()
+	let hashedToken = bcrypt.hashSync(token)
+
+	let resetToken = uuid()
+	let hashedResetToken = bcrypt.hashSync(resetToken)
+
+	let expireAt = expired
+		? new Date(Date.now() - 60 * 1000)
+		: new Date(Date.now() + 30 * 60 * 1000)
+
+	let { rows } = await Db.query(`
+		insert into email_change_request(old_email, new_email, user_id, token, reset_token, expire_at)
+		values($1, $2, $3, $4, $5, $6)
+		returning id
+	`, [EMAIL, NEW_EMAIL, USER_ID, hashedToken, hashedResetToken, expireAt])
+	
+	let id = rows[0].id
+
+	return { id, token, resetToken }
+}
+
+async function setState(id: string, state: string) {
+	await Db.query(`
+		update email_change_request
+	       set state = $2
+	     where id = $1 
+	`, [id, state])
+}
+
+async function dataIsUnchanged(changeRequestId: string, state: string, email: string = EMAIL) {
+	let { rows } = await Db.query(`
+		select email_change_request.state
+		     , users.email
+		  from email_change_request
+		  join users on users.id = email_change_request.user_id
+		 where email_change_request.id = $1
+	`, [changeRequestId])
+
+	expect(rows[0]).toMatchObject({ state, email })
+}
+
+async function confirm(payload) {
+	let token = generateAccessToken({
+		payload: tokenPayload()
+	})
+
+	return Http.post('user/email/update/confirm', payload, {
+		headers: {
+			'Authorization': `Bearer ${token}`,
+		}
+	})
+	.catch(err => err.response)	
+}

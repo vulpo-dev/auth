@@ -29,5 +29,6 @@ pub fn routes() -> Vec<Route> {
         update::admin_handler,
         set_password::set_password,
         change_email::create_email_change_request,
+        change_email::confirm_email_change,
     ]
 }
