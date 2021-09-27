@@ -32,6 +32,12 @@ pub struct ConfirmToken {
 }
 
 
+pub struct ResetToken {
+	pub token: String,
+	pub state: EmailChangeState,
+}
+
+
 pub struct EmailChangeRequest;
 
 impl EmailChangeRequest {
@@ -56,14 +62,26 @@ impl EmailChangeRequest {
 			.map_err(|_| ApiError::InternalServerError)
 	}
 
+	pub async fn get_reset_token(pool: &PgPool, token_id: &Uuid) -> Result<ResetToken, ApiError> {
+		sqlx::query_file_as!(ResetToken, "src/user/sql/email/get_reset_token.sql", token_id)
+			.fetch_one(pool)
+			.await
+			.map_err(|_| ApiError::InternalServerError)
+	}
+
 	pub async fn set_email(pool: &PgPool, token_id: &Uuid) -> Result<(), ApiError> {
 		sqlx::query_file!("src/user/sql/email/set_email.sql", token_id)
 		    .execute(pool)
 		    .await
 		    .map(|_| ())
-		    .map_err(|err| {
-		    	println!("{:?}", err);
-		    	ApiError::InternalServerError
-		    })
+		    .map_err(|_| ApiError::InternalServerError)
+	}
+
+	pub async fn reset_email(pool: &PgPool, token_id: &Uuid) -> Result<(), ApiError> {
+		sqlx::query_file!("src/user/sql/email/reset_email.sql", token_id)
+		    .execute(pool)
+		    .await
+		    .map(|_| ())
+		    .map_err(|_| ApiError::InternalServerError)
 	}
 }

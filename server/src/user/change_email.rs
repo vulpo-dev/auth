@@ -103,7 +103,7 @@ pub async fn create_email_change_request(
 }
 
 #[derive(Deserialize)]
-pub struct ConfirmEmailChangePayload {
+pub struct EmailChangeTokenPayload {
 	pub id: Uuid,
 	pub token: String,
 }
@@ -112,7 +112,7 @@ pub struct ConfirmEmailChangePayload {
 pub async fn confirm_email_change(
 	pool: Db,
 	_access_token: AccessToken,
-	body: Json<ConfirmEmailChangePayload>,
+	body: Json<EmailChangeTokenPayload>,
 ) -> Result<Status, ApiError> {
 
 	let token = EmailChangeRequest::get_confirm_token(&pool, &body.id).await?;
@@ -135,6 +135,31 @@ pub async fn confirm_email_change(
 	}
 
 	EmailChangeRequest::set_email(&pool, &body.id).await?;
+
+	Ok(Status::Ok)
+}
+
+#[post("/email/update/reset", format="json", data="<body>")]
+pub async fn reset_email_change(
+	pool: Db,
+	_access_token: AccessToken,
+	body: Json<EmailChangeTokenPayload>,
+) -> Result<Status, ApiError> {
+
+	let token = EmailChangeRequest::get_reset_token(&pool, &body.id).await?;
+
+	match token.state {
+		EmailChangeState::Reject | EmailChangeState::Reset => return Err(ApiError::Forbidden),
+		EmailChangeState::Accept | EmailChangeState::Request => {}, 
+	};
+
+	let is_valid = Token::verify(&body.token, &token.token)?;
+
+	if !is_valid {
+		return Err(ApiError::Forbidden);
+	}
+
+	EmailChangeRequest::reset_email(&pool, &body.id).await?;
 
 	Ok(Status::Ok)
 }

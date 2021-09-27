@@ -123,9 +123,46 @@ describe("User change email", () => {
 })
 
 
+describe("User reset change email", () => {
+	test("can reset email change", async () => {
+		let changeRequest = await insertChangeRequestToken()
+
+		await confirm({
+			id: changeRequest.id,
+			token: changeRequest.token,
+		})
+
+		let payload = {
+			id: changeRequest.id,
+			token: changeRequest.resetToken,
+		}
+
+		let res = await reset(payload)
+
+		expect(res.status).toEqual(200)
+
+		let { rows } = await Db.query(`
+			select email_change_request.state
+			     , users.email
+			  from email_change_request
+			  join users on users.id = email_change_request.user_id
+			 where email_change_request.id = $1
+		`, [changeRequest.id])
+
+		expect(rows[0]).toMatchObject({
+			state: 'reset',
+			email: EMAIL,
+		})
+	})
+
+	test("reset fails when token state is reject", testResetState('reject'))
+	test("reset fails when token state is reset", testResetState('reset'))
+})
+
+
 function testState(state: string) {
 	return async () => {
-		let changeRequest = await insertChangeRequestToken({ expired: true })
+		let changeRequest = await insertChangeRequestToken()
 		await setState(changeRequest.id, state)
 
 		let payload = {
@@ -134,6 +171,24 @@ function testState(state: string) {
 		}
 
 		let res = await confirm(payload)
+
+		expect(res.status).toEqual(403)
+
+		await dataIsUnchanged(changeRequest.id, state)
+	}
+}
+
+function testResetState(state: string) {
+	return async () => {
+		let changeRequest = await insertChangeRequestToken()
+		await setState(changeRequest.id, state)
+
+		let payload = {
+			id: changeRequest.id,
+			token: changeRequest.resetToken,
+		}
+
+		let res = await reset(payload)
 
 		expect(res.status).toEqual(403)
 
@@ -184,6 +239,8 @@ async function dataIsUnchanged(changeRequestId: string, state: string, email: st
 	expect(rows[0]).toMatchObject({ state, email })
 }
 
+
+
 async function confirm(payload) {
 	let token = generateAccessToken({
 		payload: tokenPayload()
@@ -195,4 +252,21 @@ async function confirm(payload) {
 		}
 	})
 	.catch(err => err.response)	
+}
+
+async function reset(payload: any) {
+	return req('user/email/update/reset', payload)
+}
+
+async function req(url: string, payload: any) {
+	let token = generateAccessToken({
+		payload: tokenPayload()
+	})
+
+	return Http.post(url, payload, {
+		headers: {
+			'Authorization': `Bearer ${token}`,
+		}
+	})
+	.catch(err => err.response)
 }

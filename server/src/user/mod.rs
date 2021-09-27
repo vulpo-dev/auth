@@ -30,5 +30,6 @@ pub fn routes() -> Vec<Route> {
         set_password::set_password,
         change_email::create_email_change_request,
         change_email::confirm_email_change,
+        change_email::reset_email_change,
     ]
 }
