@@ -1,0 +1,54 @@
+version: '2'
+
+services:
+  postgres:
+    image: postgres
+    container_name: vulpo_test_db
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+    ports:
+      - 6543:5432
+    volumes:
+      - postgres-data:/var/lib/postgres
+
+  mailhog:
+    image: mailhog/mailhog
+    container_name: vulpo_test_mailhog
+    restart: always
+    ports:
+      - 1025:1025
+      - 8025:8025
+    volumes:
+      - mailhog-data:/var/lib/mailhog
+
+  vulpo:
+    image: vulpo
+    container_name: vulpo_test
+    restart: always
+    environment:
+      - VULPO_SECRETS_PASSPHRASE=password
+
+      - VULPO_DB_PORT=5432
+      - VULPO_DB_USERNAME=postgres
+      - VULPO_DB_PASSWORD=postgres
+      - VULPO_DB_LOG_LEVEL=Off
+      - VULPO_DB_HOST=vulpo_test_db
+      - VULPO_DB_DATABASE_NAME=auth
+
+      - VULPO_RUN_MIGRATIONS=true
+      - VULPO_MAIL_LOCALHOST=vulpo_test_mailhog
+    
+    ports:
+      - 8000:8000
+
+    depends_on:
+      - vulpo_test_db
+      - vulpo_test_mailhog
+
+
+
+volumes:
+  postgres-data:
+  mailhog-data:

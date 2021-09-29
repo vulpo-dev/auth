@@ -20,10 +20,12 @@ COPY --from=build_admin /usr/src/admin/build /usr/src/admin/build
 
 RUN cargo build -p vulpo_server --release
 
-# Copy the statically-linked binary into a scratch container.
+
+
 FROM ubuntu:latest
 COPY --from=build /usr/src/target/release/vulpo_server .
 RUN apt-get update
 RUN apt-get -y install libssl-dev
 RUN apt-get -y install libpq-dev
+ENV VULPO_SERVER_ADDRESS='0.0.0.0'
 CMD ["./vulpo_server", "server"]

@@ -30,6 +30,7 @@ use figment::{
     Figment,
 };
 use include_dir::{include_dir, Dir};
+use std::env;
 
 const ADMIN_CLIENT: Dir = include_dir!("../admin/build");
 const TEMPLATE: Dir = include_dir!("./template");
@@ -42,8 +43,15 @@ async fn main() {
     let db_config = config::db(&figment);
     let secret_config = config::secrets(&figment);
 
-    if let Some(_) = matches.subcommand_matches("init") {
+    if env::var("VULPO_RUN_MIGRATIONS").is_ok() ||
+        matches.subcommand_matches("init").is_some() {
         migration::init(&db_config);
+    }
+
+
+    if matches.is_present("run-migrations") ||
+        matches.subcommand_matches("migrations").is_some() {
+        migration::run(&db_config);
     }
 
     if let Some(matches) = matches.subcommand_matches("server") {
@@ -59,9 +67,5 @@ async fn main() {
         };
 
         server::start(config, &db_config, secret_config).await;
-    }
-
-    if let Some(_) = matches.subcommand_matches("migrations") {
-        migration::run(&db_config);
     }
 }

@@ -3,6 +3,8 @@ pub mod data;
 use crate::response::error::ApiError;
 use crate::settings::data::EmailSettings;
 
+use std::env;
+
 use lettre::{
     message::{header, MultiPart, SinglePart},
     transport::smtp::authentication::Credentials,
@@ -35,8 +37,11 @@ impl Email {
 
         let creds = Credentials::new(settings.username, settings.password);
 
-        let mailer = if settings.host.trim() == "localhost" {
-            AsyncSmtpTransport::<Tokio1Executor>::builder_dangerous("localhost")
+        let use_insecure = settings.host.trim() == "localhost";
+
+        let mailer = if use_insecure {
+            let host = env::var("VULPO_MAIL_LOCALHOST").unwrap_or("localhost".to_string());
+            AsyncSmtpTransport::<Tokio1Executor>::builder_dangerous(&host)
         } else {
             AsyncSmtpTransport::<Tokio1Executor>::starttls_relay(&settings.host).unwrap()
         };
