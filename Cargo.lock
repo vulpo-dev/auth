@@ -2708,6 +2708,7 @@ dependencies = [
  "lettre",
  "log",
  "openssl",
+ "openssl-probe",
  "openssl-sys",
  "rand",
  "reqwest",

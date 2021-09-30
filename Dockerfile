@@ -12,7 +12,7 @@ RUN npm run build
 
 
 # SERVER
-FROM rust:latest AS build
+FROM clux/muslrust:1.55.0 AS build
 WORKDIR /usr/src
 
 COPY . ./
@@ -20,12 +20,8 @@ COPY --from=build_admin /usr/src/admin/build /usr/src/admin/build
 
 RUN cargo build -p vulpo_server --release
 
-
-
-FROM ubuntu:latest
-COPY --from=build /usr/src/target/release/vulpo_server .
-RUN apt-get update
-RUN apt-get -y install libssl-dev
-RUN apt-get -y install libpq-dev
+# Copy the statically-linked binary into a scratch container.
+FROM scratch
+COPY --from=build /usr/src/target/x86_64-unknown-linux-musl/release/vulpo_server /vulpo_server
 ENV VULPO_SERVER_ADDRESS='0.0.0.0'
 CMD ["./vulpo_server", "server"]

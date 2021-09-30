@@ -18,12 +18,14 @@ mod template;
 mod user;
 mod crypto;
 
+extern crate openssl_probe;
+extern crate openssl;
+
 #[macro_use]
 extern crate rocket;
 
 #[macro_use]
 extern crate diesel_migrations;
-extern crate openssl;
 
 use figment::{
     providers::{Env, Format, Toml},
@@ -37,6 +39,8 @@ const TEMPLATE: Dir = include_dir!("./template");
 
 #[rocket::main]
 async fn main() {
+    openssl_probe::init_ssl_cert_env_vars();
+    
     let matches = cli::get_matches();
     let file = config::get_dir(matches.value_of("config"));
     let figment = Figment::new().merge(Toml::file(file).nested());

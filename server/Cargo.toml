@@ -27,6 +27,7 @@ openssl = { version = "0.10" }
 figment = { version = "0.10", features= ["env"] }
 vulpo = "0.2.0"
 log = { version = "0.4.14", features = ["serde"] }
+openssl-probe = "0.1.4"
 
 [dependencies.sqlx]
 version = "0.5"
