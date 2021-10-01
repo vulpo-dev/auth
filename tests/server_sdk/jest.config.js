@@ -4,7 +4,7 @@ module.exports = {
   testEnvironment: 'node',
   testTimeout: 20000,
   moduleNameMapper: {
-    '^@sdk-js/(.*)$': '<rootDir>/../../packages/sdk-js/src/$1',
+    '^@sdk-js/(.*)$': '<rootDir>/../../packages/web/sdk/src/$1',
     '^@seeds/(.*)$': '<rootDir>/../../seeds/$1',
   },
 };

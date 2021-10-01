@@ -1,7 +1,9 @@
 {
   "packages": [
-    "packages/*",
+    "packages/test-helper",
+    "packages/web/*",
     "admin",
+    "example",
     "scripts/*",
     "tests/*"
   ],

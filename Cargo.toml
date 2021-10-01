@@ -2,6 +2,6 @@
 
 members = [
     "server",
-    "packages/sdk-rs",
-    "packages/sdk-rocket",
+    "packages/rust/sdk",
+    "packages/rust/sdk-rocket",
 ]

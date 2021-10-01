@@ -4,7 +4,7 @@
 		"esModuleInterop": true,
 		"strictNullChecks": true,
 		"paths": {
-			"@sdk-js*": ["../../packages/sdk-js/src/*"],
+			"@sdk-js*": ["../../packages/web/sdk/src/*"],
 			"@seeds*": ["../../scripts/seeds/*"]
 		}
 	}

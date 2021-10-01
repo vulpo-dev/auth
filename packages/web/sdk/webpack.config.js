@@ -1,4 +1,4 @@
-let createConfig = require('../../webpack.config')
+let createConfig = require('../../../webpack.config')
 
 module.exports = function ({ browser }, argv) {
 	let config = createConfig(argv.mode || 'production')

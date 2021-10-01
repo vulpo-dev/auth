@@ -1,5 +1,5 @@
 import jwtDecode from 'jwt-decode'
-import type { User, Token, AccessToken } from 'types'
+import type { User, Token, AccessToken } from './types'
 
 export let makeId = (): () => number => {
 	let id = 0

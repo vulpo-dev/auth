@@ -2667,19 +2667,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "vulpo"
-version = "0.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "90c38d40198c0f04fcc0281224d317a3413ff13ba5fef9a1d67130530b419657"
-dependencies = [
- "chrono",
- "jsonwebtoken",
- "reqwest",
- "serde",
- "uuid",
-]
-
-[[package]]
 name = "vulpo_rocket"
 version = "0.1.0"
 dependencies = [
@@ -2689,7 +2676,7 @@ dependencies = [
  "rocket",
  "serde",
  "uuid",
- "vulpo 0.2.0",
+ "vulpo",
 ]
 
 [[package]]
@@ -2717,7 +2704,7 @@ dependencies = [
  "serde_json",
  "sqlx",
  "uuid",
- "vulpo 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "vulpo",
 ]
 
 [[package]]
