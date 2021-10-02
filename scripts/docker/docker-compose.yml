@@ -44,8 +44,8 @@ services:
       - 8000:8000
 
     depends_on:
-      - vulpo_test_db
-      - vulpo_test_mailhog
+      - postgres
+      - mailhog
 
 
 
