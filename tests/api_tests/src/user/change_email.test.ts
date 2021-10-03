@@ -1,13 +1,8 @@
 import Db from '../utils/db'
 import Http from '../utils/http'
 import { generateKeyPair } from '../utils/crypto'
-// import { Url } from '@sdk-js/types'
-// import { ErrorCode } from '@sdk-js/error'
 import { PROJECT_ID } from '../utils/env'
-import {
-	makeCleanUp,
-	makeCreateUser,
-} from '../utils/passwordless'
+import { makeCreateUser } from '../utils/passwordless'
 import { makeGenerateAccessToken, makeTokenPayload } from '../utils/user'
 import { projectKeys } from '@seeds/data/projects'
 

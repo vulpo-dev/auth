@@ -1,7 +1,9 @@
 mod admin;
+mod api_key;
 mod cli;
 mod config;
 mod cors;
+mod crypto;
 mod db;
 mod file;
 mod keys;
@@ -16,10 +18,9 @@ mod session;
 mod settings;
 mod template;
 mod user;
-mod crypto;
 
-extern crate openssl_probe;
 extern crate openssl;
+extern crate openssl_probe;
 
 #[macro_use]
 extern crate rocket;
@@ -40,21 +41,18 @@ const TEMPLATE: Dir = include_dir!("./template");
 #[rocket::main]
 async fn main() {
     openssl_probe::init_ssl_cert_env_vars();
-    
+
     let matches = cli::get_matches();
     let file = config::get_dir(matches.value_of("config"));
     let figment = Figment::new().merge(Toml::file(file).nested());
     let db_config = config::db(&figment);
     let secret_config = config::secrets(&figment);
 
-    if env::var("VULPO_RUN_MIGRATIONS").is_ok() ||
-        matches.subcommand_matches("init").is_some() {
+    if env::var("VULPO_RUN_MIGRATIONS").is_ok() || matches.subcommand_matches("init").is_some() {
         migration::init(&db_config);
     }
 
-
-    if matches.is_present("run-migrations") ||
-        matches.subcommand_matches("migrations").is_some() {
+    if matches.is_present("run-migrations") || matches.subcommand_matches("migrations").is_some() {
         migration::run(&db_config);
     }
 

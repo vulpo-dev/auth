@@ -141,6 +141,29 @@
       ]
     }
   },
+  "0cc9374c85dfbb62e95cdc7797abe47cce3833cc151fd97d9f858bc33526cee9": {
+    "query": "\r\ninsert into api_keys(token, user_id, expire_at, name)\r\nvalues($1, $2, $3, $4)\r\nreturning id",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Text",
+          "Uuid",
+          "Timestamptz",
+          "Text"
+        ]
+      },
+      "nullable": [
+        false
+      ]
+    }
+  },
   "0d55d8318c4c8df2f34966d42cf7eb90354aeda4f181d8ab6717bc06a5699d35": {
     "query": "with languages as (\r\n    select array_append($2, project_settings.default_language) as languages\r\n      from project_settings\r\n     where project_id = $1\r\n\r\n)\r\nselect lang.prio, template_translations.content\r\n  from languages, unnest(languages.languages) WITH ORDINALITY AS lang(code, prio)\r\n  join templates on templates.name = $3\r\n  join template_translations on template_translations.language = lang.code\r\n                            and template_translations.template_id  = templates.id\r\n order by lang.prio\r\n limit 1",
     "describe": {

@@ -2,8 +2,6 @@ use crate::response::error::ApiError;
 use rand::distributions::Alphanumeric;
 use rand::{thread_rng, Rng};
 
-
-
 #[derive(Debug)]
 pub struct Token;
 
@@ -12,7 +10,7 @@ impl Token {
         let mut rng = thread_rng();
         (&mut rng)
             .sample_iter(Alphanumeric)
-            .take(32)
+            .take(64)
             .map(char::from)
             .collect()
     }
