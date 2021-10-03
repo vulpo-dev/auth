@@ -111,7 +111,7 @@ const FILES: [File; 8] = [
     File {
         path: "view/confirm_email_change.hbs",
         translation: "translation/confirm_email_change.json",
-        name: "password_changed",
+        name: "confirm_email_change",
         template_type: "view",
         template: Templates::ConfirmEmailChange,
     },
