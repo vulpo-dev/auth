@@ -2,15 +2,19 @@
   "name": "@vulpo/test-helper",
   "version": "0.1.0",
   "description": "",
-  "main": "index.js",
+  "main": "./lib/main.js",
+  "types": "./lib/main.d.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepublish": "npm run bundle",
+    "bundle": "tsc --module CommonJS --outDir ./lib"
   },
   "license": "MPL-2",
   "dependencies": {
     "@playwright/test": "^1.14.1",
+    "@riezler/auth-sdk": "^0.0.2",
     "@types/uuid": "^8.3.1",
-    "uuid": "^8.3.2",
-    "@riezler/auth-sdk": "^0.0.2"
+    "axios": "^0.22.0",
+    "uuid": "^8.3.2"
   }
 }

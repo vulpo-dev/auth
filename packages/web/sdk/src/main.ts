@@ -11,6 +11,8 @@ export type {
 	TokenListener,
 	SetPasswordPayload,
 	SessionInfo,
+	SessionResponse,
+	EmailPasswordPayload
 } from './types'
 
 export {

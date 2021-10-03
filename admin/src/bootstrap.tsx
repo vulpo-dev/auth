@@ -9,7 +9,6 @@ import {
 import App from 'app'
 import { useProject } from 'data/admin'
 import { Http } from 'data/http'
-import { useSetBoson } from '@biotic-ui/boson'
 import { Auth as AuthCtx } from '@riezler/auth-react'
 import { Auth } from '@riezler/auth-sdk'
 import { GhostPage } from 'component/loading'
@@ -61,7 +60,7 @@ let Bootstrap = () => {
 }
 
 let BootstrapContainer = () => (	
-	<BrowserRouter basename='/admin'>
+	<BrowserRouter basename='/dashboard'>
 		<Bootstrap />
 	</BrowserRouter>
 )

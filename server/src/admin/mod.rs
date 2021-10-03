@@ -38,10 +38,16 @@ fn admin_index() -> Option<File> {
     Some(File::from(file))
 }
 
-pub fn routes() -> Vec<Route> {
+
+pub fn dashboard() -> Vec<Route> {
     routes![
         files,
         admin_index,
+    ]
+}
+
+pub fn routes() -> Vec<Route> {
+    routes![
         create::handler,
         create::create_once,
         create_user::handler,
