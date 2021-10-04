@@ -78,13 +78,14 @@ export function makeCreateUser(
 	userId: string,
 	email: string,
 	projectId: string,
+	traits: Array<string> = []
 ) {
 	return function() {
 		return Db.query(`
-			insert into users(id, email, project_id, provider_id)
-			values($1, $2, $3, 'link')
+			insert into users(id, email, project_id, provider_id, traits)
+			values($1, $2, $3, 'link', $4)
 			on conflict (id)
 			   do nothing
-		`, [userId, email, projectId])
+		`, [userId, email, projectId, traits])
 	}
 }

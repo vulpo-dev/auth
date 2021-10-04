@@ -10,9 +10,7 @@ import { v4 as uuid, validate as uuidValidate } from 'uuid'
 import * as bcrypt from 'bcryptjs'
 
 const EMAIL = 'api+test_api_key@vulpo.dev'
-const NEW_EMAIL = 'api+test_change_new_email@vulpo.dev'
 const USER_ID = 'a3989244-3a03-47a0-8424-1d316cf429f2'
-const KEYS = generateKeyPair()
 
 let createUser = makeCreateUser(
 	USER_ID,

@@ -54,6 +54,44 @@
       "nullable": []
     }
   },
+  "08f5785fd03da32047a0331aa2ebe43a135c24de9886f89e5c81d926ea714753": {
+    "query": "\r\nselect users.id as \"sub\"\r\n     , users.traits as \"traits\"\r\n     , users.project_id as \"iss\"\r\n     , extract(epoch from now() + interval '15 minutes')::numeric::bigint as \"exp!\"\r\n  from api_keys\r\n  join users on users.id = api_keys.user_id\r\n where api_keys.id = $1",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "sub",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "traits",
+          "type_info": "TextArray"
+        },
+        {
+          "ordinal": 2,
+          "name": "iss",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 3,
+          "name": "exp!",
+          "type_info": "Int8"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid"
+        ]
+      },
+      "nullable": [
+        false,
+        false,
+        false,
+        null
+      ]
+    }
+  },
   "099cdde3e688347b19141845a9dba42266477e1eb3447030d935adbc7b6b0c15": {
     "query": "select id\r\n     , display_name\r\n     , email\r\n     , email_verified\r\n     , photo_url\r\n     , traits\r\n     , data\r\n     , provider_id\r\n     , created_at\r\n     , updated_at\r\n     , state\r\n     , device_languages\r\n  from users\r\n where id = $1\r\n   and project_id = $2",
     "describe": {
@@ -1116,6 +1154,32 @@
         ]
       },
       "nullable": []
+    }
+  },
+  "8b372f5603257a2a217b7fcbde685fea1a1e877b300796c40f2432ee194b1c00": {
+    "query": "\r\nselect api_keys.token\r\n     , api_keys.expire_at\r\n  from api_keys\r\n where id = $1\r\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "token",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 1,
+          "name": "expire_at",
+          "type_info": "Timestamptz"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid"
+        ]
+      },
+      "nullable": [
+        false,
+        true
+      ]
     }
   },
   "8bbf5a67f262e5211beddfe130a8e5377187cae035ab0339f3bc1b03e8e2071e": {

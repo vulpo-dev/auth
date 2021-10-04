@@ -16,16 +16,10 @@ impl Token {
     }
 
     pub fn hash(token: &str) -> Result<String, ApiError> {
-        match bcrypt::hash(token.clone(), bcrypt::DEFAULT_COST) {
-            Err(_) => Err(ApiError::InternalServerError),
-            Ok(hashed) => Ok(hashed),
-        }
+        bcrypt::hash(token.clone(), bcrypt::DEFAULT_COST).map_err(|_| ApiError::InternalServerError)
     }
 
-    pub fn verify(hashed_token: &str, raw_value: &str) -> Result<bool, ApiError> {
-        match bcrypt::verify(hashed_token, raw_value) {
-            Err(_) => Err(ApiError::InternalServerError),
-            Ok(valid) => Ok(valid),
-        }
+    pub fn verify(value: &str, hash: &str) -> Result<bool, ApiError> {
+        bcrypt::verify(value, hash).map_err(|_| ApiError::InternalServerError)
     }
 }

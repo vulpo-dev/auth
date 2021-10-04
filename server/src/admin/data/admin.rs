@@ -1,3 +1,4 @@
+use crate::api_key::data::ApiKey;
 use crate::db::Db;
 use crate::keys::data::{NewProjectKeys, ProjectKeys};
 use crate::project::Project;
@@ -190,6 +191,18 @@ impl<'r> FromRequest<'r> for Admin {
             Some(token) => token,
         };
 
+        let mut token_stream = token_string.split_whitespace().map(|part| part.trim());
+
+        let token_type = match token_stream.next() {
+            Some(tt) => tt,
+            None => return Outcome::Failure((Status::BadRequest, ApiError::AuthTokenMissing)),
+        };
+
+        let token = match token_stream.next() {
+            Some(t) => t,
+            None => return Outcome::Failure((Status::BadRequest, ApiError::AuthTokenMissing)),
+        };
+
         let (project, db) = join!(Project::from_request(req), Db::from_request(req));
 
         let project = match project.succeeded() {
@@ -204,26 +217,45 @@ impl<'r> FromRequest<'r> for Admin {
             Some(pool) => pool,
         };
 
-        let key = match ProjectKeys::get_public_key(&db, &project.id).await {
-            Ok(key) => key,
-            Err(_) => {
-                return Outcome::Failure((Status::InternalServerError, ApiError::AuthTokenMissing));
+        let claims = match token_type.to_lowercase().as_str() {
+            "bearer" => {
+                let key = match ProjectKeys::get_public_key(&db, &project.id).await {
+                    Ok(key) => key,
+                    Err(_) => {
+                        return Outcome::Failure((
+                            Status::InternalServerError,
+                            ApiError::AuthTokenMissing,
+                        ));
+                    }
+                };
+
+                match AccessToken::from_rsa(token.to_string(), &key) {
+                    Ok(token) => token,
+                    Err(_) => {
+                        return Outcome::Failure((Status::Unauthorized, ApiError::BadRequest));
+                    }
+                }
             }
-        };
 
-        let end = token_string.len();
-        let start = "Bearer ".len();
+            "apikey" => match ApiKey::get_claims(&db, &token).await {
+                Ok(claim) => claim,
+                Err(err) => match err {
+                    ApiError::BadRequest
+                    | ApiError::TokenNotFound
+                    | ApiError::TokenExpired
+                    | ApiError::TokenInvalid => {
+                        return Outcome::Failure((Status::BadRequest, ApiError::BadRequest))
+                    }
+                    _ => {
+                        return Outcome::Failure((
+                            Status::InternalServerError,
+                            ApiError::BadRequest,
+                        ))
+                    }
+                },
+            },
 
-        if end < start {
-            return Outcome::Failure((Status::BadRequest, ApiError::AuthTokenMissing));
-        }
-
-        let token = &token_string[start..end];
-        let claims = match AccessToken::from_rsa(token.to_string(), &key) {
-            Ok(token) => token,
-            Err(_) => {
-                return Outcome::Failure((Status::Unauthorized, ApiError::BadRequest));
-            }
+            _ => return Outcome::Failure((Status::BadRequest, ApiError::AuthTokenMissing)),
         };
 
         if !claims.traits.contains(&String::from("Admin")) {

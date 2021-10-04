@@ -12,7 +12,7 @@ create table if not exists users
 	, provider_id text not null
 	, created_at timestamptz not null default now()
 	, updated_at timestamptz not null default now()
-	, project_id uuid references projects(id) on delete cascade
+	, project_id uuid not null references projects(id) on delete cascade
 	, state text not null default 'Active'
 	, device_languages text[] not null default '{en}'
 	, unique(project_id, email)
