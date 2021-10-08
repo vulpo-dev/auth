@@ -125,7 +125,12 @@ impl ApiError {
             ApiError::TokenInvalid => Status::Forbidden,
             ApiError::ProjectNameExists | ApiError::UserExists => Status::Conflict,
             ApiError::ProjectNotFound => Status::NotFound,
-            ApiError::PasswordlessAwaitConfirm => Status::Unauthorized,
+            ApiError::PasswordlessAwaitConfirm
+            | ApiError::TokenExpired
+            | ApiError::TokenNotFound
+            | ApiError::AuthTokenMissing
+            | ApiError::AuthRefreshTokenMissing
+            | ApiError::AuthRefreshTokenNotFound => Status::Unauthorized,
             _ => Status::BadRequest,
         }
     }

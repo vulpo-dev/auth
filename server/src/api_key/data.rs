@@ -5,7 +5,7 @@ use vulpo::Claims;
 use base64;
 use chrono::{DateTime, Utc};
 use sqlx::PgPool;
-use std::str;
+use std::str::{self, FromStr};
 use uuid::Uuid;
 
 pub struct ApiKey {
@@ -48,21 +48,7 @@ impl ApiKey {
     }
 
     pub async fn get_claims(pool: &PgPool, token: &str) -> Result<Claims, ApiError> {
-        let token = base64::decode(token).map_err(|_| ApiError::BadRequest)?;
-
-        let token = str::from_utf8(&token).map_err(|_| ApiError::BadRequest)?;
-
-        let token_stream: Vec<&str> = token.split(":").collect();
-
-        let id = token_stream
-            .get(0)
-            .and_then(|id| Uuid::parse_str(id).ok())
-            .ok_or_else(|| ApiError::BadRequest)?;
-
-        let raw_token = token_stream
-            .get(1)
-            .ok_or_else(|| ApiError::BadRequest)?
-            .to_owned();
+        let (id, raw_token) = ApiKey::parse_token(token)?;
 
         let api_key = ApiKey::get_token(&pool, &id)
             .await?
@@ -84,5 +70,27 @@ impl ApiKey {
             .fetch_one(pool)
             .await
             .map_err(|_| ApiError::InternalServerError)
+    }
+
+    pub fn parse_token(token: &str) -> Result<(Uuid, String), ApiError> {
+        let token = base64::decode(token).map_err(|_| ApiError::BadRequest)?;
+
+        let token = str::from_utf8(&token).map_err(|_| ApiError::BadRequest)?;
+
+        let token_stream: Vec<&str> = token.split(":").collect();
+
+        let id = token_stream
+            .get(0)
+            .and_then(|id| Uuid::parse_str(id).ok())
+            .ok_or_else(|| ApiError::BadRequest)?;
+
+        let raw_token = token_stream
+            .get(1)
+            .ok_or_else(|| ApiError::BadRequest)?
+            .to_owned();
+
+        let token = String::from_str(raw_token).map_err(|_| ApiError::InternalServerError)?;
+
+        Ok((id, token))
     }
 }

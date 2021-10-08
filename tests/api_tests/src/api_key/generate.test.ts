@@ -1,6 +1,5 @@
 import Db from '../utils/db'
 import Http from '../utils/http'
-import { generateKeyPair } from '../utils/crypto'
 import { PROJECT_ID } from '../utils/env'
 import { makeCreateUser } from '../utils/passwordless'
 import { makeGenerateAccessToken, makeTokenPayload } from '../utils/user'

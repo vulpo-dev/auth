@@ -109,7 +109,7 @@ describe("Verify Email", () => {
 			.post(Url.UserVerifyEmail, payload)
 			.catch(err => err.response)
 
-		expect(res.status).toBe(400)
+		expect(res.status).toBe(401)
 		expect(res.data.code).toBe(ErrorCode.TokenExpired)		
 	})
 })
