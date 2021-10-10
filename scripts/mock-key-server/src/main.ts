@@ -1,9 +1,11 @@
 import express, { Response, Request } from 'express'
-import { Key } from '../../../admin/node_modules/@riezler/auth-sdk/lib/storage'
 import { generateKeyPairSync } from 'crypto'
 import { v4 as uuid } from 'uuid'
+import bodyParser from 'body-parser'
 
 let app = express()
+
+app.use(bodyParser.json())
 
 type Keypair = {
 	id: string;
@@ -92,6 +94,38 @@ app.get("/keys", async (
 	}
 
 	res.json(payload)
+})
+
+app.post('/api_key/verify', async (
+	req: Request,
+	res: Response
+) => {
+	let [id, token] = Buffer
+		.from(req.body.api_key, 'base64')
+		.toString('utf8')
+		.split(':')
+
+
+	if (id === 'expired') {
+		return res
+			.status(401)
+			.json({ code: 'token/expired' })
+	}
+
+	if (id === 'invalid') {
+		return res.json({
+			iss: uuid(),
+			exp: Math.floor(Date.now()),
+			traits: [],
+		})
+	}
+
+	res.json({
+		sub: uuid(),
+		iss: uuid(),
+		exp: Math.floor(Date.now()),
+		traits: [],
+	})
 })
 
 app.listen(7000, () => {

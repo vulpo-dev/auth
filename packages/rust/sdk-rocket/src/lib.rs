@@ -3,7 +3,7 @@ use rocket::http::Status;
 use rocket::request::Outcome;
 use rocket::request::{FromRequest, Request};
 use std::marker::PhantomData;
-use vulpo::{AuthKeys, Authorize, Error};
+use vulpo::{AuthKeys, Authorize, Error, Token};
 
 pub use vulpo::Claims;
 
@@ -28,22 +28,32 @@ where
             Some(token) => token,
         };
 
+        let token = match AuthKeys::get_token(&token_string) {
+            Err(_) => return Outcome::Failure((Status::BadRequest, ())),
+            Ok(token) => token,
+        };
+
         let auth = match req.rocket().state::<AuthKeys>() {
             None => return Outcome::Failure((Status::InternalServerError, ())),
             Some(auth) => auth,
         };
 
-        let token = match AuthKeys::bearer_token(token_string) {
-            None => return Outcome::Failure((Status::BadRequest, ())),
-            Some(t) => t,
+        let get_claims = match token {
+            Token::JWT(token) => auth.verify_jwt(&token).await,
+            Token::ApiKey(token) => auth.verify_api_key(&token).await,
         };
 
-        let claims = match auth.verify_token(&token).await {
+        let claims = match get_claims {
             Err(err) => {
-                let status = if err == Error::Expired {
-                    Status::Unauthorized
-                } else {
-                    Status::BadRequest
+                let status = match err {
+                    Error::Expired
+                    | Error::Unauthorized
+                    | Error::InvalidKey
+                    | Error::InvalidClaims => Status::Unauthorized,
+                    Error::KeyMissing | Error::GetApiKeyRequest | Error::InvalidPayload => {
+                        Status::InternalServerError
+                    }
+                    _ => Status::BadRequest,
                 };
                 return Outcome::Failure((status, ()));
             }
@@ -66,9 +76,9 @@ where
 pub struct AuthClient;
 
 impl AuthClient {
-    pub fn fairing(key_url: String) -> impl Fairing {
+    pub fn fairing(host: String) -> impl Fairing {
         AdHoc::on_ignite("Get PublicKeys", move |rocket| async move {
-            let auth = AuthKeys::get_keys(&key_url)
+            let auth = AuthKeys::init(&host)
                 .await
                 .expect("Failed to load public keys");
 

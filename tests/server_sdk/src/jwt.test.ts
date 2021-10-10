@@ -1,10 +1,11 @@
 import axios from 'axios'
 import { v4 as uuid } from 'uuid'
 import jwt from 'jsonwebtoken'
+import { Claims } from './types'
 
 let minute = 60 * 1000
 
-describe("Server SDK", () => {
+describe("JWT", () => {
 	test("returns ok", async () => {
 		let keys = await getKeys()
 		let sink = keys.map(async key => {
@@ -184,7 +185,7 @@ describe("Server SDK", () => {
 
 
 		let result = await Promise.all(sink)
-		expect(result.every(status => status === 400)).toBe(true)
+		expect(result.every(status => status === 401)).toBe(true)
 	})
 
 	test("fails for expired token", async (): Promise<void> => {
@@ -228,13 +229,6 @@ type Keys = Array<Keypair>
 async function getKeys(): Promise<Keys> {
 	let res = await axios.get<Keys>('http://localhost:7000/keys/list')
 	return res.data
-}
-
-type Claims = {
-	sub: string;
-	exp: number;
-	iss: string;
-	traits: Array<string>;
 }
 
 function generateAccessToken(payload: any, key: Buffer) {

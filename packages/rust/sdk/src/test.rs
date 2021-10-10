@@ -57,9 +57,7 @@ async fn get_key() {
         .await
         .unwrap();
 
-    let auth = AuthKeys::get_keys("http://localhost:7000/keys")
-        .await
-        .unwrap();
+    let auth = AuthKeys::init("http://localhost:7000").await.unwrap();
 
     for keypair in keypairs.iter() {
         let public_key = auth.key(&keypair.id).await.unwrap();
@@ -75,7 +73,13 @@ async fn get_key_expired() {
 
     let expire_at = Utc::now() - Duration::hours(6);
     let url = format!("http://localhost:7000/keys?expire_at={}", expire_at);
-    let auth = AuthKeys::get_keys(&url).await.unwrap();
+    let keys = AuthKeys::get_keys(&url).await.unwrap();
+
+    let auth = AuthKeys {
+        keys: keys.keys,
+        expire_at: keys.expire_at,
+        host: String::from("http://localhost:7000"),
+    };
 
     for keypair in keypairs.iter() {
         let public_key = auth.key(&keypair.id).await.unwrap();
@@ -84,14 +88,12 @@ async fn get_key_expired() {
 }
 
 #[tokio::test]
-async fn verify_token() {
+async fn verify_jwt() {
     let keypairs = get_keypairs("http://localhost:7000/keys/list")
         .await
         .unwrap();
 
-    let auth = AuthKeys::get_keys("http://localhost:7000/keys")
-        .await
-        .unwrap();
+    let auth = AuthKeys::init("http://localhost:7000").await.unwrap();
 
     let expire_at = Utc::now() + Duration::minutes(15);
     for keypair in keypairs.iter() {
@@ -103,7 +105,7 @@ async fn verify_token() {
         };
 
         let token = access_token(&keypair.private_key, &payload).unwrap();
-        let claims = auth.verify_token(&token).await;
+        let claims = auth.verify_jwt(&token).await;
         assert!(claims.is_ok());
     }
 }
@@ -114,9 +116,7 @@ async fn verify_token_expired() {
         .await
         .unwrap();
 
-    let auth = AuthKeys::get_keys("http://localhost:7000/keys")
-        .await
-        .unwrap();
+    let auth = AuthKeys::init("http://localhost:7000").await.unwrap();
 
     let expire_at = Utc::now() - Duration::minutes(15);
     for keypair in keypairs.iter() {
@@ -128,7 +128,7 @@ async fn verify_token_expired() {
         };
 
         let token = access_token(&keypair.private_key, &payload).unwrap();
-        let claims = auth.verify_token(&token).await;
+        let claims = auth.verify_jwt(&token).await;
         assert_eq!(claims.unwrap_err(), Error::Expired);
     }
 }
@@ -139,9 +139,7 @@ async fn verify_token_fails_for_missing_key() {
         .await
         .unwrap();
 
-    let auth = AuthKeys::get_keys("http://localhost:7000/keys")
-        .await
-        .unwrap();
+    let auth = AuthKeys::init("http://localhost:7000").await.unwrap();
 
     let expire_at = Utc::now() + Duration::minutes(15);
     let keypair = keypairs.get(0).unwrap();
@@ -154,7 +152,7 @@ async fn verify_token_fails_for_missing_key() {
     };
 
     let token = access_token(&keypair.private_key, &payload).unwrap();
-    let claims = auth.verify_token(&token).await;
+    let claims = auth.verify_jwt(&token).await;
     assert_eq!(claims.unwrap_err(), Error::KeyMissing);
 }
 
@@ -164,9 +162,7 @@ async fn verify_token_invalid_token() {
         .await
         .unwrap();
 
-    let auth = AuthKeys::get_keys("http://localhost:7000/keys")
-        .await
-        .unwrap();
+    let auth = AuthKeys::init("http://localhost:7000").await.unwrap();
 
     let expire_at = Utc::now() + Duration::minutes(15);
     let keypair = keypairs.get(0).unwrap();
@@ -180,7 +176,7 @@ async fn verify_token_invalid_token() {
     };
 
     let token = access_token(&keypair2.private_key, &payload).unwrap();
-    let claims = auth.verify_token(&token).await;
+    let claims = auth.verify_jwt(&token).await;
     assert_eq!(claims.unwrap_err(), Error::InvalidClaims);
 }
 

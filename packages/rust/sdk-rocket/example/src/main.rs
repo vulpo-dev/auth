@@ -46,8 +46,6 @@ fn internal_error(_auth: Auth<InternalError>) -> Status {
 #[launch]
 fn rocket() -> _ {
     rocket::build()
-        .attach(AuthClient::fairing(
-            "http://127.0.0.1:7000/keys".to_string(),
-        ))
+        .attach(AuthClient::fairing("http://127.0.0.1:7000".to_string()))
         .mount("/", routes![test, admin, internal_error])
 }

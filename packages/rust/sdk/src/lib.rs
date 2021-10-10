@@ -9,6 +9,22 @@ use std::mem;
 use std::sync::Mutex;
 use uuid::Uuid;
 
+#[derive(Serialize)]
+pub struct ApiKeyPayload {
+    pub api_key: String,
+}
+
+pub enum Token {
+    ApiKey(String),
+    JWT(String),
+}
+
+pub enum TokenError {
+    TokenTypeNotFound,
+    TokenNotFound,
+    InvalidTokenType,
+}
+
 pub trait Authorize {
     fn authorize(claims: &Claims) -> Result<bool, u16>;
 }
@@ -36,6 +52,8 @@ type Key = Vec<u8>;
 
 #[derive(Debug, PartialEq)]
 pub enum Error {
+    Unauthorized,
+
     KeyMissing,
     InvalidKey,
     InvalidClaims,
@@ -43,6 +61,8 @@ pub enum Error {
     GetKeysRequest,
     InvalidTimestamp,
     Expired,
+
+    GetApiKeyRequest,
 }
 
 impl fmt::Display for Error {
@@ -55,18 +75,35 @@ impl fmt::Display for Error {
 pub struct AuthKeys {
     pub keys: Mutex<HashMap<Uuid, Key>>,
     pub expire_at: Mutex<DateTime<Utc>>,
-    pub url: String,
+    pub host: String,
 }
 
 impl AuthKeys {
-    pub async fn get_keys(url: &str) -> Result<AuthKeys, Error> {
-        let res = match reqwest::get(url).await {
-            Err(_) => return Err(Error::GetKeysRequest),
-            Ok(res) => res,
-        };
+    pub async fn init(host: &str) -> Result<AuthKeys, Error> {
+        let keys_url = format!("{}/keys", host);
+        let keys = AuthKeys::get_keys(&keys_url).await?;
+        Ok(AuthKeys {
+            keys: keys.keys,
+            expire_at: keys.expire_at,
+            host: String::from(host),
+        })
+    }
 
-        if res.status() != 200 {
+    pub async fn get_keys(url: &str) -> Result<Keys, Error> {
+        let res = reqwest::get(url).await.map_err(|_| Error::GetKeysRequest)?;
+
+        let status = res.status().as_u16();
+
+        if status >= 500 {
             return Err(Error::GetKeysRequest);
+        }
+
+        if status == 401 {
+            return Err(Error::Unauthorized);
+        }
+
+        if status >= 300 {
+            return Err(Error::GetApiKeyRequest);
         }
 
         let res = match res.json::<PublicKeys>().await {
@@ -82,11 +119,7 @@ impl AuthKeys {
         let expire_at = Mutex::new(res.expire_at);
         let keys = Mutex::new(keys);
 
-        Ok(AuthKeys {
-            expire_at,
-            keys,
-            url: String::from(url),
-        })
+        Ok(Keys { expire_at, keys })
     }
 
     pub async fn key(&self, id: &Uuid) -> Option<Key> {
@@ -96,7 +129,8 @@ impl AuthKeys {
         };
 
         if expired {
-            let new_keys = AuthKeys::get_keys(&self.url).await.unwrap();
+            let keys_url = format!("{}/keys", self.host);
+            let new_keys = AuthKeys::get_keys(&keys_url).await.unwrap();
 
             let mut exp = self.expire_at.lock().unwrap();
             let _ = mem::replace(&mut exp, new_keys.expire_at.lock().unwrap());
@@ -135,6 +169,25 @@ impl AuthKeys {
         Some(value[start..end].to_string())
     }
 
+    pub fn get_token(token: &str) -> Result<Token, TokenError> {
+        let mut token_stream = token.split_whitespace().map(|part| part.trim());
+
+        let token_type = token_stream
+            .next()
+            .ok_or_else(|| TokenError::TokenNotFound)?;
+
+        let token = token_stream
+            .next()
+            .ok_or_else(|| TokenError::TokenTypeNotFound)?
+            .to_string();
+
+        match token_type.to_lowercase().as_str() {
+            "bearer" => Ok(Token::JWT(token)),
+            "apikey" => Ok(Token::ApiKey(token)),
+            _ => Err(TokenError::InvalidTokenType),
+        }
+    }
+
     fn dangerous_claims(token: &String) -> Result<Claims, Error> {
         match jwt::dangerous_insecure_decode::<Claims>(&token) {
             Err(err) => match err.into_kind() {
@@ -145,7 +198,7 @@ impl AuthKeys {
         }
     }
 
-    pub async fn verify_token(&self, token: &String) -> Result<Claims, Error> {
+    pub async fn verify_jwt(&self, token: &String) -> Result<Claims, Error> {
         let claims = AuthKeys::dangerous_claims(&token)?;
 
         let key = match self.key(&claims.iss).await {
@@ -166,6 +219,35 @@ impl AuthKeys {
             Ok(td) => Ok(td.claims),
         }
     }
+
+    pub async fn verify_api_key(&self, token: &String) -> Result<Claims, Error> {
+        let url = format!("{}/api_key/verify", self.host);
+
+        let payload = ApiKeyPayload {
+            api_key: token.to_string(),
+        };
+
+        let client = reqwest::Client::new();
+        let res = match client.post(url).json(&payload).send().await {
+            Err(_) => return Err(Error::GetApiKeyRequest),
+            Ok(res) => res,
+        };
+
+        if res.status() == 401 {
+            return Err(Error::Unauthorized);
+        }
+
+        if res.status().as_u16() >= 300 {
+            return Err(Error::GetApiKeyRequest);
+        }
+
+        let res = match res.json::<Claims>().await {
+            Err(_) => return Err(Error::InvalidPayload),
+            Ok(json) => json,
+        };
+
+        Ok(res)
+    }
 }
 
 #[derive(Deserialize)]
@@ -178,4 +260,10 @@ pub struct PublicKeys {
 pub struct PublicKey {
     pub id: Uuid,
     pub key: Vec<u8>,
+}
+
+#[derive(Debug)]
+pub struct Keys {
+    pub keys: Mutex<HashMap<Uuid, Key>>,
+    pub expire_at: Mutex<DateTime<Utc>>,
 }
