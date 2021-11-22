@@ -40,4 +40,13 @@ impl Project {
             .map(|row| row.is_admin)
             .map_err(|_| ApiError::InternalServerError)
     }
+
+    pub async fn delete(pool: &PgPool, project: &Uuid) -> Result<(), ApiError> {
+        sqlx::query_file!("src/project/sql/delete_project.sql", project)
+            .execute(pool)
+            .await
+            .map_err(|_| ApiError::InternalServerError)?;
+
+        Ok(())
+    }
 }

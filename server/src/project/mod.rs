@@ -5,6 +5,7 @@ use rocket::Route;
 use uuid::Uuid;
 
 pub mod data;
+mod delete;
 mod flags;
 mod set_flags;
 
@@ -37,5 +38,5 @@ impl<'r> FromRequest<'r> for Project {
 }
 
 pub fn routes() -> Vec<Route> {
-    routes![flags::handler, set_flags::handler]
+    routes![flags::handler, set_flags::handler, delete::delete_project]
 }
