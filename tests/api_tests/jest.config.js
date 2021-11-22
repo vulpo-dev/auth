@@ -2,6 +2,7 @@
 module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'node',
+  globalTeardown: './scripts/global_teardown.ts',
   testTimeout: 20000,
   moduleNameMapper: {
     '^@sdk-js/(.*)$': '<rootDir>/../../packages/web/sdk/src/$1',

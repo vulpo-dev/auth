@@ -8,7 +8,7 @@ import { projectKeys } from '@seeds/data/projects'
 import { v4 as uuid, validate as uuidValidate } from 'uuid'
 import * as bcrypt from 'bcryptjs'
 
-const EMAIL = 'api+test_api_key@vulpo.dev'
+const EMAIL = 'api.test+api_key@vulpo.dev'
 const USER_ID = 'a3989244-3a03-47a0-8424-1d316cf429f2'
 
 let createUser = makeCreateUser(

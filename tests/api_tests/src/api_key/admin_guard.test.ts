@@ -9,7 +9,7 @@ import { adminKeys, admin } from '@seeds/data/projects'
 import { v4 as uuid } from 'uuid'
 import * as bcrypt from 'bcryptjs'
 
-const EMAIL = 'api+test_admin_api_key@vulpo.dev'
+const EMAIL = 'api.test+admin_api_key@vulpo.dev'
 const USER_ID = '1635abcf-aaf4-4800-a552-2fdfcc54ee5c'
 const PROJECT_ID = admin.id
 

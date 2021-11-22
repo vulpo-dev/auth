@@ -15,7 +15,7 @@ import { v4 as uuid } from 'uuid'
 import * as jwt from 'jsonwebtoken'
 import { Algorithm } from 'jsonwebtoken'
 
-const EMAIL = 'michael+test_user_get@riezler.dev'
+const EMAIL = 'api.test+user_get@vulpo.dev'
 const USER_ID = 'a9ad9dd7-c599-4128-8f92-65f14ac87102'
 const KEYS = generateKeyPair()
 

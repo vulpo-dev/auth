@@ -14,7 +14,7 @@ import { ErrorCode } from '@sdk-js/error'
 import { PROJECT_ID } from '../utils/env'
 
 const SALT = bcrypt.genSaltSync(10);
-const EMAIL = 'michael+test_reset@riezler.dev'
+const EMAIL = 'api.test+reset_password@vulpo.dev'
 const PASSWORD = 'password'
 const ID = '031eb841-9650-4b52-a62f-1aa2742ceb43'
 

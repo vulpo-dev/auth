@@ -9,7 +9,7 @@ import { ApiError } from '@admin/error'
 import * as uuid from 'uuid';
 import { ErrorCode } from '@sdk-js/error'
 
-let EMAIL = 'michael+test_create_user@riezler.co'
+let EMAIL = 'api.test+create_user@vulpo.dev'
 
 async function removeUser() {
 	await Db.query(`

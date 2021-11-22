@@ -19,7 +19,7 @@ import * as jwt from 'jsonwebtoken'
 import { Algorithm } from 'jsonwebtoken'
 
 const SALT = bcrypt.genSaltSync(10);
-const EMAIL = 'michael+test_passwordless_verify@riezler.dev'
+const EMAIL = 'api.test+passwordless_verify@vulpo.dev'
 const USER_ID = 'a7f60eb2-aafe-42cc-bfa3-6964140555cc'
 const SESSION_ID = 'ee78fe6e-c997-4eff-9af7-24c57ed1ab76'
 const TOKEN = 'random-token'

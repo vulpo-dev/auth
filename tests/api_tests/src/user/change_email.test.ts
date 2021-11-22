@@ -9,8 +9,8 @@ import { projectKeys } from '@seeds/data/projects'
 import { v4 as uuid } from 'uuid'
 import * as bcrypt from 'bcryptjs'
 
-const EMAIL = 'api+test_change_email@vulpo.dev'
-const NEW_EMAIL = 'api+test_change_new_email@vulpo.dev'
+const EMAIL = 'api.test+change_email@vulpo.dev'
+const NEW_EMAIL = 'api.test+change_new_email@vulpo.dev'
 const USER_ID = '4d883557-1efb-4a4b-9108-40e68d597fbc'
 const KEYS = generateKeyPair()
 

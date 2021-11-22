@@ -9,7 +9,7 @@ import { v4 as uuid } from 'uuid'
 import * as bcrypt from 'bcryptjs'
 import { ErrorCode } from '@sdk-js/error'
 
-const EMAIL = 'api+test_api_key_verify@vulpo.dev'
+const EMAIL = 'api.test+api_key_verify@vulpo.dev'
 const USER_ID = 'dfb94f00-7a63-4bb0-908e-e4af3dc096ed'
 const PROJECT_ID = admin.id
 const TRAITS = ['Fuu', 'Bar']

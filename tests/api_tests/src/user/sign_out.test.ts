@@ -17,7 +17,7 @@ import {
 
 import { v4 as uuid } from 'uuid'
 
-const EMAIL = 'michael+test_user_sign_out@riezler.dev'
+const EMAIL = 'api.test+user_sign_out@vulpo.dev'
 const USER_ID = 'df26e3cf-a5a0-4469-966a-a5dc9b273489'
 const SESSION_ID = '3dd6d873-fb95-46ae-acbd-aa7e5e3d61c8'
 const KEYS = generateKeyPair()

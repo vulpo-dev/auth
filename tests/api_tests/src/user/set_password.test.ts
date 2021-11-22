@@ -12,7 +12,7 @@ import { Url } from '@sdk-js/types'
 
 const USER_ID = '077a9f18-e3c9-428f-99de-49a9a6772887'
 const SESSION_ID = '4e418b87-f967-4d1c-9d40-70e352611101'
-const EMAIL = 'michael+test_set_password@riezler.co'
+const EMAIL = 'api.test+set_password@vulpo.dev'
 const KEYS = generateKeyPair()
 const INVALID_KEYS = generateKeyPair()
 

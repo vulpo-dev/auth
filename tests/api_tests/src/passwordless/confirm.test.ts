@@ -14,7 +14,7 @@ import { v4 as uuid } from 'uuid'
 import * as bcrypt from 'bcryptjs'
 
 const SALT = bcrypt.genSaltSync(10);
-const EMAIL = 'michael+test_passwordless_confirm@riezler.dev'
+const EMAIL = 'api.test+passwordless_confirm@vulpo.dev'
 const USER_ID = '75b83573-d43a-420c-9037-9a09fd4cb892'
 const SESSION_ID = '1b3fa20a-f568-4eec-9948-6bf3d2215f52'
 const TOKEN = 'random-token'

@@ -11,7 +11,7 @@ import { ErrorCode } from '@sdk-js/error'
 import { PROJECT_ID } from '../utils/env'
 
 const SALT = bcrypt.genSaltSync(10);
-const EMAIL = 'michael+test_sign_in@riezler.dev'
+const EMAIL = 'api.test+sign_in_email_password@vulpo.dev'
 const PASSWORD = 'password'
 
 beforeEach(createUser)

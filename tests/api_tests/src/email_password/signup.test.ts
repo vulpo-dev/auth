@@ -9,7 +9,7 @@ import { Url, EmailPasswordPayload } from '@sdk-js/types'
 import { ErrorCode } from '@sdk-js/error'
 import { PROJECT_ID } from '../utils/env'
 
-const EMAIL = 'michael+test_sign_up@riezler.dev'
+const EMAIL = 'api.test+sign_up_email_password@vulpo.dev'
 
 beforeEach(cleanUp)
 afterAll(cleanUp)

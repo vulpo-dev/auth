@@ -10,7 +10,7 @@ import {
 
 import * as bcrypt from 'bcryptjs'
 
-const EMAIL = 'michael+test_user_verify_email@riezler.dev'
+const EMAIL = 'vulpo.test+user_verify_email@vulpo.dev'
 const USER_ID = '39334431-3523-4469-8e66-d1a5cde6b181'
 const SALT = bcrypt.genSaltSync(10);
 const TOKEN = 'random-token'
