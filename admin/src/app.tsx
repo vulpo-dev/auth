@@ -18,7 +18,7 @@ export default function App() {
 			return '/'
 		}
 
-		let admin = '/admin'
+		let admin = '/dashboard'
 		return window.location.pathname.slice(admin.length)
 	}) 
 
@@ -28,7 +28,6 @@ export default function App() {
 	})
 
 	useAuthStateChange((session) => {
-		console.log({ session })
 		let user = session ? session.user : session
 		setUser(user)
 
