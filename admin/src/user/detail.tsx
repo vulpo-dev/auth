@@ -16,8 +16,6 @@ export default function UserDetails({ userId }: Props) {
 	let [{ data: user, initialData }, { set: setUser, reset }] = useUser(userId, project.id)
 	let [focus, setFocus] = useState<number | null>(null)
 
-	console.log({ initialData })
-
 	function onChange(event: ChangeEvent<HTMLInputElement>) {
 		let { name, value } = event.target
 		setUser(user => {

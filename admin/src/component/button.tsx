@@ -2,8 +2,14 @@ import React from 'react'
 import { FunctionComponent, ButtonHTMLAttributes } from 'react'
 import styled from 'styled-components'
 import { Plus, X } from 'phosphor-react'
+import { Button } from '@biotic-ui/button'
 
 export { Button, LinkButton } from '@biotic-ui/button'
+
+export let WarnButton = styled(Button)`
+	--button-bg: var(--red);
+	font-weight: bold;
+`
 
 export let IconButton = styled.button<{ disabled?: boolean }>`
 	background: none;

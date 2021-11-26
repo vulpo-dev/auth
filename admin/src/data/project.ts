@@ -7,20 +7,18 @@ import {
 	useQuery,
 	usePost,
 } from '@biotic-ui/boson'
-import { ApiError } from 'error'
-import { useCurrentUser } from 'auth/ctx'
-
-import { Auth as AuthCtx } from '@riezler/auth-react'
+import { ApiError, getErrorCode } from 'error'
 
 export type PartialProject = {
 	id: string;
 	name: string;
 	domain: string;
+	is_admin: boolean; 
 }
 
 type ProjectList = Array<PartialProject>
 
-let projectsAtom = boson<ProjectList | undefined>({
+export let projectsAtom = boson<ProjectList | undefined>({
 	key: 'projects',
 	defaultValue: undefined
 })
@@ -45,7 +43,8 @@ export function useCreateProject() {
 		let project: PartialProject = {
 			id: data[0],
 			name,
-			domain
+			domain,
+			is_admin: false,
 		}
 
 		setProjects((projects = []) => {
@@ -80,4 +79,16 @@ export function useProject(): [PartialProject, (p: PartialProject) => void] {
 	}
 
 	return [project!, set]
+}
+
+export function useDeleteProject(project: string) {
+	let http = useHttp()
+
+	return usePost<void, ApiError>(async () => {
+		let payload = { project }
+
+		await http
+			.post('project/delete', payload)
+			.catch(err => Promise.reject(getErrorCode(err)))
+	})
 }

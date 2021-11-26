@@ -1,14 +1,12 @@
 import React from 'react'
-import { FunctionComponent, FormEvent, ChangeEvent } from 'react'
+import { FunctionComponent, FormEvent } from 'react'
 import styled from 'styled-components'
-import { Select, Option } from '@biotic-ui/select'
 import { Button } from '@biotic-ui/button'
 import { Header, Section } from 'settings/component/layout'
 import { Input, Section as ISection, Label } from '@biotic-ui/input'
 
 import {
 	useEmailSettings,
-	DefaultEmailSettings,
 	useSaveEmailSettings,
 	useSetEmailSettings,
 } from 'data/settings'

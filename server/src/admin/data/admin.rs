@@ -23,6 +23,7 @@ pub struct PartialProject {
     pub id: Uuid,
     pub name: String,
     pub domain: String,
+    pub is_admin: bool,
 }
 
 #[derive(Debug, Deserialize)]

@@ -141,7 +141,7 @@ let Main = () => {
 						<Templates />
 					</Route>
 					<Route path={`${base}/settings`}>
-						<Settings project={project} />
+						<Settings />
 					</Route>
 					<Redirect from={base} to={`${base}/users`} />
 				</Switch>

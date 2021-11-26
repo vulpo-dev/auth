@@ -4,16 +4,21 @@ import { Container } from 'component/layout'
 
 import EmailSettings from 'settings/email'
 import ProjectSettings from 'settings/project'
+import DeleteProject from 'settings/delete'
+import { useProject } from 'data/project'
 
-type Props = {
-	project: string;
-}
 
-let Settings: FunctionComponent<Props> = ({ project }) => {
+let Settings: FunctionComponent = () => {
+	let [project] = useProject()
+
 	return (
 		<Container maxWidht={680}>
 			<ProjectSettings />
-			<EmailSettings project={project} />
+			<EmailSettings project={project.id} />
+
+			{ !project.is_admin &&
+				<DeleteProject />
+			}
 		</Container>
 	)
 }
