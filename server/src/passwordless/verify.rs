@@ -75,7 +75,7 @@ pub async fn handler(
         ProjectKeys::get_private_key(&pool, &token.project_id, &secrets.passphrase).await?;
 
     let exp = Utc::now() + Duration::minutes(15);
-    let access_token = AccessToken::new(&user, exp, &project.id)
+    let access_token = AccessToken::new(&user.id, &user.traits, exp, &project.id)
         .to_jwt_rsa(&private_key)
         .map_err(|_| ApiError::InternalServerError)?;
 

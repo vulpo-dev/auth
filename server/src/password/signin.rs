@@ -8,13 +8,13 @@ use crate::response::SessionResponse;
 use crate::session::data::{AccessToken, Session};
 use crate::user::data::User;
 
-use bcrypt::verify;
-
 use chrono::{Duration, Utc};
 use rocket::serde::json::Json;
 use rocket::State;
 use serde::Deserialize;
 use uuid::Uuid;
+
+use super::data::Password;
 
 #[derive(Deserialize)]
 pub struct SignIn {
@@ -39,19 +39,14 @@ pub async fn sign_in(
     .await?;
 
     let email = body.email.trim().to_lowercase();
-    let user = User::password(&pool, email, &project.id).await?;
 
-    let password = match user.password {
-        Some(ref password) => password,
-        None => return Err(ApiError::UserInvalidPassword),
-    };
+    let user = User::get_by_email(&pool, &email, &project.id)
+        .await?
+        .ok_or_else(|| ApiError::UserNotFound)?;
 
-    let password_valid = match verify(body.password.clone(), &password) {
-        Err(_) => false,
-        Ok(value) => value,
-    };
+    let password = Password::get_by_email(&pool, &email, &project.id).await?;
 
-    if !password_valid {
+    if !password.verify(&body.password) {
         return Err(ApiError::UserInvalidPassword);
     };
 
@@ -72,7 +67,7 @@ pub async fn sign_in(
     let private_key = ProjectKeys::get_private_key(&pool, &project.id, &secrets.passphrase).await?;
 
     let exp = Utc::now() + Duration::minutes(15);
-    let access_token = AccessToken::new(&user, exp, &project.id)
+    let access_token = AccessToken::new(&user.id, &user.traits, exp, &project.id)
         .to_jwt_rsa(&private_key)
         .map_err(|_| ApiError::InternalServerError)?;
 

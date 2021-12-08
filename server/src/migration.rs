@@ -8,7 +8,10 @@ embed_migrations!();
 
 pub fn run(config: &DbConfig) {
     let url = config.to_string();
-    let conn = PgConnection::establish(&url).expect(&format!("Error connecting to {}", url));
+    let conn = PgConnection::establish(
+        "postgres://postgres:postgres@localhost:6543/auth?options=-c search_path%3Dauth,public",
+    )
+    .expect(&format!("Error connecting to {}", url));
     match embedded_migrations::run(&conn) {
         Ok(_) => println!("Migrations done"),
         Err(err) => {
@@ -27,6 +30,15 @@ pub fn init(config: &DbConfig) {
 
     match diesel::sql_query(query).execute(&conn) {
         Ok(_) => println!("Database {} created", db_name),
+        Err(err) => {
+            if let Error::DatabaseError(_, msg) = err {
+                println!("{:?}", msg);
+            }
+        }
+    };
+
+    match diesel::sql_query("create schema auth;").execute(&conn) {
+        Ok(_) => println!("Schema auth created"),
         Err(err) => {
             if let Error::DatabaseError(_, msg) = err {
                 println!("{:?}", msg);

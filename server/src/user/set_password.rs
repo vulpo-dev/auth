@@ -1,5 +1,6 @@
 use crate::db::Db;
 use crate::password;
+use crate::password::data::Password;
 use crate::project::data::Project as ProjectData;
 use crate::project::Project;
 use crate::response::error::ApiError;
@@ -33,7 +34,7 @@ pub async fn set_password(
 
     password::validate_password_length(&body.password)?;
 
-    User::set_password(&pool, &user_id, &body.password).await?;
+    Password::set_password(&pool, &user_id, &body.password).await?;
 
     let settings =
         ProjectEmail::from_project_template(&pool, &project.id, Templates::PasswordReset).await;

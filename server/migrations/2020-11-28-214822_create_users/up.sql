@@ -3,7 +3,6 @@
 create table if not exists users
 	( id uuid primary key default uuid_generate_v4()
 	, display_name text
-	, password text
 	, email text not null
 	, email_verified boolean not null default false
 	, photo_url text

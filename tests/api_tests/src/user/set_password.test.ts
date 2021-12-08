@@ -38,9 +38,8 @@ beforeEach(async () => {
 	await Db.query(`
 		insert into users(id, email, project_id, provider_id, state)
 		values($1, $2, $3, 'password', 'SetPassword')
-		on conflict (id)
-		   do nothing
 	`, [USER_ID, EMAIL, PROJECT_ID])
+
 	await createSession()
 })
 
@@ -138,9 +137,10 @@ function options(invalid: boolean = false) {
 
 async function getUser() {
 	let { rows } = await Db.query(`
-		select password
+		select passwords.hash as "password"
 		     , state
 		  from users
+		  left join passwords on passwords.user_id = users.id
 		 where id = $1 
 	`, [USER_ID])
 

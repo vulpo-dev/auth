@@ -10,16 +10,16 @@ import * as uuid from 'uuid';
 import { ErrorCode } from '@sdk-js/error'
 
 let EMAIL = 'api.test+create_user@vulpo.dev'
+let email = () => `api.test+${uuid.v4()}@vulpo.dev`
 
 async function removeUser() {
 	await Db.query(`
 		delete from users
-		where email = $1
+		 where email = $1
 	`, [EMAIL])
 }
 
 beforeEach(removeUser)
-afterAll(removeUser)
 afterAll(() => Db.end())
 
 describe("Create User", () => {
@@ -76,6 +76,7 @@ describe("Create User", () => {
 	})
 
 	test("creates password user", async () => {
+		let EMAIL = email()
 		let token = generateAdminToken()
 
 		let user = {
@@ -104,14 +105,15 @@ describe("Create User", () => {
 		expect(uuid.version(res.data[0])).toEqual(4)
 
 		let { rows } = await Db.query(`
-			select id
-			     , email
-			     , password
-			     , display_name
-			     , data
-			     , provider_id
-			     , state
+			select users.id
+			     , users.email
+			     , passwords.hash as "password"
+			     , users.display_name
+			     , users.data
+			     , users.provider_id
+			     , users.state
 			  from users
+			  left join passwords on passwords.user_id = users.id
 			 where email = $1 
 		`, [EMAIL])
 

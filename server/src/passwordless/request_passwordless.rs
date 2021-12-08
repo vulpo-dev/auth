@@ -1,3 +1,4 @@
+use crate::crypto::Token;
 use crate::db::Db;
 use crate::mail::Email;
 use crate::passwordless::data::Passwordless;
@@ -5,7 +6,6 @@ use crate::project::data::Flags;
 use crate::project::Project;
 use crate::response::error::ApiError;
 use crate::session::data::Session;
-use crate::crypto::Token;
 use crate::settings::data::ProjectEmail;
 use crate::template::{Template, TemplateCtx, Templates, Translations};
 use crate::user::data::User;
@@ -38,7 +38,7 @@ pub async fn request_passwordless(
 
     let body_email = body.email.trim().to_lowercase();
 
-    let user = User::get_by_email(&pool, &body_email, project.id).await?;
+    let user = User::get_by_email(&pool, &body_email, &project.id).await?;
 
     if user.clone().map_or(false, |u| u.state == "Disabled") {
         return Err(ApiError::UserDisabled);

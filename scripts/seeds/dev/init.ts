@@ -12,7 +12,7 @@ import {
 
 
 import { email } from '../data/settings'
-import { adminUser, getUsers } from '../data/users'
+import { adminUser, getUsers, hash } from '../data/users'
 import { Templates } from '../data/template'
 
 import * as Knex from 'knex'
@@ -42,11 +42,21 @@ exports.seed = async function(knex: Knex) {
   ])
 
 
+  let users = getUsers(1000).concat([adminUser])
   console.log('Insert users')
-  await knex('users').insert([
-    ...getUsers(1000),
-    adminUser,
-  ])
+  await knex('users').insert(users)
+
+  console.log('Insert Passwords')
+  let password = hash('password')
+  await knex('passwords').insert(
+    users.map(u => {
+      return {
+        user_id: u.id,
+        alg: 'bcrypt',
+        hash: password,
+      }
+    })
+  )
 
   console.log('Insert Templates')
   let templates = projects.flatMap(project => {

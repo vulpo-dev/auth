@@ -1,10 +1,10 @@
+use crate::crypto::Token;
 use crate::db::Db;
 use crate::mail::Email;
 use crate::password::data::PasswordReset;
 use crate::password::validate_password_length;
 use crate::project::Project;
 use crate::response::error::ApiError;
-use crate::crypto::Token;
 use crate::settings::data::ProjectEmail;
 use crate::template::{Template, TemplateCtx, Templates, Translations};
 use crate::user::data::User;
@@ -13,6 +13,8 @@ use chrono::Utc;
 use rocket::http::Status;
 use rocket::serde::{json::Json, Deserialize};
 use uuid::Uuid;
+
+use super::data::Password;
 
 #[derive(Deserialize)]
 pub struct RequestPasswordReset {
@@ -26,7 +28,7 @@ pub async fn request_password_reset(
     project: Project,
 ) -> Result<Status, ApiError> {
     let to_email = body.email.trim().to_lowercase();
-    let row = User::get_by_email(&pool, &to_email, project.id).await;
+    let row = User::get_by_email(&pool, &to_email, &project.id).await;
 
     let user = match row {
         Err(_) => return Ok(Status::Ok),
@@ -110,7 +112,7 @@ pub async fn password_reset(
 
     // todo: move "remove password reset token" into "set_password" query
     PasswordReset::remove(&pool, &reset.user_id).await?;
-    User::set_password(&pool, &reset.user_id, &body.password1).await?;
+    Password::set_password(&pool, &reset.user_id, &body.password1).await?;
 
     Ok(Status::Ok)
 }

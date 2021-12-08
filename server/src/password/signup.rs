@@ -42,7 +42,7 @@ pub async fn sign_up(
     validate_password_length(&body.password)?;
 
     let email = body.email.trim().to_lowercase();
-    let user = User::create(
+    let user_id = User::create(
         &pool,
         &email,
         &body.password,
@@ -54,14 +54,14 @@ pub async fn sign_up(
     let private_key = ProjectKeys::get_private_key(&pool, &project.id, &secrets.passphrase).await?;
 
     let exp = Utc::now() + Duration::minutes(15);
-    let access_token = AccessToken::new(&user, exp, &project.id)
+    let access_token = AccessToken::new(&user_id, &vec![], exp, &project.id)
         .to_jwt_rsa(&private_key)
         .map_err(|_| ApiError::InternalServerError)?;
 
     let session = Session {
         id: body.session,
         public_key: body.public_key.to_owned(),
-        user_id: Some(user.id),
+        user_id: Some(user_id),
         expire_at: Utc::now() + Duration::days(30),
         project_id: Some(project.id),
     };
@@ -71,7 +71,7 @@ pub async fn sign_up(
     let verify = Flags::has_flags(&pool, &project.id, &[Flags::VerifyEmail]).await;
 
     if verify.is_ok() {
-        send_email_verification(&pool, &user.id, &project.id, &user.email).await?;
+        send_email_verification(&pool, &user_id, &project.id, &email).await?;
     }
 
     Ok(SessionResponse {

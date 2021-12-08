@@ -124,13 +124,13 @@ describe("Reset Password", () => {
 		expect(res.status).toBe(200)
 
 		let [user] = await Db.query(`
-				select password
-				  from users
-				 where id = $1
+				select hash
+				  from passwords
+				 where user_id = $1
 			`, [ID])
 			.then(res => res.rows)
 
-		let passwordSet = bcrypt.compareSync(password, user.password)
+		let passwordSet = bcrypt.compareSync(password, user.hash)
 		expect(passwordSet).toBe(true)
 	})
 
@@ -271,13 +271,21 @@ async function insertToken(token: string, expired: boolean = false): Promise<str
 }
 
 
-function createUser() {
-	return Db.query(`
-		insert into users(id, email, password, project_id, provider_id)
-		values($1, $2, $3, $4, 'email')
-		on conflict (email, project_id)
-		   do update set password = excluded.password
-	`, [ID, EMAIL, bcrypt.hashSync(PASSWORD, SALT), PROJECT_ID])
+async function createUser() {
+	await Db.query(`
+		delete from users
+		 where id = $1
+	`, [ID])
+
+	await Db.query(`
+		insert into users(id, email, project_id, provider_id)
+		values($1, $2, $3, 'email')
+	`, [ID, EMAIL, PROJECT_ID])
+
+	await Db.query(`
+		insert into passwords(user_id, alg, hash)
+		values($1, 'bcrypt', $2)
+	`, [ID, bcrypt.hashSync(PASSWORD, SALT)])
 }
 
 

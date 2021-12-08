@@ -1,6 +1,6 @@
+
 insert into users
     ( email
-    , password
     , display_name
     , data
     , provider_id
@@ -8,12 +8,11 @@ insert into users
     , state
     )
 select $1 as "email"
-     , $2 as "password"
-     , $3 as "display_name"
-     , $4::jsonb as "data"
-     , $5 as "provider_id"
-     , $6 as "project_id"
-     , case when $5 = 'link'
+     , $2 as "display_name"
+     , $3::jsonb as "data"
+     , $4 as "provider_id"
+     , $5 as "project_id"
+     , case when $4 = 'link'
             then 'Active'
             else 'SetPassword'
         end as "state"

@@ -2,7 +2,6 @@ use crate::db::Db;
 use crate::keys::data::ProjectKeys;
 use crate::project::Project;
 use crate::response::error::ApiError;
-use crate::user::data::User;
 
 use chrono::{DateTime, Utc};
 use jsonwebtoken::{decode, encode, Algorithm, DecodingKey, EncodingKey, Header, Validation};
@@ -22,11 +21,16 @@ impl AccessToken {
 }
 
 impl AccessToken {
-    pub fn new(user: &User, exp: DateTime<Utc>, project: &Uuid) -> AccessToken {
+    pub fn new(
+        user_id: &Uuid,
+        traits: &Vec<String>,
+        exp: DateTime<Utc>,
+        project: &Uuid,
+    ) -> AccessToken {
         let claims = Claims {
-            sub: user.id.clone(),
+            sub: user_id.clone(),
             exp: exp.timestamp(),
-            traits: user.traits.clone(),
+            traits: traits.clone(),
             iss: project.clone(),
         };
 

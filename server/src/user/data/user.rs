@@ -23,8 +23,6 @@ pub struct User {
     pub updated_at: DateTime<Utc>,
     pub state: String,
     pub device_languages: Vec<String>,
-    #[serde(skip_serializing)]
-    pub password: Option<String>,
 }
 
 #[derive(Deserialize)]
@@ -79,7 +77,7 @@ impl User {
     pub async fn get_by_email(
         pool: &PgPool,
         email: &str,
-        project: Uuid,
+        project: &Uuid,
     ) -> Result<Option<User>, ApiError> {
         let row = sqlx::query_file!("src/user/sql/get_by_email.sql", email, project)
             .fetch_optional(pool)
@@ -88,7 +86,6 @@ impl User {
 
         let user = row.map(|u| User {
             id: u.id,
-            password: None,
             display_name: u.display_name,
             email: u.email,
             email_verified: u.email_verified,
@@ -106,42 +103,12 @@ impl User {
     }
 
     pub async fn get_by_id(pool: &PgPool, id: &Uuid, project: &Uuid) -> Result<User, ApiError> {
-        let row = sqlx::query_file!("src/user/sql/get_by_id.sql", id, project)
+        let row = sqlx::query_file_as!(User, "src/user/sql/get_by_id.sql", id, project)
             .fetch_optional(pool)
             .await
             .map_err(|_| ApiError::InternalServerError)?;
 
-        match row {
-            None => Err(ApiError::NotFound),
-            Some(u) => {
-                let user = User {
-                    id: u.id,
-                    password: None,
-                    display_name: u.display_name,
-                    email: u.email,
-                    email_verified: u.email_verified,
-                    photo_url: u.photo_url,
-                    traits: u.traits,
-                    data: u.data,
-                    provider_id: u.provider_id,
-                    created_at: u.created_at,
-                    updated_at: u.updated_at,
-                    state: u.state,
-                    device_languages: u.device_languages,
-                };
-
-                Ok(user)
-            }
-        }
-    }
-
-    pub async fn password(pool: &PgPool, email: String, project: &Uuid) -> Result<User, ApiError> {
-        let row = sqlx::query_file_as!(User, "src/user/sql/get_with_password.sql", email, project)
-            .fetch_optional(pool)
-            .await
-            .map_err(|_| ApiError::InternalServerError)?;
-
-        row.ok_or_else(|| ApiError::UserNotFound)
+        row.ok_or_else(|| ApiError::NotFound)
     }
 
     pub async fn email(pool: &PgPool, user_id: &Uuid) -> Result<String, ApiError> {
@@ -158,11 +125,11 @@ impl User {
         password: &str,
         project: Uuid,
         languages: &Vec<String>,
-    ) -> Result<User, ApiError> {
+    ) -> Result<Uuid, ApiError> {
         let password =
             hash(password.clone(), DEFAULT_COST).map_err(|_| ApiError::InternalServerError)?;
 
-        let row = sqlx::query_file!(
+        sqlx::query_file!(
             "src/user/sql/create_user.sql",
             email,
             password,
@@ -171,6 +138,7 @@ impl User {
         )
         .fetch_one(pool)
         .await
+        .map(|row| row.id)
         .map_err(|err| match err {
             Error::Database(err) => {
                 let err = err.downcast::<PgDatabaseError>();
@@ -181,25 +149,7 @@ impl User {
                 }
             }
             _ => ApiError::InternalServerError,
-        })?;
-
-        let user = User {
-            id: row.id,
-            password: None,
-            display_name: row.display_name,
-            email: row.email,
-            email_verified: row.email_verified,
-            photo_url: row.photo_url,
-            traits: row.traits,
-            data: row.data,
-            provider_id: row.provider_id,
-            created_at: row.created_at,
-            updated_at: row.updated_at,
-            state: row.state,
-            device_languages: row.device_languages,
-        };
-
-        Ok(user)
+        })
     }
 
     pub async fn create_passwordless(
@@ -208,7 +158,8 @@ impl User {
         project: &Uuid,
         languages: &Vec<String>,
     ) -> Result<User, ApiError> {
-        let row = sqlx::query_file!(
+        sqlx::query_file_as!(
+            User,
             "src/user/sql/create_passwordless.sql",
             email,
             project,
@@ -226,43 +177,7 @@ impl User {
                 }
             }
             _ => ApiError::InternalServerError,
-        })?;
-
-        let user = User {
-            id: row.id,
-            password: None,
-            display_name: row.display_name,
-            email: row.email,
-            email_verified: row.email_verified,
-            photo_url: row.photo_url,
-            traits: row.traits,
-            data: row.data,
-            provider_id: row.provider_id,
-            created_at: row.created_at,
-            updated_at: row.updated_at,
-            state: row.state,
-            device_languages: row.device_languages,
-        };
-
-        Ok(user)
-    }
-
-    pub async fn set_password(
-        pool: &PgPool,
-        user_id: &Uuid,
-        password: &str,
-    ) -> Result<(), ApiError> {
-        let password = match hash(password.clone(), DEFAULT_COST) {
-            Err(_) => return Err(ApiError::InternalServerError),
-            Ok(hashed) => hashed,
-        };
-
-        sqlx::query_file!("src/user/sql/set_password.sql", user_id, password)
-            .execute(pool)
-            .await
-            .map_err(|_| ApiError::InternalServerError)?;
-
-        Ok(())
+        })
     }
 
     // todo: direction

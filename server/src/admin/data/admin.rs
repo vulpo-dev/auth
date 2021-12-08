@@ -1,6 +1,7 @@
 use crate::api_key::data::ApiKey;
 use crate::db::Db;
 use crate::keys::data::{NewProjectKeys, ProjectKeys};
+use crate::password::data::Password;
 use crate::project::Project;
 use crate::response::error::ApiError;
 use crate::session::data::{AccessToken, Claims};
@@ -145,20 +146,11 @@ impl Admin {
     }
 
     pub async fn create_user(pool: &PgPool, user: NewUser) -> Result<Uuid, ApiError> {
-        let password = match user.password {
-            Some(password) => match hash(password.to_owned(), DEFAULT_COST) {
-                Err(_) => return Err(ApiError::InternalServerError),
-                Ok(hashed) => Some(hashed),
-            },
-            None => None,
-        };
-
         let data = user.data.unwrap_or(json!({}));
 
         let row = sqlx::query_file!(
             "src/admin/sql/create_user.sql",
             user.email,
-            password,
             user.display_name,
             data,
             user.provider_id,
@@ -177,6 +169,10 @@ impl Admin {
             }
             _ => ApiError::InternalServerError,
         })?;
+
+        if let Some(password) = user.password {
+            Password::create_password(&pool, &row.id, &password).await?;
+        }
 
         Ok(row.id)
     }

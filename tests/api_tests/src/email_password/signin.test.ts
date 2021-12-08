@@ -127,13 +127,27 @@ describe("Sign In: Email and Password", () => {
 })
 
 
-function createUser() {
-	return Db.query(`
-		insert into users(email, password, project_id, provider_id)
-		values($1, $2, $3, 'email')
-		on conflict (email, project_id)
-		   do update set password = excluded.password
-	`, [EMAIL, bcrypt.hashSync(PASSWORD, SALT), PROJECT_ID])
+async function createUser() {
+
+	await Db.query(`
+		delete from users
+		 where email = $1
+		   and project_id = $2
+	`, [EMAIL, PROJECT_ID])
+
+	let { rows } = await Db.query(`
+		insert into users(email, project_id, provider_id)
+		values($1, $2, 'email')
+		returning id
+	`, [EMAIL, PROJECT_ID])
+
+	let { id } = rows[0]
+
+	await Db.query(`
+		insert into passwords(user_id, alg, hash)
+		values($1, 'bcrypt', $2)
+		on conflict do nothing
+	`, [id, bcrypt.hashSync(PASSWORD, SALT)])
 }
 
 function cleanUp() {
