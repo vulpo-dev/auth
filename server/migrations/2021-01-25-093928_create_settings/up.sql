@@ -4,6 +4,7 @@ create table if not exists project_settings
 	, name text unique not null
 	, domain text not null
 	, default_language text not null default 'en'
+	, password_alg password_alg not null default 'argon2id'
 	);
 
 

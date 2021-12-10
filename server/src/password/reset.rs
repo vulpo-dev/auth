@@ -3,6 +3,7 @@ use crate::db::Db;
 use crate::mail::Email;
 use crate::password::data::PasswordReset;
 use crate::password::validate_password_length;
+use crate::project::data::Project as ProjectData;
 use crate::project::Project;
 use crate::response::error::ApiError;
 use crate::settings::data::ProjectEmail;
@@ -112,7 +113,8 @@ pub async fn password_reset(
 
     // todo: move "remove password reset token" into "set_password" query
     PasswordReset::remove(&pool, &reset.user_id).await?;
-    Password::set_password(&pool, &reset.user_id, &body.password1).await?;
+    let alg = ProjectData::password_alg_by_user(&pool, &reset.user_id).await?;
+    Password::set_password(&pool, &reset.user_id, &body.password1, &alg).await?;
 
     Ok(Status::Ok)
 }

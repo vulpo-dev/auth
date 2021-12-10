@@ -52,7 +52,7 @@ async fn main() {
         migration::init(&db_config);
     }
 
-    if matches.is_present("run-migrations") || matches.subcommand_matches("migrations").is_some() {
+    if matches.subcommand_matches("migrations").is_some() {
         migration::run(&db_config);
     }
 

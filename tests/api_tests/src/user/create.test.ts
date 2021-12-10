@@ -4,6 +4,7 @@ import { generateAdminToken } from '../utils/admin'
 import { PROJECT_ID } from '../utils/env'
 import { admin } from '@seeds/data/projects'
 import * as bcrypt from 'bcryptjs'
+import * as argon2 from 'argon2'
 import { ApiError } from '@admin/error'
 
 import * as uuid from 'uuid';
@@ -130,7 +131,8 @@ describe("Create User", () => {
 			data: user.data,
 		})
 
-		expect(bcrypt.compareSync(user.password, createdUser.password)).toBeTruthy()
+		let passwordSet = await argon2.verify(createdUser.password, user.password)
+		expect(passwordSet).toBeTruthy()
 	})
 
 	test("fails when password is too short", async () => {

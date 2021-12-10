@@ -3,6 +3,7 @@ import Http from '../utils/http'
 
 import { v4 as uuid } from 'uuid'
 import * as bcrypt from 'bcryptjs'
+import * as argon2 from 'argon2'
 
 import {
 	Url,
@@ -130,7 +131,7 @@ describe("Reset Password", () => {
 			`, [ID])
 			.then(res => res.rows)
 
-		let passwordSet = bcrypt.compareSync(password, user.hash)
+		let passwordSet = await argon2.verify(user.hash, password)
 		expect(passwordSet).toBe(true)
 	})
 
@@ -282,10 +283,12 @@ async function createUser() {
 		values($1, $2, $3, 'email')
 	`, [ID, EMAIL, PROJECT_ID])
 
+	let password = await argon2.hash(PASSWORD, { type: argon2.argon2id })
+
 	await Db.query(`
 		insert into passwords(user_id, alg, hash)
-		values($1, 'bcrypt', $2)
-	`, [ID, bcrypt.hashSync(PASSWORD, SALT)])
+		values($1, 'argon2id', $2)
+	`, [ID, password])
 }
 
 

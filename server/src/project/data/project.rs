@@ -1,4 +1,4 @@
-use crate::response::error::ApiError;
+use crate::{password::data::PasswordAlg, response::error::ApiError};
 
 use sqlx::PgPool;
 use uuid::Uuid;
@@ -48,5 +48,21 @@ impl Project {
             .map_err(|_| ApiError::InternalServerError)?;
 
         Ok(())
+    }
+
+    pub async fn password_alg(pool: &PgPool, project: &Uuid) -> Result<PasswordAlg, ApiError> {
+        sqlx::query_file!("src/project/sql/get_password_alg.sql", project)
+            .fetch_one(pool)
+            .await
+            .map(|row| row.alg)
+            .map_err(|_| ApiError::InternalServerError)
+    }
+
+    pub async fn password_alg_by_user(pool: &PgPool, user: &Uuid) -> Result<PasswordAlg, ApiError> {
+        sqlx::query_file!("src/project/sql/get_password_alg_by_user.sql", user)
+            .fetch_one(pool)
+            .await
+            .map(|row| row.alg)
+            .map_err(|_| ApiError::InternalServerError)
     }
 }

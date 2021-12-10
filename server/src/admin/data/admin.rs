@@ -2,6 +2,7 @@ use crate::api_key::data::ApiKey;
 use crate::db::Db;
 use crate::keys::data::{NewProjectKeys, ProjectKeys};
 use crate::password::data::Password;
+use crate::project::data::Project as ProjectData;
 use crate::project::Project;
 use crate::response::error::ApiError;
 use crate::session::data::{AccessToken, Claims};
@@ -171,7 +172,8 @@ impl Admin {
         })?;
 
         if let Some(password) = user.password {
-            Password::create_password(&pool, &row.id, &password).await?;
+            let alg = ProjectData::password_alg(&pool, &user.project_id).await?;
+            Password::create_password(&pool, &row.id, &password, &alg).await?;
         }
 
         Ok(row.id)

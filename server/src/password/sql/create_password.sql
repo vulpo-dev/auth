@@ -1,3 +1,3 @@
 
-insert into passwords (hash, user_id)
-values ($2, $1)
+insert into passwords (hash, user_id, alg)
+values ($2, $1, $3)
