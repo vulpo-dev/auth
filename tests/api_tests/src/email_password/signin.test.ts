@@ -40,18 +40,33 @@ describe("Sign In: Email and Password", () => {
 		expect(body).toBeTruthy()
 	})
 
+	test("user can sign in with PBKDF2 hash", async () => {
+
+		await setPassword('pbkdf2', '$pbkdf2-sha256$i=10000,l=32$FAUjiC9C1E5CSTWydX3GoQ$kGvx5y8WgpZrSnKmYkYBqelHvLA7j3Kmo6f7pD8Fsjw')
+
+		let { publicKey } = generateKeyPair()
+
+		let payload: EmailPasswordPayload = {
+			email: EMAIL,
+			password: PASSWORD,
+			public_key: Array.from(Buffer.from(publicKey)),
+			session: uuid()
+		}
+
+		let res = await Http
+			.post(Url.SignIn, payload)
+			.catch(err => err.response)
+
+		expect(res.status).toBe(200);
+		expect(res.headers['content-type']).toBe('application/json')
+
+		let body = SessionResponseSchema.validate(res.data)
+		expect(body).toBeTruthy()
+	})
+
 	test("migrates password hash", async () => {
 
-		await Db.query(`
-			update passwords
-			   set alg = 'bcrypt'
-			     , hash = $1
-			  from users
-			 where passwords.user_id = users.id
-			   and users.email = $2
-			   and users.project_id = $3
-
-		`, [bcrypt.hashSync(PASSWORD, SALT), EMAIL, PROJECT_ID])
+		await setPassword('bcrypt', bcrypt.hashSync(PASSWORD, SALT))
 
 		let { publicKey } = generateKeyPair()
 
@@ -203,4 +218,17 @@ function cleanUp() {
 		 where email = $1
 		   and project_id = $2
 	`, [EMAIL, PROJECT_ID])
+}
+
+async function setPassword(alg: string, hash: string) {
+	await Db.query(`
+		update passwords
+		   set alg = $1
+		     , hash = $2
+		  from users
+		 where passwords.user_id = users.id
+		   and users.email = $3
+		   and users.project_id = $4
+
+	`, [alg, hash, EMAIL, PROJECT_ID])
 }

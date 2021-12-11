@@ -5,6 +5,7 @@ use argon2::{
     Argon2,
 };
 use bcrypt::{self, DEFAULT_COST};
+use pbkdf2::Pbkdf2;
 use sqlx::PgPool;
 use uuid::Uuid;
 
@@ -99,6 +100,16 @@ impl Password {
                     .verify_password(password.as_bytes(), &parsed_hash)
                     .is_ok()
             }
+            PasswordAlg::PBKDF2 => {
+                let parsed_hash = match PasswordHash::new(&self.hash) {
+                    Ok(hash) => hash,
+                    Err(_) => return false,
+                };
+
+                Pbkdf2
+                    .verify_password(password.as_bytes(), &parsed_hash)
+                    .is_ok()
+            }
             _ => false,
         }
     }
@@ -109,6 +120,14 @@ impl Password {
             PasswordAlg::Argon2id => {
                 let salt = SaltString::generate(&mut OsRng);
                 Argon2::default()
+                    .hash_password(password.as_bytes(), &salt)
+                    .map(|hash| hash.to_string())
+                    .map_err(|_| ())
+            }
+
+            PasswordAlg::PBKDF2 => {
+                let salt = SaltString::generate(&mut OsRng);
+                Pbkdf2
                     .hash_password(password.as_bytes(), &salt)
                     .map(|hash| hash.to_string())
                     .map_err(|_| ())
