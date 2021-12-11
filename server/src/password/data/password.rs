@@ -22,7 +22,7 @@ pub enum PasswordAlg {
 
 pub struct Password {
     hash: String,
-    alg: PasswordAlg,
+    pub alg: PasswordAlg,
 }
 
 impl Password {
@@ -86,7 +86,7 @@ impl Password {
 }
 
 impl Password {
-    pub fn verify(self, password: &str) -> bool {
+    pub fn verify(&self, password: &str) -> bool {
         match self.alg {
             PasswordAlg::Bcrypt => bcrypt::verify(password, &self.hash).unwrap_or(false),
             PasswordAlg::Argon2id => {

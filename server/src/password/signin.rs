@@ -2,6 +2,7 @@ use crate::config::Secrets;
 use crate::db::Db;
 use crate::keys::data::ProjectKeys;
 use crate::project::data::Flags;
+use crate::project::data::Project as ProjectData;
 use crate::project::Project;
 use crate::response::error::ApiError;
 use crate::response::SessionResponse;
@@ -49,6 +50,12 @@ pub async fn sign_in(
     if !password.verify(&body.password) {
         return Err(ApiError::UserInvalidPassword);
     };
+
+    let current_alg = ProjectData::password_alg(&pool, &project.id).await?;
+
+    if current_alg != password.alg {
+        Password::create_password(&pool, &user.id, &body.password, &current_alg).await?;
+    }
 
     if user.state == "Disabled" {
         return Err(ApiError::UserDisabled);
