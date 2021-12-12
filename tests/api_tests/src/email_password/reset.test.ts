@@ -1,5 +1,6 @@
 import Db from '../utils/db'
 import Http from '../utils/http'
+import { createUser, getEmail } from '../utils/user'
 
 import { v4 as uuid } from 'uuid'
 import * as bcrypt from 'bcryptjs'
@@ -15,13 +16,25 @@ import { ErrorCode } from '@sdk-js/error'
 import { PROJECT_ID } from '../utils/env'
 
 const SALT = bcrypt.genSaltSync(10);
-const EMAIL = 'api.test+reset_password@vulpo.dev'
+const EMAIL = getEmail()
 const PASSWORD = 'password'
 const ID = '031eb841-9650-4b52-a62f-1aa2742ceb43'
 
-beforeAll(createUser)
-beforeEach(resetPasswordReset)
-afterAll(cleanUp)
+beforeAll(() => {
+	return createUser({
+		id: ID,
+		password: PASSWORD,
+		email: EMAIL,
+	})
+})
+
+beforeEach(() => {
+	return Db.query(`
+		delete from password_change_requests
+		 where user_id = $1
+	`, [ID])
+})
+
 afterAll(() => Db.end())
 
 
@@ -269,41 +282,4 @@ async function insertToken(token: string, expired: boolean = false): Promise<str
 	`, [token, ID, PROJECT_ID, expiredAt])
 
 	return rows[0].id
-}
-
-
-async function createUser() {
-	await Db.query(`
-		delete from users
-		 where id = $1
-	`, [ID])
-
-	await Db.query(`
-		insert into users(id, email, project_id, provider_id)
-		values($1, $2, $3, 'email')
-	`, [ID, EMAIL, PROJECT_ID])
-
-	let password = await argon2.hash(PASSWORD, { type: argon2.argon2id })
-
-	await Db.query(`
-		insert into passwords(user_id, alg, hash)
-		values($1, 'argon2id', $2)
-	`, [ID, password])
-}
-
-
-function resetPasswordReset() {
-	return Db.query(`
-		delete from password_change_requests
-		 where user_id = $1
-	`, [ID])
-}
-
-
-function cleanUp() {
-	return Db.query(`
-		delete from users
-		 where email = $1
-		   and project_id = $2
-	`, [EMAIL, PROJECT_ID])
 }

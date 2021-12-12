@@ -82,30 +82,30 @@ export function ratPayload(minutes = 5, jti?: string) {
 	}
 }
 
-type CreateUser = {
-	project?: string;
-	traits?: Array<string>;
-	password?: string;
-}
-
-type CreatedUser = {
+export type CreatedUser = {
+	project: string;
+	traits: Array<string>;
+	password: string;
 	id: string;
 	email: string;
 }
 
+type CreateUser = Partial<CreatedUser>
+
+
 export async function createUser({
+	id = uuid(),
+	email = getEmail(),
 	project = PROJECT_ID,
 	traits = [],
 	password
 }: CreateUser = {}): Promise<CreatedUser> {
-	let userId = uuid()
-	let email = getEmail()
 	let authType = password ? 'email' : 'link'
 
 	await Db.query(`
 		insert into users(id, email, project_id, provider_id, traits)
 		values($1, $2, $3, $4, $5)
-	`, [userId, email, project, authType, traits])
+	`, [id, email, project, authType, traits])
 
 	if (password) {
 		let hash = await argon2.hash(password, { type: argon2.argon2id })
@@ -114,10 +114,10 @@ export async function createUser({
 			insert into passwords(user_id, alg, hash)
 			values($1, 'argon2id', $2)
 			on conflict do nothing
-		`, [userId, hash])
+		`, [id, hash])
 	}
 
-	return { id: userId, email }
+	return { id, email, project, traits, password: password ?? '' }
 }
 
 export function createTokenPayload(sub: string, iss: string, minutes = 5) {

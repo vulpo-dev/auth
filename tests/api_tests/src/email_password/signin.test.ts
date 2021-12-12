@@ -2,6 +2,7 @@ import Db from '../utils/db'
 import Http from '../utils/http'
 import { generateKeyPair } from '../utils/crypto'
 import SessionResponseSchema from '../utils/schema/session-response'
+import { CreatedUser, createUser } from '../utils/user'
 
 import { v4 as uuid } from 'uuid'
 import * as bcrypt from 'bcryptjs'
@@ -9,24 +10,22 @@ import * as argon2 from 'argon2'
 
 import { Url, EmailPasswordPayload, UserState } from '@sdk-js/types'
 import { ErrorCode } from '@sdk-js/error'
-import { PROJECT_ID } from '../utils/env'
 
 const SALT = bcrypt.genSaltSync(10);
-const EMAIL = 'api.test+sign_in_email_password@vulpo.dev'
 const PASSWORD = 'password'
 
-beforeEach(createUser)
-afterAll(cleanUp)
 afterAll(() => Db.end())
+
+let getUser = () => createUser({ password: PASSWORD })
 
 describe("Sign In: Email and Password", () => {
 	test("user can sign in", async () => {
-
+		let user = await getUser()
 		let { publicKey } = generateKeyPair()
 
 		let payload: EmailPasswordPayload = {
-			email: EMAIL,
-			password: PASSWORD,
+			email: user.email,
+			password: user.password,
 			public_key: Array.from(Buffer.from(publicKey)),
 			session: uuid()
 		}
@@ -41,14 +40,14 @@ describe("Sign In: Email and Password", () => {
 	})
 
 	test("user can sign in with PBKDF2 hash", async () => {
-
-		await setPassword('pbkdf2', '$pbkdf2-sha256$i=10000,l=32$FAUjiC9C1E5CSTWydX3GoQ$kGvx5y8WgpZrSnKmYkYBqelHvLA7j3Kmo6f7pD8Fsjw')
+		let user = await getUser()
+		await setPassword(user, 'pbkdf2', '$pbkdf2-sha256$i=10000,l=32$FAUjiC9C1E5CSTWydX3GoQ$kGvx5y8WgpZrSnKmYkYBqelHvLA7j3Kmo6f7pD8Fsjw')
 
 		let { publicKey } = generateKeyPair()
 
 		let payload: EmailPasswordPayload = {
-			email: EMAIL,
-			password: PASSWORD,
+			email: user.email,
+			password: user.password,
 			public_key: Array.from(Buffer.from(publicKey)),
 			session: uuid()
 		}
@@ -65,14 +64,14 @@ describe("Sign In: Email and Password", () => {
 	})
 
 	test("migrates password hash", async () => {
-
-		await setPassword('bcrypt', bcrypt.hashSync(PASSWORD, SALT))
+		let user = await getUser()
+		await setPassword(user, 'bcrypt', bcrypt.hashSync(user.password, SALT))
 
 		let { publicKey } = generateKeyPair()
 
 		let payload: EmailPasswordPayload = {
-			email: EMAIL,
-			password: PASSWORD,
+			email: user.email,
+			password: user.password,
 			public_key: Array.from(Buffer.from(publicKey)),
 			session: uuid()
 		}
@@ -91,23 +90,23 @@ describe("Sign In: Email and Password", () => {
 			  join passwords on passwords.user_id = users.id
 			 where users.email = $1
 			   and users.project_id = $2 
-		`, [payload.email, PROJECT_ID])
+		`, [payload.email, user.project])
 
 		expect(rows.length).toEqual(1)
 		let row = rows[0]
 
-		let passwordSet = await argon2.verify(row.hash, PASSWORD)
+		let passwordSet = await argon2.verify(row.hash, user.password)
 		expect(passwordSet).toBeTruthy()
 	})
 
 
 	test("formats email", async () => {
-
+		let user = await getUser()
 		let { publicKey } = generateKeyPair()
 
 		let payload: EmailPasswordPayload = {
-			email: `  ${EMAIL.toUpperCase()}   `,
-			password: PASSWORD,
+			email: `  ${user.email.toUpperCase()}   `,
+			password: user.password,
 			public_key: Array.from(Buffer.from(publicKey)),
 			session: uuid()
 		}
@@ -123,11 +122,12 @@ describe("Sign In: Email and Password", () => {
 
 
 	test("fails for wrong password", async () => {
+		let user = await getUser()
 		let { publicKey } = generateKeyPair()
 
 		let payload: EmailPasswordPayload = {
-			email: EMAIL,
-			password: `${PASSWORD}-wrong`,
+			email: user.email,
+			password: `${user.password}-wrong`,
 			public_key: Array.from(Buffer.from(publicKey)),
 			session: uuid()
 		}
@@ -142,11 +142,12 @@ describe("Sign In: Email and Password", () => {
 
 
 	test("fails for wrong email", async () => {
+		let user = await getUser()
 		let { publicKey } = generateKeyPair()
 
 		let payload: EmailPasswordPayload = {
-			email: `wrong-${EMAIL}`,
-			password: PASSWORD,
+			email: `wrong-${user.email}`,
+			password: user.password,
 			public_key: Array.from(Buffer.from(publicKey)),
 			session: uuid()
 		}
@@ -161,19 +162,19 @@ describe("Sign In: Email and Password", () => {
 
 
 	test("fails for disabled user", async () => {
+		let user = await getUser()
 
 		await Db.query(`
 			update users
-			   set state = $3
-			 where email = $1
-			   and project_id = $2 
-		`, [EMAIL, PROJECT_ID, UserState.Disabled])
+			   set state = $2
+			 where id = $1
+		`, [user.id, UserState.Disabled])
 
 		let { publicKey } = generateKeyPair()
 
 		let payload: EmailPasswordPayload = {
-			email: EMAIL,
-			password: PASSWORD,
+			email: user.email,
+			password: user.password,
 			public_key: Array.from(Buffer.from(publicKey)),
 			session: uuid()
 		}
@@ -188,39 +189,7 @@ describe("Sign In: Email and Password", () => {
 })
 
 
-async function createUser() {
-
-	await Db.query(`
-		delete from users
-		 where email = $1
-		   and project_id = $2
-	`, [EMAIL, PROJECT_ID])
-
-	let { rows } = await Db.query(`
-		insert into users(email, project_id, provider_id)
-		values($1, $2, 'email')
-		returning id
-	`, [EMAIL, PROJECT_ID])
-
-	let { id } = rows[0]
-	let password = await argon2.hash(PASSWORD, { type: argon2.argon2id })
-
-	await Db.query(`
-		insert into passwords(user_id, alg, hash)
-		values($1, 'argon2id', $2)
-		on conflict do nothing
-	`, [id, password])
-}
-
-function cleanUp() {
-	return Db.query(`
-		delete from users
-		 where email = $1
-		   and project_id = $2
-	`, [EMAIL, PROJECT_ID])
-}
-
-async function setPassword(alg: string, hash: string) {
+async function setPassword(user: CreatedUser, alg: string, hash: string) {
 	await Db.query(`
 		update passwords
 		   set alg = $1
@@ -230,5 +199,5 @@ async function setPassword(alg: string, hash: string) {
 		   and users.email = $3
 		   and users.project_id = $4
 
-	`, [alg, hash, EMAIL, PROJECT_ID])
+	`, [alg, hash, user.email, user.project])
 }

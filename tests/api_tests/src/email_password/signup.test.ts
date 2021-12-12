@@ -2,6 +2,7 @@ import Db from '../utils/db'
 import Http from '../utils/http'
 import { generateKeyPair } from '../utils/crypto'
 import SessionResponseSchema from '../utils/schema/session-response'
+import { getEmail } from '../utils/user'
 
 import { v4 as uuid } from 'uuid'
 
@@ -9,20 +10,16 @@ import { Url, EmailPasswordPayload, UserState } from '@sdk-js/types'
 import { ErrorCode } from '@sdk-js/error'
 import { PROJECT_ID } from '../utils/env'
 
-const EMAIL = 'api.test+sign_up_email_password@vulpo.dev'
-
-beforeEach(cleanUp)
-afterAll(cleanUp)
 afterAll(() => Db.end())
 
 describe("Sign Up: Email and Password", () => {
 
 	test("create new user", async (): Promise<void> => {
-
+		let email = getEmail()
 		let { publicKey } = generateKeyPair()
 
 		let payload: EmailPasswordPayload = {
-			email: EMAIL,
+			email,
 			password: 'password',
 			public_key: Array.from(Buffer.from(publicKey)),
 			session: uuid(),
@@ -44,7 +41,7 @@ describe("Sign Up: Email and Password", () => {
 			  from users
 			 where email = $1
 			   and project_id = $2
-		`, [EMAIL, PROJECT_ID])
+		`, [email, PROJECT_ID])
 
 		let createdUser = rows[0]
 		expect(createdUser).toBeTruthy()
@@ -64,11 +61,11 @@ describe("Sign Up: Email and Password", () => {
 
 
 	test("formats email", async () => {
-
+		let email = getEmail()
 		let { publicKey } = generateKeyPair()
 
 		let payload: EmailPasswordPayload = {
-			email: `  ${EMAIL.toUpperCase()}   `,
+			email: `  ${email.toUpperCase()}   `,
 			password: 'password',
 			public_key: Array.from(Buffer.from(publicKey)),
 			session: uuid(),
@@ -82,6 +79,17 @@ describe("Sign Up: Email and Password", () => {
 
 		let body = SessionResponseSchema.validate(res.data)
 		expect(body).toBeTruthy()
+
+		let { rows } = await Db.query(`
+			select email
+			  from users
+			 where email = $1
+			   and project_id = $2 
+		`, [email, PROJECT_ID])
+
+		expect(rows.length).toEqual(1)
+
+		expect(rows[0].email).toEqual(email)
 	})
 
 
@@ -89,7 +97,7 @@ describe("Sign Up: Email and Password", () => {
 		let { publicKey } = generateKeyPair()
 
 		let payload: EmailPasswordPayload = {
-			email: EMAIL,
+			email: getEmail(),
 			password: '1234567',
 			public_key: Array.from(Buffer.from(publicKey)),
 			session: uuid(),
@@ -109,7 +117,7 @@ describe("Sign Up: Email and Password", () => {
 		let { publicKey } = generateKeyPair()
 
 		let payload: EmailPasswordPayload = {
-			email: EMAIL,
+			email: getEmail(),
 			password: '_3>pKuBc,FMD;m(WK=+=g<GSda{}$Tk0IL#>8]BWcQy.J3?/hQ{4q(hH_c*iLax^!',
 			public_key: Array.from(Buffer.from(publicKey)),
 			session: uuid(),
@@ -129,7 +137,7 @@ describe("Sign Up: Email and Password", () => {
 		let { publicKey } = generateKeyPair()
 
 		let payload: EmailPasswordPayload = {
-			email: EMAIL,
+			email: getEmail(),
 			password: 'password',
 			public_key: Array.from(Buffer.from(publicKey)),
 			session: uuid(),
@@ -147,12 +155,3 @@ describe("Sign Up: Email and Password", () => {
 	})
 
 })
-
-
-function cleanUp() {
-	return Db.query(`
-		delete from users
-		 where email = $1
-		   and project_id = $2
-	`, [EMAIL, PROJECT_ID])
-}
