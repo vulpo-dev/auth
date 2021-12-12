@@ -1,36 +1,9 @@
 import Db from '../utils/db'
 import Http from '../utils/http'
-import { PROJECT_ID } from '../utils/env'
-import { makeCreateUser } from '../utils/passwordless'
-import { makeGenerateAccessToken, makeTokenPayload } from '../utils/user'
-import { projectKeys } from '@seeds/data/projects'
+import { createUser, createAccessToken } from '../utils/user'
 
 import { v4 as uuid, validate as uuidValidate } from 'uuid'
 import * as bcrypt from 'bcryptjs'
-
-const EMAIL = 'api.test+api_key@vulpo.dev'
-const USER_ID = 'a3989244-3a03-47a0-8424-1d316cf429f2'
-
-let createUser = makeCreateUser(
-	USER_ID,
-	EMAIL,
-	PROJECT_ID
-)
-
-let generateAccessToken = makeGenerateAccessToken({
-	key: projectKeys.private_key,
-	passphrase: 'password'
-})
-let tokenPayload = makeTokenPayload(USER_ID, PROJECT_ID)
-
-beforeEach(async () => {
-	await Db.query(`
-		delete from users
-		 where id = $1 
-	`, [USER_ID])
-
-	return createUser()
-})
 
 afterAll(() => Db.end())
 
@@ -41,9 +14,8 @@ describe("Generate API Key", () => {
 
 function generateTokenTest (expire_at: null | string) {
 	return async () => {
-		let accessToken = generateAccessToken({
-			payload: tokenPayload()
-		})
+		let user = await createUser()
+		let accessToken = createAccessToken({ user })
 
 		let payload = {
 			expire_at,
@@ -77,7 +49,7 @@ function generateTokenTest (expire_at: null | string) {
 
 		expect(rows.length).toEqual(1)
 		expect(rows[0].expire_at ? rows[0].expire_at.toISOString() : null).toEqual(payload.expire_at)
-		expect(rows[0].user_id).toEqual(USER_ID)
+		expect(rows[0].user_id).toEqual(user.id)
 		expect(rows[0].name).toEqual(payload.name)
 		expect(bcrypt.compareSync(token, rows[0].token)).toBeTruthy()
 	}
