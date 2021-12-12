@@ -1,5 +1,5 @@
 import {JSONSchemaType} from "ajv"
-import { User } from '@sdk-js/types'
+import { User, UserState } from '@sdk-js/types'
 import Ajv from '../ajv'
 
 let schema: JSONSchemaType<User> = {
@@ -22,7 +22,7 @@ let schema: JSONSchemaType<User> = {
     provider_id: { type: "string"  },
     created_at: { type: "string", dateTime: true },
     updated_at: { type: "string", dateTime: true },
-    state: { type: "string", enum: ['Active', 'Disabled', 'SetPassword']  },
+    state: { type: "string", enum: Object.values(UserState)  },
     device_languages: {
       type: "array",
       items: { type: "string" }

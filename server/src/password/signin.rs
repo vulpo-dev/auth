@@ -8,6 +8,7 @@ use crate::response::error::ApiError;
 use crate::response::SessionResponse;
 use crate::session::data::{AccessToken, Session};
 use crate::user::data::User;
+use crate::user::data::UserState;
 
 use chrono::{Duration, Utc};
 use rocket::serde::json::Json;
@@ -57,7 +58,7 @@ pub async fn sign_in(
         Password::create_password(&pool, &user.id, &body.password, &current_alg).await?;
     }
 
-    if user.state == "Disabled" {
+    if user.state == UserState::Disabled {
         return Err(ApiError::UserDisabled);
     }
 

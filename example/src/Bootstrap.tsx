@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import App from './App'
 import { Switch, Route, useHistory, useLocation, Redirect } from 'react-router-dom'
 import { useAuthStateChange, useAuth } from '@riezler/auth-react'
-import { UserState, SessionInfo } from '@riezler/auth-sdk'
+import { UserAuthState, UserState } from '@riezler/auth-sdk'
 import { Auth, Container, BoxShadow } from '@riezler/auth-ui'
 
 let Bootstrap = () => {
@@ -18,7 +18,7 @@ let Bootstrap = () => {
 	})
 
 	let auth = useAuth()
-	let [user, setUser] = useState<UserState>(() => {
+	let [user, setUser] = useState<UserAuthState>(() => {
 		return auth.getUser() ?? undefined
 	})
 
@@ -28,7 +28,7 @@ let Bootstrap = () => {
 		}
 		
 		setUser(newUser?.user)
-		if(newUser && newUser.user?.state === 'SetPassword') {
+		if(newUser && newUser.user?.state === UserState.SetPassword) {
 			return
 		}
 
@@ -56,7 +56,7 @@ let Bootstrap = () => {
 					</BoxShadow>
 				</Container>
 				
-				{ (user && user.state !== 'SetPassword') &&
+				{ (user && user.state !== UserState.SetPassword) &&
 					<Redirect to={refferrer} />
 				}
 			</Route>

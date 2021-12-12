@@ -5,7 +5,7 @@ import SessionResponseSchema from '../utils/schema/session-response'
 
 import { v4 as uuid } from 'uuid'
 
-import { Url, EmailPasswordPayload } from '@sdk-js/types'
+import { Url, EmailPasswordPayload, UserState } from '@sdk-js/types'
 import { ErrorCode } from '@sdk-js/error'
 import { PROJECT_ID } from '../utils/env'
 
@@ -49,7 +49,7 @@ describe("Sign Up: Email and Password", () => {
 		let createdUser = rows[0]
 		expect(createdUser).toBeTruthy()
 		expect(createdUser.device_languages).toEqual(['de-AT', 'de'])
-		expect(createdUser.state).toEqual('Active')
+		expect(createdUser.state).toEqual(UserState.Active)
 
 
 		let { rows: sessions } = await Db.query(`

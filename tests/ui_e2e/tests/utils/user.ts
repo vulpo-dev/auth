@@ -1,5 +1,6 @@
 import Db from './db'
 import * as bcrypt from 'bcryptjs'
+import { v4 as uuid } from 'uuid'
 
 let SALT = bcrypt.genSaltSync(10);
 
@@ -17,11 +18,24 @@ export function removeByEmailType(email: string) {
 	`, [email])
 }
 
-export function createUserWithEmailPassword(email: string, password: string) {
-	return Db.query(`
-		insert into users(email, password, project_id, provider_id)
+export async function createUserWithEmailPassword(email: string, password: string) {
+	let id = uuid()
+
+	await Db.query(`
+		delete from users
+		 where email = $1
+		   and project_id = $2 
+	`, [email, 'ae16cc4a-33be-4b4e-a408-e67018fe453b'])
+
+	await Db.query(`
+		insert into users(id, email, project_id, provider_id)
 		values($1, $2, $3, 'email')
-		on conflict (email, project_id)
-		   do update set password = excluded.password
-	`, [email, bcrypt.hashSync(password, SALT), 'ae16cc4a-33be-4b4e-a408-e67018fe453b'])
+	`, [id, email, 'ae16cc4a-33be-4b4e-a408-e67018fe453b'])
+
+	let hash = bcrypt.hashSync(password, SALT)
+
+	await Db.query(`
+		insert into passwords(user_id, hash, alg)
+		values($1, $2, 'bcrypt')
+	`, [id, hash])
 }

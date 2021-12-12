@@ -1,5 +1,5 @@
 import React from 'react'
-import { Fragment, FC, useMemo, useLayoutEffect, SyntheticEvent, MouseEvent } from 'react'
+import { Fragment, FC, useMemo, useLayoutEffect, SyntheticEvent } from 'react'
 import styled from 'styled-components'
 import { Scrollbar } from '@biotic-ui/leptons'
 import { GhostBar } from 'component/loading'
@@ -8,6 +8,7 @@ import { format } from 'data/date'
 import Tooltip from 'component/tooltip'
 import Clipboard from 'clipboard'
 import { useClickHandler } from '@biotic-ui/std'
+import { UserState } from '@riezler/auth-sdk'
 
 export let Wrapper = styled.div`
 	display: inline-grid;
@@ -119,7 +120,7 @@ export let Rows: FC<RowsPops> = ({
 					return (
 						<Row
 							className='user-table--item'
-							disabled={user.state === 'Disabled'}
+							disabled={user.state === UserState.Disabled}
 							key={user.id}
 							onClick={onClick}
 							selected={selected.includes(user.id)}

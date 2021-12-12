@@ -5,7 +5,7 @@ import { Input, Password as PasswordInput } from '@biotic-ui/input'
 import { useForm } from '@biotic-ui/std'
 import { Button, IconButton } from '@biotic-ui/button'
 import { useHistory, useRouteMatch, Link, Redirect } from 'react-router-dom'
-import { ErrorCode, Flag } from '@riezler/auth-sdk'
+import { ErrorCode, Flag, UserState } from '@riezler/auth-sdk'
 import { useAuth } from '@riezler/auth-react'
 
 import { Card, CardHeader, CardNav, CardTitle } from '../component/card'
@@ -196,7 +196,7 @@ let PasswordContainer = ({ redirect = true, redirectTo }: ContainerProps) => {
 				? await auth.signIn(form.email, form.password)
 				: await auth.signUp(form.email, form.password)
 
-			if (redirect && user.state === 'SetPassword') {
+			if (redirect && user.state === UserState.SetPassword) {
 				history.replace(redirectTo ?? '/user/set_password')
 			}
 		} catch (err) {

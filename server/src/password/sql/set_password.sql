@@ -8,8 +8,8 @@ with update_password as (
 	returning user_id
 )
 update users
-   set state = case when state = 'SetPassword'
-                    then 'Active'
+   set state = case when state = 'set_password'
+                    then 'active'
                     else state
                end
   from update_password

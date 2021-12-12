@@ -13,7 +13,7 @@ select $1 as "email"
      , $4 as "provider_id"
      , $5 as "project_id"
      , case when $4 = 'link'
-            then 'Active'
-            else 'SetPassword'
+            then 'active'::user_state
+            else 'set_password'::user_state
         end as "state"
 returning id

@@ -8,7 +8,7 @@ use crate::response::error::ApiError;
 use crate::session::data::Session;
 use crate::settings::data::ProjectEmail;
 use crate::template::{Template, TemplateCtx, Templates, Translations};
-use crate::user::data::User;
+use crate::user::data::{User, UserState};
 
 use chrono::{Duration, Utc};
 use rocket::serde::{json::Json, Deserialize, Serialize};
@@ -40,7 +40,10 @@ pub async fn request_passwordless(
 
     let user = User::get_by_email(&pool, &body_email, &project.id).await?;
 
-    if user.clone().map_or(false, |u| u.state == "Disabled") {
+    if user
+        .clone()
+        .map_or(false, |u| u.state == UserState::Disabled)
+    {
         return Err(ApiError::UserDisabled);
     }
 

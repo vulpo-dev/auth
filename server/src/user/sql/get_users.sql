@@ -3,7 +3,7 @@ select id
      , email_verified
      , provider_id
      , created_at
-     , state
+     , state as "state: UserState"
   from users
  where project_id = $1
  order by case when $2 = 'created_at' then users.created_at end desc,

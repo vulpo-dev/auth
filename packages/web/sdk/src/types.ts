@@ -63,6 +63,12 @@ export type SessionInfo = {
 	expire_at?: string
 }
 
+export enum UserState {
+	Active = 'active',
+	Disabled = 'disabled',
+	SetPassword = 'set_password',
+}
+
 export type User = {
 	id: string;
 	display_name?: string,
@@ -74,7 +80,8 @@ export type User = {
 	provider_id: string,
 	created_at: string,
 	updated_at: string,
-	state: 'Active' | 'Disabled' | 'SetPassword',
+	state: UserState,
+	device_languages: Array<string>,
 }
 
 export type UpdateUserPayload = Pick<User,
@@ -123,7 +130,7 @@ export type Config = {
 	http?: AxiosInstance;
 }
 
-export type UserState = User | null | undefined
+export type UserAuthState = User | null | undefined
 export type AuthCallback = (u: SessionInfo | null | undefined) => void
 export type Unsubscribe = { unsubscribe: () => void }
 export type PasswordOptions = {

@@ -8,7 +8,7 @@ import { makeCreateSession } from '../utils/passwordless'
 import { projectKeys } from '@seeds/data/projects'
 
 import { ErrorCode } from '@sdk-js/error'
-import { Url } from '@sdk-js/types'
+import { Url, UserState } from '@sdk-js/types'
 
 const USER_ID = '077a9f18-e3c9-428f-99de-49a9a6772887'
 const SESSION_ID = '4e418b87-f967-4d1c-9d40-70e352611101'
@@ -37,8 +37,8 @@ beforeEach(async () => {
 	await removeUser()
 	await Db.query(`
 		insert into users(id, email, project_id, provider_id, state)
-		values($1, $2, $3, 'password', 'SetPassword')
-	`, [USER_ID, EMAIL, PROJECT_ID])
+		values($1, $2, $3, 'password', $4)
+	`, [USER_ID, EMAIL, PROJECT_ID, UserState.SetPassword])
 
 	await createSession()
 })
@@ -57,7 +57,7 @@ describe("Set Password", () => {
 		expect(res.status).toEqual(200)
 
 		let user = await getUser()
-		expect(user.state).toEqual('Active')
+		expect(user.state).toEqual(UserState.Active)
 		expect(bcrypt.compare(password, user.password)).toBeTruthy()
 	})
 
@@ -65,9 +65,9 @@ describe("Set Password", () => {
 
 		await Db.query(`
 			update users
-			   set state = 'Active'
+			   set state = $2
 			 where id = $1 
-		`, [USER_ID])
+		`, [USER_ID, UserState.Active])
 
 		let password = 'password'
 
@@ -89,7 +89,7 @@ describe("Set Password", () => {
 		expect(res.data.code).toBe(ErrorCode.PasswordMinLength)
 
 		let user = await getUser()
-		expect(user.state).toEqual('SetPassword')
+		expect(user.state).toEqual(UserState.SetPassword)
 		expect(user.password).toEqual(null)
 	})
 
@@ -104,7 +104,7 @@ describe("Set Password", () => {
 		expect(res.data.code).toBe(ErrorCode.PasswordMaxLength)
 
 		let user = await getUser()
-		expect(user.state).toEqual('SetPassword')
+		expect(user.state).toEqual(UserState.SetPassword)
 		expect(user.password).toEqual(null)
 	})
 

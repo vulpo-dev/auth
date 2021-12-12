@@ -1,3 +1,4 @@
+import { UserState } from "@riezler/auth-sdk"
 
 export enum Provider {
 	Email,
@@ -47,7 +48,7 @@ export type PartialUserResponse = {
 	email_verified: boolean;
 	id: string;
 	provider_id: string;
-	state: 'Active' | 'Disabled';
+	state: UserState;
 }
 
 export type User = {
@@ -61,7 +62,7 @@ export type User = {
 	provider_id: Provider,
 	created_at: Date,
 	updated_at: Date,
-	state: 'Active' | 'Disabled',
+	state: UserState,
 	device_languages: Array<string>,
 }
 

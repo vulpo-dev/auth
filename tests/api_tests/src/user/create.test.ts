@@ -3,12 +3,12 @@ import Db from '../utils/db'
 import { generateAdminToken } from '../utils/admin'
 import { PROJECT_ID } from '../utils/env'
 import { admin } from '@seeds/data/projects'
-import * as bcrypt from 'bcryptjs'
 import * as argon2 from 'argon2'
 import { ApiError } from '@admin/error'
 
 import * as uuid from 'uuid';
 import { ErrorCode } from '@sdk-js/error'
+import { UserState } from '@sdk-js/types'
 
 let EMAIL = 'api.test+create_user@vulpo.dev'
 let email = () => `api.test+${uuid.v4()}@vulpo.dev`
@@ -71,7 +71,7 @@ describe("Create User", () => {
 			email: EMAIL,
 			display_name: user.display_name,
 			provider_id: user.provider_id,
-			state: 'Active',
+			state: UserState.Active,
 			data: user.data,
 		})
 	})
@@ -127,7 +127,7 @@ describe("Create User", () => {
 			email: EMAIL,
 			display_name: user.display_name,
 			provider_id: user.provider_id,
-			state: 'SetPassword',
+			state: UserState.SetPassword,
 			data: user.data,
 		})
 

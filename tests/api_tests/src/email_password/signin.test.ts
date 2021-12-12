@@ -7,7 +7,7 @@ import { v4 as uuid } from 'uuid'
 import * as bcrypt from 'bcryptjs'
 import * as argon2 from 'argon2'
 
-import { Url, EmailPasswordPayload } from '@sdk-js/types'
+import { Url, EmailPasswordPayload, UserState } from '@sdk-js/types'
 import { ErrorCode } from '@sdk-js/error'
 import { PROJECT_ID } from '../utils/env'
 
@@ -164,10 +164,10 @@ describe("Sign In: Email and Password", () => {
 
 		await Db.query(`
 			update users
-			   set state = 'Disabled'
+			   set state = $3
 			 where email = $1
 			   and project_id = $2 
-		`, [EMAIL, PROJECT_ID])
+		`, [EMAIL, PROJECT_ID, UserState.Disabled])
 
 		let { publicKey } = generateKeyPair()
 

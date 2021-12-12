@@ -1,7 +1,7 @@
 import Db from '../utils/db'
 import Http from '../utils/http'
 import { generateKeyPair } from '../utils/crypto'
-import { Url } from '@sdk-js/types'
+import { Url, UserState } from '@sdk-js/types'
 import { ErrorCode } from '@sdk-js/error'
 import { PROJECT_ID } from '../utils/env'
 import {
@@ -68,7 +68,7 @@ describe("Get User", () => {
 				bar: false
 			},
 			provider_id: 'link',
-			state: 'Disabled',
+			state: UserState.Disabled,
 		} 
 
 		await Db.query(`

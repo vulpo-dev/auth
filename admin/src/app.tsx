@@ -2,7 +2,7 @@ import React from 'react'
 import { useState } from 'react'
 import { Switch, Route, useHistory, Redirect } from 'react-router-dom'
 import { useAuthStateChange, useAuth } from '@riezler/auth-react'
-import { UserState } from '@riezler/auth-sdk'
+import { UserAuthState, UserState } from '@riezler/auth-sdk'
 import { PageLoad } from 'component/loading'
 
 import Dashboard from 'dashboard'
@@ -23,7 +23,7 @@ export default function App() {
 	}) 
 
 	let auth = useAuth()
-	let [currentUser, setUser] = useState<UserState>(() => {
+	let [currentUser, setUser] = useState<UserAuthState>(() => {
 		return auth.getUser() ?? undefined
 	})
 
@@ -32,7 +32,7 @@ export default function App() {
 		setUser(user)
 
 
-		if (user?.state === 'SetPassword') {
+		if (user?.state === UserState.SetPassword) {
 			history.replace('/auth/#/set_password')
 			return
 		}
@@ -56,7 +56,7 @@ export default function App() {
 
 				<Auth />
 
-				{ (currentUser && currentUser.state !== 'SetPassword') &&
+				{ (currentUser && currentUser.state !== UserState.SetPassword) &&
 					<Redirect to={referrer} />
 				}
 			</Route>

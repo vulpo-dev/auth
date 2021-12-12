@@ -7,7 +7,7 @@ use crate::response::error::ApiError;
 use crate::session::data::AccessToken;
 use crate::settings::data::ProjectEmail;
 use crate::template::{Template, TemplateCtx, Templates};
-use crate::user::data::User;
+use crate::user::data::{User, UserState};
 
 use rocket::http::Status;
 use rocket::serde::json::Json;
@@ -28,7 +28,7 @@ pub async fn set_password(
     let user_id = token.sub();
     let user = User::get_by_id(&pool, &user_id, &project.id).await?;
 
-    if user.state != "SetPassword" {
+    if user.state != UserState::SetPassword {
         return Err(ApiError::Forbidden);
     }
 

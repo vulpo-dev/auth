@@ -1,5 +1,7 @@
-mod user;
 mod email;
+mod user;
 
-pub use user::{ParamError, PartialUser, SortDirection, TotalUsers, UpdateUser, User, UserOrder};
-pub use email::{EmailChangeState, NewChangeRequest, EmailChangeRequest};
+pub use email::{EmailChangeRequest, EmailChangeState, NewChangeRequest};
+pub use user::{
+    ParamError, PartialUser, SortDirection, TotalUsers, UpdateUser, User, UserOrder, UserState,
+};

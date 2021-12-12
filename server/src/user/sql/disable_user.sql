@@ -1,6 +1,6 @@
 with disable_user as (
     update users
-       set state = 'Disabled'
+       set state = 'disabled'
      where id = $1
        and project_id = $2
  returning id

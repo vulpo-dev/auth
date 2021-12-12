@@ -3,7 +3,6 @@ export type {
 	User,
 	TokenResponse,
 	Config,
-	UserState,
 	AuthCallback,
 	Unsubscribe,
 	PasswordOptions,
@@ -12,7 +11,12 @@ export type {
 	SetPasswordPayload,
 	SessionInfo,
 	SessionResponse,
-	EmailPasswordPayload
+	EmailPasswordPayload,
+	UserAuthState,
+} from './types'
+
+export {
+	UserState,
 } from './types'
 
 export {

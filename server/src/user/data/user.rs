@@ -9,6 +9,16 @@ use sqlx::{postgres::PgDatabaseError, Error, PgPool};
 use std::str::FromStr;
 use uuid::Uuid;
 
+#[derive(sqlx::Type, PartialEq, Debug, Clone, Deserialize, Serialize)]
+#[sqlx(type_name = "user_state")]
+#[sqlx(rename_all = "snake_case")]
+#[serde(rename_all = "snake_case")]
+pub enum UserState {
+    Active,
+    Disabled,
+    SetPassword,
+}
+
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct User {
     pub id: Uuid,
@@ -21,7 +31,7 @@ pub struct User {
     pub provider_id: String,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
-    pub state: String,
+    pub state: UserState,
     pub device_languages: Vec<String>,
 }
 
@@ -79,27 +89,10 @@ impl User {
         email: &str,
         project: &Uuid,
     ) -> Result<Option<User>, ApiError> {
-        let row = sqlx::query_file!("src/user/sql/get_by_email.sql", email, project)
+        sqlx::query_file_as!(User, "src/user/sql/get_by_email.sql", email, project)
             .fetch_optional(pool)
             .await
-            .map_err(|_| ApiError::InternalServerError)?;
-
-        let user = row.map(|u| User {
-            id: u.id,
-            display_name: u.display_name,
-            email: u.email,
-            email_verified: u.email_verified,
-            photo_url: u.photo_url,
-            traits: u.traits,
-            data: u.data,
-            provider_id: u.provider_id,
-            created_at: u.created_at,
-            updated_at: u.updated_at,
-            state: u.state,
-            device_languages: u.device_languages,
-        });
-
-        Ok(user)
+            .map_err(|_| ApiError::InternalServerError)
     }
 
     pub async fn get_by_id(pool: &PgPool, id: &Uuid, project: &Uuid) -> Result<User, ApiError> {
@@ -301,7 +294,7 @@ pub struct PartialUser {
     email_verified: bool,
     provider_id: String,
     created_at: DateTime<Utc>,
-    state: String,
+    state: UserState,
 }
 
 pub enum ParamError {

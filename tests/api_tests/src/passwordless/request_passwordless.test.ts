@@ -5,7 +5,7 @@ import PasswordlessResponseSchema from '../utils/schema/passwordless-response'
 
 import { v4 as uuid } from 'uuid'
 
-import { Url, RequestPasswordlessPayload } from '@sdk-js/types'
+import { Url, RequestPasswordlessPayload, UserState } from '@sdk-js/types'
 import { ErrorCode } from '@sdk-js/error'
 import { PROJECT_ID } from '../utils/env'
 
@@ -151,5 +151,5 @@ function createUser(disabled = false) {
 			, state
 			)
 		values($1, $2, 'link', $3)
-	`, [EMAIL, PROJECT_ID, disabled ? 'Disabled' : 'Active'])
+	`, [EMAIL, PROJECT_ID, disabled ? UserState.Disabled : UserState.Active])
 }

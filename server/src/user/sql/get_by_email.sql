@@ -8,7 +8,7 @@ select id
      , provider_id
      , created_at
      , updated_at
-     , state
+     , state as "state: UserState"
      , device_languages
   from users
  where email = $1

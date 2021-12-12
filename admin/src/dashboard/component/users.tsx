@@ -34,6 +34,7 @@ import Tooltip from 'component/tooltip'
 import { useEmailSettings, hasEmailProvider } from 'data/settings'
 import UserDetails from 'user/detail'
 import { useHistory, useLocation } from 'react-router-dom'
+import { UserState } from '@riezler/auth-sdk'
 
 type Props = {
 	project: string;
@@ -132,7 +133,7 @@ let Users: FC<Props> = ({ project }) => {
 		}
 
 		if (selected[0]) {
-			await disableUser(selected[0]!, user?.state === 'Active')
+			await disableUser(selected[0]!, user?.state === UserState.Active)
 			actions.reload()
 			setSelected([])
 		}
@@ -205,7 +206,7 @@ let Users: FC<Props> = ({ project }) => {
 						<FloatingActionBar open={selected.length > 0} onClose={() => setSelected([])}>
 							<ActionItem onClick={handleDisable}>
 								<ArchiveBox weight='bold' size={24} />
-								<ActionLabel>{ user?.state === 'Disabled' ? 'Enable' : 'Disable' }Account</ActionLabel>
+								<ActionLabel>{ user?.state === UserState.Disabled ? 'Enable' : 'Disable' }Account</ActionLabel>
 							</ActionItem>
 							<ActionItem disabled={!hasEmail || true}>
 								<ClockClockwise weight='bold' size={24} />

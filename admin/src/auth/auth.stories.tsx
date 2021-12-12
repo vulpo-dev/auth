@@ -1,9 +1,9 @@
 import React from 'react'
 import { Auth as AuthComponent } from 'auth'
-import { User, Auth } from '@riezler/auth-sdk'
+import { User, Auth, UserState } from '@riezler/auth-sdk'
 import { Auth as AuthClient } from '@riezler/auth-react'
 import { HashRouter, Route, Redirect, Switch } from 'react-router-dom'
-import { Header, Wrapper, Content } from 'setup'
+import { Header, Wrapper } from 'setup'
 import { Story, Meta } from '@storybook/react/types-6-0';
 import { Main } from 'component/layout'
 
@@ -26,11 +26,12 @@ let user: User = {
   email_verified: true,
   id: '',
   provider_id: 'password',
-  state: 'Active',
+  state: UserState.Active,
   traits: [],
   updated_at: '',
   display_name: '',
   photo_url: '',
+  device_languages: [],
 }
 
 const Template: Story<{}> = (args) => {

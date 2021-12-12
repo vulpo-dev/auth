@@ -1,5 +1,7 @@
 -- Your SQL goes here
 
+create type user_state as enum('active', 'disabled', 'set_password');
+
 create table if not exists users
 	( id uuid primary key default uuid_generate_v4()
 	, display_name text
@@ -12,7 +14,7 @@ create table if not exists users
 	, created_at timestamptz not null default now()
 	, updated_at timestamptz not null default now()
 	, project_id uuid not null references projects(id) on delete cascade
-	, state text not null default 'Active'
+	, state user_state not null default 'active'
 	, device_languages text[] not null default '{en}'
 	, unique(project_id, email)
 	);
