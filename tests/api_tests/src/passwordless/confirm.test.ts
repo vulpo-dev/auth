@@ -1,59 +1,24 @@
 import Db from '../utils/db'
 import Http from '../utils/http'
-import { generateKeyPair } from '../utils/crypto'
 import { Url, ConfirmPasswordlessPayload } from '@sdk-js/types'
 import { ErrorCode } from '@sdk-js/error'
-import { PROJECT_ID } from '../utils/env'
-import {
-	makeCreateSession,
-	makeCreateToken,
-	makeResetPasswordless,
-} from '../utils/passwordless'
+import { createToken, createSession } from '../utils/passwordless'
+
+import { createUser } from '../utils/user'
 
 import { v4 as uuid } from 'uuid'
-import * as bcrypt from 'bcryptjs'
 
-const SALT = bcrypt.genSaltSync(10);
-const EMAIL = 'api.test+passwordless_confirm@vulpo.dev'
-const USER_ID = '75b83573-d43a-420c-9037-9a09fd4cb892'
-const SESSION_ID = '1b3fa20a-f568-4eec-9948-6bf3d2215f52'
-const TOKEN = 'random-token'
-const HASHED_TOKEN = bcrypt.hashSync(TOKEN, SALT)
-const KEYS = generateKeyPair()
-
-let createToken = makeCreateToken(
-	USER_ID,
-	EMAIL,
-	HASHED_TOKEN,
-	PROJECT_ID,
-	SESSION_ID
-)
-
-let createSession = makeCreateSession(
-	SESSION_ID,
-	PROJECT_ID,
-	USER_ID,
-	KEYS.publicKey,
-)
-
-let resetPasswordless = makeResetPasswordless(
-	USER_ID,
-	SESSION_ID,
-	createSession,
-)
-
-beforeAll(createUser)
-beforeEach(resetPasswordless)
-afterAll(cleanUp)
 afterAll(() => Db.end())
 
 describe("Confirm Passwordless", () => {
 	test("returns ok for valid token", async () => {
-		let id = await createToken()
+		let user = await createUser()
+		let session = await createSession({ user })
+		let token = await createToken({ user, session })
 		
 		let payload: ConfirmPasswordlessPayload = {
-			id,
-			token: TOKEN
+			id: token.id,
+			token: token.value,
 		}
 
 		let res = await Http
@@ -67,27 +32,27 @@ describe("Confirm Passwordless", () => {
 			     , is_valid
 			  from passwordless
 			 where id = $1
-		`, [id])
+		`, [token.id])
 
-		let token = rows[0]
-
-		expect(token.confirmed).toBe(true)
-		expect(token.is_valid).toBe(true)
+		expect(rows[0].confirmed).toBe(true)
+		expect(rows[0].is_valid).toBe(true)
 	})
 
 
 	test("fails when token is invalid", async () => {
-		let id = await createToken()
+		let user = await createUser()
+		let session = await createSession({ user })
+		let token = await createToken({ user, session })
 
 		await Db.query(`
 			update passwordless
 			   set is_valid = false
 			 where id = $1 
-		`, [id])
+		`, [token.id])
 		
 		let payload: ConfirmPasswordlessPayload = {
-			id,
-			token: TOKEN
+			id: token.id,
+			token: token.value,
 		}
 
 		let res = await Http
@@ -100,11 +65,13 @@ describe("Confirm Passwordless", () => {
 
 
 	test("fails when token does not match", async () => {
-		let id = await createToken()
+		let user = await createUser()
+		let session = await createSession({ user })
+		let token = await createToken({ user, session })
 		
 		let payload: ConfirmPasswordlessPayload = {
-			id,
-			token: `wrong-${TOKEN}`
+			id: token.id,
+			token: `wrong-${token.value}`
 		}
 
 		let res = await Http
@@ -117,17 +84,19 @@ describe("Confirm Passwordless", () => {
 
 
 	test("fails when token is expired", async () => {
-		let id = await createToken()
+		let user = await createUser()
+		let session = await createSession({ user })
+		let token = await createToken({ user, session })
 
 		await Db.query(`
 			update passwordless
 			   set expire_at = now() - interval '1 minutes'
 			 where id = $1 
-		`, [id])
+		`, [token.id])
 		
 		let payload: ConfirmPasswordlessPayload = {
-			id,
-			token: TOKEN
+			id: token.id,
+			token: token.value,
 		}
 
 		let res = await Http
@@ -140,11 +109,13 @@ describe("Confirm Passwordless", () => {
 
 
 	test("returns not found when id is wrong", async () => {
-		await createToken()
+		let user = await createUser()
+		let session = await createSession({ user })
+		let token = await createToken({ user, session })
 		
 		let payload: ConfirmPasswordlessPayload = {
 			id: uuid(),
-			token: TOKEN
+			token: token.value
 		}
 
 		let res = await Http
@@ -155,19 +126,3 @@ describe("Confirm Passwordless", () => {
 		expect(res.data.code).toBe(ErrorCode.NotFound)
 	})
 })
-
-async function cleanUp() {
-	return Db.query(`
-		delete from users
-		 where id = $1 
-	`, [USER_ID])
-}
-
-function createUser() {
-	return Db.query(`
-		insert into users(id, email, project_id, provider_id)
-		values($1, $2, $3, 'link')
-		on conflict (id)
-		   do nothing
-	`, [USER_ID, EMAIL, PROJECT_ID])
-}

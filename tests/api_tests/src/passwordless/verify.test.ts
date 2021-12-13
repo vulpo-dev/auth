@@ -1,78 +1,34 @@
 import Db from '../utils/db'
 import Http from '../utils/http'
-import { generateKeyPair } from '../utils/crypto'
-import { Url, VerifyPasswordlessPayload } from '@sdk-js/types'
-import { ErrorCode } from '@sdk-js/error'
-import { PROJECT_ID } from '../utils/env'
-import {
-	makeCreateSession,
-	makeCreateToken,
-	makeResetPasswordless,
-	makeCleanUp,
-	makeCreateUser,
-} from '../utils/passwordless'
+import { createToken, createSession, CreatedSession } from '../utils/passwordless'
+import { createUser } from '../utils/user'
 import SessionResponseSchema from '../utils/schema/session-response'
+import { ErrorCode } from '@sdk-js/error'
+import { Url, VerifyPasswordlessPayload } from '@sdk-js/types'
 
 import { v4 as uuid } from 'uuid'
-import * as bcrypt from 'bcryptjs'
 import * as jwt from 'jsonwebtoken'
 import { Algorithm } from 'jsonwebtoken'
 
-const SALT = bcrypt.genSaltSync(10);
-const EMAIL = 'api.test+passwordless_verify@vulpo.dev'
-const USER_ID = 'a7f60eb2-aafe-42cc-bfa3-6964140555cc'
-const SESSION_ID = 'ee78fe6e-c997-4eff-9af7-24c57ed1ab76'
-const TOKEN = 'random-token'
-const HASHED_TOKEN = bcrypt.hashSync(TOKEN, SALT)
-const KEYS = generateKeyPair()
-
-let createToken = makeCreateToken(
-	USER_ID,
-	EMAIL,
-	HASHED_TOKEN,
-	PROJECT_ID,
-	SESSION_ID
-)
-
-let createSession = makeCreateSession(
-	SESSION_ID,
-	PROJECT_ID,
-	USER_ID,
-	KEYS.publicKey,
-)
-
-let resetPasswordless = makeResetPasswordless(
-	USER_ID,
-	SESSION_ID,
-	createSession,
-)
-
-let createUser = makeCreateUser(
-	USER_ID,
-	EMAIL,
-	PROJECT_ID
-)
-
-beforeAll(createUser)
-beforeEach(resetPasswordless)
-afterAll(makeCleanUp(USER_ID))
 afterAll(() => Db.end())
 
 describe("Verify Passwordless", () => {
 	test("returns session data for valid token/existing user", async () => {
-		let id = await createToken()
-		let token = generateAccessToken(ratPayload())
+		let user = await createUser()
+		let session = await createSession({ user })
+		let token = await createToken({ user, session })
+		let accessToken = generateAccessToken({ session })
 
 		await Db.query(`
 			update passwordless
 			   set confirmed = true
 			 where id = $1 
-		`, [id])
+		`, [token.id])
 
 		let payload: VerifyPasswordlessPayload = {
-			id,
-			session: SESSION_ID,
-			token,
+			id: token.id,
+			session: session.id,
+			token: accessToken,
 			device_languages: ['de-AT', 'de'],
 		}
 
@@ -93,17 +49,19 @@ describe("Verify Passwordless", () => {
 		`, [payload.session])
 
 		expect(Array.from(Buffer.from(sessions[0].public_key)))
-			.toEqual(Array.from(Buffer.from(KEYS.publicKey)))
+			.toEqual(Array.from(Buffer.from(session.keys.publicKey)))
 	})
 
 	test("returns passwordless/await_confirm while token is not confirmed", async () => {
-		let id = await createToken()
-		let token = generateAccessToken(ratPayload())
+		let user = await createUser()
+		let session = await createSession({ user })
+		let token = await createToken({ user, session })
+		let accessToken = generateAccessToken({ session })
 
 		let payload: VerifyPasswordlessPayload = {
-			id,
-			session: SESSION_ID,
-			token,
+			id: token.id,
+			session: session.id,
+			token: accessToken,
 			device_languages: ['de-AT', 'de'],
 		}
 
@@ -118,7 +76,7 @@ describe("Verify Passwordless", () => {
 			update passwordless
 			   set confirmed = true
 			 where id = $1 
-		`, [id])
+		`, [token.id])
 
 		let res = await Http
 			.post(Url.PasswordlessVerify, payload)
@@ -133,20 +91,22 @@ describe("Verify Passwordless", () => {
 
 
 	test("returns passwordless/invalid_token when token is invalid", async () => {
-		let id = await createToken()
-		let token = generateAccessToken(ratPayload())
+		let user = await createUser()
+		let session = await createSession({ user })
+		let token = await createToken({ user, session })
+		let accessToken = generateAccessToken({ session })
 
 		await Db.query(`
 			update passwordless
 			   set confirmed = true
 			     , is_valid = false
 			 where id = $1 
-		`, [id])
+		`, [token.id])
 
 		let payload: VerifyPasswordlessPayload = {
-			id,
-			session: SESSION_ID,
-			token,
+			id: token.id,
+			session: session.id,
+			token: accessToken,
 			device_languages: ['de-AT', 'de'],
 		}
 
@@ -160,20 +120,22 @@ describe("Verify Passwordless", () => {
 
 
 	test("returns passwordless/token_expire when token is expired", async () => {
-		let id = await createToken()
-		let token = generateAccessToken(ratPayload())
+		let user = await createUser()
+		let session = await createSession({ user })
+		let token = await createToken({ user, session })
+		let accessToken = generateAccessToken({ session })
 
 		await Db.query(`
 			update passwordless
 			   set confirmed = true
 			     , created_at = $2
 			 where id = $1 
-		`, [id, new Date(Date.now() - 32 * 60 * 1000)])
+		`, [token.id, new Date(Date.now() - 32 * 60 * 1000)])
 
 		let payload: VerifyPasswordlessPayload = {
-			id,
-			session: SESSION_ID,
-			token,
+			id: token.id,
+			session: session.id,
+			token: accessToken,
 			device_languages: ['de-AT', 'de'],
 		}
 
@@ -187,19 +149,21 @@ describe("Verify Passwordless", () => {
 
 
 	test("returns forbidden when auth token is expired", async () => {
-		let id = await createToken()
-		let token = generateAccessToken(ratPayload(-5))
+		let user = await createUser()
+		let session = await createSession({ user })
+		let token = await createToken({ user, session })
+		let accessToken = generateAccessToken({ session, minutes: -5 })
 
 		await Db.query(`
 			update passwordless
 			   set confirmed = true
 			 where id = $1 
-		`, [id])
+		`, [token.id])
 
 		let payload: VerifyPasswordlessPayload = {
-			id,
-			session: SESSION_ID,
-			token,
+			id: token.id,
+			session: session.id,
+			token: accessToken,
 			device_languages: ['de-AT', 'de'],
 		}
 
@@ -213,20 +177,22 @@ describe("Verify Passwordless", () => {
 
 
 	test("returns passwordless/invalid_token when token is invalid", async () => {
-		let id = await createToken()
-		let token = generateAccessToken(ratPayload())
+		let user = await createUser()
+		let session = await createSession({ user })
+		let token = await createToken({ user, session })
+		let accessToken = generateAccessToken({ session })
 
 		await Db.query(`
 			update passwordless
 			   set confirmed = true
 			     , is_valid = false
 			 where id = $1 
-		`, [id])
+		`, [token.id])
 
 		let payload: VerifyPasswordlessPayload = {
-			id,
-			session: SESSION_ID,
-			token,
+			id: token.id,
+			session: session.id,
+			token: accessToken,
 			device_languages: ['de-AT', 'de'],
 		}
 
@@ -239,10 +205,22 @@ describe("Verify Passwordless", () => {
 	})
 })
 
-function generateAccessToken(payload: any, algorithm: Algorithm = 'RS256') {
+type GenerateAccessToken = {
+	minutes?: number;
+	algorithm?: Algorithm;
+	session: CreatedSession
+} 
+
+function generateAccessToken({
+	session,
+	minutes,
+	algorithm = 'RS256',
+}: GenerateAccessToken) {
+	let payload = ratPayload(minutes)
+
 	return jwt.sign(
 		JSON.stringify(payload),
-		KEYS.privateKey,
+		session.keys.privateKey,
 		{
 			algorithm,
 			header: {

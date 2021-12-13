@@ -6,6 +6,7 @@ import * as jwt from 'jsonwebtoken'
 import { Algorithm } from 'jsonwebtoken'
 import { v4 as uuid } from 'uuid'
 import * as argon2 from 'argon2'
+import { UserState } from '@sdk-js/types'
 
 export let getEmail = () => `api.test+${uuid()}@vulpo.dev`
 
@@ -88,6 +89,7 @@ export type CreatedUser = {
 	password: string;
 	id: string;
 	email: string;
+	state: UserState;
 }
 
 type CreateUser = Partial<CreatedUser>
@@ -98,14 +100,15 @@ export async function createUser({
 	email = getEmail(),
 	project = PROJECT_ID,
 	traits = [],
+	state = UserState.Active,
 	password
 }: CreateUser = {}): Promise<CreatedUser> {
 	let authType = password ? 'email' : 'link'
 
 	await Db.query(`
-		insert into users(id, email, project_id, provider_id, traits)
-		values($1, $2, $3, $4, $5)
-	`, [id, email, project, authType, traits])
+		insert into users(id, email, project_id, provider_id, traits, state)
+		values($1, $2, $3, $4, $5, $6)
+	`, [id, email, project, authType, traits, state])
 
 	if (password) {
 		let hash = await argon2.hash(password, { type: argon2.argon2id })
@@ -117,7 +120,7 @@ export async function createUser({
 		`, [id, hash])
 	}
 
-	return { id, email, project, traits, password: password ?? '' }
+	return { id, email, project, traits, password: password ?? '', state }
 }
 
 export function createTokenPayload(sub: string, iss: string, minutes = 5) {
