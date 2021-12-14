@@ -92,93 +92,6 @@
       ]
     }
   },
-  "099cdde3e688347b19141845a9dba42266477e1eb3447030d935adbc7b6b0c15": {
-    "query": "select id\r\n     , display_name\r\n     , email\r\n     , email_verified\r\n     , photo_url\r\n     , traits\r\n     , data\r\n     , provider_id\r\n     , created_at\r\n     , updated_at\r\n     , state\r\n     , device_languages\r\n  from users\r\n where id = $1\r\n   and project_id = $2",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "display_name",
-          "type_info": "Text"
-        },
-        {
-          "ordinal": 2,
-          "name": "email",
-          "type_info": "Text"
-        },
-        {
-          "ordinal": 3,
-          "name": "email_verified",
-          "type_info": "Bool"
-        },
-        {
-          "ordinal": 4,
-          "name": "photo_url",
-          "type_info": "Text"
-        },
-        {
-          "ordinal": 5,
-          "name": "traits",
-          "type_info": "TextArray"
-        },
-        {
-          "ordinal": 6,
-          "name": "data",
-          "type_info": "Jsonb"
-        },
-        {
-          "ordinal": 7,
-          "name": "provider_id",
-          "type_info": "Text"
-        },
-        {
-          "ordinal": 8,
-          "name": "created_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 9,
-          "name": "updated_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 10,
-          "name": "state",
-          "type_info": "Text"
-        },
-        {
-          "ordinal": 11,
-          "name": "device_languages",
-          "type_info": "TextArray"
-        }
-      ],
-      "parameters": {
-        "Left": [
-          "Uuid",
-          "Uuid"
-        ]
-      },
-      "nullable": [
-        false,
-        true,
-        false,
-        false,
-        true,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false
-      ]
-    }
-  },
   "0cc9374c85dfbb62e95cdc7797abe47cce3833cc151fd97d9f858bc33526cee9": {
     "query": "\r\ninsert into api_keys(token, user_id, expire_at, name)\r\nvalues($1, $2, $3, $4)\r\nreturning id",
     "describe": {
@@ -230,99 +143,6 @@
       ]
     }
   },
-  "0d9d2ec85681460c86735ea229b9ec26532036fe1e10d850fd96cc2115b09de3": {
-    "query": "select password\r\n     , id\r\n     , display_name\r\n     , email\r\n     , email_verified\r\n     , photo_url\r\n     , traits\r\n     , data\r\n     , provider_id\r\n     , created_at\r\n     , updated_at\r\n     , state\r\n     , device_languages\r\n  from users\r\n where email = $1\r\n   and project_id = $2",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "password",
-          "type_info": "Text"
-        },
-        {
-          "ordinal": 1,
-          "name": "id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 2,
-          "name": "display_name",
-          "type_info": "Text"
-        },
-        {
-          "ordinal": 3,
-          "name": "email",
-          "type_info": "Text"
-        },
-        {
-          "ordinal": 4,
-          "name": "email_verified",
-          "type_info": "Bool"
-        },
-        {
-          "ordinal": 5,
-          "name": "photo_url",
-          "type_info": "Text"
-        },
-        {
-          "ordinal": 6,
-          "name": "traits",
-          "type_info": "TextArray"
-        },
-        {
-          "ordinal": 7,
-          "name": "data",
-          "type_info": "Jsonb"
-        },
-        {
-          "ordinal": 8,
-          "name": "provider_id",
-          "type_info": "Text"
-        },
-        {
-          "ordinal": 9,
-          "name": "created_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 10,
-          "name": "updated_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 11,
-          "name": "state",
-          "type_info": "Text"
-        },
-        {
-          "ordinal": 12,
-          "name": "device_languages",
-          "type_info": "TextArray"
-        }
-      ],
-      "parameters": {
-        "Left": [
-          "Text",
-          "Uuid"
-        ]
-      },
-      "nullable": [
-        true,
-        false,
-        true,
-        false,
-        false,
-        true,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false
-      ]
-    }
-  },
   "0e80903c4a39f9bb8067e74d6697e4963cf37ed363778d8e03a4cf39b913207f": {
     "query": "select id\r\n  from projects\r\n where is_admin = True",
     "describe": {
@@ -365,91 +185,74 @@
       "nullable": []
     }
   },
-  "1c6903e01db8ecff212d985deef0017d916f180ad16ad025e93bb6ed5334d8f4": {
-    "query": "select id\r\n     , display_name\r\n     , email\r\n     , email_verified\r\n     , photo_url\r\n     , traits\r\n     , data\r\n     , provider_id\r\n     , created_at\r\n     , updated_at\r\n     , state\r\n     , device_languages\r\n  from users\r\n where email = $1\r\n   and project_id = $2",
+  "206e748963b01c6332cc10ddc1addb99925d4418511c7a0a66673a53ca3bde8f": {
+    "query": "\r\nselect password_alg as \"alg: PasswordAlg\"\r\n  from users\r\n  join project_settings on project_settings.project_id = users.project_id\r\n where users.id = $1",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "alg: PasswordAlg",
+          "type_info": {
+            "Custom": {
+              "name": "password_alg",
+              "kind": {
+                "Enum": [
+                  "bcrypt",
+                  "argon2id",
+                  "sha1",
+                  "scrypt",
+                  "pbkdf2",
+                  "md5"
+                ]
+              }
+            }
+          }
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid"
+        ]
+      },
+      "nullable": [
+        false
+      ]
+    }
+  },
+  "23516858fe2c9e78934be8c8dfb282071229814878933ca7275332edfc00840b": {
+    "query": "\r\nwith insert_user as (\r\n        insert into users(email, project_id, provider_id, device_languages)\r\n        values($1, $3, 'password', $4)\r\n        returning id\r\n)\r\ninsert into passwords(user_id, alg, hash)\r\nselect insert_user.id as \"user_id\"\r\n     , 'bcrypt' as \"alg\"\r\n     , $2 as \"hash\"\r\n  from insert_user \r\nreturning user_id as \"id\"",
     "describe": {
       "columns": [
         {
           "ordinal": 0,
           "name": "id",
           "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "display_name",
-          "type_info": "Text"
-        },
-        {
-          "ordinal": 2,
-          "name": "email",
-          "type_info": "Text"
-        },
-        {
-          "ordinal": 3,
-          "name": "email_verified",
-          "type_info": "Bool"
-        },
-        {
-          "ordinal": 4,
-          "name": "photo_url",
-          "type_info": "Text"
-        },
-        {
-          "ordinal": 5,
-          "name": "traits",
-          "type_info": "TextArray"
-        },
-        {
-          "ordinal": 6,
-          "name": "data",
-          "type_info": "Jsonb"
-        },
-        {
-          "ordinal": 7,
-          "name": "provider_id",
-          "type_info": "Text"
-        },
-        {
-          "ordinal": 8,
-          "name": "created_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 9,
-          "name": "updated_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 10,
-          "name": "state",
-          "type_info": "Text"
-        },
-        {
-          "ordinal": 11,
-          "name": "device_languages",
-          "type_info": "TextArray"
         }
       ],
       "parameters": {
         "Left": [
           "Text",
-          "Uuid"
+          "Text",
+          "Uuid",
+          "TextArray"
         ]
       },
       "nullable": [
-        false,
-        true,
-        false,
-        false,
-        true,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
         false
       ]
+    }
+  },
+  "2ba1a6cdc73d23d31f1accab094eeca32f6588190f34f490ea327aeddfa5a01f": {
+    "query": "update users\r\n   set state = 'active'\r\n where id = $1\r\n   and project_id = $2",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          "Uuid"
+        ]
+      },
+      "nullable": []
     }
   },
   "2cb23362ddbc936b8585ac9da8a5a446f1e5bb801e18f1d5dd8c504fedd56097": {
@@ -597,22 +400,8 @@
       "nullable": []
     }
   },
-  "44399adc00a228b912f31770efa3933517d22d0617e7e4970e6345d37b9d317b": {
-    "query": "delete from template_translations\r\n where template_translations.language = $1\r\n   and template_translations.template_id in (\r\n    select id\r\n      from templates\r\n     where project_id = $2\r\n       and name = $3\r\n   )",
-    "describe": {
-      "columns": [],
-      "parameters": {
-        "Left": [
-          "Text",
-          "Uuid",
-          "Text"
-        ]
-      },
-      "nullable": []
-    }
-  },
-  "514322dad814b51ed90fbf8da28a1cc5812787993003ac610e1aad524a5f281a": {
-    "query": "insert into users\r\n     ( email\r\n     , password\r\n     , project_id\r\n     , traits\r\n     , data\r\n     , provider_id\r\n     )\r\nvalues\r\n     ( $1\r\n     , $2\r\n     , $3\r\n     , '{ \"Admin\" }'\r\n     , '{}'::jsonb\r\n     , 'email'\r\n     )\r\nreturning id",
+  "3a388d6d2bcf254c7cdcb66582094090727e9925ac4c07ca0cb92c5ef4bc8bcc": {
+    "query": "\r\nwith insert_admin as (\r\n     insert into users\r\n          ( email\r\n          , project_id\r\n          , traits\r\n          , data\r\n          , provider_id\r\n          )\r\n     values\r\n          ( $1\r\n          , $3\r\n          , '{ \"Admin\" }'\r\n          , '{}'::jsonb\r\n          , 'email'\r\n          )\r\n     returning id\r\n)\r\ninsert into passwords(user_id, alg, hash)\r\nselect insert_admin.id as \"user_id\"\r\n     , 'bcrypt' as \"alg\"\r\n     , $2 as \"hash\"\r\n  from insert_admin \r\nreturning user_id as \"id\"",
     "describe": {
       "columns": [
         {
@@ -631,6 +420,32 @@
       "nullable": [
         false
       ]
+    }
+  },
+  "44399adc00a228b912f31770efa3933517d22d0617e7e4970e6345d37b9d317b": {
+    "query": "delete from template_translations\r\n where template_translations.language = $1\r\n   and template_translations.template_id in (\r\n    select id\r\n      from templates\r\n     where project_id = $2\r\n       and name = $3\r\n   )",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": [
+          "Text",
+          "Uuid",
+          "Text"
+        ]
+      },
+      "nullable": []
+    }
+  },
+  "4af88c85db71db29320531dde8e69c63e7e4cfa34e88272cd2ca1af9088b164f": {
+    "query": "\r\ndelete from projects\r\n where id = $1\r\n   and is_admin = false",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": [
+          "Uuid"
+        ]
+      },
+      "nullable": []
     }
   },
   "53acea74f1ac51d462b87d94ca5b0db092e71f084c010db45c05f43b75698fbe": {
@@ -669,19 +484,6 @@
       "nullable": [
         null
       ]
-    }
-  },
-  "5483459c588e617fd071ed907a22cf7131f4e7b38b65387eada3f915f37db68a": {
-    "query": "update users\r\n   set password = $2\r\n     , state = case when state = 'SetPassword'\r\n                    then 'Active'\r\n                    else state\r\n               end\r\n where id = $1",
-    "describe": {
-      "columns": [],
-      "parameters": {
-        "Left": [
-          "Uuid",
-          "Text"
-        ]
-      },
-      "nullable": []
     }
   },
   "5a368c2729dad5a9d8fc85e67c3546d0982a0cda0774add30e47a4e4611c3286": {
@@ -799,6 +601,104 @@
         ]
       },
       "nullable": [
+        false,
+        false
+      ]
+    }
+  },
+  "6afd1424a7d33108b0cbcd0b3edeb9677b566fc6f36f836aa686752150a6d620": {
+    "query": "select id\r\n     , display_name\r\n     , email\r\n     , email_verified\r\n     , photo_url\r\n     , traits\r\n     , data\r\n     , provider_id\r\n     , created_at\r\n     , updated_at\r\n     , state as \"state: UserState\"\r\n     , device_languages\r\n  from users\r\n where id = $1\r\n   and project_id = $2",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "display_name",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 2,
+          "name": "email",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 3,
+          "name": "email_verified",
+          "type_info": "Bool"
+        },
+        {
+          "ordinal": 4,
+          "name": "photo_url",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 5,
+          "name": "traits",
+          "type_info": "TextArray"
+        },
+        {
+          "ordinal": 6,
+          "name": "data",
+          "type_info": "Jsonb"
+        },
+        {
+          "ordinal": 7,
+          "name": "provider_id",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 8,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 9,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 10,
+          "name": "state: UserState",
+          "type_info": {
+            "Custom": {
+              "name": "user_state",
+              "kind": {
+                "Enum": [
+                  "active",
+                  "disabled",
+                  "set_password"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "ordinal": 11,
+          "name": "device_languages",
+          "type_info": "TextArray"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          "Uuid"
+        ]
+      },
+      "nullable": [
+        false,
+        true,
+        false,
+        false,
+        true,
+        false,
+        false,
+        false,
+        false,
+        false,
         false,
         false
       ]
@@ -928,6 +828,30 @@
       "nullable": []
     }
   },
+  "787e522b074ebf20b84627714e1ed692c31a8db3b3db0f18b968dad2d9688032": {
+    "query": "\r\ninsert into users\r\n    ( email\r\n    , display_name\r\n    , data\r\n    , provider_id\r\n    , project_id\r\n    , state\r\n    )\r\nselect $1 as \"email\"\r\n     , $2 as \"display_name\"\r\n     , $3::jsonb as \"data\"\r\n     , $4 as \"provider_id\"\r\n     , $5 as \"project_id\"\r\n     , case when $4 = 'link'\r\n            then 'active'::user_state\r\n            else 'set_password'::user_state\r\n        end as \"state\"\r\nreturning id\r\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Text",
+          "Text",
+          "Jsonb",
+          "Text",
+          "Uuid"
+        ]
+      },
+      "nullable": [
+        false
+      ]
+    }
+  },
   "7b36c5a05bde68539c4df23fe588306f579a82247cf62a658bcb063871f92e4f": {
     "query": "insert into sessions(id, public_key, expire_at, user_id, project_id)\r\nvalues($1, $2, $3, $4, $5)\r\non conflict(id)\r\n   do update\r\n         set id = uuid_generate_v4()\r\nreturning id, public_key, expire_at, user_id, project_id",
     "describe": {
@@ -973,95 +897,6 @@
         false,
         true,
         true
-      ]
-    }
-  },
-  "7b509863bcd8ec0f33e2a72e21d79780060527ae916eebe3f3fa511a7f2e0caf": {
-    "query": "insert into users(email, password, project_id, provider_id, device_languages)\r\nvalues($1, $2, $3, 'password', $4)\r\nreturning id\r\n        , display_name\r\n        , email\r\n        , email_verified\r\n        , photo_url\r\n        , traits\r\n        , data\r\n        , provider_id\r\n        , created_at\r\n        , updated_at\r\n        , state\r\n        , device_languages",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "display_name",
-          "type_info": "Text"
-        },
-        {
-          "ordinal": 2,
-          "name": "email",
-          "type_info": "Text"
-        },
-        {
-          "ordinal": 3,
-          "name": "email_verified",
-          "type_info": "Bool"
-        },
-        {
-          "ordinal": 4,
-          "name": "photo_url",
-          "type_info": "Text"
-        },
-        {
-          "ordinal": 5,
-          "name": "traits",
-          "type_info": "TextArray"
-        },
-        {
-          "ordinal": 6,
-          "name": "data",
-          "type_info": "Jsonb"
-        },
-        {
-          "ordinal": 7,
-          "name": "provider_id",
-          "type_info": "Text"
-        },
-        {
-          "ordinal": 8,
-          "name": "created_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 9,
-          "name": "updated_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 10,
-          "name": "state",
-          "type_info": "Text"
-        },
-        {
-          "ordinal": 11,
-          "name": "device_languages",
-          "type_info": "TextArray"
-        }
-      ],
-      "parameters": {
-        "Left": [
-          "Text",
-          "Text",
-          "Uuid",
-          "TextArray"
-        ]
-      },
-      "nullable": [
-        false,
-        true,
-        false,
-        false,
-        true,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false
       ]
     }
   },
@@ -1137,19 +972,6 @@
       "columns": [],
       "parameters": {
         "Left": [
-          "Uuid"
-        ]
-      },
-      "nullable": []
-    }
-  },
-  "8b1b9c5775fb60f8067c3000a9e7aeefccf353c3178b3ee04d94ddc0c9d87a7c": {
-    "query": "update users\r\n   set state = 'Active'\r\n where id = $1\r\n   and project_id = $2",
-    "describe": {
-      "columns": [],
-      "parameters": {
-        "Left": [
-          "Uuid",
           "Uuid"
         ]
       },
@@ -1334,8 +1156,8 @@
       "nullable": []
     }
   },
-  "ac8eafe21501ad5716a251174704447afe105ab920e9b689261363fd468e0e8c": {
-    "query": "select id\r\n     , email\r\n     , email_verified\r\n     , provider_id\r\n     , created_at\r\n     , state\r\n  from users\r\n where project_id = $1\r\n order by case when $2 = 'created_at' then users.created_at end desc,\r\n          case when $2 = 'email' then users.email end desc\r\n offset $3\r\n limit $4",
+  "ad59477d047a43c656c74ff11dad2460a64eae7c9a7431772997dfb57ab75d57": {
+    "query": "select id\r\n     , display_name\r\n     , email\r\n     , email_verified\r\n     , photo_url\r\n     , traits\r\n     , data\r\n     , provider_id\r\n     , created_at\r\n     , updated_at\r\n     , state as \"state: UserState\"\r\n     , device_languages\r\n  from users\r\n where email = $1\r\n   and project_id = $2",
     "describe": {
       "columns": [
         {
@@ -1345,39 +1167,84 @@
         },
         {
           "ordinal": 1,
-          "name": "email",
+          "name": "display_name",
           "type_info": "Text"
         },
         {
           "ordinal": 2,
+          "name": "email",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 3,
           "name": "email_verified",
           "type_info": "Bool"
         },
         {
-          "ordinal": 3,
+          "ordinal": 4,
+          "name": "photo_url",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 5,
+          "name": "traits",
+          "type_info": "TextArray"
+        },
+        {
+          "ordinal": 6,
+          "name": "data",
+          "type_info": "Jsonb"
+        },
+        {
+          "ordinal": 7,
           "name": "provider_id",
           "type_info": "Text"
         },
         {
-          "ordinal": 4,
+          "ordinal": 8,
           "name": "created_at",
           "type_info": "Timestamptz"
         },
         {
-          "ordinal": 5,
-          "name": "state",
-          "type_info": "Text"
+          "ordinal": 9,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 10,
+          "name": "state: UserState",
+          "type_info": {
+            "Custom": {
+              "name": "user_state",
+              "kind": {
+                "Enum": [
+                  "active",
+                  "disabled",
+                  "set_password"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "ordinal": 11,
+          "name": "device_languages",
+          "type_info": "TextArray"
         }
       ],
       "parameters": {
         "Left": [
-          "Uuid",
           "Text",
-          "Int8",
-          "Int8"
+          "Uuid"
         ]
       },
       "nullable": [
+        false,
+        true,
+        false,
+        false,
+        true,
+        false,
         false,
         false,
         false,
@@ -1438,6 +1305,47 @@
       },
       "nullable": [
         false,
+        false,
+        false
+      ]
+    }
+  },
+  "b75c55d1f87de4e0bdc13688fbeb28e52fccdac20707f6d1cd4f534375723596": {
+    "query": "\r\nselect passwords.hash\r\n     , passwords.alg as \"alg: PasswordAlg\"\r\n  from users\r\n  join passwords on passwords.user_id = users.id\r\n where users.email = $1\r\n   and users.project_id = $2 ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "hash",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 1,
+          "name": "alg: PasswordAlg",
+          "type_info": {
+            "Custom": {
+              "name": "password_alg",
+              "kind": {
+                "Enum": [
+                  "bcrypt",
+                  "argon2id",
+                  "sha1",
+                  "scrypt",
+                  "pbkdf2",
+                  "md5"
+                ]
+              }
+            }
+          }
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Text",
+          "Uuid"
+        ]
+      },
+      "nullable": [
         false,
         false
       ]
@@ -1541,87 +1449,8 @@
       "nullable": []
     }
   },
-  "c35c2b51db506836c9b3c65abe285164d0152060bb1ec85489fc0eadb1a569bf": {
-    "query": "insert into password_change_requests (token, user_id, project_id)\r\nvalues ($1, $2, $3)\r\nreturning id",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        }
-      ],
-      "parameters": {
-        "Left": [
-          "Text",
-          "Uuid",
-          "Uuid"
-        ]
-      },
-      "nullable": [
-        false
-      ]
-    }
-  },
-  "cff1802434be70a8d7ecab0a994e45de79b648c277c5e962d98458d49df3e33c": {
-    "query": "insert into users\r\n    ( email\r\n    , password\r\n    , display_name\r\n    , data\r\n    , provider_id\r\n    , project_id\r\n    , state\r\n    )\r\nselect $1 as \"email\"\r\n     , $2 as \"password\"\r\n     , $3 as \"display_name\"\r\n     , $4::jsonb as \"data\"\r\n     , $5 as \"provider_id\"\r\n     , $6 as \"project_id\"\r\n     , case when $5 = 'link'\r\n            then 'Active'\r\n            else 'SetPassword'\r\n        end as \"state\"\r\nreturning id",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        }
-      ],
-      "parameters": {
-        "Left": [
-          "Text",
-          "Text",
-          "Text",
-          "Jsonb",
-          "Text",
-          "Uuid"
-        ]
-      },
-      "nullable": [
-        false
-      ]
-    }
-  },
-  "d3596e0e0fdaf69f4e9c502119f1d62b37bc423a6222868c06649b154bd1dade": {
-    "query": "select domain\r\n  from project_settings\r\n where project_id = $1",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "domain",
-          "type_info": "Text"
-        }
-      ],
-      "parameters": {
-        "Left": [
-          "Uuid"
-        ]
-      },
-      "nullable": [
-        false
-      ]
-    }
-  },
-  "d70ecac0fb5515d5cbb80009e461a393d84773546e0cceaf7706f9d20be438b8": {
-    "query": "delete from sessions\r\n where user_id in (\r\n     select sessions.user_id\r\n       from sessions\r\n      where sessions.id = $1 \r\n )",
-    "describe": {
-      "columns": [],
-      "parameters": {
-        "Left": [
-          "Uuid"
-        ]
-      },
-      "nullable": []
-    }
-  },
-  "dd494f3f69e328e6f0b332816facfca61aa5386be0b823a525a3fef30a615826": {
-    "query": "insert into users(email, project_id, provider_id, email_verified, device_languages)\r\nvalues($1, $2, 'link', true, $3)\r\nreturning id\r\n        , display_name\r\n        , email\r\n        , email_verified\r\n        , photo_url\r\n        , traits\r\n        , data\r\n        , provider_id\r\n        , created_at\r\n        , updated_at\r\n        , state\r\n        , device_languages",
+  "bed443c787a51803daba01709cc8dff67a446770bb86010cf490d3ff841e3eed": {
+    "query": "insert into users(email, project_id, provider_id, email_verified, device_languages)\r\nvalues($1, $2, 'link', true, $3)\r\nreturning id\r\n        , display_name\r\n        , email\r\n        , email_verified\r\n        , photo_url\r\n        , traits\r\n        , data\r\n        , provider_id\r\n        , created_at\r\n        , updated_at\r\n        , state as \"state: UserState\"\r\n        , device_languages",
     "describe": {
       "columns": [
         {
@@ -1676,8 +1505,19 @@
         },
         {
           "ordinal": 10,
-          "name": "state",
-          "type_info": "Text"
+          "name": "state: UserState",
+          "type_info": {
+            "Custom": {
+              "name": "user_state",
+              "kind": {
+                "Enum": [
+                  "active",
+                  "disabled",
+                  "set_password"
+                ]
+              }
+            }
+          }
         },
         {
           "ordinal": 11,
@@ -1699,6 +1539,227 @@
         false,
         true,
         false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ]
+    }
+  },
+  "c35c2b51db506836c9b3c65abe285164d0152060bb1ec85489fc0eadb1a569bf": {
+    "query": "insert into password_change_requests (token, user_id, project_id)\r\nvalues ($1, $2, $3)\r\nreturning id",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Text",
+          "Uuid",
+          "Uuid"
+        ]
+      },
+      "nullable": [
+        false
+      ]
+    }
+  },
+  "d00f146bc87ffab888b3a2238729c0691962c7e90cdae44a87484cc2bd16b996": {
+    "query": "with disable_user as (\r\n    update users\r\n       set state = 'disabled'\r\n     where id = $1\r\n       and project_id = $2\r\n returning id\r\n)\r\ndelete from sessions\r\n where user_id in (\r\n    select id as user_id\r\n      from disable_user\r\n )",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          "Uuid"
+        ]
+      },
+      "nullable": []
+    }
+  },
+  "d201438a3ea790f0c227066aa686d46fece5f2834deb9072b9ef2adf9a36fbe0": {
+    "query": "\r\nselect password_alg as \"alg: PasswordAlg\"\r\n  from project_settings\r\n where project_settings.project_id = $1\r\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "alg: PasswordAlg",
+          "type_info": {
+            "Custom": {
+              "name": "password_alg",
+              "kind": {
+                "Enum": [
+                  "bcrypt",
+                  "argon2id",
+                  "sha1",
+                  "scrypt",
+                  "pbkdf2",
+                  "md5"
+                ]
+              }
+            }
+          }
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid"
+        ]
+      },
+      "nullable": [
+        false
+      ]
+    }
+  },
+  "d2626d6b6f997289e21d78c74cb39f30fa99758edb955c047ceb32045ca04072": {
+    "query": "\r\nwith update_password as (\r\n   insert into passwords (hash, user_id, alg)\r\n   values ($2, $1, $3)\r\n\ton conflict (user_id) do update\r\n      set hash = $2\r\n        , alg = $3\r\n\treturning user_id\r\n)\r\nupdate users\r\n   set state = case when state = 'set_password'\r\n                    then 'active'\r\n                    else state\r\n               end\r\n  from update_password\r\n where users.id = update_password.user_id\r\n",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          "Text",
+          {
+            "Custom": {
+              "name": "password_alg",
+              "kind": {
+                "Enum": [
+                  "bcrypt",
+                  "argon2id",
+                  "sha1",
+                  "scrypt",
+                  "pbkdf2",
+                  "md5"
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "nullable": []
+    }
+  },
+  "d2f72625f2ccadec3be094ec627557037e142759485bb76a2945c407d83a17d8": {
+    "query": "\r\ninsert into passwords (hash, user_id, alg)\r\nvalues ($2, $1, $3)\r\non conflict (user_id) do update\r\n  set hash = $2\r\n    , alg = $3",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          "Text",
+          {
+            "Custom": {
+              "name": "password_alg",
+              "kind": {
+                "Enum": [
+                  "bcrypt",
+                  "argon2id",
+                  "sha1",
+                  "scrypt",
+                  "pbkdf2",
+                  "md5"
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "nullable": []
+    }
+  },
+  "d3596e0e0fdaf69f4e9c502119f1d62b37bc423a6222868c06649b154bd1dade": {
+    "query": "select domain\r\n  from project_settings\r\n where project_id = $1",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "domain",
+          "type_info": "Text"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid"
+        ]
+      },
+      "nullable": [
+        false
+      ]
+    }
+  },
+  "d70ecac0fb5515d5cbb80009e461a393d84773546e0cceaf7706f9d20be438b8": {
+    "query": "delete from sessions\r\n where user_id in (\r\n     select sessions.user_id\r\n       from sessions\r\n      where sessions.id = $1 \r\n )",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": [
+          "Uuid"
+        ]
+      },
+      "nullable": []
+    }
+  },
+  "d9abe2e5ad82aaf4f4e9472efa931acb93f318019380da7d8ffb293ebc2c2fa9": {
+    "query": "select id\r\n     , email\r\n     , email_verified\r\n     , provider_id\r\n     , created_at\r\n     , state as \"state: UserState\"\r\n  from users\r\n where project_id = $1\r\n order by case when $2 = 'created_at' then users.created_at end desc,\r\n          case when $2 = 'email' then users.email end desc\r\n offset $3\r\n limit $4",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "email",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 2,
+          "name": "email_verified",
+          "type_info": "Bool"
+        },
+        {
+          "ordinal": 3,
+          "name": "provider_id",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 4,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 5,
+          "name": "state: UserState",
+          "type_info": {
+            "Custom": {
+              "name": "user_state",
+              "kind": {
+                "Enum": [
+                  "active",
+                  "disabled",
+                  "set_password"
+                ]
+              }
+            }
+          }
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          "Text",
+          "Int8",
+          "Int8"
+        ]
+      },
+      "nullable": [
         false,
         false,
         false,
@@ -1731,6 +1792,42 @@
       },
       "nullable": [
         null,
+        false
+      ]
+    }
+  },
+  "e1afa7e153447a48952efaadd8a911499a794c7aeb01721ec76c6c0a512323af": {
+    "query": "select id\r\n     , project_settings.name\r\n     , project_settings.domain\r\n     , projects.is_admin\r\n  from projects\r\n  join project_settings on project_settings.project_id = projects.id\r\n order by is_admin desc\r\n        , created_at",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "name",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 2,
+          "name": "domain",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 3,
+          "name": "is_admin",
+          "type_info": "Bool"
+        }
+      ],
+      "parameters": {
+        "Left": []
+      },
+      "nullable": [
+        false,
+        false,
+        false,
         false
       ]
     }
@@ -1901,49 +1998,6 @@
       "nullable": [
         false
       ]
-    }
-  },
-  "ef611b322351515d1ac1ff80041483abc59758f9063174a002733697a1a3cc2e": {
-    "query": "select id\r\n     , project_settings.name\r\n     , project_settings.domain\r\n  from projects\r\n  join project_settings on project_settings.project_id = projects.id\r\n order by is_admin desc\r\n        , created_at",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "name",
-          "type_info": "Text"
-        },
-        {
-          "ordinal": 2,
-          "name": "domain",
-          "type_info": "Text"
-        }
-      ],
-      "parameters": {
-        "Left": []
-      },
-      "nullable": [
-        false,
-        false,
-        false
-      ]
-    }
-  },
-  "f22dba1a74d7e76c221127db8ee59ebcfca501a6e2bf565ceac0664618fe343e": {
-    "query": "with disable_user as (\r\n    update users\r\n       set state = 'Disabled'\r\n     where id = $1\r\n       and project_id = $2\r\n returning id\r\n)\r\ndelete from sessions\r\n where user_id in (\r\n    select id as user_id\r\n      from disable_user\r\n )",
-    "describe": {
-      "columns": [],
-      "parameters": {
-        "Left": [
-          "Uuid",
-          "Uuid"
-        ]
-      },
-      "nullable": []
     }
   },
   "f2b9665414dba813517eee498f03ca85f747ff4543c7a0cffe4f321de4fdcd67": {
