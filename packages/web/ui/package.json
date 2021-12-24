@@ -1,6 +1,6 @@
 {
   "name": "@riezler/auth-ui",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "",
   "main": "lib/main.js",
   "types": "./lib/main.d.ts",
@@ -25,8 +25,8 @@
     "@babel/preset-env": "^7.13.5",
     "@babel/preset-react": "^7.12.13",
     "@babel/preset-typescript": "^7.13.0",
-    "@riezler/auth-react": "^0.0.2",
-    "@riezler/auth-sdk": "^0.0.2",
+    "@riezler/auth-react": "^0.0.3",
+    "@riezler/auth-sdk": "^0.0.3",
     "@storybook/addon-actions": "^6.2.0-beta.0",
     "@storybook/addon-essentials": "^6.2.0-beta.0",
     "@storybook/addon-links": "^6.2.0-beta.0",
