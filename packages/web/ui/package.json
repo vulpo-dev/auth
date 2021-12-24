@@ -1,6 +1,6 @@
 {
   "name": "@riezler/auth-ui",
-  "version": "0.0.3",
+  "version": "0.0.5",
   "description": "",
   "main": "lib/main.js",
   "types": "./lib/main.d.ts",

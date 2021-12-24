@@ -1,7 +1,6 @@
-import type {
+import {
 	AuthClient,
 	AuthCallback,
-	User,
 } from '@riezler/auth-sdk'
 
 import {

@@ -23,3 +23,5 @@ export {
 	default as SetPassword,
 	SetPassword as SetPasswordComponent
 } from './user/set_password'
+
+export { default as AuthShell, useUser } from './auth_shell'
