@@ -20,6 +20,8 @@ let path = require('path')
 let cwd = process.cwd()
 let src = path.resolve(cwd, 'src')
 
+let publicPath = '/dashboard'
+
 module.exports = function createConfig (_, argv) {
   let isDevelopment = isDev(argv)
   console.log({ isDevelopment })
@@ -42,9 +44,9 @@ module.exports = function createConfig (_, argv) {
         , port: 9000
         , contentBasePublicPath: '/'
         , historyApiFallback:
-            { index: '/admin/index.html'
+            { index: `${publicPath}/dashboard/index.html`
             }
-        , publicPath: '/admin'
+        , publicPath
         , proxy: {
             '/admin/__/': 'http://127.0.0.1:8000',
             '/token/': 'http://127.0.0.1:8000',
@@ -62,7 +64,7 @@ module.exports = function createConfig (_, argv) {
         , path: __dirname + '/build'
         , chunkFilename: '[name].[contenthash:8].chunk.js'
         , globalObject: 'this'
-        , publicPath: '/admin'
+        , publicPath
         }
 
     , devtool: isDevelopment ? 'eval-cheap-source-map' : undefined
@@ -120,7 +122,7 @@ module.exports = function createConfig (_, argv) {
                   { loader: 'file-loader'
                   , options: {
                       name: 'static/media/[name].[ext]',
-                      publicPath: '/admin'
+                      publicPath
                     }
                   }
                 ]
@@ -131,7 +133,7 @@ module.exports = function createConfig (_, argv) {
                   { loader: 'file-loader'
                   , options: {
                       name: 'static/fonts/[name].[ext]',
-                      publicPath: '/admin'
+                      publicPath
                     }
                   }
                 ]
@@ -218,7 +220,7 @@ const getStyleLoaders = (isDev) => {
       loader: MiniCssExtractPlugin.loader,
       // css is located in `static/css`, use '../../' to locate index.html folder
       // in production `paths.publicUrlOrPath` can be a relative path
-      options: { publicPath: '/admin' }
+      options: { publicPath }
     },
     {
       loader: require.resolve('css-loader'),
