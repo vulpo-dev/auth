@@ -22,6 +22,7 @@ pub async fn start(config: Figment, db_config: &DbConfig, secrets: Secrets) {
             rocket.manage(secrets)
         }))
         .attach(db::create_pool(&db_config))
+        .mount("/", admin::redirect())
         .mount("/dashboard", admin::dashboard())
         .mount("/admin", admin::routes())
         .mount("/user", user::routes())

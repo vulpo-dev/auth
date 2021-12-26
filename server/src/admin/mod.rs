@@ -1,6 +1,7 @@
 use crate::file::File;
 use crate::ADMIN_CLIENT;
 
+use rocket::response::Redirect;
 use rocket::Route;
 use std::path::PathBuf;
 
@@ -38,12 +39,17 @@ fn admin_index() -> Option<File> {
     Some(File::from(file))
 }
 
+#[get("/")]
+fn admin_redirect() -> Redirect {
+    Redirect::to("/dashboard")
+}
+
+pub fn redirect() -> Vec<Route> {
+    routes![admin_redirect]
+}
 
 pub fn dashboard() -> Vec<Route> {
-    routes![
-        files,
-        admin_index,
-    ]
+    routes![files, admin_index,]
 }
 
 pub fn routes() -> Vec<Route> {

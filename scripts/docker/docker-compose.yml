@@ -9,7 +9,7 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_USER: postgres
     ports:
-      - 6543:5432
+      - 5432:5432
     volumes:
       - postgres-data:/var/lib/postgres
 
@@ -24,7 +24,7 @@ services:
       - mailhog-data:/var/lib/mailhog
 
   vulpo:
-    image: vulpo
+    image: riezler/vulpo_auth
     container_name: vulpo_test
     restart: always
     environment:
