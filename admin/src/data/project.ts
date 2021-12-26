@@ -3,6 +3,7 @@ import { useHttp } from 'data/http'
 
 import {
 	boson,
+	bosonFamily,
 	useSetBoson,
 	useQuery,
 	usePost,
@@ -91,4 +92,26 @@ export function useDeleteProject(project: string) {
 			.post('project/delete', payload)
 			.catch(err => Promise.reject(getErrorCode(err)))
 	})
+}
+
+type PublicKey = {
+	id: string;
+	key: string;
+}
+
+let publicKeysFamily = bosonFamily<[string], Array<PublicKey>>(() => {
+	return {
+		defaultValue: []
+	}
+})
+
+export function usePublicKeys(project: string) {
+	let http = useHttp()
+	let publicKeys = publicKeysFamily(project)
+	return useQuery(publicKeys, async () => {
+		let res = await http.get<Array<PublicKey>>('/keys/public', {
+			params: { project }
+		})
+		return res.data
+	}) 
 }
