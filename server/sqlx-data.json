@@ -448,6 +448,32 @@
       "nullable": []
     }
   },
+  "4cdac22b86e2cd898905274634e66c5388aebcc3049fec04e003fd14e99866bd": {
+    "query": "select project_id as id\r\n     , public_key as key\r\n  from project_keys\r\n where project_id = $1 ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "key",
+          "type_info": "Bytea"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid"
+        ]
+      },
+      "nullable": [
+        false,
+        false
+      ]
+    }
+  },
   "53acea74f1ac51d462b87d94ca5b0db092e71f084c010db45c05f43b75698fbe": {
     "query": "select public_key\r\n  from project_keys\r\n where project_id = $1\r\n   and is_active = true",
     "describe": {
