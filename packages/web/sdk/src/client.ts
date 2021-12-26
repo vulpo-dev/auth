@@ -92,6 +92,13 @@ export class AuthClient {
 		return user!
 	}
 
+	/**
+	 * Create a new session with Email and Password
+	 * 
+	 * @param email - The user email address
+	 * @param password - The user password
+ 	 * @returns the user
+	*/
 	async signIn(email: string, password: string, config?: AxiosRequestConfig): Promise<User> {
 		return await this.emailPasswordAuth(
 			Url.SignIn,
@@ -101,6 +108,12 @@ export class AuthClient {
 		)
 	}
 
+	/**
+	 * Create a new session with Email and Password and create the user if not exists
+	 * 
+	 * @param email - The user email address
+	 * @param password - The user password
+	*/
 	async signUp(email: string, password: string, config?: AxiosRequestConfig): Promise<User> {
 		return await this.emailPasswordAuth(
 			Url.SignUp,
@@ -129,10 +142,20 @@ export class AuthClient {
 			.catch(err => Promise.reject(this.error.fromResponse(err)))
 	}
 
+	/**
+	 * Sign out a user from the current session
+	 * 
+	 * @param if sessionId is undefined, the currently active session will be used
+	*/
 	async signOut(sessionId?: string, config?: AxiosRequestConfig): Promise<unknown> {
 		return await this.removeSession(Url.SignOut, sessionId, config)
 	}
 
+	/**
+	 * Sign out a user from all sessions
+	 * 
+	 * @param if sessionId is undefined, the currently active session will be used
+	*/
 	async signOutAll(sessionId?: string, config?: AxiosRequestConfig): Promise<unknown> {
 		return await this.removeSession(Url.SignOutAll, sessionId, config)
 	}
@@ -158,7 +181,7 @@ export class AuthClient {
 		} catch (res) {
 			let err = res instanceof ClientError
 				? res
-				: this.error.fromResponse(res)
+				: this.error.fromResponse(res as AxiosError)
 
 			if (this.session.active) {
 				await this.session.remove(this.session.active.id)
@@ -168,14 +191,33 @@ export class AuthClient {
 		}
 	}
 
+	/**
+	 * Get an AccessToken for a given session, getting a new token when the current
+	 * token expires
+	 * 
+	 * @param if sessionId is undefined, the currently active session will be used
+	*/
 	async getToken(sessionId?: string): Promise<string> {
 		return await this.getAccessToken(this.tokens.getToken, sessionId)
 	}
 
+	/**
+	 * Get a new AccessToken for a given session, this method will force a new tokem
+	 * even if the current token is still valid
+	 * 
+	 * @param if sessionId is undefined, the currently active session will be used
+	*/
 	async forceToken(sessionId?: string): Promise<string> {
 		return await this.getAccessToken(this.tokens.forceToken, sessionId)
 	}
 
+	/**
+	 * Request to reset the current user password, if the user exists a rest email
+	 * will be send to the given email address, no email will be send if the user
+	 * does not exits, however the success screen will be shown in both cases
+	 * 
+	 * @param email - the user email address
+	*/
 	async resetPassword(email: string, config?: AxiosRequestConfig): Promise<void> {
 		let payload: PasswordResetPayload = { email }
 		await this.http
@@ -183,12 +225,20 @@ export class AuthClient {
 			.catch(err => Promise.reject(this.error.fromResponse(err)))
 	}
 
+	/**
+	 * This method is use in combination with the {@link AuthClient.resetPassword} method, the generated link
+	 * to reset your password contains a token id and the token value that will be used to
+	 * reset the password
+	*/
 	async setResetPassword(body: SetPasswordPayload, config?: AxiosRequestConfig): Promise<void> {
 		await this.http
 			.post(Url.PasswordReset, body, config)
 			.catch(err => Promise.reject(this.error.fromResponse(err)))
 	}
 
+	/**
+	 * Update a Users password
+	*/
 	async setPassword(password: string, config?: AxiosRequestConfig): Promise<void> {
 		let currentSession = this.session.current()
 		
@@ -218,6 +268,10 @@ export class AuthClient {
 		this.session.activate(currentSession.id)
 	}
 
+	/**
+	 * This method is used in combination with the {@link AuthClient.setPassword} method and is used to
+	 * valid whether the given token is valid or not
+	*/
 	async verifyToken(id: string, token: string, config?: AxiosRequestConfig): Promise<void> {
 		let payload: VerifyResetTokenPayload = { id, token }
 		await this.http
@@ -225,6 +279,10 @@ export class AuthClient {
 			.catch(err => Promise.reject(this.error.fromResponse(err)))
 	}
 
+	/**
+	 * Create new session using an authentication link, if the user does not exits, a new
+	 * user will be created
+	*/
 	async passwordless(email: string, config?: AxiosRequestConfig): Promise<{ id: string; session: string }> {
 		let session = await createSession()
 		let public_key = await getPublicKey(session)
@@ -246,6 +304,10 @@ export class AuthClient {
 		return { id: data.id, session: session.id }
 	}
 
+	/**
+	 * This method is used in combination with the {@link AuthClient.passwordless} method and is used
+	 * to confim the authentication link
+	*/
 	async confirmPasswordless(id: string, token: string, config?: AxiosRequestConfig): Promise<void> {
 		let payload: ConfirmPasswordlessPayload = { id, token }
 		await this.http
@@ -253,6 +315,9 @@ export class AuthClient {
 			.catch(err => Promise.reject(this.error.fromResponse(err)))
 	}
 
+	/**
+	 * Verify a users email address
+	*/
 	async verifyEmail(id: string, token: string, config?: AxiosRequestConfig): Promise<void> {
 		let payload: VerifyEmailPayload = { id, token }
 		await this.http
@@ -260,6 +325,10 @@ export class AuthClient {
 			.catch(err => Promise.reject(this.error.fromResponse(err)))
 	}
 
+	/**
+	 * This method is used in combination witht the {@link AuthClient.passwordless} method, it pulls the
+	 * server for update and resolves the promise once the authentication link has been confirmed
+	*/
 	verifyPasswordless(id: string, session: string, config?: AxiosRequestConfig): Promise<User | null> {
 		return new Promise((resolve, reject) => {
 			let device_languages = getLanguages([...navigator.languages])
@@ -307,6 +376,9 @@ export class AuthClient {
 		})
 	}
 
+	/**
+	 * The callback will be called when the session information changes
+	*/
 	authStateChange(cb: AuthCallback): Unsubscribe {
 		let sub = this.session.subscribe(cb)
 		let session = this.session.current(this.session.active?.id)
@@ -314,14 +386,25 @@ export class AuthClient {
 		return sub
 	}
 
+	/**
+	 * Activate a new session for a given userId
+	*/
 	activate(userId: string) {
 		this.session.activate(userId)
 	}
 
+	/**
+	 * Get the current session ID
+	*/
 	get active(): SessionInfo | null {
 		return this.session.active
 	}
 
+	/**
+	 * `withToken` can be used to make http calls, the callback will receive the current access token.
+	 * When the request returns a `401`, a new access token will be requested and the request will
+	 * be retried
+	*/
 	async withToken(fn: (token: string) => Promise<Response>, session?: string): Promise<Response> {
 		let token = await this.getToken(session)
 
@@ -344,6 +427,9 @@ export class AuthClient {
 		})
 	}
 
+	/**
+	 * get the currently active flags for a project
+	*/
 	async flags(config?: AxiosRequestConfig): Promise<Array<Flag>> {
 		return this.http
 			.get<{ items: Array<Flag> }>(`${Url.Flags}?project=${this.config.project}`, config)
@@ -351,6 +437,9 @@ export class AuthClient {
 			.catch(err => Promise.reject(this.error.fromResponse(err)))
 	}
 
+	/**
+	 * get the currently active user
+	*/
 	getUser(): User | null {
 		return this.session.getActiveUser()
 	}

@@ -22,12 +22,11 @@ export function addToken(axios: AxiosInstance, auth: AuthClient) {
 					'Authorization': `Bearer ${token}`,
 				}
 			}
-		} catch (err) {
+		} catch (err: any) {
 			if (err instanceof HttpError && err.code === ErrorCode.NotAllowed) {
 				await auth.signOut()
 			}
-
-			throw new Axios.Cancel(err.message)
+			throw new Axios.Cancel(err?.message ?? '')
 		}
 	})
 
