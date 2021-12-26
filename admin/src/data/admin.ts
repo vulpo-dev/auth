@@ -1,4 +1,3 @@
-import { useState, useEffect } from 'react'
 import Axios from 'axios'
 import { useMounted } from 'utils/hook'
 
@@ -7,6 +6,7 @@ import {
 	bosonFamily,
 	useSetBoson,
 	useQuery,
+	usePost,
 } from '@biotic-ui/boson'
 
 let axios = Axios.create({
@@ -37,31 +37,25 @@ export type UseCreateProject = {
 	error: boolean,
 }
 
-export function useCreateProject(): UseCreateProject {
-	let mounted = useMounted()
-	let [state, setState] = useState<UseCreateProject>({
-		loading: true,
-		id: null,
-		error: false,
-	})
 
+export type CreateAdminProject = {
+	host: string;
+}
+
+export function useCreateProject() {
+	let mounted = useMounted()
 	let setProjectId = useSetBoson(projectId)
 
-	useEffect(() => {
-		axios.post<CreateProject>('/admin/__/project/create_admin')
+	return usePost(async (payload: CreateAdminProject) => {
+		await axios
+			.post<CreateProject>('/admin/__/project/create_admin', payload)
 			.then(res => {
 				if (mounted.current) {
 					let { id } = res.data
-					setState({ id, loading: false, error: false })
 					setProjectId(id)
 				}
 			})
-			.catch(() => {
-				setState({ id: null, loading: false, error: true })
-			})
-	}, [mounted, setProjectId])
-
-	return state
+	})
 }
 
 

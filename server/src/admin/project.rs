@@ -7,7 +7,7 @@ use crate::template::Template;
 
 use rocket::serde::json::Json;
 use rocket::State;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 #[derive(Debug, Serialize)]
@@ -23,19 +23,26 @@ pub async fn has(pool: Db) -> Result<Json<Project>, ApiError> {
         .map(Json)
 }
 
-#[post("/__/project/create_admin")]
-pub async fn create_admin(pool: Db, secrets: &State<Secrets>) -> Result<Json<Project>, ApiError> {
+#[derive(Deserialize)]
+pub struct CreateAdminProject {
+    pub host: String,
+}
+
+#[post("/__/project/create_admin", format = "json", data = "<body>")]
+pub async fn create_admin(
+    pool: Db,
+    secrets: &State<Secrets>,
+    body: Json<CreateAdminProject>,
+) -> Result<Json<Project>, ApiError> {
     let project = Admin::get_project(&pool).await?;
 
     if project.is_some() {
         return Err(ApiError::AdminProjectExists);
     }
 
-    let domain = format!("http://127.0.0.1:{}", 8000);
-
     let project = NewProject {
         name: "Admin".to_string(),
-        domain,
+        domain: body.host.to_owned(),
     };
 
     let keys = ProjectKeys::create_keys(true, None, &secrets.passphrase);

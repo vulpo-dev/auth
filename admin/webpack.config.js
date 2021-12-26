@@ -44,7 +44,7 @@ module.exports = function createConfig (_, argv) {
         , port: 9000
         , contentBasePublicPath: '/'
         , historyApiFallback:
-            { index: `${publicPath}/dashboard/index.html`
+            { index: `${publicPath}/index.html`
             }
         , publicPath
         , proxy: {
