@@ -7,6 +7,7 @@ import { Flag } from '@riezler/auth-sdk'
 import { useTranslation } from '../context/translation'
 import { CardHeader, CardTitle } from '../component/card'
 import { useFlags } from '../context/config'
+import { BASELINE } from '../utils'
 
 type Props = {
 	title: string | null,
@@ -17,10 +18,12 @@ type Props = {
 
 export let Header = ({ title, info, link, to }: Props) => {
 	return (
-		<StyledHeader>
-			{ title && <Title>{title}</Title>}
+		<StyledHeader className="vulpo-auth-header">
+			{ title && <Title className="vulpo-auth-header-title">{title}</Title>}
 			{ info &&
-				<Info>{info} { link && <Link to={`/${to}`}>{link}</Link>}</Info>
+				<Info className="vulpo-auth-header-info">
+					{info} { link && <Link className="vulpo-auth-header-link" to={`/${to}`}>{link}</Link>}
+				</Info>
 			}
 		</StyledHeader>
 	)
@@ -55,12 +58,12 @@ export default HeaderContainer
 
 let Title = styled(CardTitle)`
 	line-height: 1;
-	margin-block-start: calc(var(--baseline) * -0.375);
-	margin-block-end: calc(var(--baseline) * 1.75);
+	margin-block-start: calc(${BASELINE} * -0.375);
+	margin-block-end: calc(${BASELINE} * 1.75);
 `
 
 let StyledHeader = styled(CardHeader)`
-	margin-block-end: calc(var(--baseline) * 4.125);
+	margin-block-end: calc(${BASELINE} * 4.125);
 `
 
 let Info = styled.p`

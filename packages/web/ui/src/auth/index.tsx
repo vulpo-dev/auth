@@ -3,7 +3,7 @@ import { useEffect, useState, Fragment } from 'react'
 import styled from 'styled-components'
 import { HashRouter, Switch, Route, Redirect } from 'react-router-dom'
 import { useAuth } from '@riezler/auth-react'
-import { Flag, ApiError, ErrorCode } from '@riezler/auth-sdk'
+import { Flag, ErrorCode } from '@riezler/auth-sdk'
 import { Flow } from '@biotic-ui/leptons'
 import Axios from 'axios'
 
@@ -17,6 +17,7 @@ import { Error } from '../component/text'
 import { useTranslation, useError } from '../context/translation'
 import { FlagsCtx } from '../context/config'
 import SetPassword from '../user/set_password'
+import { BASELINE } from '../utils'
 
 let Auth = () => {
 	let auth = useAuth()
@@ -128,7 +129,7 @@ let StyledCard = styled(Card)`
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	height: calc(var(--baseline) * 26);
+	height: calc(${BASELINE} * 26);
 `
 
 function showOverview(flags: Array<Flag>): boolean {

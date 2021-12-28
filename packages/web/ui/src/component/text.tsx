@@ -1,24 +1,29 @@
 import styled from 'styled-components'
 
 import { CardTitle } from '../component/card'
+import { BASELINE, ERROR, WithClass, withClass } from '../utils'
 
-export let Label = styled.label`
-	margin-block-start: -2px;
-	margin-block-end: calc(var(--baseline) * 0.25);
-	display: inline-block;
-`
+export let Label = styled.label
+	.attrs<WithClass>(withClass('vulpo-auth-label'))`
+		margin-block-start: -2px;
+		margin-block-end: calc(${BASELINE} * 0.25);
+		display: inline-block;
+	`
 
-export let Error = styled.p`
-	text-align: center;
-	color: var(--red);
-	margin-block-end: 0;
-`
+export let Error = styled.p
+	.attrs<WithClass>(withClass('vulpo-auth-error'))`
+		text-align: center;
+		color: ${ERROR};
+		margin-block-end: 0;
+	`
 
 
-export let Title = styled(CardTitle)`
-	margin-block-end: calc(var(--baseline) * 0.625);
-`
+export let Title = styled(CardTitle)
+	.attrs<WithClass>(withClass('vulpo-auth-title'))`
+		margin-block-end: calc(${BASELINE} * 0.625);
+	`
 
-export let Subtitle = styled.p`
-	margin-block-end: 0;
-`
+export let Subtitle = styled.p
+	.attrs<WithClass>(withClass('vulpo-auth-subtitle'))`
+		margin-block-end: 0;
+	`

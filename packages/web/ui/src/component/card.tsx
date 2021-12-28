@@ -1,40 +1,49 @@
 import styled from 'styled-components'
 import { IconButton } from '@biotic-ui/button'
+import { BASELINE, CARD_BACKGROUND, SHADOW, WithClass, withClass } from '../utils'
 
-export let BoxShadow = styled.div`
-	box-shadow: var(--shadow-4);	
-`
+export let BoxShadow = styled.div
+	.attrs<WithClass>(withClass('vulpo-auth-box-shadow'))`
+		--vulpo-auth-shadow--default: ${SHADOW};
+		box-shadow: var(--vulpo-auth-shadow, var(--vulpo-auth-shadow--default));	
+	`
 
-export let Card = styled.div`
-	background: var(--card-background, #fff);
-	inline-size: 25rem;
-	max-inline-size: 98vw;
-	border-radius: var(--baseline);
-	padding: var(--baseline-3);
-	display: flex;
-	flex-direction: column;
-	transition: height 0.50s ease 0.2s;
-`
+export let Card = styled.div
+	.attrs<WithClass>(withClass('vulpo-auth-card'))`
+		background: ${CARD_BACKGROUND};
+		inline-size: 25rem;
+		max-inline-size: 98vw;
+		border-radius: ${BASELINE};
+		padding: calc(${BASELINE} * 3);
+		display: flex;
+		flex-direction: column;
+		transition: height 0.50s ease 0.2s;
+		--loading-size: calc(${BASELINE} * 5);
+		--shadow-2: ${SHADOW};
+	`
 
-export let CardHeader = styled.header`
-	margin-block-end: calc(var(--baseline) * 2.375);
-`
+export let CardHeader = styled.header
+	.attrs<WithClass>(withClass('vulpo-card-header'))`
+		margin-block-end: calc(${BASELINE} * 2.375);
+	`
 
-export let CardTitle = styled.h3`
-	margin-block-end: 0;
-`
+export let CardTitle = styled.h3
+	.attrs<WithClass>(withClass('vulpo-auth-card-title'))`
+		margin-block-end: 0;
+	`
 
-export let CardNav = styled.nav`
-	display: flex;
-	align-items: center;
-	margin-block-end: calc(var(--baseline) * 1.5);
-	margin-block-start: calc(var(--baseline) * -0.25);
+export let CardNav = styled.nav
+	.attrs<WithClass>(withClass('vulpo-auth-card-nav'))`
+		display: flex;
+		align-items: center;
+		margin-block-end: calc(${BASELINE} * 1.5);
+		margin-block-start: calc(${BASELINE} * -0.25);
 
-	${IconButton} {
-		margin-inline-end: var(--baseline);
-	}
+		${IconButton} {
+			margin-inline-end: ${BASELINE};
+		}
 
-	label {
-		margin: 0;
-	}
-`
+		label {
+			margin: 0;
+		}
+	`

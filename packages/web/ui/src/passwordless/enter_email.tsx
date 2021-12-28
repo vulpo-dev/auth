@@ -47,9 +47,9 @@ export let EnterEmail = (props: Props) => {
 		: t.signup.label
 
 	return (
-		<Card>
+		<Card className="vulpo-auth-passwordless">
 			<CardNav>
-				<IconButton id='back' onClick={props.onBack}>
+				<IconButton className="vulpo-auth-icon-button" id='back' onClick={props.onBack}>
 					{ config.Arrow }				
 				</IconButton>
 				<label htmlFor="back">{label}</label>
@@ -76,7 +76,7 @@ export let EnterEmail = (props: Props) => {
 				</Section>
 
 				<Section>
-					<Button loading={props.loading}>{t.passwordless.button}</Button>
+					<Button className="vulpo-auth-button" loading={props.loading}>{t.passwordless.button}</Button>
 				</Section>
 
 				{ props.error &&

@@ -5,6 +5,7 @@ import { useLocation } from 'react-router-dom'
 
 import { Card, CardHeader, CardNav, CardTitle } from '../component/card'
 import { useTranslation } from '../context/translation'
+import { BASELINE } from '../utils'
 
 export type Props = {
 	email: string | null;
@@ -14,7 +15,7 @@ export let CheckReset = ({ email }: Props) => {
 	let t = useTranslation()
 
 	return (
-		<Card>
+		<Card className="vulpo-auth-password-reset-check">
 			<Header>
 				<Title>{t.reset_check_mail.title}</Title>
 			</Header>
@@ -37,9 +38,9 @@ export default CheckResetContainer
 
 let Title = styled(CardTitle)`
 	line-height: 1;
-	margin-block-start: calc(var(--baseline) * -0.375);
+	margin-block-start: calc(${BASELINE} * -0.375);
 `
 
 let Header = styled(CardHeader)`
-	margin-block-end: calc(var(--baseline) * 2.75);
+	margin-block-end: calc(${BASELINE} * 2.75);
 `

@@ -9,6 +9,7 @@ import { Card } from '../component/card'
 import Header from '../component/header'
 import { useTranslation } from '../context/translation'
 import { useFlags } from '../context/config'
+import { BASELINE } from 'utils'
 
 export let Overview = () => {
 	let t = useTranslation()
@@ -37,12 +38,12 @@ export let Overview = () => {
 	}
 
 	return (
-		<Card>
+		<Card className="vulpo-auth-overview">
 			<Header />
-			<LinkButton forwardedAs={Link} to={`${pathname}/link`}>
+			<LinkButton className="vulpo-auth-link-button" forwardedAs={Link} to={`${pathname}/link`}>
 				{t.email.label}
 			</LinkButton>
-			<StyledOutline forwardedAs={Link} to={`${pathname}/email`}>
+			<StyledOutline className="vulpo-auth-password-button" forwardedAs={Link} to={`${pathname}/email`}>
 				{t.password.label}
 			</StyledOutline>
 		</Card>
@@ -54,11 +55,11 @@ export default Overview
 
 // using any here because ts complains about "forwardedAs"
 let LinkButton = styled<any>(Button)`
-	margin-block-end: var(--baseline);
-	block-size: var(--baseline-4);
+	margin-block-end: ${BASELINE};
+	block-size: calc(${BASELINE} * 4);
 `
 
 // using any here because ts complains about "forwardedAs"
 let StyledOutline = styled<any>(OutlineButton)`
-	block-size: var(--baseline-4);
+	block-size: calc(${BASELINE} * 4);
 `

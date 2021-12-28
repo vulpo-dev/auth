@@ -5,13 +5,14 @@ import { Input } from '@biotic-ui/input'
 import { useForm, useQueryParams } from '@biotic-ui/std'
 import { Button, IconButton } from '@biotic-ui/button'
 import { ErrorCode, Flag } from '@riezler/auth-sdk'
-import { useHistory, useRouteMatch, Switch, Route, Redirect, useLocation } from 'react-router-dom'
+import { useHistory, Switch, Route, Redirect, useLocation } from 'react-router-dom'
 import { useAuth } from '@riezler/auth-react'
 
 import { Card, CardHeader, CardNav } from '../component/card'
 import { Label, Error, Title, Subtitle } from '../component/text'
 import { useTranslation, useError } from '../context/translation'
 import { useConfig, useFlags } from '../context/config'
+import { BASELINE } from '../utils'
 
 import CheckEmail from './check'
 import SetPassword from './set_password'
@@ -47,9 +48,13 @@ export let PasswordReset: React.FC<Props> = ({
 	}
 
 	return (
-		<Card>
+		<Card className="vulpo-auth-password-reset">
 			<CardNav>
-				<IconButton id="back" aria-label={t.signin.label} onClick={() => onBack()}>
+				<IconButton
+					className="vulpo-auth-icon-button"
+					id="back"
+					aria-label={t.signin.label}
+					onClick={() => onBack()}>
 					{ config.Arrow }
 				</IconButton>
 				<label htmlFor="back">{t.signin.label}</label>
@@ -74,7 +79,11 @@ export let PasswordReset: React.FC<Props> = ({
 				</Section>
 
 				<Section>
-					<Button loading={loading}>{t.reset_password.button}</Button>
+					<Button
+						className="vulpo-auth-button"
+						loading={loading}>
+						{t.reset_password.button}
+					</Button>
 				</Section>
 
 				{ error &&
@@ -149,7 +158,7 @@ export default () => {
 
 
 let Section = styled.section`
-	margin-block-end: var(--baseline-2);
+	margin-block-end: calc(${BASELINE} * 2);
 	display: flex;
 	flex-direction: column;
 `

@@ -136,10 +136,18 @@ export let DefaultTranslation = {
 		description: ({ email }: ResetProps) => {
 
 			if (!email|| email.trim() === '') {
-				return <p>We have send an authentication link to your inbox for you to reset your password.</p>
+				return (
+					<p className="vulpo-auth-text">
+						We have send an authentication link to your inbox for you to reset your password.
+					</p>
+				)
 			}
 
-			return <p>We have send an authentication link to <strong>{email}</strong> for you to reset your password.</p>
+			return (
+				<p className="vulpo-auth-text">
+					We have send an authentication link to <strong>{email}</strong> for you to reset your password.
+				</p>
+			)
 		}
 	},
 
@@ -152,7 +160,7 @@ export let DefaultTranslation = {
 	passwordless: {
 		title: 'Authentication Link',
 		info: ({ label }: { label: string }) => {
-			return <span>Enter your email address and we will send you a link to {label}</span>
+			return <span className="vulpo-auth-text">Enter your email address and we will send you a link to {label}</span>
 		},
 		button: 'Send Authentication Link',
 	},
@@ -164,10 +172,10 @@ export let DefaultTranslation = {
 		description: ({ email, type }: PasswordlessProps) => {
 			
 			if (!email || email.trim() === '') {
-				return <p>We have send an authentication link to <strong>your inbox</strong> for you to {type}.</p>
+				return <p className="vulpo-auth-text">We have send an authentication link to <strong>your inbox</strong> for you to {type}.</p>
 			}
 
-			return <p>We have send an authentication link to <strong>{email}</strong> for you to {type}.</p>
+			return <p className="vulpo-auth-text">We have send an authentication link to <strong>{email}</strong> for you to {type}.</p>
 		}
 	},
 
@@ -180,7 +188,7 @@ export let DefaultTranslation = {
 
 	Disclaimer: ({ tos, privacy }: DisclaimerProps) => {
 		return (
-			<small>
+			<small className="vulpo-auth-text-small">
 				By continuing you agree to our <Link to={tos}>Terms of Use</Link> and <Link to={privacy}>Privacy Policy</Link>.
 			</small>
 		)

@@ -11,7 +11,7 @@ import { Link } from 'react-router-dom'
 
 import { Card, CardHeader, CardTitle } from '../component/card'
 import { Label, Error } from '../component/text'
-import { checkPasswordLength } from '../utils'
+import { checkPasswordLength, BASELINE } from '../utils'
 import { useTranslation, useError } from '../context/translation'
 
 type Form = {
@@ -68,7 +68,7 @@ export let SetPassword: FC<Props> = ({
 	)
 
 	return (
-		<Card>
+		<Card className="vulpo-auth-user-set-password">
 			<Header>
 				<Title>{t.set_password.title}</Title>
 			</Header>
@@ -108,7 +108,7 @@ export let SetPassword: FC<Props> = ({
 				</Section>
 
 				<Section>
-					<Button loading={loading} disabled={tokenError}>
+					<Button className="vulpo-auth-button" loading={loading} disabled={tokenError}>
 						{t.set_password.button_label}
 					</Button>
 				</Section>
@@ -153,15 +153,15 @@ export default SetPasswordContainer
 
 let Title = styled(CardTitle)`
 	line-height: 1;
-	margin-block-start: calc(var(--baseline) * -0.375);
+	margin-block-start: calc(${BASELINE} * -0.375);
 `
 
 let Header = styled(CardHeader)`
-	margin-block-end: calc(var(--baseline) * 2.75);
+	margin-block-end: calc(${BASELINE} * 2.75);
 `
 
 let Section = styled.section`
-	margin-block-end: var(--baseline-2);
+	margin-block-end: calc(${BASELINE} * 2);
 	display: flex;
 	flex-direction: column;
 `
@@ -176,7 +176,7 @@ let StyledFlow = styled(Flow)`
 `
 
 let Overview = styled(Link)`
-	margin-block-start: var(--baseline);
+	margin-block-start: ${BASELINE};
 	text-align: center;
 	color: currentColor;
 `

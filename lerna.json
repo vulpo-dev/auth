@@ -5,7 +5,8 @@
     "admin",
     "example",
     "scripts/*",
-    "tests/*"
+    "tests/*",
+    "website"
   ],
   "version": "independent",
   "npmClient": "yarn"

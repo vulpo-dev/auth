@@ -10,6 +10,7 @@ import { useAuth } from '@riezler/auth-react'
 import { Card, CardHeader, CardTitle } from '../component/card'
 import { useTranslation, useError } from '../context/translation'
 import { Error } from '../component/text'
+import { BASELINE } from '../utils'
 
 type Props = {
 	loading: boolean;
@@ -21,7 +22,7 @@ export let Confirm: FunctionComponent<Props> = ({ loading, error }) => {
 	let errorMessage = useError(error)
 
 	return (
-		<Card>
+		<Card className="vulpo-auth-passwordless-confirm">
 			<CardHeader>
 				<Title className="test-confirm-signin">Confirm Sign In</Title>
 			</CardHeader>
@@ -87,7 +88,7 @@ export default ConfirmContainer
 
 let Title = styled(CardTitle)`
 	line-height: 1;
-	margin-block-start: calc(var(--baseline) * -0.375);
+	margin-block-start: calc(${BASELINE} * -0.375);
 `
 
 let LoadingWrapper = styled.div`
@@ -100,7 +101,7 @@ let StyledFlow = styled(Flow)`
 `
 
 let Overview = styled(Link)`
-	margin-block-start: var(--baseline);
+	margin-block-start: ${BASELINE};
 	text-align: center;
 	color: currentColor;
 `

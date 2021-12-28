@@ -14,7 +14,7 @@ import { useConfig, useFlags } from '../context/config'
 import { Label } from '../component/text'
 import { Disclaimer } from '../component/disclaimer'
 import { Footer, Divider } from '../component/layout'
-import { checkPasswordLength } from '../utils'
+import { BASELINE, checkPasswordLength, ERROR } from '../utils'
 
 type Form = {
 	email: string;
@@ -85,12 +85,12 @@ export let Password = ({ onSubmit, onBack, ctx, loading, error }: Props) => {
 	}
 
 	return (
-		<Card>
+		<Card className="vulpo-auth-password">
 			<CardHeader>
 				<StyledCardNav>
 					<section>
 						{ withBack &&
-							<IconButton id="back" aria-label={button} onClick={() => onBack()}>
+							<IconButton className="vulpo-auth-icon-button" id="back" aria-label={button} onClick={() => onBack()}>
 								{ config.Arrow }
 							</IconButton>
 						}
@@ -143,7 +143,7 @@ export let Password = ({ onSubmit, onBack, ctx, loading, error }: Props) => {
 				</PasswordSection>
 
 				<Section>
-					<Button loading={loading}>{button}</Button>
+					<Button className="vulpo-auth-button" loading={loading}>{button}</Button>
 				</Section>
 
 				{ error &&
@@ -199,7 +199,7 @@ let PasswordContainer = ({ redirect = true, redirectTo }: ContainerProps) => {
 			if (redirect && user.state === UserState.SetPassword) {
 				history.replace(redirectTo ?? '/user/set_password')
 			}
-		} catch (err) {
+		} catch (err: any) {
 			setLoading(false)
 			setError(err.code)
 		}
@@ -220,18 +220,18 @@ export default PasswordContainer
 
 
 let Section = styled.section`
-	margin-block-end: var(--baseline-2);
+	margin-block-end: calc(${BASELINE} * 2);
 	display: flex;
 	flex-direction: column;
 `
 
 let PasswordSection = styled.section`
-	margin-block-end: calc(var(--baseline) * 2.5);
+	margin-block-end: calc(${BASELINE} * 2.5);
 	display: flex;
 	flex-direction: column;
 
 	input {
-		margin-block-end: var(--baseline-half);
+		margin-block-end: calc(${BASELINE} / 2);
 	}
 `
 
@@ -241,12 +241,12 @@ let ForgotPassword = styled(Link)`
 
 let Error = styled.p`
 	text-align: center;
-	color: var(--red);
-	margin-block-end: calc(var(--baseline) * 1.125);
+	color: ${ERROR};
+	margin-block-end: calc(${BASELINE} * 1.125);
 `
 
 let Form = styled.form`
-	margin-block-start: calc(var(--baseline) * -0.625);
+	margin-block-start: calc(${BASELINE} * -0.625);
 `
 
 let StyledCardNav = styled(CardNav)`

@@ -12,6 +12,7 @@ import CheckIcon from '../component/check'
 import { Error } from '../component/text'
 import { useTranslation, useError } from '../context/translation'
 import { useFlags } from '../context/config'
+import { BASELINE } from '../utils'
 
 export type Props = {
 	loading: boolean;
@@ -23,7 +24,7 @@ export let VerifyEmail = ({ loading, error }: Props) => {
 	let errorMessage = useError(error)
 
 	return (
-		<Card>
+		<Card className="vulpo-auth-verify-email">
 			<CardHeader>
 				<Title>{t.verify_email.title}</Title>
 			</CardHeader>
@@ -94,11 +95,11 @@ export default VerifyEmailContainer
 
 let Title = styled(CardTitle)`
 	line-height: 1;
-	margin-block-start: calc(var(--baseline) * -0.375);
+	margin-block-start: calc(${BASELINE} * -0.375);
 `
 
 let Text = styled.p`
-	margin-block-start: var(--baseline-2);
+	margin-block-start: calc(${BASELINE} * 2);
 	margin-block-end: 0;
 	text-align: center;
 `
