@@ -1624,10 +1624,10 @@
     lodash "^4.17.19"
     to-fast-properties "^2.0.0"
 
-"@biotic-ui/boson@^0.3.22":
-  version "0.3.26"
-  resolved "https://registry.yarnpkg.com/@biotic-ui/boson/-/boson-0.3.26.tgz#8da5d2d7afd9a2fdf4e0302d37e97a740eac647d"
-  integrity sha512-7n+bM6bZJCeXooYVPmKoluXILpllmTvVp9Z2SwNByhidDuR8YqmzCoOLATJnmxQO5+z9Mb0aNfMSzbx4NfFG9Q==
+"@biotic-ui/boson@^0.3.27":
+  version "0.3.27"
+  resolved "https://registry.yarnpkg.com/@biotic-ui/boson/-/boson-0.3.27.tgz#6708db078e54cbdcb32c8e8795a82f920125c399"
+  integrity sha512-HaY0EFkyZsrgpws5oRe7k+axwjOQn4rmwf9Y7+/7D65gLjoFRpLUjSz6jeyBEo7WW8+v9jUr+nicwsipp8gskw==
   dependencies:
     "@types/nanoid" "^3.0.0"
     nanoid "^3.1.25"

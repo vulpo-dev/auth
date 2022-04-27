@@ -4,6 +4,10 @@
 	padding-right: 4.3vw;
 }
 
+.content section {
+	margin-bottom: max(8vw, 3rem);
+}
+
 .header {
 	margin-bottom: clamp(1rem, 10vw, 8rem);
 	padding-left: 8.6vw;
@@ -66,6 +70,13 @@
 }
 
 .ui-example {
-	background:  #333;
 	padding: 2rem;	
+}
+
+.set-up {
+
+}
+
+.set-up section {
+	margin-bottom: max(5vw, 2rem);
 }

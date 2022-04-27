@@ -1,7 +1,7 @@
 import React from 'react'
 import { useEffect, useState, Fragment } from 'react'
 import styled from 'styled-components'
-import { HashRouter, Switch, Route, Redirect } from 'react-router-dom'
+import { Switch, Route, Redirect } from 'react-router-dom'
 import { useAuth } from '@riezler/auth-react'
 import { Flag, ErrorCode } from '@riezler/auth-sdk'
 import { Flow } from '@biotic-ui/leptons'
@@ -15,7 +15,7 @@ import VerifyEmail from '../verify_email'
 import { Card } from '../component/card'
 import { Error } from '../component/text'
 import { useTranslation, useError } from '../context/translation'
-import { FlagsCtx } from '../context/config'
+import { FlagsCtx, useConfig } from '../context/config'
 import SetPassword from '../user/set_password'
 import { BASELINE } from '../utils'
 
@@ -25,6 +25,7 @@ let Auth = () => {
 	let [flags, setFlags] = useState<Array<Flag> | undefined>()
 	let [error, setError] = useState<ErrorCode | null>(null)
 	let errorMessage = useError(error)
+	let { Router } = useConfig()
 
 	useEffect(() => {
 		let source = Axios.CancelToken.source()
@@ -70,55 +71,57 @@ let Auth = () => {
 
 	let withOverview = showOverview(flags)
 
-	return (
-		<FlagsCtx.Provider value={flags}>
-			<HashRouter>
-				<Switch>
-					<Route path='/user/set_password'>
-						<SetPassword />
+	let children = (
+		<Switch>
+			<Route path='/user/set_password'>
+				<SetPassword />
+			</Route>
+
+			{ flags.includes(Flag.VerifyEmail) &&
+				<Route path='/verify-email'>
+					<VerifyEmail /> 
+				</Route>
+			}
+			
+			{ flags.includes(Flag.PasswordReset) &&
+				<Route path='/forgot-password'>
+					<PasswordReset />
+				</Route>
+			}
+
+
+			{ flags.includes(Flag.EmailAndPassword) &&
+				<Route path='/:type/email'>
+					<Password />
+				</Route>
+			}
+
+			{ flags.includes(Flag.AuthenticationLink) &&
+				<Route path='/:type/link'>
+					<Passwordless />
+				</Route>
+			}
+
+			{ withOverview &&
+				<Fragment>
+					<Route path='/:type'>
+						<Overview />
 					</Route>
 
-					{ flags.includes(Flag.VerifyEmail) &&
-						<Route path='/verify-email'>
-							<VerifyEmail /> 
-						</Route>
-					}
-					
-					{ flags.includes(Flag.PasswordReset) &&
-						<Route path='/forgot-password'>
-							<PasswordReset />
-						</Route>
-					}
+					<Redirect to={getRedirect(flags)} from='/' />
+				</Fragment>
+			}
 
+			{ !withOverview &&
+				<Redirect to={getMethodRedirect(flags)} />
+			}
 
-					{ flags.includes(Flag.EmailAndPassword) &&
-						<Route path='/:type/email'>
-							<Password />
-						</Route>
-					}
+		</Switch>
+	)
 
-					{ flags.includes(Flag.AuthenticationLink) &&
-						<Route path='/:type/link'>
-							<Passwordless />
-						</Route>
-					}
-
-					{ withOverview &&
-						<Fragment>
-							<Route path='/:type'>
-								<Overview />
-							</Route>
-
-							<Redirect to={getRedirect(flags)} from='/' />
-						</Fragment>
-					}
-
-					{ !withOverview &&
-						<Redirect to={getMethodRedirect(flags)} />
-					}
-
-				</Switch>
-			</HashRouter>
+	return (
+		<FlagsCtx.Provider value={flags}>
+			{ React.cloneElement(Router, { children })}
 		</FlagsCtx.Provider>
 	)
 }

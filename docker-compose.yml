@@ -23,32 +23,6 @@ services:
     volumes:
       - mailhog-data:/var/lib/mailhog
 
-  vulpo:
-    image: riezler/vulpo_auth
-    container_name: vulpo_test
-    restart: always
-    environment:
-      - VULPO_SECRETS_PASSPHRASE=password
-
-      - VULPO_DB_PORT=5432
-      - VULPO_DB_USERNAME=postgres
-      - VULPO_DB_PASSWORD=postgres
-      - VULPO_DB_LOG_LEVEL=Off
-      - VULPO_DB_HOST=vulpo_test_db
-      - VULPO_DB_DATABASE_NAME=auth
-
-      - VULPO_RUN_MIGRATIONS=true
-      - VULPO_MAIL_LOCALHOST=vulpo_test_mailhog
-    
-    ports:
-      - 8000:8000
-
-    depends_on:
-      - postgres
-      - mailhog
-
-
-
 volumes:
   postgres-data:
   mailhog-data:

@@ -4,7 +4,7 @@ exports.development = {
   client: 'postgresql',
   connection: {
     database: 'auth',
-    port: 6543,
+    port: 5432,
     user: 'postgres',
     password: 'postgres'
   },

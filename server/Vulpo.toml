@@ -7,5 +7,5 @@ passphrase = "password"
 [database]
 username = "postgres"
 password = "postgres"
-port = 6543
+port = 5432
 log_level = "Off"

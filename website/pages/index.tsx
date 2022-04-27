@@ -5,8 +5,7 @@ import dynamic from 'next/dynamic'
 
 import styles from '../styles/Home.module.css'
 
-
-let AuthExample = dynamic(() => import('../components/auth_example'), {
+let AuthExample = dynamic(() => import('../components/auth_memory'), {
   ssr: false,
 })
 
@@ -41,12 +40,12 @@ const Home: NextPage = () => {
           <h1 className={styles['hero-title']}>
             Effortless Authentication for your Web Application.
           </h1>
-          <a href="#" className={`button ${styles['get-started']}`}>Get Started</a>
+          <a href="#get-started" className={`button ${styles['get-started']}`}>Get Started</a>
         </section>
 
         <section>
           <header>
-            <h2>Drop-in UI</h2>
+            <h2>Demo: Drop-in UI</h2>
 
             <div>
               <button onClick={() => setExample('ui')}>UI</button>
@@ -58,15 +57,237 @@ const Home: NextPage = () => {
               <AuthExample />
             }
             { example === 'code' &&
-              <pre style={{ color: '#fff' }}>
+              <pre>
                 { process.env.exampleCode }
               </pre>
             }
           </div>
         </section>
 
-        <section>
+        <section className={styles['set-up']} id="get-started">
           <h2>Get Started</h2>
+
+          <section>
+            <h3>Server Set-up: Docker</h3>
+              <ol>
+                <li>
+                  <details>
+                    <summary>docker-compose for local development</summary>
+                    
+                    <pre>
+{`version: '2'
+services:
+  postgres:
+    image: postgres
+    container_name: vulpo_test_db
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+    ports:
+      -5432:5432
+    volumes:
+      - postgres-data:/var/lib/postgres
+  mailhog:
+    image: mailhog/mailhog
+    container_name: vulpo_test_mailhog
+    restart: always
+    ports:
+      - 1025:1025
+      - 8025:8025
+    volumes:
+      - mailhog-data:/var/lib/mailhog
+  vulpo:
+    image: riezler/vulpo_auth
+    container_name: vulpo_auth_server
+    restart: always
+    environment:
+      - VULPO_SECRETS_PASSPHRASE=password
+      - VULPO_DB_PORT=5432
+      - VULPO_DB_USERNAME=postgres
+      - VULPO_DB_PASSWORD=postgres
+      - VULPO_DB_LOG_LEVEL=Off
+      - VULPO_DB_HOST=vulpo_test_db
+      - VULPO_DB_DATABASE_NAME=auth
+      
+      
+      # this should only be used for local development
+      # in production you should run migrations separatly
+      # before you run your container
+      - VULPO_RUN_MIGRATIONS=true
+      
+      # this will use an insecure smtp connection and should
+      # only be used for local development
+      - VULPO_MAIL_LOCALHOST=vulpo_test_mailhog
+    
+    ports:
+      - 8000:8000
+    depends_on:
+      - postgres
+      - mailhog
+volumes:
+  postgres-data:
+  mailhog-data:
+                `}
+                    </pre>
+                  </details>
+                </li>
+
+                <li>Go to <a href="http://localhost:8000" target="_blank">localhost:8000</a> and finish the set up process</li>
+              </ol>
+          </section>
+
+          <section>
+            <h3>Client Set-up</h3>
+
+            <ol>
+              <li>
+                Enable Email and Password Sign In/Up
+
+                <ul>
+                  <li>Go to the admin dashboard</li>
+                  <li>Got to your project → Sign In Methods</li>
+                  <li>Select Sign In, Sign Up and Email and Password</li>
+                </ul>
+              </li>
+
+              <li>
+                <details>
+                  <summary>Create a new React project: <a href="https://reactjs.org/docs/create-a-new-react-app.html" target="_blank">https://reactjs.org/docs/create-a-new-react-app.html</a></summary>
+                  <pre>
+{`npx create-react-app my-app
+cd my-app
+npm start
+`}
+                  </pre>
+                </details>
+              </li>
+
+              <li>
+                <details>
+                  <summary>Install the vulpo auth packages</summary>
+                  <pre>npm install @riezler/auth-react @riezler/auth-sdk @riezler/auth-ui react-router-dom @biotic-ui/leptons</pre>
+                </details>
+              </li>
+
+              <li>
+                <details>
+                  <summary>Setup the Auth Client:</summary>
+                  <pre>
+{`// auth.js
+export default Auth.create({
+        // You'll find the ID under your project settings
+        project: '<project-id>',
+        baseURL: 'http://127.0.0.1:8000'
+})
+// index.js
+import React from 'react';
+import ReactDOM from 'react-dom';
+// this import provides the base styles for the integrated UI
+import '@biotic-ui/leptons/style/base.css'
+import './index.css';
+import App from './App';
+import reportWebVitals from './reportWebVitals';
+import { BrowserRouter } from 'react-router-dom'
+import { Auth as AuthCtx } from '@riezler/auth-react'
+import AuthClient from './auth'
+ReactDOM.render(
+  <React.StrictMode>
+          <BrowserRouter>
+                  <AuthCtx.Provider value={AuthClient}>
+                    <App />
+                  </AuthCtx.Provider>
+          </BrowserRouter>
+  </React.StrictMode>,
+  document.getElementById('root')
+);
+// If you want to start measuring performance in your app, pass a function
+// to log results (for example: reportWebVitals(console.log))
+// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
+reportWebVitals();
+`}
+                  </pre>
+                </details>
+              </li>
+
+              <li>
+                <details>
+                  <summary>Update your App.js component to make use of the AuthShell</summary>
+                  <pre>
+{`import React from 'react'
+import { Route, Link } from 'react-router-dom'
+import { AuthShell, useUser } from '@riezler/auth-ui'
+let App = () => {
+        return (
+                <AuthShell>
+                        <Route path='/user'>
+                               <WithUser />
+                        </Route>
+                        <Route path='/'>
+                                <div>
+                                        <h1>Page</h1>
+                                        <Link to="/user">Page</Link>
+                                </div>
+                        </Route>
+                </AuthShell>
+        )
+}
+export default App
+let WithUser = () => {
+    let user = useUser()
+    return (
+        <div>
+  
+          <h1>With User </h1>
+            <Link to="/">Page</Link>
+            <pre>{JSON.stringify(user, null, 2)}</pre>
+        </div>
+    )
+}
+`}
+                  </pre>
+                </details>
+              </li>
+            </ol>
+          </section>
+
+          <section>
+            <h3>Making API Calls</h3>
+            <pre>
+{`// App.js
+import { useUser, useAuth } from '@riezler/auth-react'
+let WithUser = () => {
+   let user = useUser()
+   let auth = useAuth()
+   
+   async function callApi() {
+    try {
+      let res = await auth.withToken((token: string) => {
+        return fetch('your.api-server.com', {
+          headers: {
+            'Authorization': \`Bearer \${token}\`,
+          }
+        })
+      })
+      console.log(await res.text())
+    } catch(err) {
+      console.log({ err })
+    }
+  }
+   
+   return (
+        <div>
+            <h1>With User </h1>
+            <Link to="/">Page</Link>
+            <button onClick={callApi}>Call API</button>
+            <pre>{JSON.stringify(user, null, 2)}</pre>
+        </div>
+    )
+}
+`}
+            </pre>
+          </section>
+
         </section>
       </main>
     </div>

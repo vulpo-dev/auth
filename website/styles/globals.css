@@ -9,6 +9,11 @@ body {
   padding: 0;
   margin: 0;
   font-family: var(--font-headline);
+  height: 100%;
+}
+
+#__next {
+  height: 100%;
 }
 
 body {
@@ -45,4 +50,9 @@ a {
   border-color:  #111!important;
   color:  #fff!important;
   font-weight: 600!important;
+}
+
+pre {
+  overflow: auto;
+  font-family: monospace;
 }

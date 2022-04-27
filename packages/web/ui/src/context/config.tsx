@@ -1,5 +1,6 @@
 import React from 'react'
 import { createContext, useContext } from 'react'
+import { HashRouter } from 'react-router-dom'
 import { Flag } from '@riezler/auth-sdk'
 
 import Arrow from '../component/arrow'
@@ -7,13 +8,15 @@ import Arrow from '../component/arrow'
 type $AuthConfig = {
 	tos: string;
 	privacy: string;
-	Arrow: JSX.Element
+	Arrow: JSX.Element;
+	Router: JSX.Element;
 }
 
 export let DefaultConfig = {
 	tos: '',
 	privacy: '',
-	Arrow: <Arrow />
+	Arrow: <Arrow />,
+	Router: <HashRouter />,
 }
 
 export let AuthConfig = createContext<$AuthConfig>(DefaultConfig)

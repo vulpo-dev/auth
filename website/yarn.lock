@@ -65,14 +65,7 @@
     "@babel/helper-validator-identifier" "^7.14.9"
     to-fast-properties "^2.0.0"
 
-"@biotic-ui/button@^0.3.11":
-  version "0.3.11"
-  resolved "https://registry.yarnpkg.com/@biotic-ui/button/-/button-0.3.11.tgz#906c9774df29ee07ef750c96e3899f6743e346c0"
-  integrity sha512-3pUrSpz8FIx6lbPKXKVs+jcDB21UzHa96P8tEDTjbaCXnime/L843VU3QqkmljO6YNq0jxl6sJeyHbpn4kyy7w==
-  dependencies:
-    "@biotic-ui/leptons" "^0.3.11"
-
-"@biotic-ui/leptons@^0.3.11", "@biotic-ui/leptons@^0.3.9":
+"@biotic-ui/leptons@^0.3.9":
   version "0.3.11"
   resolved "https://registry.yarnpkg.com/@biotic-ui/leptons/-/leptons-0.3.11.tgz#14f37cacabb45b23203cea20b9fe91902b29bd84"
   integrity sha512-5s+lCoMiPK83FwUsfKCCINmZVbMGWuQMbwsC+0hAOQIDC6t0jap5WIflIyuAcWSjb2tVHwIO9AZr7nWCLbg6QQ==
