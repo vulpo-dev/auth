@@ -1,6 +1,5 @@
 import React, { ChangeEvent } from 'react'
 import { SyntheticEvent, useState } from 'react'
-import styled from 'styled-components'
 import { Input, Password as PasswordInput } from '@biotic-ui/input'
 import { useForm } from '@biotic-ui/std'
 import { Button, IconButton } from '@biotic-ui/button'
@@ -8,13 +7,10 @@ import { useHistory, useRouteMatch, Link, Redirect } from 'react-router-dom'
 import { ErrorCode, Flag, UserState } from '@riezler/auth-sdk'
 import { useAuth } from '@riezler/auth-react'
 
-import { Card, CardHeader, CardNav, CardTitle } from '../component/card'
 import { useTranslation, useError } from '../context/translation'
 import { useConfig, useFlags } from '../context/config'
-import { Label } from '../component/text'
 import { Disclaimer } from '../component/disclaimer'
-import { Footer, Divider } from '../component/layout'
-import { BASELINE, checkPasswordLength, ERROR } from '../utils'
+import { checkPasswordLength } from '../utils'
 
 type Form = {
 	email: string;
@@ -85,9 +81,9 @@ export let Password = ({ onSubmit, onBack, ctx, loading, error }: Props) => {
 	}
 
 	return (
-		<Card className="vulpo-auth-password">
-			<CardHeader>
-				<StyledCardNav>
+		<div className="vulpo-auth vulpo-auth-card vulpo-auth-password">
+			<header className="vulpo-card-header">
+				<div className="vulpo-auth-card-nav vulpo-auth-card-nav--spaced">
 					<section>
 						{ withBack &&
 							<IconButton className="vulpo-auth-icon-button" id="back" aria-label={button} onClick={() => onBack()}>
@@ -104,13 +100,13 @@ export let Password = ({ onSubmit, onBack, ctx, loading, error }: Props) => {
 							</small>
 						</section>
 					}
-				</StyledCardNav>
-				<CardTitle>{t.password.title}</CardTitle>
-			</CardHeader>
+				</div>
+				<h3 className="vulpo-auth-card-title">{t.password.title}</h3>
+			</header>
 
-			<Form onSubmit={handleSubmit}>
-				<Section>
-					<Label htmlFor="email">{t.label.email}</Label>
+			<form className="vulpo-auth-password-form" onSubmit={handleSubmit}>
+				<section className="vulpo-auth-password-section">
+					<label className="vulpo-auth-label" htmlFor="email">{t.label.email}</label>
 					<Input
 						id="email"
 						name='email'
@@ -120,10 +116,10 @@ export let Password = ({ onSubmit, onBack, ctx, loading, error }: Props) => {
 						required
 						autoFocus
 					/>
-				</Section>
+				</section>
 
-				<PasswordSection>
-					<Label htmlFor="password">{t.label.password}</Label>
+				<section className="vulpo-auth-password-password-section">
+					<label className="vulpo-auth-label" htmlFor="password">{t.label.password}</label>
 					<PasswordInput
 						ref={elm => elm && validatePassword(elm)}
 						id="password"
@@ -136,29 +132,29 @@ export let Password = ({ onSubmit, onBack, ctx, loading, error }: Props) => {
 					/>
 					{	
 						(ctx === 'signin' && withPasswordReset) &&
-						<ForgotPassword to='/forgot-password'>
+						<Link className="vulpo-auth-password-forgot-password" to='/forgot-password'>
 							<small>{t.password.forgot}</small>
-						</ForgotPassword>
+						</Link>
 					}
-				</PasswordSection>
+				</section>
 
-				<Section>
+				<section className="vulpo-auth-password-section">
 					<Button className="vulpo-auth-button" loading={loading}>{button}</Button>
-				</Section>
+				</section>
 
 				{ error &&
-					<Error className="test-error">
+					<p className="vulpo-auth-password-error test-error">
 						{errorMessage}
-					</Error>
+					</p>
 				}
-			</Form>
+			</form>
 
-			<Divider />
+			<div className="vulpo-auth-divider" />
 
-			<Footer>
+			<footer className="vulpo-auth-footer">
 				<Disclaimer  />
-			</Footer>
-		</Card>
+			</footer>
+		</div>
 	)
 }
 
@@ -217,42 +213,3 @@ let PasswordContainer = ({ redirect = true, redirectTo }: ContainerProps) => {
 }
 
 export default PasswordContainer
-
-
-let Section = styled.section`
-	margin-block-end: calc(${BASELINE} * 2);
-	display: flex;
-	flex-direction: column;
-`
-
-let PasswordSection = styled.section`
-	margin-block-end: calc(${BASELINE} * 2.5);
-	display: flex;
-	flex-direction: column;
-
-	input {
-		margin-block-end: calc(${BASELINE} / 2);
-	}
-`
-
-let ForgotPassword = styled(Link)`
-	margin-inline-start: auto;
-`
-
-let Error = styled.p`
-	text-align: center;
-	color: ${ERROR};
-	margin-block-end: calc(${BASELINE} * 1.125);
-`
-
-let Form = styled.form`
-	margin-block-start: calc(${BASELINE} * -0.625);
-`
-
-let StyledCardNav = styled(CardNav)`
-	justify-content: space-between;
-	
-	section {
-		display: flex;
-	}
-`

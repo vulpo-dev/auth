@@ -7,13 +7,9 @@ import { ErrorCode } from '@riezler/auth-sdk'
 import { useHistory, useRouteMatch } from 'react-router-dom'
 import { useAuth } from '@riezler/auth-react'
 
-import { Card, CardHeader, CardNav } from '../component/card'
 import { useConfig } from '../context/config'
 import { useTranslation, useError } from '../context/translation'
-import { Label, Error, Title, Subtitle } from '../component/text'
-import { Section } from '../component/layout'
 import { Disclaimer } from '../component/disclaimer'
-import { Footer, Divider } from '../component/layout'
 
 type Form = {
 	email: string
@@ -47,22 +43,22 @@ export let EnterEmail = (props: Props) => {
 		: t.signup.label
 
 	return (
-		<Card className="vulpo-auth-passwordless">
-			<CardNav>
+		<div className="vulpo-auth vulpo-auth-card vulpo-auth-passwordless">
+			<div className="vulpo-auth-card-nav">
 				<IconButton className="vulpo-auth-icon-button" id='back' onClick={props.onBack}>
 					{ config.Arrow }				
 				</IconButton>
 				<label htmlFor="back">{label}</label>
-			</CardNav>
-			<CardHeader>
-				<Title>{t.passwordless.title}</Title>
-				<Subtitle>
+			</div>
+			<header className="vulpo-card-header">
+				<h3 className="vulpo-auth-card-title vulpo-auth-title">{t.passwordless.title}</h3>
+				<p className="vulpo-auth-subtitle">
 					<t.passwordless.info label={label} />
-				</Subtitle>
-			</CardHeader>
+				</p>
+			</header>
 			<form onSubmit={handleSubmit}>
-				<Section>
-					<Label htmlFor="email">{t.label.email}</Label>
+				<section className="vulpo-auth-section">
+					<label className="vulpo-auth-label" htmlFor="email">{t.label.email}</label>
 					<Input
 						id="email"
 						name='email'
@@ -73,23 +69,23 @@ export let EnterEmail = (props: Props) => {
 						required
 						autoFocus
 					/>
-				</Section>
+				</section>
 
-				<Section>
+				<section className="vulpo-auth-section">
 					<Button className="vulpo-auth-button" loading={props.loading}>{t.passwordless.button}</Button>
-				</Section>
+				</section>
 
 				{ props.error &&
-					<Error>{errorMessage}</Error>
+					<p className="vulpo-auth-error">{errorMessage}</p>
 				}
 			</form>
 
-			<Divider />
+			<div className="vulpo-auth-divider" />
 
-			<Footer>
+			<footer className="vulpo-auth-footer">
 				<Disclaimer  />
-			</Footer>
-		</Card>
+			</footer>
+		</div>
 	)
 }
 
@@ -126,7 +122,7 @@ let EnterEmailContainer = () => {
 	return (
 		<EnterEmail
 			loading={loading}
-			error={null}
+			error={error}
 			onBack={handleBack}
 			onSignIn={handleSignIn}
 			ctx={match?.params.type ?? 'signin'}

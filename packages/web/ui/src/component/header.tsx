@@ -1,13 +1,10 @@
 import React from 'react'
 import { useMemo } from 'react'
-import styled from 'styled-components'
 import { useRouteMatch, Link } from 'react-router-dom'
 import { Flag } from '@riezler/auth-sdk'
 
 import { useTranslation } from '../context/translation'
-import { CardHeader, CardTitle } from '../component/card'
 import { useFlags } from '../context/config'
-import { BASELINE } from '../utils'
 
 type Props = {
 	title: string | null,
@@ -18,14 +15,14 @@ type Props = {
 
 export let Header = ({ title, info, link, to }: Props) => {
 	return (
-		<StyledHeader className="vulpo-auth-header">
-			{ title && <Title className="vulpo-auth-header-title">{title}</Title>}
+		<header className="vulpo-card-header vulpo-auth-header">
+			{ title && <h3 className="vulpo-auth-card-title vulpo-auth-header-title">{title}</h3>}
 			{ info &&
-				<Info className="vulpo-auth-header-info">
+				<p className="vulpo-auth-header-info">
 					{info} { link && <Link className="vulpo-auth-header-link" to={`/${to}`}>{link}</Link>}
-				</Info>
+				</p>
 			}
-		</StyledHeader>
+		</header>
 	)
 }
 
@@ -54,21 +51,6 @@ let HeaderContainer = () => {
 }
 
 export default HeaderContainer
-
-
-let Title = styled(CardTitle)`
-	line-height: 1;
-	margin-block-start: calc(${BASELINE} * -0.375);
-	margin-block-end: calc(${BASELINE} * 1.75);
-`
-
-let StyledHeader = styled(CardHeader)`
-	margin-block-end: calc(${BASELINE} * 4.125);
-`
-
-let Info = styled.p`
-	margin-block-end: 0;
-`
 
 function useTitle(type: string): string | null {
 	let t = useTranslation()

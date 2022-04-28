@@ -44,12 +44,12 @@ a {
   outline: none;
 }
 
-.vulpo-auth-link-button,
+.vulpo-auth-link-button button,
 .vulpo-auth-button {
-  background: #000!important;
-  border-color:  #111!important;
-  color:  #fff!important;
-  font-weight: 600!important;
+  background: #000;
+  border-color: #111;
+  color:  #fff;
+  font-weight: 600;
 }
 
 pre {

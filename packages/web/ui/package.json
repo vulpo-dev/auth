@@ -51,8 +51,7 @@
     "@riezler/auth-react": "0.0.1",
     "@riezler/auth-sdk": "0.0.1",
     "react": "^17.0.1",
-    "react-router-dom": "^5.2.0",
-    "styled-components": "^5.2.1"
+    "react-router-dom": "^5.2.0"
   },
   "dependencies": {
     "@biotic-ui/button": "^0.3.10",
@@ -60,8 +59,7 @@
     "@biotic-ui/leptons": "^0.3.10",
     "@biotic-ui/std": "^0.3.6",
     "@types/react": "^17.0.2",
-    "@types/react-router-dom": "^5.1.7",
-    "@types/styled-components": "^5.1.7"
+    "@types/react-router-dom": "^5.1.7"
   },
   "gitHead": "8e299ea6d9c53843a8bccb98626f44fd42088cbf"
 }

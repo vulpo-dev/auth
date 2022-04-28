@@ -1,15 +1,12 @@
 import React from 'react'
 import { useMemo } from 'react'
-import styled from 'styled-components'
 import { OutlineButton, Button } from '@biotic-ui/button'
 import { Link, useLocation, Redirect } from 'react-router-dom'
 import { Flag } from '@riezler/auth-sdk'
 
-import { Card } from '../component/card'
 import Header from '../component/header'
 import { useTranslation } from '../context/translation'
 import { useFlags } from '../context/config'
-import { BASELINE } from 'utils'
 
 export let Overview = () => {
 	let t = useTranslation()
@@ -38,28 +35,20 @@ export let Overview = () => {
 	}
 
 	return (
-		<Card className="vulpo-auth-overview">
+		<div className="vulpo-auth vulpo-auth-card vulpo-auth-overview">
 			<Header />
-			<LinkButton className="vulpo-auth-link-button" forwardedAs={Link} to={`${pathname}/link`}>
-				{t.email.label}
-			</LinkButton>
-			<StyledOutline className="vulpo-auth-password-button" forwardedAs={Link} to={`${pathname}/email`}>
-				{t.password.label}
-			</StyledOutline>
-		</Card>
+			<Link className="vulpo-auth-link-button" to={`${pathname}/link`}>
+				<Button>
+					{t.email.label}
+				</Button>
+			</Link>
+			<Link className="vulpo-auth-password-button" to={`${pathname}/email`}>
+				<OutlineButton>
+					{t.password.label}
+				</OutlineButton>
+			</Link>
+		</div>
 	)
 }
 
 export default Overview
-
-
-// using any here because ts complains about "forwardedAs"
-let LinkButton = styled<any>(Button)`
-	margin-block-end: ${BASELINE};
-	block-size: calc(${BASELINE} * 4);
-`
-
-// using any here because ts complains about "forwardedAs"
-let StyledOutline = styled<any>(OutlineButton)`
-	block-size: calc(${BASELINE} * 4);
-`

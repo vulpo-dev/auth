@@ -4,8 +4,6 @@ import { useAuthStateChange, useAuth } from '@riezler/auth-react'
 import { UserAuthState, UserState } from '@riezler/auth-sdk'
 
 import Auth from './auth'
-import { Container } from './component/layout'
-import { BoxShadow } from './component/card'
 
 export let UserCtx = createContext<UserAuthState>(undefined)
 
@@ -59,11 +57,11 @@ let AuthShell: FunctionComponent = (props) => {
 			<Switch>
 
 				<Route path='/auth'>
-					<Container>
-						<BoxShadow>
+					<div className="vulpo-auth vulpo-auth-container">
+						<div className="vulpo-auth-box-shadow">
 							<Auth />
-						</BoxShadow>
-					</Container>
+						</div>
+					</div>
 					
 					{ (user && user.state !== UserState.SetPassword) &&
 						<Redirect to={refferrer} />

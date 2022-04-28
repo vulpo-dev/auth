@@ -1,14 +1,11 @@
 import React from 'react'
 import { useEffect, useState } from 'react'
-import styled from 'styled-components'
 import { useQueryParams } from '@biotic-ui/std'
 import { useLocation, useRouteMatch } from 'react-router-dom'
 import { useAuth } from '@riezler/auth-react'
 import { ErrorCode, CancelToken } from '@riezler/auth-sdk'
 
-import { Card, CardHeader, CardTitle } from '../component/card'
 import { useTranslation } from '../context/translation'
-import { BASELINE } from 'utils'
 
 export type Props = {
 	email: string | null;
@@ -19,10 +16,10 @@ export let CheckEmail = ({ email }: Props) => {
 	let t = useTranslation()
 
 	return (
-		<Card className="vulpo-auth-passwordless-check">
-			<Header>
-				<Title className="test-check-email">{t.passwordless_check.title}</Title>
-			</Header>
+		<div className="vulpo-auth vulpo-auth-card vulpo-auth-passwordless-check">
+			<header className="vulpo-card-header">
+				<h3 className="vulpo-auth-card-title test-check-email">{t.passwordless_check.title}</h3>
+			</header>
 
 			<p>
 				<strong>{t.passwordless_check.warning}</strong>
@@ -30,7 +27,7 @@ export let CheckEmail = ({ email }: Props) => {
 
 			<t.passwordless_check.description email={email} type={t.signin.label} />
 			<small>{t.passwordless_check.info}</small>
-		</Card>
+		</div>
 	)
 }
 
@@ -68,12 +65,3 @@ let CheckEmailContainer = () => {
 }
 
 export default CheckEmailContainer
-
-let Title = styled(CardTitle)`
-	line-height: 1;
-	margin-block-start: calc(${BASELINE} * -0.375);
-`
-
-let Header = styled(CardHeader)`
-	margin-block-end: calc(${BASELINE} * 2.75);
-`

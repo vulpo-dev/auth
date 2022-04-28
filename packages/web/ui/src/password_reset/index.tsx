@@ -1,6 +1,5 @@
 import React from 'react'
 import { SyntheticEvent, useState } from 'react'
-import styled from 'styled-components'
 import { Input } from '@biotic-ui/input'
 import { useForm, useQueryParams } from '@biotic-ui/std'
 import { Button, IconButton } from '@biotic-ui/button'
@@ -8,11 +7,8 @@ import { ErrorCode, Flag } from '@riezler/auth-sdk'
 import { useHistory, Switch, Route, Redirect, useLocation } from 'react-router-dom'
 import { useAuth } from '@riezler/auth-react'
 
-import { Card, CardHeader, CardNav } from '../component/card'
-import { Label, Error, Title, Subtitle } from '../component/text'
 import { useTranslation, useError } from '../context/translation'
 import { useConfig, useFlags } from '../context/config'
-import { BASELINE } from '../utils'
 
 import CheckEmail from './check'
 import SetPassword from './set_password'
@@ -48,8 +44,8 @@ export let PasswordReset: React.FC<Props> = ({
 	}
 
 	return (
-		<Card className="vulpo-auth-password-reset">
-			<CardNav>
+		<div className="vulpo-auth vulpo-auth-card vulpo-auth-password-reset">
+			<div className="vulpo-auth-card-nav">
 				<IconButton
 					className="vulpo-auth-icon-button"
 					id="back"
@@ -58,14 +54,14 @@ export let PasswordReset: React.FC<Props> = ({
 					{ config.Arrow }
 				</IconButton>
 				<label htmlFor="back">{t.signin.label}</label>
-			</CardNav>
-			<CardHeader>
-				<Title>{t.reset_password.title}</Title>
-				<Subtitle>{t.reset_password.info}</Subtitle>
-			</CardHeader>
+			</div>
+			<header className="vulpo-card-header">
+				<h3 className="vulpo-auth-card-title vulpo-auth-title">{t.reset_password.title}</h3>
+				<p className="vulpo-auth-subtitle">{t.reset_password.info}</p>
+			</header>
 			<form onSubmit={handleSubmit}>
-				<Section>
-					<Label htmlFor="email">{t.label.email}</Label>
+				<section className="vulpo-auth-password-reset-section">
+					<label className="vulpo-auth-label" htmlFor="email">{t.label.email}</label>
 					<Input
 						id="email"
 						name='email'
@@ -76,21 +72,21 @@ export let PasswordReset: React.FC<Props> = ({
 						required
 						autoFocus
 					/>
-				</Section>
+				</section>
 
-				<Section>
+				<section className="vulpo-auth-password-reset-section">
 					<Button
 						className="vulpo-auth-button"
 						loading={loading}>
 						{t.reset_password.button}
 					</Button>
-				</Section>
+				</section>
 
 				{ error &&
-					<Error>{errorMessage}</Error>
+					<p className="vulpo-auth-error">{errorMessage}</p>
 				}
 			</form>
-		</Card>
+		</div>
 	)
 }
 
@@ -126,7 +122,7 @@ let PasswordResetContainer = () => {
 			onBack={handleBack}
 			onReset={handleReset}
 			loading={loading}
-			error={null}
+			error={error}
 		/>
 	)
 }
@@ -156,9 +152,3 @@ export default () => {
 	)
 }
 
-
-let Section = styled.section`
-	margin-block-end: calc(${BASELINE} * 2);
-	display: flex;
-	flex-direction: column;
-`

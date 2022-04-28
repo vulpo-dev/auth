@@ -3,8 +3,6 @@ import { Story, Meta } from '@storybook/react/types-6-0'
 
 import { HashRouter, Switch, Route, Redirect } from 'react-router-dom'
 import { Overview } from 'overview'
-import { Container } from 'component/layout'
-import { BoxShadow } from 'component/card'
 import { Translation, DefaultTranslation } from 'context/translation'
 import { FlagsCtx } from 'context/config'
 import { Flag } from '@riezler/auth-sdk'
@@ -37,11 +35,11 @@ let Template: Story<{ flags: Array<Flag> }> = ({ flags }) => {
 					<Switch>
 
 						<Route path='/:type'>
-							<Container>
-								<BoxShadow>
+							<div className="vulpo-auth vulpo-auth-container">
+								<div className="vulpo-auth-box-shadow">
 									<Overview />
-								</BoxShadow>
-							</Container>
+								</div>
+							</div>
 						</Route>
 
 						<Redirect to='/signin' from='/' />

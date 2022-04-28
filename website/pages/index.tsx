@@ -36,14 +36,14 @@ const Home: NextPage = () => {
       </header>
 
       <main className={styles.content}>
-        <section className={styles.hero}>
+        <section className={`${styles.hero} ${styles.section}`}>
           <h1 className={styles['hero-title']}>
             Effortless Authentication for your Web Application.
           </h1>
           <a href="#get-started" className={`button ${styles['get-started']}`}>Get Started</a>
         </section>
 
-        <section>
+        <section className={styles.section}>
           <header>
             <h2>Demo: Drop-in UI</h2>
 
@@ -64,7 +64,7 @@ const Home: NextPage = () => {
           </div>
         </section>
 
-        <section className={styles['set-up']} id="get-started">
+        <section className={`${styles['set-up']} ${styles.section}`} id="get-started">
           <h2>Get Started</h2>
 
           <section>

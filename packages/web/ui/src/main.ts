@@ -16,8 +16,6 @@ export {
 } from './context/translation'
 
 export { default as Auth } from './auth'
-export { Container } from './component/layout'
-export { BoxShadow } from './component/card'
 export { checkPasswordLength } from './utils'
 export {
 	default as SetPassword,

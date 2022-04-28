@@ -2,8 +2,6 @@ import React from 'react'
 import { Story, Meta } from '@storybook/react/types-6-0'
 
 import Auth from 'auth'
-import { Container } from 'component/layout'
-import { BoxShadow } from 'component/card'
 
 import { Auth as AuthCtx } from '@riezler/auth-react'
 import { Auth as AuthClient } from '@riezler/auth-sdk'
@@ -19,14 +17,14 @@ export default {
 	argTypes: {},
 } as Meta
 
-let Template: Story<{}> = args => {
+let Template: Story<{}> = () => {
 	return (
 		<AuthCtx.Provider value={auth}>
-			<Container>
-				<BoxShadow>
+			<div className="vulpo-auth vulpo-auth-container">
+				<div className="vulpo-auth-box-shadow">
 					<Auth />
-				</BoxShadow>
-			</Container>
+				</div>
+			</div>
 		</AuthCtx.Provider>
 	)
 }

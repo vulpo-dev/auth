@@ -1,16 +1,12 @@
 import React from 'react'
 import { FunctionComponent, Fragment, useState, useEffect } from 'react'
-import styled from 'styled-components'
 import { Link, useLocation } from 'react-router-dom'
 import { Flow } from '@biotic-ui/leptons'
 import { useQueryParams } from '@biotic-ui/std'
 import { ErrorCode } from '@riezler/auth-sdk'
 import { useAuth } from '@riezler/auth-react'
 
-import { Card, CardHeader, CardTitle } from '../component/card'
 import { useTranslation, useError } from '../context/translation'
-import { Error } from '../component/text'
-import { BASELINE } from '../utils'
 
 type Props = {
 	loading: boolean;
@@ -21,22 +17,24 @@ export let Confirm: FunctionComponent<Props> = ({ loading, error }) => {
 	let t = useTranslation()
 	let errorMessage = useError(error)
 
+	let Overview = <Link className="vulpo-auth-passwordless-confirm-overview" to='/'>Overview</Link>
+
 	return (
-		<Card className="vulpo-auth-passwordless-confirm">
-			<CardHeader>
-				<Title className="test-confirm-signin">Confirm Sign In</Title>
-			</CardHeader>
+		<div className="vulpo-auth vulpo-auth-card vulpo-auth-passwordless-confirm">
+			<header className="vulpo-card-header">
+				<h3 className="vulpo-auth-card-title test-confirm-signin">Confirm Sign In</h3>
+			</header>
 
 			{ loading &&
-				<LoadingWrapper>
-					<StyledFlow />
-				</LoadingWrapper>
+				<div className="vulpo-auth-passwordless-confirm-loading">
+					<Flow />
+				</div>
 			}
 
 			{ error &&
 				<Fragment>
-					<Error>{errorMessage}</Error>
-					<Overview to='/'>Overview</Overview>
+					<p className="vulpo-auth-error">{errorMessage}</p>
+					{ Overview }
 				</Fragment>
 			}
 
@@ -44,11 +42,11 @@ export let Confirm: FunctionComponent<Props> = ({ loading, error }) => {
 				<Fragment>
 					<span>Your sign in has been confirmed.</span>
 					<strong>You can now close this window.</strong>
-					<Overview to='/'>Overview</Overview>
+					{ Overview }
 				</Fragment>
 			}
 
-		</Card>
+		</div>
 	)
 }
 
@@ -85,26 +83,6 @@ let ConfirmContainer = () => {
 }
 
 export default ConfirmContainer
-
-let Title = styled(CardTitle)`
-	line-height: 1;
-	margin-block-start: calc(${BASELINE} * -0.375);
-`
-
-let LoadingWrapper = styled.div`
-	display: flex;
-	justify-content: center;
-`
-
-let StyledFlow = styled(Flow)`
-	align-items: center;
-`
-
-let Overview = styled(Link)`
-	margin-block-start: ${BASELINE};
-	text-align: center;
-	color: currentColor;
-`
 
 function wait(time: number) {
 	return new Promise((resolve) => {

@@ -1,6 +1,5 @@
 import React from 'react'
 import { SyntheticEvent, FC, useState, useEffect } from 'react'
-import styled from 'styled-components'
 import { Password } from '@biotic-ui/input'
 import { Button } from '@biotic-ui/button'
 import { useForm, useQueryParams } from '@biotic-ui/std'
@@ -9,9 +8,7 @@ import { useAuth } from '@riezler/auth-react'
 import { Flow } from '@biotic-ui/leptons'
 import { useLocation, useHistory, Link } from 'react-router-dom'
 
-import { Card, CardHeader, CardTitle } from '../component/card'
-import { Label, Error } from '../component/text'
-import { checkPasswordLength, BASELINE } from '../utils'
+import { checkPasswordLength } from '../utils'
 import { useTranslation, useError } from '../context/translation'
 
 type Form = {
@@ -68,33 +65,33 @@ export let SetPassword: FC<Props> = ({
 		error === ErrorCode.ResetTokenNotFound ||
 		error === ErrorCode.ResetExpired
 	)
-
+ 
 	return (
-		<Card className="vulpo-auth-password-reset-set-password">
-			<Header>
-				<Title>{t.set_password.title}</Title>
-			</Header>
+		<div className="vulpo-auth vulpo-auth-card vulpo-auth-password-reset-set-password">
+			<header className="vulpo-card-header">
+				<h3 className="vulpo-auth-card-title">{t.set_password.title}</h3>
+			</header>
 			
 			{ tokenError &&
-				<Section>
-					<Error>{errorMessage}</Error>
-					<Overview to='/'>Overview</Overview>
-				</Section>
+				<section className="vulpo-auth-form-section">
+					<p className="vulpo-auth-error">{errorMessage}</p>
+					<Link className="vulpo-auth-password-reset-set-password-overview" to='/'>Overview</Link>
+				</section>
 			}
 
 
 			{ verifyToken &&
-				<LoadingWrapper>
-					<StyledFlow />
-				</LoadingWrapper>
+				<div className="vulpo-auth-password-reset-set-password-loading">
+					<Flow />
+				</div>
 			}
 
 
 			{ !verifyToken &&
 
 				<form onSubmit={handleSubmit}>
-					<Section>
-						<Label htmlFor="password1">{t.set_password.new_password}</Label>
+					<section className="vulpo-auth-form-section">
+						<label className="vulpo-auth-label" htmlFor="password1">{t.set_password.new_password}</label>
 						<Password
 							id="password1"
 							name='password1'
@@ -105,10 +102,10 @@ export let SetPassword: FC<Props> = ({
 							required
 							autoFocus
 						/>
-					</Section>
+					</section>
 					
-					<Section>
-						<Label htmlFor="password2">{t.set_password.repeat_password}</Label>
+					<section className="vulpo-auth-form-section">
+						<label className="vulpo-auth-label" htmlFor="password2">{t.set_password.repeat_password}</label>
 						<Password
 							id="password2"
 							name='password2'
@@ -117,21 +114,21 @@ export let SetPassword: FC<Props> = ({
 							disabled={loading || tokenError}
 							required
 						/>
-					</Section>
+					</section>
 
-					<Section>
+					<section className="vulpo-auth-form-section">
 						<Button className="vulpo-auth-button" loading={loading} disabled={tokenError}>
 							{t.set_password.button_label}
 						</Button>
-					</Section>
+					</section>
 
 					{ (error && ! tokenError) &&
-						<Error>{errorMessage}</Error>
+						<p className="vulpo-auth-error">{errorMessage}</p>
 					}
 
 				</form>
 			}
-		</Card>
+		</div>
 	)
 }
 
@@ -200,36 +197,6 @@ let SetPasswordContainer = () => {
 }
 
 export default SetPasswordContainer
-
-let Title = styled(CardTitle)`
-	line-height: 1;
-	margin-block-start: calc(${BASELINE} * -0.375);
-`
-
-let Header = styled(CardHeader)`
-	margin-block-end: calc(${BASELINE} * 2.75);
-`
-
-let Section = styled.section`
-	margin-block-end: calc(${BASELINE} * 2);
-	display: flex;
-	flex-direction: column;
-`
-
-let LoadingWrapper = styled.div`
-	display: flex;
-	justify-content: center;
-`
-
-let StyledFlow = styled(Flow)`
-	align-items: center;
-`
-
-let Overview = styled(Link)`
-	margin-block-start: ${BASELINE};
-	text-align: center;
-	color: currentColor;
-`
 
 function wait(time: number) {
 	return new Promise((resolve) => {

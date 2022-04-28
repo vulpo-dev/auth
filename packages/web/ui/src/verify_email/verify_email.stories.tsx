@@ -1,9 +1,7 @@
 import React from 'react'
 import { Story, Meta } from '@storybook/react/types-6-0'
 import { ErrorCode } from '@riezler/auth-sdk'
-import { Container } from 'component/layout'
 import { VerifyEmail } from 'verify_email'
-import { BoxShadow } from 'component/card'
 
 export default {
 	title: 'Verify Email',
@@ -12,39 +10,39 @@ export default {
 
 export let Loading = () => {
 	return (
-		<Container>
-			<BoxShadow>
+		<div className="vulpo-auth vulpo-auth-container">
+			<div className="vulpo-auth-box-shadow">
 				<VerifyEmail
 					loading={true}
 					error={null}
 				/>
-			</BoxShadow>
-		</Container>
+			</div>
+		</div>
 	)
 }
 
 export let Verified = () => {
 	return (
-		<Container>
-			<BoxShadow>
+		<div className="vulpo-auth vulpo-auth-container">
+			<div className="vulpo-auth-box-shadow">
 				<VerifyEmail
 					loading={false}
 					error={null}
 				/>
-			</BoxShadow>
-		</Container>
+			</div>
+		</div>
 	)
 }
 
 export let Error = () => {
 	return (
-		<Container>
-			<BoxShadow>
+		<div className="vulpo-auth vulpo-auth-container">
+			<div className="vulpo-auth-box-shadow">
 				<VerifyEmail
 					loading={false}
 					error={ErrorCode.GenericError}
 				/>
-			</BoxShadow>
-		</Container>
+			</div>
+		</div>
 	)
 }

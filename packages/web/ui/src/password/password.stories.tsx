@@ -3,11 +3,9 @@ import { Story, Meta } from '@storybook/react/types-6-0'
 
 import { HashRouter, Switch, Route, Redirect } from 'react-router-dom'
 import { Password, Props } from 'password'
-import { Container } from 'component/layout'
 import { Translation, DefaultTranslation } from 'context/translation'
 import { AuthConfig, DefaultConfig, FlagsCtx } from 'context/config'
 import { ErrorCode, Flag } from '@riezler/auth-sdk'
-import { BoxShadow } from 'component/card'
 
 export default {
 	title: 'Password',
@@ -74,11 +72,11 @@ let Template: Story<Props & { flags: Array<Flag> }> = ({ flags, ...args }) => {
 					<HashRouter>
 						<Switch>
 							<Route path='/signin/email'>
-								<Container>
-									<BoxShadow>
+								<div className="vulpo-auth vulpo-auth-container">
+									<div className="vulpo-auth-box-shadow">
 										<Password {...args} />
-									</BoxShadow>
-								</Container>
+									</div>
+								</div>
 							</Route>
 
 							<Redirect to='/signin/email' />

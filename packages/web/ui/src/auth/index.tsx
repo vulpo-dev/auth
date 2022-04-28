@@ -1,6 +1,5 @@
 import React from 'react'
 import { useEffect, useState, Fragment } from 'react'
-import styled from 'styled-components'
 import { Switch, Route, Redirect } from 'react-router-dom'
 import { useAuth } from '@riezler/auth-react'
 import { Flag, ErrorCode } from '@riezler/auth-sdk'
@@ -12,12 +11,9 @@ import Password from '../password'
 import PasswordReset from '../password_reset'
 import Passwordless from '../passwordless'
 import VerifyEmail from '../verify_email'
-import { Card } from '../component/card'
-import { Error } from '../component/text'
 import { useTranslation, useError } from '../context/translation'
 import { FlagsCtx, useConfig } from '../context/config'
 import SetPassword from '../user/set_password'
-import { BASELINE } from '../utils'
 
 let Auth = () => {
 	let auth = useAuth()
@@ -44,17 +40,17 @@ let Auth = () => {
 
 	if (flags === undefined) {
 		return (
-			<StyledCard>
+			<div className="vulpo-auth vulpo-auth-card vulpo-auth-card--center">
 				<Flow />
-			</StyledCard>
+			</div>
 		)
 	}
 
 	if (error !== null) {
 		return (
-			<StyledCard>
-				<Error>{errorMessage}</Error>
-			</StyledCard>
+			<div className="vulpo-auth vulpo-auth-card vulpo-auth-card--center">
+				<p className="vulpo-auth-error">{errorMessage}</p>
+			</div>
 		)
 	}
 
@@ -63,9 +59,9 @@ let Auth = () => {
 		!flags.includes(Flag.SignUp)
 	) {
 		return (
-			<StyledCard>
-				<Error>{t.error.not_allowed}</Error>
-			</StyledCard>
+			<div className="vulpo-auth vulpo-auth-card vulpo-auth-card--center">
+				<p className="vulpo-auth-error">{t.error.not_allowed}</p>
+			</div>
 		)
 	}
 
@@ -127,13 +123,6 @@ let Auth = () => {
 }
 
 export default Auth
-
-let StyledCard = styled(Card)`
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	height: calc(${BASELINE} * 26);
-`
 
 function showOverview(flags: Array<Flag>): boolean {
 	return flags.includes(Flag.AuthenticationLink) && flags.includes(Flag.EmailAndPassword)
