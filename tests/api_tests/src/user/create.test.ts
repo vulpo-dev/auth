@@ -42,7 +42,7 @@ describe("Create User", () => {
 			.post('/admin/__/create_user', user, {
 				headers: {
 					'Authorization': `Bearer ${token}`,
-					'Bento-Project': admin.id,
+					'Vulpo-Project': admin.id,
 				}
 			})
 			.catch(err => err.response)
@@ -96,7 +96,7 @@ describe("Create User", () => {
 			.post('/admin/__/create_user', user, {
 				headers: {
 					'Authorization': `Bearer ${token}`,
-					'Bento-Project': admin.id,
+					'Vulpo-Project': admin.id,
 				}
 			})
 			.catch(err => err.response)
@@ -154,7 +154,7 @@ describe("Create User", () => {
 			.post('/admin/__/create_user', user, {
 				headers: {
 					'Authorization': `Bearer ${token}`,
-					'Bento-Project': admin.id,
+					'Vulpo-Project': admin.id,
 				}
 			})
 			.catch(err => err.response)
@@ -181,7 +181,7 @@ describe("Create User", () => {
 			.post('/admin/__/create_user', user, {
 				headers: {
 					'Authorization': `Bearer ${token}`,
-					'Bento-Project': admin.id,
+					'Vulpo-Project': admin.id,
 				}
 			})
 			.catch(err => err.response)
@@ -209,7 +209,7 @@ describe("Create User", () => {
 			.post('/admin/__/create_user', user, {
 				headers: {
 					'Authorization': `Bearer ${token}`,
-					'Bento-Project': admin.id,
+					'Vulpo-Project': admin.id,
 				}
 			})
 			.catch(err => err.response)
@@ -231,7 +231,7 @@ describe("Create User", () => {
 			.post('/admin/__/create_user', user, {
 				headers: {
 					'Authorization': `Bearer ${token}`,
-					'Bento-Project': admin.id,
+					'Vulpo-Project': admin.id,
 				}
 			})
 			.catch(err => err.response)
@@ -240,7 +240,7 @@ describe("Create User", () => {
 			.post('/admin/__/create_user', user, {
 				headers: {
 					'Authorization': `Bearer ${token}`,
-					'Bento-Project': admin.id,
+					'Vulpo-Project': admin.id,
 				}
 			})
 			.catch(err => err.response)
@@ -262,7 +262,7 @@ describe("Create User", () => {
 			.post('/admin/__/create_user', user, {
 				headers: {
 					'Authorization': `Bearer ${token}`,
-					'Bento-Project': admin.id,
+					'Vulpo-Project': admin.id,
 				}
 			})
 			.catch(err => err.response)
@@ -271,7 +271,7 @@ describe("Create User", () => {
 			.post('/admin/__/create_user', user, {
 				headers: {
 					'Authorization': `Bearer ${token}`,
-					'Bento-Project': admin.id,
+					'Vulpo-Project': admin.id,
 				}
 			})
 			.catch(err => err.response)

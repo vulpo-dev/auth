@@ -23,7 +23,7 @@ impl Fairing for CORS {
     async fn on_response<'r>(&self, request: &'r Request<'_>, response: &mut Response<'r>) {
         let project = request
             .headers()
-            .get_one("bento-project")
+            .get_one("Vulpo-Project")
             .and_then(|id| Uuid::parse_str(id).ok());
 
         match project {
@@ -46,7 +46,7 @@ impl Fairing for CORS {
         ));
         response.set_header(Header::new(
             "Access-Control-Allow-Headers",
-            "Content-Type, Bento-Project, Authorization",
+            "Content-Type, Vulpo-Project, Authorization",
         ));
         response.set_header(Header::new("Access-Control-Allow-Credentials", "false"));
 

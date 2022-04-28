@@ -25,7 +25,7 @@ impl<'r> FromRequest<'r> for Project {
     type Error = ProjectError;
 
     async fn from_request(req: &'r Request<'_>) -> request::Outcome<Self, Self::Error> {
-        let id = match req.headers().get_one("Bento-Project") {
+        let id = match req.headers().get_one("vulpo-project") {
             None => return Outcome::Failure((Status::BadRequest, ProjectError::IdMissing)),
             Some(id) => id,
         };

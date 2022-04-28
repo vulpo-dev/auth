@@ -226,7 +226,7 @@ describe("Admin: Update user", () => {
 		let res = await Http.post('/user/admin/update', user, {
 			headers: {
 				'Authorization': `Bearer ${token}`,
-				'Bento-Project': admin.id,
+				'Vulpo-Project': admin.id,
 			},
 			params: {
 				user_id: USER_ID,
@@ -283,7 +283,7 @@ describe("Admin: Update user", () => {
 		let res = await Http.post('/user/admin/update', user, {
 			headers: {
 				'Authorization': `Bearer ${token}`,
-				'Bento-Project': admin.id,
+				'Vulpo-Project': admin.id,
 			},
 			params: {
 				user_id: USER_ID,
@@ -314,7 +314,7 @@ describe("Admin: Update user", () => {
 		let res = await Http.post('/user/admin/update', user, {
 			headers: {
 				'Authorization': `Bearer ${token}`,
-				'Bento-Project': admin.id,
+				'Vulpo-Project': admin.id,
 			},
 			params: {
 				user_id: USER_ID,
@@ -354,7 +354,7 @@ describe("Admin: Update user", () => {
 		let res = await Http.post('/user/admin/update', user, {
 			headers: {
 				'Authorization': `Bearer ${token}`,
-				'Bento-Project': admin.id,
+				'Vulpo-Project': admin.id,
 			},
 			params: {
 				user_id: USER_ID,
@@ -386,7 +386,7 @@ describe("Admin: Update user", () => {
 		let res = await Http.post('/user/admin/update', user, {
 			headers: {
 				'Authorization': `Bearer ${token}`,
-				'Bento-Project': admin.id,
+				'Vulpo-Project': admin.id,
 			},
 			params: {
 				user_id: USER_ID,

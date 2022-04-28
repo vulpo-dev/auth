@@ -451,7 +451,7 @@ export let Auth = {
 		let http = config.http ?? Axios.create({
 			baseURL: config.baseURL,
 			headers: {
-				'Bento-Project': config.project
+				'Vulpo-Project': config.project
 			}
 		})
 

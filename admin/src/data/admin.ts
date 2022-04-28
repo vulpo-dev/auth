@@ -67,7 +67,7 @@ export type CreateAdmin = {
 export function createAdmin(data: CreateAdmin, project: string) {
 
 	let headers = {
-		'Bento-Project': project
+		'Vulpo-Project': project
 	}
 
 	return axios.post('/admin/__/create_once', data, { headers })

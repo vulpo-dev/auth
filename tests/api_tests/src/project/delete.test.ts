@@ -24,7 +24,7 @@ describe("Delete Project", () => {
 			.post('/project/delete', { project: project.id }, {
 				headers: {
 					'Authorization': `Bearer ${token}`,
-					'Bento-Project': admin.id,
+					'Vulpo-Project': admin.id,
 				}
 			})
 			.catch(err => err.response)
@@ -45,7 +45,7 @@ describe("Delete Project", () => {
 			.post('/project/delete', { project: project.id }, {
 				headers: {
 					'Authorization': `Bearer ${accessToken}`,
-					'Bento-Project': admin.id,
+					'Vulpo-Project': admin.id,
 				}
 			})
 			.catch(err => err.response)

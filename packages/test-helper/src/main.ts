@@ -60,14 +60,14 @@ export async function signIn(baseUrl: string, project: string, email: string, pa
 
 	let { data: token } = await axios.post<any, any>(`${baseUrl}/password/sign_in`, payload, {
 			headers: {
-				'Bento-Project': project
+				'Vulpo-Project': project
 			}
 		})
 
 	let { data: user } = await axios.get(`${baseUrl}/user/get`, {
 				headers: {
 					'Authorization': `Bearer ${token.access_token}`,
-					'Bento-Project': project
+					'Vulpo-Project': project
 				}
 			})
 

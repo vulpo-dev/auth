@@ -29,7 +29,7 @@ export let Http: FC<Props> = ({ auth, project, children }) => {
 		let instance = Axios.create({
 			baseURL: '/',
 			headers: {
-				'Bento-Project': project
+				'Vulpo-Project': project
 			},
 		})
 

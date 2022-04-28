@@ -73,7 +73,7 @@ describe("Translations", () => {
 				},
 				headers: {
 					'Authorization': `Bearer ${token}`,
-					'Bento-Project': admin.id,
+					'Vulpo-Project': admin.id,
 				}
 			})
 			.catch(err => err.response)
@@ -104,7 +104,7 @@ describe("Translations", () => {
 				},
 				headers: {
 					'Authorization': `Bearer ${token}`,
-					'Bento-Project': admin.id,
+					'Vulpo-Project': admin.id,
 				}
 			})
 			.catch(err => err.response)
@@ -127,7 +127,7 @@ describe("Translations", () => {
 			.post('/template/translations/set', payload, {
 				headers: {
 					'Authorization': `Bearer ${token}`,
-					'Bento-Project': admin.id,
+					'Vulpo-Project': admin.id,
 				}
 			})
 			.catch(err => err.response)
@@ -142,7 +142,7 @@ describe("Translations", () => {
 				},
 				headers: {
 					'Authorization': `Bearer ${token}`,
-					'Bento-Project': admin.id,
+					'Vulpo-Project': admin.id,
 				}
 			})
 			.catch(err => err.response)
@@ -172,7 +172,7 @@ describe("Translations", () => {
 			.post('/template/translations/set', payload, {
 				headers: {
 					'Authorization': `Bearer ${token}`,
-					'Bento-Project': admin.id,
+					'Vulpo-Project': admin.id,
 				}
 			})
 			.catch(err => err.response)
@@ -187,7 +187,7 @@ describe("Translations", () => {
 				},
 				headers: {
 					'Authorization': `Bearer ${token}`,
-					'Bento-Project': admin.id,
+					'Vulpo-Project': admin.id,
 				}
 			})
 			.catch(err => err.response)
@@ -210,7 +210,7 @@ describe("Translations", () => {
 			.post('/template/translations/set', payload, {
 				headers: {
 					'Authorization': `Bearer ${token}`,
-					'Bento-Project': admin.id,
+					'Vulpo-Project': admin.id,
 				}
 			})
 
@@ -224,7 +224,7 @@ describe("Translations", () => {
 			.post('/template/translations/delete', deletePayload, {
 				headers: {
 					'Authorization': `Bearer ${token}`,
-					'Bento-Project': admin.id,
+					'Vulpo-Project': admin.id,
 				}
 			})
 			.catch(err => err.response)
