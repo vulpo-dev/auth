@@ -55,4 +55,9 @@ a {
 pre {
   overflow: auto;
   font-family: monospace;
+  padding: 1rem;
+}
+
+summary {
+  cursor: pointer;
 }

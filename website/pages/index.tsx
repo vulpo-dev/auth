@@ -44,23 +44,34 @@ const Home: NextPage = () => {
         </section>
 
         <section className={styles.section}>
-          <header>
+          <header className={styles['demo-header']}>
             <h2>Demo: Drop-in UI</h2>
 
-            <div>
-              <button onClick={() => setExample('ui')}>UI</button>
-              <button onClick={() => setExample('code')}>Code</button>
+            <div className={styles['demo-buttons']}>
+              <button
+                className={`${styles['demo-button']} ${example === 'ui' ? styles['demo-button--active'] : ''}`}
+                onClick={() => setExample('ui')}>
+                UI
+              </button>
+              <button
+                className={`${styles['demo-button']} ${example === 'code' ? styles['demo-button--active'] : ''}`}
+                onClick={() => setExample('code')}>
+                Code
+              </button>
             </div>
           </header>
           <div className={styles['ui-example']} suppressHydrationWarning={true}>
             { (process.browser && example === 'ui') &&
               <AuthExample />
             }
-            { example === 'code' &&
+
+            <div style={{ display: example === 'code' ? 'block' : 'none' }}>
               <pre>
-                { process.env.exampleCode }
+                <code className="language-tsx">                  
+                  { process.env.exampleCode }
+                </code>
               </pre>
-            }
+            </div>
           </div>
         </section>
 
@@ -75,6 +86,7 @@ const Home: NextPage = () => {
                     <summary>docker-compose for local development</summary>
                     
                     <pre>
+                      <code className="language-yaml">
 {`version: '2'
 services:
   postgres:
@@ -128,7 +140,8 @@ services:
 volumes:
   postgres-data:
   mailhog-data:
-                `}
+`}
+                      </code>
                     </pre>
                   </details>
                 </li>
@@ -155,10 +168,13 @@ volumes:
                 <details>
                   <summary>Create a new React project: <a href="https://reactjs.org/docs/create-a-new-react-app.html" target="_blank">https://reactjs.org/docs/create-a-new-react-app.html</a></summary>
                   <pre>
+                    <code>
+                      
 {`npx create-react-app my-app
 cd my-app
 npm start
 `}
+                    </code>
                   </pre>
                 </details>
               </li>
@@ -174,14 +190,8 @@ npm start
                 <details>
                   <summary>Setup the Auth Client:</summary>
                   <pre>
-{`// auth.js
-export default Auth.create({
-        // You'll find the ID under your project settings
-        project: '<project-id>',
-        baseURL: 'http://127.0.0.1:8000'
-})
-// index.js
-import React from 'react';
+                    <code className="language-tsx">
+{`import React from 'react';
 import ReactDOM from 'react-dom';
 // this import provides the base styles for the integrated UI
 import '@biotic-ui/leptons/style/base.css'
@@ -190,7 +200,14 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { BrowserRouter } from 'react-router-dom'
 import { Auth as AuthCtx } from '@riezler/auth-react'
-import AuthClient from './auth'
+import { Auth } from '@riezler/auth-sdk'
+
+let AuthClient = Auth.create({
+  // You'll find the ID under your project settings
+  project: '<project-id>',
+  baseURL: 'http://127.0.0.1:8000'
+})
+
 ReactDOM.render(
   <React.StrictMode>
           <BrowserRouter>
@@ -206,6 +223,7 @@ ReactDOM.render(
 // or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
 reportWebVitals();
 `}
+                    </code>
                   </pre>
                 </details>
               </li>
@@ -214,9 +232,11 @@ reportWebVitals();
                 <details>
                   <summary>Update your App.js component to make use of the AuthShell</summary>
                   <pre>
+                    <code className="language-tsx">
 {`import React from 'react'
 import { Route, Link } from 'react-router-dom'
 import { AuthShell, useUser } from '@riezler/auth-ui'
+
 let App = () => {
         return (
                 <AuthShell>
@@ -233,6 +253,7 @@ let App = () => {
         )
 }
 export default App
+
 let WithUser = () => {
     let user = useUser()
     return (
@@ -245,6 +266,7 @@ let WithUser = () => {
     )
 }
 `}
+                    </code>
                   </pre>
                 </details>
               </li>
@@ -254,8 +276,10 @@ let WithUser = () => {
           <section>
             <h3>Making API Calls</h3>
             <pre>
+              <code className="language-tsx">
 {`// App.js
 import { useUser, useAuth } from '@riezler/auth-react'
+
 let WithUser = () => {
    let user = useUser()
    let auth = useAuth()
@@ -285,6 +309,7 @@ let WithUser = () => {
     )
 }
 `}
+              </code>
             </pre>
           </section>
 

@@ -52,16 +52,42 @@
 .hero-title {
 	max-width: 19ch;
 	font-size: 4rem;
-	font-size: max(3rem,4vw);
+	font-size: max(2rem,4vw);
 	margin-top: 2rem;
 	margin-bottom: 3rem;
 	font-weight: 900;
 	line-height: 1;
 }
 
+.demo-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+
+.demo-buttons {
+	display: flex;
+	column-gap: 1rem;
+}
+
+.demo-button {
+	padding: 0.25rem 0.75rem;
+	background: #000;
+	border-color: #111;
+	color:  #fff;
+	font-weight: 600;
+	border-radius: 0.25rem;
+	outline: none;
+}
+
+.demo-button--active {
+	background-color: #ff8c00;
+	border-color: #ffa232;
+}
+
 .get-started {
-	background-color: darkorange;
-	border-color: orange;
+	background-color: #ff8c00;
+	border-color: #ffa232;
 	text-decoration: none;
 }
 
