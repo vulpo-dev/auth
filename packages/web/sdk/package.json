@@ -1,6 +1,6 @@
 {
   "name": "@riezler/auth-sdk",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "",
   "main": "./lib/main.js",
   "types": "./lib/main.d.ts",
