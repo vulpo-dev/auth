@@ -146,7 +146,7 @@ volumes:
                   </details>
                 </li>
 
-                <li>Go to <a href="http://localhost:8000" target="_blank">localhost:8000</a> and finish the set up process</li>
+                <li>Go to <a href="http://localhost:8000" target="_blank" rel="noreferrer">localhost:8000</a> and finish the set up process</li>
               </ol>
           </section>
 
@@ -166,7 +166,7 @@ volumes:
 
               <li>
                 <details>
-                  <summary>Create a new React project: <a href="https://reactjs.org/docs/create-a-new-react-app.html" target="_blank">https://reactjs.org/docs/create-a-new-react-app.html</a></summary>
+                  <summary>Create a new React project: <a href="https://reactjs.org/docs/create-a-new-react-app.html" target="_blank" rel="noreferrer">https://reactjs.org/docs/create-a-new-react-app.html</a></summary>
                   <pre>
                     <code>
                       
