@@ -1,5 +1,4 @@
 import React from 'react'
-import { Fragment } from 'react'
 import styled from 'styled-components'
 import { HashRouter, Switch, Route } from 'react-router-dom'
 import { Header } from 'component/layout'
@@ -10,7 +9,6 @@ import {
 	DefaultTranslation,
 	Translation,
 	Password,
-	BoxShadow,
 	FlagsCtx,
 	SetPassword
 } from '@riezler/auth-ui'
@@ -26,7 +24,7 @@ export let Auth = () => {
 				<FlagsCtx.Provider value={[Flag.EmailAndPassword]}>
 					<Translation.Provider value={DefaultTranslation}>
 						<AuthConfig.Provider value={DefaultConfig}>
-							<BoxShadow>
+							<div className="vulpo-auth-box-shadow">
 								<Switch>
 									<Route path='/set_password'>
 										<SetPassword />
@@ -36,7 +34,7 @@ export let Auth = () => {
 										<Password redirectTo='/set_password' />	
 									</Route>
 								</Switch>
-							</BoxShadow>
+							</div>
 						</AuthConfig.Provider>
 					</Translation.Provider>
 				</FlagsCtx.Provider>
