@@ -4,7 +4,7 @@ import { MemoryRouter } from 'react-router'
 
 function AuthWithMemoryRouter() {
 	return (
-		<AuthConfig.Provider value={{ ...DefaultConfig, Router: <MemoryRouter /> }}>
+		<AuthConfig.Provider value={{ ...DefaultConfig, Router: <MemoryRouter />, basename: '/ui' }}>
 			<AuthExample />
 		</AuthConfig.Provider>
 	)

@@ -1,5 +1,5 @@
 import { Auth } from '@riezler/auth-sdk'
-import { Route, MemoryRouter as Router } from 'react-router-dom'
+import { Route, BrowserRouter as Router } from 'react-router-dom'
 import { AuthShell, useUser } from '@riezler/auth-ui'
 import { Auth as AuthCtx, useAuth } from '@riezler/auth-react'
 import '@biotic-ui/leptons/style/base.css'
@@ -35,10 +35,10 @@ let DummyPage = () => {
 
 export default function AuthContainer() {
 	return (
-	  	<Router>
+		<Router>
 		  	<AuthCtx.Provider value={auth}>
 		    	<App />
 		  	</AuthCtx.Provider>
-	  	</Router>
+		</Router>
 	)
 }

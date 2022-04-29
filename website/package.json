@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "next build && next export",
     "start": "next start",
     "lint": "next lint"
   },
@@ -11,9 +11,9 @@
     "next": "12.0.7",
     "react": "17.0.2",
     "react-dom": "17.0.2",
-    "@riezler/auth-react": "^0.0.3",
-    "@riezler/auth-sdk": "^0.0.3",
-    "@riezler/auth-ui": "^0.0.5",
+    "@riezler/auth-react": "^0.0.4",
+    "@riezler/auth-sdk": "^0.0.4",
+    "@riezler/auth-ui": "^0.0.6",
     "react-router-dom": "^5.2.0",
     "@types/react-router-dom": "^5.1.6",
     "@biotic-ui/leptons": "^0.3.9"

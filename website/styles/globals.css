@@ -52,6 +52,10 @@ a {
   font-weight: 600;
 }
 
+.vulpo-auth-card {
+  max-inline-size: 84vw;
+}
+
 pre {
   overflow: auto;
   font-family: monospace;

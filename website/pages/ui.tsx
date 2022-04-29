@@ -1,6 +1,6 @@
 import dynamic from 'next/dynamic';
 
-let AuthExample = dynamic(() => import('../components/auth_example'), {
+let AuthExample = dynamic(() => import('../components/auth_page'), {
   ssr: false,
 })
 
