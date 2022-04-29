@@ -5,8 +5,8 @@ import { Auth as AuthCtx, useAuth } from '@riezler/auth-react'
 import '@biotic-ui/leptons/style/base.css'
 
 let auth = Auth.create({
-	project: 'ae16cc4a-33be-4b4e-a408-e67018fe453b',
-	baseURL: 'http://127.0.0.1:8000'
+	project: 'f8fb79dd-f52c-4ee1-b016-cf4094f24c34',
+	baseURL: 'https://admin.vulpo.dev'
 })
 
 let App = () => (
