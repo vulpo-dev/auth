@@ -3,7 +3,7 @@ version: '2'
 services:
   postgres:
     image: postgres
-    container_name: vulpo_test_db
+    container_name: vulpo_dev_db
     restart: always
     environment:
       POSTGRES_PASSWORD: postgres
@@ -15,7 +15,7 @@ services:
 
   mailhog:
     image: mailhog/mailhog
-    container_name: vulpo_test_mailhog
+    container_name: vulpo_dev_mailhog
     restart: always
     ports:
       - 1025:1025

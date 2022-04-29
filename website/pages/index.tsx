@@ -97,7 +97,7 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_USER: postgres
     ports:
-      -5432:5432
+      - 5432:5432
     volumes:
       - postgres-data:/var/lib/postgres
   mailhog:

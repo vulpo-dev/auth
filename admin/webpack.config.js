@@ -68,7 +68,7 @@ module.exports = function createConfig (_, argv) {
         , publicPath
         }
 
-    , devtool: isDevelopment ? 'eval-cheap-source-map' : undefined
+    , devtool: isDevelopment ? 'eval-cheap-source-map' : 'source-map'
 
     , optimization: optimization(isDevelopment)
 
@@ -87,7 +87,12 @@ module.exports = function createConfig (_, argv) {
 
     , module:
         { rules:
-            [ { test: /\.(ts|tsx)$/
+            [ { test: /\.js$/,
+                enforce: "pre",
+                use: ["source-map-loader"],
+              }
+
+            , { test: /\.(ts|tsx)$/
               , exclude: /node_modules/
               , loader: 'babel-loader'
               , options: { rootMode: 'upward' }

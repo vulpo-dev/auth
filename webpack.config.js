@@ -12,7 +12,7 @@ module.exports = function createConfig (webpackEnv) {
     entry: {
       main: cwd + '/src/main.ts'
     },
-    devtool: isEnvDevelopment ? 'inline-source-map' : undefined,
+    devtool: isEnvDevelopment ? 'inline-source-map' : 'source-map',
     externals: {
         'styled-components': {
           commonjs: 'styled-components',
