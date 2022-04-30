@@ -2,6 +2,18 @@
 :root {
   --font-headline: 'Prompt', sans-serif;
   --font-copy: 'Prompt', sans-serif;
+  --brand-color: #2d2b4f;
+  --brand-color--dark: #23213e;
+  --brand-color--light: #46436a;
+
+  --page-padding-left: 8vw;
+  --page-padding-right: 8vw;
+}
+
+@media screen and (min-width: 500px) {
+  :root {
+    --page-padding-left: 13vw;
+  }
 }
 
 html,
@@ -31,17 +43,6 @@ a {
 
 * {
   box-sizing: border-box;
-}
-
-
-.button {
-  background: #000;
-  border:  1px solid #111;
-  padding:  0.5em 1em;
-  border-radius: 0.5rem;
-  font-size: 1.25rem;
-  color:  #fff;
-  outline: none;
 }
 
 .vulpo-auth-link-button button,

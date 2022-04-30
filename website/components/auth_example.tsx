@@ -1,12 +1,12 @@
 import { Auth } from '@riezler/auth-sdk'
-import { Route, BrowserRouter as Router } from 'react-router-dom'
+import { Route } from 'react-router-dom'
 import { AuthShell, useUser } from '@riezler/auth-ui'
 import { Auth as AuthCtx, useAuth } from '@riezler/auth-react'
 import '@biotic-ui/leptons/style/base.css'
 
 let auth = Auth.create({
-	project: 'f8fb79dd-f52c-4ee1-b016-cf4094f24c34',
-	baseURL: 'https://admin.vulpo.dev'
+	project: process.env.NEXT_PUBLIC_AUTH_PROJECT ?? '',
+	baseURL: process.env.NEXT_PUBLIC_AUTH_URL ?? ''
 })
 
 let App = () => (
@@ -35,10 +35,8 @@ let DummyPage = () => {
 
 export default function AuthContainer() {
 	return (
-		<Router>
-		  	<AuthCtx.Provider value={auth}>
-		    	<App />
-		  	</AuthCtx.Provider>
-		</Router>
+	  	<AuthCtx.Provider value={auth}>
+	    	<App />
+	  	</AuthCtx.Provider>
 	)
 }

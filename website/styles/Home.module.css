@@ -1,7 +1,7 @@
 
 .content {
-	padding-left: 8.6vw;
-	padding-right: 4.3vw;
+	padding-left: var(--page-padding-left);
+	padding-right: var(--page-padding-right);
 }
 
 .section {
@@ -10,15 +10,15 @@
 
 .header {
 	margin-bottom: clamp(1rem, 10vw, 8rem);
-	padding-left: 8.6vw;
-	padding-right: 4.3vw;
+	padding-left: var(--page-padding-left);
+	padding-right: var(--page-padding-right);
 }
 
 .header-nav {
 	display: flex;
 	justify-content: flex-end;
-	padding-top: 1vw;
-	padding-bottom: 2vw;
+	padding-top: max(1rem, 1vw);
+	padding-bottom: max(1.5rem, 2vw);
 }
 
 .header-bottom {
@@ -37,7 +37,7 @@
 	margin-bottom: 0;
 }
 
-@media screen and (min-width:  650px) {
+@media screen and (min-width: 650px) {
 	.header-bottom {
 		justify-content: space-between;
 		flex-direction: row;
@@ -54,7 +54,7 @@
 	font-size: 4rem;
 	font-size: max(2rem,4vw);
 	margin-top: 2rem;
-	margin-bottom: 3rem;
+	margin-bottom: max(3rem, 4vw);
 	font-weight: 900;
 	line-height: 1;
 }
@@ -63,6 +63,11 @@
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
+	flex-wrap: wrap;
+}
+
+.demo-title {
+	flex-shrink: 0;
 }
 
 .demo-buttons {
@@ -73,30 +78,48 @@
 .demo-button {
 	padding: 0.25rem 0.75rem;
 	background: #000;
-	border-color: #111;
-	color:  #fff;
+	border: 1px solid #111;
+	color: #fff;
 	font-weight: 600;
 	border-radius: 0.25rem;
 	outline: none;
+	cursor: pointer;
+}
+
+.demo-button:hover {
+	background: var(--brand-color);
 }
 
 .demo-button--active {
-	background-color: #ff8c00;
-	border-color: #ffa232;
+	background-color: var(--brand-color);
+	border-color: #000;
 }
 
 .get-started {
-	background-color: #ff8c00;
-	border-color: #ffa232;
 	text-decoration: none;
+	background: var(--brand-color);
+	border: 2px solid #000;
+	padding: 0.25em 0.75em;
+	border-radius: 0.5rem;
+	font-size: max(1.25rem, 1.5vw);
+	color:  #fff;
+	outline: none;
+	display: inline-block;
 }
 
 .get-started:hover {
-	border-color: #000;
+	background: var(--brand-color--light);
 }
 
 .ui-example {
 	padding: 2rem;	
+}
+
+.ui-example-wrapper {
+	min-height: 50vh;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }
 
 .set-up {
