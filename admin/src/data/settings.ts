@@ -9,10 +9,12 @@ import {
 	useBosonValue,
 	useQuery,
 	usePost,
+    UseQuery,
 } from '@biotic-ui/boson'
 
 import { useHttp } from 'data/http'
 import { ApiError, getErrorCode } from 'error'
+import { useProject } from './project'
 
 export type EmailSettings = {
 	host: string;
@@ -109,6 +111,79 @@ export function useSetProjectSettings() {
 
 		await http
 			.post('/settings/project', payload)
+			.catch(err => Promise.reject(getErrorCode(err)))
+	})
+}
+
+
+/* OAuth Config */
+
+type GoogleConfig = {
+	client_id: string,
+	client_secret: string,
+	redirect_uri: string,
+}
+
+let defaultGoolgeConfig: GoogleConfig = {
+	client_id: '',
+	client_secret: '',
+	redirect_uri: '',
+}
+
+let createGoogleSettings = bosonFamily<[string], GoogleConfig>(() => {
+	return {
+		defaultValue: defaultGoolgeConfig
+	}
+})
+
+type UseGoogleSettings = [
+	UseQuery<GoogleConfig, any>,
+	(e: ChangeEvent<HTMLInputElement>) => void,
+]
+
+export function useGoogleSettings(): UseGoogleSettings {
+	let http = useHttp()
+	let [project] = useProject()
+
+	let googleSettings = createGoogleSettings(project.id)
+	let state = useQuery(googleSettings, async () => {
+		let res = await http.get<GoogleConfig>('/oauth/google/get_config', {
+			params: { project: project.id }
+		})
+
+		return res.data ?? defaultGoolgeConfig
+	})
+
+	let setState = useSetBoson<GoogleConfig>(googleSettings)
+	let setConfig = useCallback((e: ChangeEvent<HTMLInputElement>) => {
+		setState((state) => {
+			let { name, value } = e.target
+			return {
+				...(state ?? DefaultEmailSettings),
+				[name]: value
+			}
+		})
+	}, [setState])
+
+	return [state, setConfig]
+}
+
+export function useSetGoogleSettings() {
+	let http = useHttp()
+	let [project] = useProject()
+
+	return usePost<void, ApiError>(async (config?: GoogleConfig) => {
+
+		if (!config) {
+			return
+		}
+
+		let params = {
+			project: project.id
+		}
+
+		await http
+			.post('/oauth/google/set_config', config, { params })
 			.catch(err => Promise.reject(getErrorCode(err)))
 	})
 }

@@ -6,10 +6,14 @@ import { Flag } from '@riezler/auth-sdk'
 
 import Header from '../component/header'
 import { useTranslation } from '../context/translation'
+import GoogleAuthIcon from '../component/google_auth_icon'
 import { useFlags } from '../context/config'
+import { useAuth } from '@riezler/auth-react'
 
 export let Overview = () => {
 	let t = useTranslation()
+	let auth = useAuth()
+
 	let { pathname } = useLocation()
 	let flags = useFlags()
 	let redirect = useMemo<string | null>(() => {
@@ -34,19 +38,36 @@ export let Overview = () => {
 		return <Redirect to={`/${redirect}`} />
 	}
 
+	let disabled = auth.singInWithRedirect.loading
+
 	return (
 		<div className="vulpo-auth vulpo-auth-card vulpo-auth-overview">
 			<Header />
-			<Link className="vulpo-auth-link-button" to={`${pathname}/link`}>
-				<Button>
-					{t.email.label}
-				</Button>
-			</Link>
-			<Link className="vulpo-auth-password-button" to={`${pathname}/email`}>
-				<OutlineButton>
-					{t.password.label}
-				</OutlineButton>
-			</Link>
+
+			<div className="vulpo-auth-overview-buttons">
+				{ flags.includes(Flag.AuthenticationLink) &&
+					<Link className="vulpo-auth-link-button" to={`${pathname}/link`}>
+						<Button disabled={disabled}>
+							{t.email.label}
+						</Button>
+					</Link>
+				}
+
+				{ flags.includes(Flag.EmailAndPassword) &&
+					<Link className="vulpo-auth-password-button" to={`${pathname}/email`}>
+						<OutlineButton disabled={disabled}>
+							{t.password.label}
+						</OutlineButton>
+					</Link>
+				}
+
+				{ flags.includes(Flag.OAuthGoogle) &&
+					<Button className="vulpo-auth-oauth-google" loading={auth.singInWithRedirect.loading} onClick={() => auth.singInWithRedirect('google')}>
+						<GoogleAuthIcon />
+						<span>{t.google.label}</span>
+					</Button>
+				}
+			</div>
 		</div>
 	)
 }

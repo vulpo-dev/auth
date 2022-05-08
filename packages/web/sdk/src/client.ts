@@ -16,10 +16,12 @@ import {
     ConfirmPasswordlessPayload,
     VerifyPasswordlessPayload,
     VerifyEmailPayload,
+    OAuthAuthorizeUrlPayload,
+    OAuthAuthorizeUrlResponse,
 } from './types'
 
 import { Session } from './session'
-import { Session as SessionEntry } from './storage'
+import { Session as SessionEntry, OAuthState } from './storage'
 import { Tokens } from './tokens'
 import {
 	ApiError,
@@ -33,6 +35,7 @@ import {
 import { createSession, getPublicKey, generateAccessToken, ratPayload } from './keys'
 import { Sessions, Keys } from './storage'
 import { getLanguages } from './utils'
+import { v4 as uuid } from 'uuid'
 
 import Axios, { AxiosInstance, AxiosRequestConfig, AxiosError } from 'axios'
 
@@ -442,6 +445,66 @@ export class AuthClient {
 	*/
 	getUser(): User | null {
 		return this.session.getActiveUser()
+	}
+
+
+	/**
+	 * get the authorization url for a given OAuth provider
+	*/
+	async oAuthGetAuthorizeUrl(provider: 'google', config?: AxiosRequestConfig): Promise<string> {
+		let request_id = uuid()
+
+		let payload: OAuthAuthorizeUrlPayload = {
+			request_id
+		}
+
+		OAuthState.insert(provider, request_id)
+
+		return this.http
+			.post<OAuthAuthorizeUrlResponse>(`/oauth/${provider}/authorize_url`, payload, config)
+			.then(res => res.data.url)
+			.catch(err => Promise.reject(this.error.fromResponse(err)))
+	}
+
+	async oAuthConfirm(csrf_token: string, code: string, config?: AxiosRequestConfig): Promise<[User | null, string]> {
+		let oAuthState = OAuthState.get()
+
+		if (!oAuthState) {
+			return [null, '/']
+		}
+
+		let session = await createSession()
+		let public_key = await getPublicKey(session)
+
+		let onError = async (res: AxiosError<ErrorResponse>) => {
+			OAuthState.delete()
+			await Sessions.delete(session.id)
+			return Promise.reject(this.error.fromResponse(res))
+		}
+
+		let payload = {
+			request_id: oAuthState.requestdId,
+			csrf_token,
+			code,
+
+			public_key,
+			session: session.id,
+			device_languages: getLanguages([...navigator.languages]),
+		}
+
+		let { data } = await this.http
+			.post<SessionResponse>(`/oauth/${oAuthState.provider}/confirm`, payload, config)
+			.catch(onError)
+		
+		let { user } = await this.session
+			.fromResponse(data)
+			.catch(onError)
+
+		this.session.activate(data.session)
+		this.tokens.fromResponse(data)
+		OAuthState.delete()
+		
+		return [user!, oAuthState.referrer]
 	}
 }
 

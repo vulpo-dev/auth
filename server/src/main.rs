@@ -9,6 +9,7 @@ mod file;
 mod keys;
 mod mail;
 mod migration;
+mod oauth;
 mod password;
 mod passwordless;
 mod project;

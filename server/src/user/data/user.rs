@@ -52,6 +52,14 @@ pub struct UpdatedUser {
     pub data: Value,
 }
 
+pub struct UserProvider {
+    pub email: String,
+    pub display_name: Option<String>,
+    pub photo_url: Option<String>,
+    pub provider_id: String,
+    pub device_languages: Vec<String>,
+}
+
 impl User {
     pub async fn update(
         pool: &PgPool,
@@ -171,6 +179,26 @@ impl User {
             }
             _ => ApiError::InternalServerError,
         })
+    }
+
+    pub async fn create_provider(
+        pool: &PgPool,
+        user: &UserProvider,
+        project_id: &Uuid,
+    ) -> Result<User, ApiError> {
+        sqlx::query_file_as!(
+            User,
+            "src/user/sql/create_provider.sql",
+            user.email,
+            user.display_name,
+            user.photo_url,
+            user.provider_id,
+            &user.device_languages,
+            project_id,
+        )
+        .fetch_one(pool)
+        .await
+        .map_err(|_| ApiError::InternalServerError)
     }
 
     // todo: direction

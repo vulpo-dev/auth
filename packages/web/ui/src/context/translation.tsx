@@ -53,6 +53,10 @@ type Translations = {
 		forgot: string;
 	};
 
+	google: {
+		label: string;
+	};
+
 	reset_password: {
 		title: string;
 		info: string;
@@ -128,6 +132,10 @@ export let DefaultTranslation = {
 		label: 'Email and Password',
 		title: 'Email and Password',
 		forgot: 'Forgot Password?',
+	},
+
+	google: {
+		label: 'Sign in with Google',
 	},
 
 	reset_check_mail: {

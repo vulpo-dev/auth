@@ -1,5 +1,6 @@
 use serde;
 use serde::{Deserialize, Serialize};
+use serde_json;
 
 #[derive(Debug, Deserialize, Serialize, PartialEq, Copy, Clone)]
 pub enum Templates {
@@ -30,16 +31,7 @@ pub enum Templates {
 
 impl Templates {
     pub fn from_string(s: &str) -> Option<Templates> {
-        match s {
-            "change_email" => Some(Templates::ChangeEmail),
-            "password_reset" => Some(Templates::PasswordReset),
-            "passwordless" => Some(Templates::Passwordless),
-            "verify_email" => Some(Templates::VerifyEmail),
-            "index" => Some(Templates::Index),
-            "button" => Some(Templates::Button),
-            "ConfirmEmailChange" => Some(Templates::ConfirmEmailChange),
-            _ => None,
-        }
+        serde_json::from_str(s).ok()
     }
 }
 
@@ -69,11 +61,11 @@ pub enum DefaultRedirect {
 impl ToString for DefaultRedirect {
     fn to_string(&self) -> String {
         let url = match self {
-            DefaultRedirect::Passwordless => "/auth/#/signin/link/confirm",
-            DefaultRedirect::PasswordReset => "/auth/#/forgot-password/set-password",
-            DefaultRedirect::VerifyEmail => "/auth/#/verify-email",
-            DefaultRedirect::ChangeEmail => "/auth/#/user/change-email/reset",
-            DefaultRedirect::ConfirmEmailChange => "/auth/#/user/change-email/confirm",
+            DefaultRedirect::Passwordless => "/auth/signin/link/confirm",
+            DefaultRedirect::PasswordReset => "/auth/forgot-password/set-password",
+            DefaultRedirect::VerifyEmail => "/auth/verify-email",
+            DefaultRedirect::ChangeEmail => "/auth/user/change-email/reset",
+            DefaultRedirect::ConfirmEmailChange => "/auth/user/change-email/confirm",
         };
 
         String::from(url)

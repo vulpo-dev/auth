@@ -178,4 +178,14 @@ export enum Flag {
 	VerifyEmail = 'action::verify_email',
 	EmailAndPassword = 'method::email_password',
 	AuthenticationLink = 'method::authentication_link',
+
+	OAuthGoogle = 'oauth::google',
+}
+
+export type OAuthAuthorizeUrlPayload = {
+	request_id: string,
+}
+
+export type OAuthAuthorizeUrlResponse = {
+	url: string,
 }

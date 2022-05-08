@@ -14,8 +14,11 @@ export enum Flags {
 	SignUp = 'auth::signup',
 	PasswordReset = 'action::password_reset',
 	VerifyEmail = 'action::verify_email',
+	
 	EmailAndPassword = 'method::email_password',
 	AuthenticationLink = 'method::authentication_link',
+
+	OAuthGoogle = 'oauth::google',
 }
 
 export function isFlag(flag: string | Flags): boolean {

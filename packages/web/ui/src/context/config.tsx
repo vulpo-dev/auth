@@ -1,6 +1,6 @@
 import React from 'react'
 import { createContext, useContext } from 'react'
-import { HashRouter } from 'react-router-dom'
+import { BrowserRouter } from 'react-router-dom'
 import { Flag } from '@riezler/auth-sdk'
 
 import Arrow from '../component/arrow'
@@ -17,7 +17,7 @@ export let DefaultConfig = {
 	tos: '',
 	privacy: '',
 	Arrow: <Arrow />,
-	Router: <HashRouter />,
+	Router: <BrowserRouter basename='/auth' />,
 	basename: '/auth'
 }
 

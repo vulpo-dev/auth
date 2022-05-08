@@ -422,6 +422,20 @@
       ]
     }
   },
+  "3ad2d5c06ab2346c3721e62919c438ebb6ad8ccd4754e200bc03949e0db8b71a": {
+    "query": "\r\ninsert into oauth_request_state(request_id, csrf_token, pkce_code_verifier)\r\nvalues($1, $2, $3)\r\n",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          "Text",
+          "Text"
+        ]
+      },
+      "nullable": []
+    }
+  },
   "44399adc00a228b912f31770efa3933517d22d0617e7e4970e6345d37b9d317b": {
     "query": "delete from template_translations\r\n where template_translations.language = $1\r\n   and template_translations.template_id in (\r\n    select id\r\n      from templates\r\n     where project_id = $2\r\n       and name = $3\r\n   )",
     "describe": {
@@ -470,6 +484,27 @@
       },
       "nullable": [
         false,
+        false
+      ]
+    }
+  },
+  "4fedcf9d80fdffa38567618645d7818e996c374433da5a0ee98bbd680e70e48b": {
+    "query": "\r\nselect settings\r\n  from oauth\r\n where project_id = $1\r\n   and provider = $2\r\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "settings",
+          "type_info": "Jsonb"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          "Text"
+        ]
+      },
+      "nullable": [
         false
       ]
     }
@@ -556,6 +591,22 @@
       ]
     }
   },
+  "5ce52abf02c9c80245ce76c5cfc9912d64902d54ca53d387703ab38e7dc4a007": {
+    "query": "\r\ninsert into oauth_data(provider_id, provider, email, user_id, project_id)\r\nvalues($1, $2, $3, $4, $5)\r\non conflict (provider_id, provider, project_id, user_id)\r\n   do update set email = excluded.email\r\n",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": [
+          "Text",
+          "Text",
+          "Text",
+          "Uuid",
+          "Uuid"
+        ]
+      },
+      "nullable": []
+    }
+  },
   "6529a1594142ff54f1afcf04c3cbdb98b5cdf5fffaef38af61a2d5e2e86c52ca": {
     "query": "select token\r\n     , user_id\r\n     , created_at\r\n     , expire_at\r\n  from password_change_requests\r\n where id = $1",
     "describe": {
@@ -590,6 +641,44 @@
         false,
         false,
         false,
+        false
+      ]
+    }
+  },
+  "652d5c8c7a5ed3383f2f3be2087dd9bd7e30a96badb852081e2aa20933320917": {
+    "query": "\r\nselect request_id\r\n     , csrf_token\r\n     , pkce_code_verifier\r\n     , created_at\r\n  from oauth_request_state\r\n where request_id = $1\r\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "request_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "csrf_token",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 2,
+          "name": "pkce_code_verifier",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 3,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid"
+        ]
+      },
+      "nullable": [
+        false,
+        false,
+        true,
         false
       ]
     }
@@ -834,6 +923,28 @@
       ],
       "parameters": {
         "Left": [
+          "Uuid"
+        ]
+      },
+      "nullable": [
+        false
+      ]
+    }
+  },
+  "6dcd0d80f7e2d12242772ab87b13898455a63acb1beeafacb087c5bef6da6aef": {
+    "query": "\r\nselect user_id\r\n  from oauth_data\r\n where provider_id = $1\r\n   and provider = $2\r\n   and project_id = $3\r\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "user_id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Text",
+          "Text",
           "Uuid"
         ]
       },
@@ -1596,6 +1707,20 @@
       ]
     }
   },
+  "c99845a1de6b2cf5107f90a24333d6e60a0b8d82ba0dab1fb702fe7eb2688406": {
+    "query": "\r\ninsert into oauth(project_id, provider, settings)\r\nvalues($1, $2, $3)\r\non conflict (project_id, provider)\r\n\tdo update set settings = $3",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          "Text",
+          "Jsonb"
+        ]
+      },
+      "nullable": []
+    }
+  },
   "d00f146bc87ffab888b3a2238729c0691962c7e90cdae44a87484cc2bd16b996": {
     "query": "with disable_user as (\r\n    update users\r\n       set state = 'disabled'\r\n     where id = $1\r\n       and project_id = $2\r\n returning id\r\n)\r\ndelete from sessions\r\n where user_id in (\r\n    select id as user_id\r\n      from disable_user\r\n )",
     "describe": {
@@ -2109,6 +2234,108 @@
         null,
         false,
         false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ]
+    }
+  },
+  "f9148a8d24e0c766c40aa973e82424ee933a86138d05154c9a21a89a92dee3cc": {
+    "query": "\r\ninsert into users(\r\n\temail,\r\n\temail_verified,\r\n\tdisplay_name,\r\n\tphoto_url,\r\n\tprovider_id,\r\n\tdevice_languages,\r\n        project_id\r\n)\r\nvalues($1, true, $2, $3, $4, $5, $6)\r\non conflict(email, project_id)\r\n   do update set email_verified = true\r\nreturning id\r\n        , display_name\r\n        , email\r\n        , email_verified\r\n        , photo_url\r\n        , traits\r\n        , data\r\n        , provider_id\r\n        , created_at\r\n        , updated_at\r\n        , state as \"state: UserState\"\r\n        , device_languages",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "display_name",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 2,
+          "name": "email",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 3,
+          "name": "email_verified",
+          "type_info": "Bool"
+        },
+        {
+          "ordinal": 4,
+          "name": "photo_url",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 5,
+          "name": "traits",
+          "type_info": "TextArray"
+        },
+        {
+          "ordinal": 6,
+          "name": "data",
+          "type_info": "Jsonb"
+        },
+        {
+          "ordinal": 7,
+          "name": "provider_id",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 8,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 9,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 10,
+          "name": "state: UserState",
+          "type_info": {
+            "Custom": {
+              "name": "user_state",
+              "kind": {
+                "Enum": [
+                  "active",
+                  "disabled",
+                  "set_password"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "ordinal": 11,
+          "name": "device_languages",
+          "type_info": "TextArray"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Text",
+          "Text",
+          "Text",
+          "Text",
+          "TextArray",
+          "Uuid"
+        ]
+      },
+      "nullable": [
+        false,
+        true,
+        false,
+        false,
+        true,
         false,
         false,
         false,

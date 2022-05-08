@@ -5,7 +5,14 @@ import { HashRouter, Switch, Route, Redirect } from 'react-router-dom'
 import { Overview } from 'overview'
 import { Translation, DefaultTranslation } from 'context/translation'
 import { FlagsCtx } from 'context/config'
-import { Flag } from '@riezler/auth-sdk'
+
+import { Auth as AuthClient, Flag } from '@riezler/auth-sdk'
+import { Auth as AuthCtx } from '@riezler/auth-react'
+
+let auth = AuthClient.create({
+	project: 'ae16cc4a-33be-4b4e-a408-e67018fe453b',
+	baseURL: 'http://127.0.0.1:8000',
+})
 
 export default {
 	title: 'Overview',
@@ -15,12 +22,18 @@ export default {
 	  	defaultValue: [
   			Flag.SignIn,
   			Flag.SignUp,
+  			Flag.AuthenticationLink,
+  			Flag.EmailAndPassword,
+  			Flag.OAuthGoogle,
   		],
 	  	control: {
 	  		type: 'multi-select',
 	  		options: [
 	  			Flag.SignIn,
 	  			Flag.SignUp,
+	  			Flag.AuthenticationLink,
+	  			Flag.EmailAndPassword,
+	  			Flag.OAuthGoogle,
 	  		]
 	  	}
 	  }
@@ -29,24 +42,26 @@ export default {
 
 let Template: Story<{ flags: Array<Flag> }> = ({ flags }) => {
 	return (
-		<FlagsCtx.Provider value={flags}>	
-			<Translation.Provider value={DefaultTranslation}>
-				<HashRouter>
-					<Switch>
+		<AuthCtx.Provider value={auth}>
+			<FlagsCtx.Provider value={flags}>	
+				<Translation.Provider value={DefaultTranslation}>
+					<HashRouter>
+						<Switch>
 
-						<Route path='/:type'>
-							<div className="vulpo-auth vulpo-auth-container">
-								<div className="vulpo-auth-box-shadow">
-									<Overview />
+							<Route path='/:type'>
+								<div className="vulpo-auth vulpo-auth-container">
+									<div className="vulpo-auth-box-shadow">
+										<Overview />
+									</div>
 								</div>
-							</div>
-						</Route>
+							</Route>
 
-						<Redirect to='/signin' from='/' />
-					</Switch>
-				</HashRouter>
-			</Translation.Provider>
-		</FlagsCtx.Provider>
+							<Redirect to='/signin' from='/' />
+						</Switch>
+					</HashRouter>
+				</Translation.Provider>
+			</FlagsCtx.Provider>
+		</AuthCtx.Provider>
 	)
 }
 

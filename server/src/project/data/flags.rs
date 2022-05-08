@@ -18,6 +18,9 @@ pub enum Flags {
     EmailAndPassword,
     #[serde(rename = "method::authentication_link")]
     AuthenticationLink,
+
+    #[serde(rename = "oauth::google")]
+    OAuthGoogle,
 }
 
 impl Flags {
@@ -82,6 +85,7 @@ impl Flags {
             "method::email_password" => Some(Flags::EmailAndPassword),
             "method::authentication_link" => Some(Flags::AuthenticationLink),
             "action::verify_email" => Some(Flags::VerifyEmail),
+            "oauth::google" => Some(Flags::OAuthGoogle),
             _ => None,
         }
     }
@@ -96,6 +100,7 @@ impl ToString for Flags {
             Flags::EmailAndPassword => "method::email_password".to_string(),
             Flags::AuthenticationLink => "method::authentication_link".to_string(),
             Flags::VerifyEmail => "action::verify_email".to_string(),
+            Flags::OAuthGoogle => "oauth::google".to_string(),
         }
     }
 }

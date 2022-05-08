@@ -278,19 +278,50 @@
 	text-align: center;
 }
 
+/* Overview */
+
+.vulpo-auth-overview-buttons {
+	display: flex;
+	flex-direction: column;
+}
+
+.vulpo-auth-overview-buttons > * {
+	margin-block-end: calc(var(--baseline) * 1.5);
+}
+
+.vulpo-auth-overview-buttons > *:last-child {
+	margin-block-end: 0;
+}
+
 .vulpo-auth-link-button {
 	display: block;
-	margin-block-end: var(--baseline);
 	block-size: calc(var(--baseline) * 4);
 }
 
 .vulpo-auth-password-button {
 	display: block;
 	block-size: calc(var(--baseline) * 4);
-
 }
 
 .vulpo-auth-password-button button,
 .vulpo-auth-link-button button {
 	width: 100%!important;
+}
+
+
+.vulpo-auth-oauth-google {
+	--button-bg: #FFFFFF;
+	padding-top: 0!important;
+	padding-bottom: 0!important;
+}
+
+
+
+/* OAuth  */
+
+.vulpo-auth-oauth-confirm {
+	min-height: calc(25rem * 0.618);
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }

@@ -14,6 +14,7 @@ import VerifyEmail from '../verify_email'
 import { useTranslation, useError } from '../context/translation'
 import { FlagsCtx, useConfig } from '../context/config'
 import SetPassword from '../user/set_password'
+import OAuthConfirm from '../oauth'
 
 let Auth = () => {
 	let auth = useAuth()
@@ -73,6 +74,10 @@ let Auth = () => {
 				<SetPassword />
 			</Route>
 
+			<Route path='/oauth/confirm'>
+				<OAuthConfirm />
+			</Route>
+
 			{ flags.includes(Flag.VerifyEmail) &&
 				<Route path='/verify-email'>
 					<VerifyEmail /> 
@@ -84,7 +89,6 @@ let Auth = () => {
 					<PasswordReset />
 				</Route>
 			}
-
 
 			{ flags.includes(Flag.EmailAndPassword) &&
 				<Route path='/:type/email'>

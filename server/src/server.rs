@@ -4,6 +4,7 @@ use crate::config::{DbConfig, Secrets};
 use crate::cors::CORS;
 use crate::db;
 use crate::keys;
+use crate::oauth;
 use crate::password;
 use crate::passwordless;
 use crate::project;
@@ -34,6 +35,7 @@ pub async fn start(config: Figment, db_config: &DbConfig, secrets: Secrets) {
         .mount("/template", template::routes())
         .mount("/keys", keys::routes())
         .mount("/api_key", api_key::routes())
+        .mount("/oauth", oauth::routes())
         .launch()
         .await;
 }

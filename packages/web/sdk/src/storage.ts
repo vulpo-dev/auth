@@ -1,7 +1,43 @@
-import type { User, SessionId, SessionInfo } from './types'
+import type { SessionId, SessionInfo } from './types'
 import { makeId } from './utils'
 
 import { createStore, get, set, del } from 'idb-keyval'
+
+const OAUTH_STATE_KEY = 'vulpo-auth-oauth-state'
+
+type OAuthState = {
+	requestdId: string,
+	referrer: string,
+	provider: string,
+}
+
+export let OAuthState = {
+	insert(provider: string, requestdId: string) {
+		let params = new URLSearchParams(window.location.search)
+
+		let data: OAuthState = {
+			requestdId,
+			provider,
+			referrer: params.get('referrer') ?? '/'
+		}
+
+		window.localStorage.setItem(OAUTH_STATE_KEY, JSON.stringify(data))
+	},
+
+	get(): OAuthState | null {
+		let state = window.localStorage.getItem(OAUTH_STATE_KEY)
+
+		if (!state) {
+			return null
+		}
+
+		return JSON.parse(state) as OAuthState
+	},
+
+	delete() {
+		window.localStorage.removeItem(OAUTH_STATE_KEY)
+	}
+}
 
 
 export type Key = {

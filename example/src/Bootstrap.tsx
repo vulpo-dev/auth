@@ -2,6 +2,7 @@ import React from 'react'
 import App from './App'
 import { Route } from 'react-router-dom'
 import { AuthShell } from '@riezler/auth-ui'
+import '@riezler/auth-ui/styles.css'
 
 let Bootstrap = () => {
 	return (

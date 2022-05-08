@@ -5,9 +5,11 @@ import {
 
 import {
 	createContext,
+    useCallback,
 	useContext,
 	useEffect,
 	useRef,
+    useState,
 } from 'react'
 
 export let Auth = createContext<AuthClient | null>(null)
@@ -35,14 +37,49 @@ export function useAuthStateChange(fn: AuthCallback) {
 	}, [auth])
 }
 
-export function useAuth(): AuthClient {
+interface SingInWithRedirect {
+	(provider: 'google'): Promise<void>;
+	loading: boolean;
+}
+
+type UseAuth = AuthClient & {
+	singInWithRedirect: SingInWithRedirect,
+}
+
+export function useAuth(): UseAuth {
 	let auth = useContext(Auth)
+	
+	let mounted = useRef(true)
+	useEffect(() => () => {
+		mounted.current = false
+	}, [])
+
+	let [redirectState, setRedirectState] = useState(false)
+
+	let singInWithRedirectFn = useCallback(async (provider: 'google') => {
+
+		if (auth === null) {
+			return
+		}
+
+		setRedirectState(true)
+
+		let url = await auth.oAuthGetAuthorizeUrl(provider)
+
+		if (mounted.current) {
+			window.location.href = url
+			setRedirectState(false)
+		}
+	}, [auth])
+
+	let singInWithRedirect: SingInWithRedirect = Object.assign(singInWithRedirectFn, { loading: redirectState })
 
 	if (auth === null) {
 		throw new AuthClientError('signIn')
 	}
 
-	return auth
+
+	return Object.assign(auth, { singInWithRedirect })
 }
 
 export class AuthClientError extends Error {
