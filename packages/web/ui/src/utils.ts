@@ -1,10 +1,5 @@
 import { ErrorMessage } from 'context/translation'
-
-export const BASELINE = 'var(--vulpo-auth-baseline, 8px)'
-export const ERROR = 'var(--vulpo-auth-error, #ff5555)'
-export const CARD_BACKGROUND = 'var(--vulpo-auth-card-background, #fff)'
-export const SHADOW = '0 13px 34px rgba(0,0,0,0.25), 0 8px 8px rgba(0,0,0,0.21)'
-export const BORDER_COLOR = 'var(--vulpo-auth-border-color, #e9e9e9)'
+import { Dispatch, FormEvent, SetStateAction, useMemo, useState } from 'react'
 
 export type WithClass = {
 	className?: string;
@@ -30,4 +25,31 @@ export function checkPasswordLength(elm: HTMLInputElement, t: Messages) {
 	} else {
 		elm.setCustomValidity('')
 	}
+}
+
+export function useQueryParams(queryString: string) {
+	return useMemo(() => {
+		let searchParams = new URLSearchParams(queryString)
+		return searchParams
+	}, [queryString])
+}
+
+type FormHook<T> =
+	[ T
+	, (e: FormEvent) => void
+	, Dispatch<SetStateAction<T>>
+	]
+
+export function useForm<T>(initalData: T): FormHook<T> {
+	let [form, setForm] = useState<T>(initalData)
+	
+	function handleChange(e: FormEvent) {
+		let { name, value } = (e.target as HTMLInputElement)
+		setForm({
+			...form,
+			[name]: value
+		})
+	}
+
+	return [form, handleChange, setForm]
 }

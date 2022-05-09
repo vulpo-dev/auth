@@ -1,7 +1,7 @@
 import React from 'react'
-import { useQueryParams } from '@biotic-ui/std'
 import { useLocation } from 'react-router-dom'
 
+import { useQueryParams } from '../utils'
 import { useTranslation } from '../context/translation'
 
 

@@ -1,11 +1,11 @@
 import React from 'react'
 import { FunctionComponent, Fragment, useState, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { Flow } from '@biotic-ui/leptons'
-import { useQueryParams } from '@biotic-ui/std'
 import { ErrorCode } from '@riezler/auth-sdk'
 import { useAuth } from '@riezler/auth-react'
 
+import { Flow } from '../component/loading'
+import { useQueryParams } from '../utils'
 import { useTranslation, useError } from '../context/translation'
 
 type Props = {

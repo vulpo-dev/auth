@@ -1,12 +1,12 @@
 import React from 'react'
 import { SyntheticEvent, useState } from 'react'
-import { Button, IconButton } from '@biotic-ui/button'
-import { Input } from '@biotic-ui/input'
-import { useForm } from '@biotic-ui/std'
 import { ErrorCode } from '@riezler/auth-sdk'
 import { useHistory, useRouteMatch } from 'react-router-dom'
 import { useAuth } from '@riezler/auth-react'
 
+import { useForm } from '../utils'
+import { Input } from '../component/input'
+import { Button, IconButton } from '../component/button'
 import { useConfig } from '../context/config'
 import { useTranslation, useError } from '../context/translation'
 import { Disclaimer } from '../component/disclaimer'
@@ -45,7 +45,7 @@ export let EnterEmail = (props: Props) => {
 	return (
 		<div className="vulpo-auth vulpo-auth-card vulpo-auth-passwordless">
 			<div className="vulpo-auth-card-nav">
-				<IconButton className="vulpo-auth-icon-button" id='back' onClick={props.onBack}>
+				<IconButton id='back' onClick={props.onBack}>
 					{ config.Arrow }				
 				</IconButton>
 				<label htmlFor="back">{label}</label>
@@ -72,7 +72,7 @@ export let EnterEmail = (props: Props) => {
 				</section>
 
 				<section className="vulpo-auth-section">
-					<Button className="vulpo-auth-button" loading={props.loading}>{t.passwordless.button}</Button>
+					<Button loading={props.loading}>{t.passwordless.button}</Button>
 				</section>
 
 				{ props.error &&

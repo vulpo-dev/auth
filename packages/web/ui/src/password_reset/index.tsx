@@ -1,12 +1,12 @@
 import React from 'react'
 import { SyntheticEvent, useState } from 'react'
-import { Input } from '@biotic-ui/input'
-import { useForm, useQueryParams } from '@biotic-ui/std'
-import { Button, IconButton } from '@biotic-ui/button'
 import { ErrorCode, Flag } from '@riezler/auth-sdk'
 import { useHistory, Switch, Route, Redirect, useLocation } from 'react-router-dom'
 import { useAuth } from '@riezler/auth-react'
 
+import { useForm, useQueryParams } from '../utils'
+import { Input } from '../component/input'
+import { Button, IconButton } from '../component/button'
 import { useTranslation, useError } from '../context/translation'
 import { useConfig, useFlags } from '../context/config'
 
@@ -47,7 +47,6 @@ export let PasswordReset: React.FC<Props> = ({
 		<div className="vulpo-auth vulpo-auth-card vulpo-auth-password-reset">
 			<div className="vulpo-auth-card-nav">
 				<IconButton
-					className="vulpo-auth-icon-button"
 					id="back"
 					aria-label={t.signin.label}
 					onClick={() => onBack()}>
@@ -75,9 +74,7 @@ export let PasswordReset: React.FC<Props> = ({
 				</section>
 
 				<section className="vulpo-auth-password-reset-section">
-					<Button
-						className="vulpo-auth-button"
-						loading={loading}>
+					<Button loading={loading}>
 						{t.reset_password.button}
 					</Button>
 				</section>

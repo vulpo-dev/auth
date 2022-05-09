@@ -1,9 +1,10 @@
-import { Flow } from '@biotic-ui/leptons'
-import { useQueryParams } from '@biotic-ui/std'
 import { useAuth } from '@riezler/auth-react'
 import { useTranslation } from 'context/translation'
 import React, { useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
+
+import { useQueryParams } from '../utils'
+import { Flow } from '../component/loading'
 
 let ConfirmOAuth = () => {
 	let location = useLocation()

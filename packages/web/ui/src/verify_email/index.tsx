@@ -1,10 +1,10 @@
 import React, { Fragment, useState, useEffect } from 'react'
-import { Flow } from '@biotic-ui/leptons'
-import { useQueryParams } from '@biotic-ui/std'
 import { ErrorCode, Flag } from '@riezler/auth-sdk'
 import { useAuth } from '@riezler/auth-react'
 import { useLocation, Redirect } from 'react-router-dom'
 
+import { useQueryParams } from '../utils'
+import { Flow } from '../component/loading'
 import CheckIcon from '../component/check'
 import { useTranslation, useError } from '../context/translation'
 import { useFlags } from '../context/config'

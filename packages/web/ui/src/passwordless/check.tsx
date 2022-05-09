@@ -1,10 +1,10 @@
 import React from 'react'
 import { useEffect, useState } from 'react'
-import { useQueryParams } from '@biotic-ui/std'
 import { useLocation, useRouteMatch } from 'react-router-dom'
 import { useAuth } from '@riezler/auth-react'
 import { ErrorCode, CancelToken } from '@riezler/auth-sdk'
 
+import { useQueryParams } from '../utils'
 import { useTranslation } from '../context/translation'
 
 export type Props = {

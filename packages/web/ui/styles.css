@@ -1,9 +1,13 @@
 .vulpo-auth {
 	--baseline: var(--vulpo-auth-baseline, 8px);
+	--baseline-2: calc(var(--baseline) * 2);
+	--baseline-half: calc(var(--baseline) / 2);
+	--baseline-4: calc(var(--baseline) * 4);
 	--error: var(--vulpo-auth-error, #ff5555);
 	--card-background: var(--vulpo-auth-card-background, #fff);
 	--shadow: 0 13px 34px rgba(0,0,0,0.25), 0 8px 8px rgba(0,0,0,0.21);
 	--border-color: var(--vulpo-auth-border-color, #e9e9e9);
+	--shadow-2: 0 3px 5px rgba(0,0,0,0.16), 0 3px 5px rgba(0,0,0,0.23);
 }
 
 .vulpo-auth-box-shadow {
@@ -175,6 +179,73 @@
 }
 
 
+.vulpo-auth-input {
+	--default-border: 1px solid rgba(34,36,38,.15);
+	margin: 0;
+	max-inline-size: 100%;
+	inline-size: 100%;
+	flex: 1 0 auto;
+	outline: none;
+	-webkit-tap-highlight-color: var(--vulpo-auth-tap-highlight-color, rgba(255,255,255,0));
+	text-align: left;
+	line-height: 1.21428571em;
+	padding-inline: 0.62em; 
+	padding-block: .38em;
+	block-size: calc(var(--baseline) * 4);
+	background: var(--vulpo-auth-input-bg, none);
+	border: var(--vulpo-auth-input-border, var(--default-border));
+	color: var(--vulpo-auth-input-color, rgba(0,0,0,.87));
+	border-radius: var(--vulpo-auth-input-border-radius, calc(var(--baseline) * 0.5));
+	-webkit-transition: box-shadow .1s ease,border-color .1s ease;
+	transition: box-shadow .1s ease, border-color .1s ease;
+	box-shadow: none;
+	font-size: inherit;
+	box-sizing: border-box;
+}
+
+.vulpo-auth-input::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+	color: var(--vulpo-auth-input-color-placeholder);
+	opacity: 1; /* Firefox */
+}
+
+.vulpo-auth-input:-ms-input-placeholder { /* Internet Explorer 10-11 */
+  color: var(--vulpo-auth-input-color-placeholder);
+}
+
+.vulpo-auth-input::-ms-input-placeholder { /* Microsoft Edge */
+  color: var(--vulpo-auth-input-color-placeholder);
+}
+
+.vulpo-auth-input:disabled {
+	opacity: var(--vulpo-auth-input-disabled-opacity, 0.8);
+	background: var(--ivulpo-auth-nput-disabled-background, rgba(100,100,100, 0.1));
+}
+
+
+.vulpo-auth-password-input {
+	position: relative;
+	display: flex;
+	align-items: center;
+}
+
+.vulpo-auth-password-input-button {
+	background: none;
+	border: none;
+	outline: none;
+	position: absolute;
+	inset-inline-end: var(--baseline);
+	z-index: 5;
+	background: var(--input-bg, none);
+}
+
+.vulpo-auth-input-label {
+	margin-block-end: 0.25em;
+	display: inline-block;
+}
+
+.vulpo-auth-input-section {
+	margin-block-end: calc(var(--baseline) * 2);
+}
 
 /* PASSWORD RESET */
 .vulpo-auth-password-reset-check .vulpo-card-header {
@@ -310,7 +381,7 @@
 
 
 .vulpo-auth-oauth-google {
-	--button-bg: #FFFFFF;
+	--vulpo-auth-button-bg: #FFFFFF;
 	padding-top: 0!important;
 	padding-bottom: 0!important;
 }
@@ -324,4 +395,114 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
+}
+
+
+
+
+/* COMPONENTS */
+
+.vulpo-auth-flow {
+	--size: var(--vulpo-auth-loading-size, calc(var(--baseline) * 5));
+	--color: var(--vulpo-auth-loading-color, currentColor);
+	width: calc(var(--size) * 1.3);
+	height: calc(var(--size) * 1.3);
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+
+
+}
+
+.vulpo-auth-flow .vulpo-auth-flow-dot {
+  width: 25%;
+  height: 25%;
+  background-color: var(--color);
+  border-radius: 50%;
+  animation: vulpo-auth-flow 1.4s cubic-bezier(0.455, 0.03, 0.515, 0.955) 0s infinite both;
+}
+
+.vulpo-auth-flow-dot:nth-child(1) { animation-delay: -0.30s; }
+.vulpo-auth-flow-dot:nth-child(2) { animation-delay: -0.15s; }
+
+@keyframes vulpo-auth-flow {
+  0%, 80%, 100% {
+    transform: scale(0.3); }
+  40% {
+    transform: scale(1); 
+  }
+}
+
+.vulpo-auth-pulse {
+	--size: var(--vulpo-auth-loading-size, calc(var(--baseline) * 5));
+	--color: var(--vulpo-auth-loading-color, currentColor);
+
+	width: var(--size);
+	height: var(--size);
+	background-color: var(--color);
+	border-radius: 100%;
+	animation: vulpo-auth-pulse 1.2s infinite cubic-bezier(0.455, 0.03, 0.515, 0.955);
+
+}
+
+@keyframes vulpo-auth-pulse {
+  0% {
+    transform: scale(0); 
+  } 100% {
+    transform: scale(1);
+    opacity: 0; 
+  }
+}
+
+
+/* BUTTONS */
+
+.vulpo-auth-button {
+	--defaut-shadow: var(--shadow-2);
+	--default-button-background: rgb(239 239 239);
+	--default-button-border: 1px solid rgb(215 215 215);
+
+	position: relative;
+	text-decoration: none;
+	padding-inline: calc(var(--baseline) * 3);
+	padding-block: var(--baseline);
+	display: inline-flex;
+	justify-content: center;
+	border-radius: calc(var(--baseline-half));
+	font-weight: 500;
+	letter-spacing: 1px;
+	cursor: pointer;
+	opacity: 1;
+	color: var(--vulpo-auth-button-color, #141923);
+	background: var(--vulpo-auth-button-bg, var(--default-button-background));
+
+	font-size: 12px; /* Firefox Andoird fallback */
+	font-size: max(0.75em, 12px);
+	border: var(--vulpo-auth-button-border, var(--default-button-border))
+}
+
+.vulpo-auth-icon-button {
+	background: none;
+	border: none;
+	display: flex;
+	align-items: center;
+	text-decoration: none;
+	color: inherit;
+	padding: 0;
+}
+
+.vulpo-auth-button--disabled {
+	cursor: default;
+	opacity: 0.5;
+}
+
+.vulpo-auth-button--outline {
+	background: none;
+	border: 1px solid currentColor;
+}
+
+.vulpo-auth-button span {
+	position: relative;
+	display: flex;
+	align-items: center;
 }

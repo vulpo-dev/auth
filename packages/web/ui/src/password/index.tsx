@@ -1,16 +1,15 @@
 import React, { ChangeEvent } from 'react'
 import { SyntheticEvent, useState } from 'react'
-import { Input, Password as PasswordInput } from '@biotic-ui/input'
-import { useForm } from '@biotic-ui/std'
-import { Button, IconButton } from '@biotic-ui/button'
 import { useHistory, useRouteMatch, Link, Redirect } from 'react-router-dom'
 import { ErrorCode, Flag, UserState } from '@riezler/auth-sdk'
 import { useAuth } from '@riezler/auth-react'
 
+import { Input, Password as PasswordInput } from '../component/input'
+import { Button, IconButton } from '../component/button'
 import { useTranslation, useError } from '../context/translation'
 import { useConfig, useFlags } from '../context/config'
 import { Disclaimer } from '../component/disclaimer'
-import { checkPasswordLength } from '../utils'
+import { checkPasswordLength, useForm } from '../utils'
 
 type Form = {
 	email: string;
@@ -86,7 +85,7 @@ export let Password = ({ onSubmit, onBack, ctx, loading, error }: Props) => {
 				<div className="vulpo-auth-card-nav vulpo-auth-card-nav--spaced">
 					<section>
 						{ withBack &&
-							<IconButton className="vulpo-auth-icon-button" id="back" aria-label={button} onClick={() => onBack()}>
+							<IconButton id="back" aria-label={button} onClick={() => onBack()}>
 								{ config.Arrow }
 							</IconButton>
 						}
@@ -139,7 +138,7 @@ export let Password = ({ onSubmit, onBack, ctx, loading, error }: Props) => {
 				</section>
 
 				<section className="vulpo-auth-password-section">
-					<Button className="vulpo-auth-button" loading={loading}>{button}</Button>
+					<Button loading={loading}>{button}</Button>
 				</section>
 
 				{ error &&

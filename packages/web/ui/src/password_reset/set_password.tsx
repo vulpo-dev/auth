@@ -1,14 +1,13 @@
 import React from 'react'
 import { SyntheticEvent, FC, useState, useEffect } from 'react'
-import { Password } from '@biotic-ui/input'
-import { Button } from '@biotic-ui/button'
-import { useForm, useQueryParams } from '@biotic-ui/std'
 import { ErrorCode } from '@riezler/auth-sdk'
 import { useAuth } from '@riezler/auth-react'
-import { Flow } from '@biotic-ui/leptons'
 import { useLocation, useHistory, Link } from 'react-router-dom'
 
-import { checkPasswordLength } from '../utils'
+import { Password } from '../component/input'
+import { Button } from '../component/button'
+import { Flow } from '../component/loading'
+import { checkPasswordLength, useForm, useQueryParams  } from '../utils'
 import { useTranslation, useError } from '../context/translation'
 
 type Form = {
@@ -117,7 +116,7 @@ export let SetPassword: FC<Props> = ({
 					</section>
 
 					<section className="vulpo-auth-form-section">
-						<Button className="vulpo-auth-button" loading={loading} disabled={tokenError}>
+						<Button loading={loading} disabled={tokenError}>
 							{t.set_password.button_label}
 						</Button>
 					</section>

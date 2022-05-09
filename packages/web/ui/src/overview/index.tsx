@@ -1,9 +1,9 @@
 import React from 'react'
 import { useMemo } from 'react'
-import { OutlineButton, Button } from '@biotic-ui/button'
 import { Link, useLocation, Redirect } from 'react-router-dom'
 import { Flag } from '@riezler/auth-sdk'
 
+import { Button } from '../component/button'
 import Header from '../component/header'
 import { useTranslation } from '../context/translation'
 import GoogleAuthIcon from '../component/google_auth_icon'
@@ -55,9 +55,9 @@ export let Overview = () => {
 
 				{ flags.includes(Flag.EmailAndPassword) &&
 					<Link className="vulpo-auth-password-button" to={`${pathname}/email`}>
-						<OutlineButton disabled={disabled}>
+						<Button outline disabled={disabled}>
 							{t.password.label}
-						</OutlineButton>
+						</Button>
 					</Link>
 				}
 
