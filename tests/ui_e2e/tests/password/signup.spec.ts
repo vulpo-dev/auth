@@ -1,10 +1,10 @@
-import { test, expect } from '@playwright/test'
+import { test, expect, Page } from '@playwright/test'
 import Db from '../utils/db'
-import { getValidationMessage } from '../utils'
+import { getValidationMessage, followEmail } from '../utils'
 import { v4 as uuid } from 'uuid'
 
 let email = () => `ui.e2e+signup-${uuid()}@vulpo.dev`
-let PATH = '/auth#/signup/email'
+let PATH = '/auth/signup/email'
 
 test.beforeEach(async ({ page }) => {
 	await page.goto(PATH)
@@ -15,11 +15,7 @@ test.afterAll(async () => {
 })
 
 test('can sign up with email and password', async ({ page }) => {
-	let EMAIL = email()
-	await page.fill('input[name="email"]', EMAIL)
-	await page.fill('input[name="password"]', 'password')
-
-	await page.click('button:has-text("Sign Up")')
+	await signUp(page)
 	await page.waitForSelector('.App')
 })
 
@@ -86,3 +82,19 @@ test('fails for duplicate user', async ({ page, browser }) => {
 	let error = await newPage.waitForSelector('.test-error')
 	expect(await error.innerText()).toEqual('Something went wrong')
 })
+
+test('can verify email', async ({ page, browser }) => {
+	let email = await signUp(page)
+	let verifyPage = await followEmail(browser, email, 'Verify Email')
+
+	let text = "Your email has been verified"
+	await verifyPage.waitForSelector(`//p[contains(@class, vulpo-auth-verify-email-text) and text()="${text}"]`)
+})
+
+async function signUp(page: Page,  password: string = 'password') {
+	let EMAIL = email()
+	await page.fill('input[name="email"]', EMAIL)
+	await page.fill('input[name="password"]', password)
+	await page.click('button:has-text("Sign Up")')
+	return EMAIL
+}

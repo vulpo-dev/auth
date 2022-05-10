@@ -39,3 +39,12 @@ export async function createUserWithEmailPassword(email: string, password: strin
 		values($1, $2, 'bcrypt')
 	`, [id, hash])
 }
+
+export async function setState(email: string, state: 'active' | 'disabled' | 'set_password') {
+	await Db.query(`
+		update users
+		   set state = $2
+		 where email = $1
+		   and project_id = 'ae16cc4a-33be-4b4e-a408-e67018fe453b'
+	`, [email, state])
+}

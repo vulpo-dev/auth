@@ -9,7 +9,6 @@ type $AuthConfig = {
 	tos: string;
 	privacy: string;
 	Arrow: JSX.Element;
-	Router: JSX.Element;
 	basename: string;
 }
 
@@ -17,8 +16,7 @@ export let DefaultConfig = {
 	tos: '',
 	privacy: '',
 	Arrow: <Arrow />,
-	Router: <BrowserRouter basename='/auth' />,
-	basename: '/auth'
+	basename: 'auth'
 }
 
 export let AuthConfig = createContext<$AuthConfig>(DefaultConfig)

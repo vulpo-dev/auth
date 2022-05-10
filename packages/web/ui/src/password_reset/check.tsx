@@ -11,13 +11,14 @@ export type Props = {
 
 export let CheckReset = ({ email }: Props) => {
 	let t = useTranslation()
+	let e = email ? decodeURIComponent(email) : null
 
 	return (
 		<div className="vulpo-auth vulpo-auth-card vulpo-auth-password-reset-check">
 			<header className="vulpo-card-header">
 				<h3 className="vulpo-auth-card-title">{t.reset_check_mail.title}</h3>
 			</header>
-			<t.reset_check_mail.description email={email} />
+			<t.reset_check_mail.description email={e} />
 			<small>{t.reset_check_mail.info}</small>
 		</div>
 	)

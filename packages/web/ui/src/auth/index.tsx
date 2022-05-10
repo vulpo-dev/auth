@@ -1,6 +1,6 @@
 import React from 'react'
 import { useEffect, useState, Fragment } from 'react'
-import { Switch, Route, Redirect } from 'react-router-dom'
+import { Routes, Route, Navigate } from 'react-router-dom'
 import { useAuth } from '@riezler/auth-react'
 import { Flag, ErrorCode } from '@riezler/auth-sdk'
 import Axios from 'axios'
@@ -12,7 +12,7 @@ import PasswordReset from '../password_reset'
 import Passwordless from '../passwordless'
 import VerifyEmail from '../verify_email'
 import { useTranslation, useError } from '../context/translation'
-import { FlagsCtx, useConfig } from '../context/config'
+import { FlagsCtx } from '../context/config'
 import SetPassword from '../user/set_password'
 import OAuthConfirm from '../oauth'
 
@@ -22,7 +22,6 @@ let Auth = () => {
 	let [flags, setFlags] = useState<Array<Flag> | undefined>()
 	let [error, setError] = useState<ErrorCode | null>(null)
 	let errorMessage = useError(error)
-	let { Router } = useConfig()
 
 	useEffect(() => {
 		let source = Axios.CancelToken.source()
@@ -68,60 +67,47 @@ let Auth = () => {
 
 	let withOverview = showOverview(flags)
 
-	let children = (
-		<Switch>
-			<Route path='/user/set_password'>
-				<SetPassword />
-			</Route>
-
-			<Route path='/oauth/confirm'>
-				<OAuthConfirm />
-			</Route>
-
-			{ flags.includes(Flag.VerifyEmail) &&
-				<Route path='/verify-email'>
-					<VerifyEmail /> 
-				</Route>
-			}
-			
-			{ flags.includes(Flag.PasswordReset) &&
-				<Route path='/forgot-password'>
-					<PasswordReset />
-				</Route>
-			}
-
-			{ flags.includes(Flag.EmailAndPassword) &&
-				<Route path='/:type/email'>
-					<Password />
-				</Route>
-			}
-
-			{ flags.includes(Flag.AuthenticationLink) &&
-				<Route path='/:type/link'>
-					<Passwordless />
-				</Route>
-			}
-
-			{ withOverview &&
-				<Fragment>
-					<Route path='/:type'>
-						<Overview />
-					</Route>
-
-					<Redirect to={getRedirect(flags)} from='/' />
-				</Fragment>
-			}
-
-			{ !withOverview &&
-				<Redirect to={getMethodRedirect(flags)} />
-			}
-
-		</Switch>
-	)
-
 	return (
 		<FlagsCtx.Provider value={flags}>
-			{ React.cloneElement(Router, { children })}
+			<Routes>
+				<Route path={`user/set_password/*`} element={<SetPassword />} />
+				<Route path={`oauth/confirm/*`} element={<OAuthConfirm />} />
+
+				{ flags.includes(Flag.VerifyEmail) &&
+					<Route path={`verify-email/*`} element={<VerifyEmail /> } />
+				}
+				
+				{ flags.includes(Flag.PasswordReset) &&
+					<Route path={`forgot-password/*`} element={<PasswordReset />} />
+				}
+
+				{ flags.includes(Flag.EmailAndPassword) &&
+					<Fragment>
+						<Route path={`signin/email/*`} element={<Password />} />
+						<Route path={`signup/email/*`} element={<Password />} />
+					</Fragment>
+				}
+
+				{ flags.includes(Flag.AuthenticationLink) &&
+					<Fragment>
+						<Route path={`signin/link/*`} element={<Passwordless />} />
+						<Route path={`signup/link/*`} element={<Passwordless />} />
+					</Fragment>
+				}
+
+				{ withOverview &&
+					<Fragment>
+						<Route path={'signup/*'} element={<Overview />} />
+						<Route path={'signin/*'} element={<Overview />} />
+						<Route path='/*' element={<Navigate to={getRedirect(flags)} />} />
+					</Fragment>
+				}
+
+				{ !withOverview &&
+					<Route path='/*' element={<Navigate to={getMethodRedirect(flags)} />} />
+				}
+
+			</Routes>
 		</FlagsCtx.Provider>
 	)
 }
@@ -129,7 +115,7 @@ let Auth = () => {
 export default Auth
 
 function showOverview(flags: Array<Flag>): boolean {
-	return flags.includes(Flag.AuthenticationLink) && flags.includes(Flag.EmailAndPassword)
+	return flags.includes(Flag.OAuthGoogle) || (flags.includes(Flag.AuthenticationLink) && flags.includes(Flag.EmailAndPassword))
 }
 
 function getMethodRedirect(flags: Array<Flag>): string {
@@ -145,11 +131,11 @@ function getMethodRedirect(flags: Array<Flag>): string {
 		? 'link'
 		: ''
 
-	return `/${type}/${method}`
+	return `${type}/${method}`
 }
 
 function getRedirect(flags: Array<Flag>): string {
 	return flags.includes(Flag.SignIn)
-		? '/signin'
-		: '/signup'
+		? 'signin'
+		: 'signup'
 }

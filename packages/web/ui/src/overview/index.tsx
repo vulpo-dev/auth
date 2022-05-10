@@ -1,18 +1,19 @@
 import React from 'react'
 import { useMemo } from 'react'
-import { Link, useLocation, Redirect } from 'react-router-dom'
+import { Link, useLocation, Navigate } from 'react-router-dom'
 import { Flag } from '@riezler/auth-sdk'
 
 import { Button } from '../component/button'
 import Header from '../component/header'
 import { useTranslation } from '../context/translation'
 import GoogleAuthIcon from '../component/google_auth_icon'
-import { useFlags } from '../context/config'
+import { useConfig, useFlags } from '../context/config'
 import { useAuth } from '@riezler/auth-react'
 
 export let Overview = () => {
 	let t = useTranslation()
 	let auth = useAuth()
+	let { basename } = useConfig()
 
 	let { pathname } = useLocation()
 	let flags = useFlags()
@@ -35,7 +36,7 @@ export let Overview = () => {
 	}, [pathname, flags])
 
 	if (redirect !== null) {
-		return <Redirect to={`/${redirect}`} />
+		return <Navigate to={`${basename}/${redirect}`} />
 	}
 
 	let disabled = auth.singInWithRedirect.loading

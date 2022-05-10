@@ -1,5 +1,5 @@
 import React, { FunctionComponent, useState, createContext, useContext } from 'react'
-import { Switch, Route, useHistory, useLocation, Redirect } from 'react-router-dom'
+import { Routes, Route, useNavigate, useLocation, Navigate } from 'react-router-dom'
 import { useAuthStateChange, useAuth } from '@riezler/auth-react'
 import { UserAuthState, UserState } from '@riezler/auth-sdk'
 
@@ -14,12 +14,12 @@ export function useUser() {
 
 let AuthShell: FunctionComponent = ({ children }) => {
 	let { basename } = useConfig()
-	let history = useHistory()
+	let navigate = useNavigate()
 	let location = useLocation()
 
-	let [refferrer] = useState(() => {
+	let [referrer] = useState(() => {
 		let { pathname } = window.location
-		if (pathname.startsWith(basename)) {
+		if (pathname.startsWith(`/${basename}`)) {
 			return '/'
 		}
 
@@ -32,7 +32,7 @@ let AuthShell: FunctionComponent = ({ children }) => {
 	})
 
 	useAuthStateChange((newUser) => {
-		if (isVerifyEmail(window.location.hash)) {
+		if (isVerifyEmail(basename)) {
 			return
 		}
 		
@@ -41,48 +41,51 @@ let AuthShell: FunctionComponent = ({ children }) => {
 			return
 		}
 
-		if (!newUser && !window.location.pathname.startsWith(basename)) {
-			history.replace(basename)
+		if (!newUser && !window.location.pathname.startsWith(`/${basename}`)) {
+			navigate(basename, { replace: true })
+			return
 		}
 
 
 		if (!user && newUser) {
-			history.replace(refferrer)
+			navigate(referrer, { replace: true })
+			return
 		}
 	})
 
 	if (
 		user === undefined &&
-		!location.pathname.startsWith(basename) &&
+		!location.pathname.startsWith(`/${basename}`) &&
 		!isVerifyEmail(window.location.hash)
 	) {
 		return <p>...loading</p>
 	}
 
+
+	let redirect = (user && user.state !== UserState.SetPassword && !isVerifyEmail(window.location.hash))
+	let AuthComponent = (
+		<div className="vulpo-auth vulpo-auth-container">
+			<div className="vulpo-auth-box-shadow">
+				<Auth />
+			</div>
+		</div>
+	)
+
 	return (
 		<UserCtx.Provider value={user}>
-			<Switch>
-
-				<Route path={basename}>
-					<div className="vulpo-auth vulpo-auth-container">
-						<div className="vulpo-auth-box-shadow">
-							<Auth />
-						</div>
-					</div>
-					
-					{ (user && user.state !== UserState.SetPassword && !isVerifyEmail(window.location.hash)) &&
-						<Redirect to={refferrer} />
-					}
-				</Route>
+			<Routes>
+				<Route path={`${basename}/*`} element={
+					redirect ? <Navigate to={referrer} /> : AuthComponent
+				} />
 
 				{ children }
-			</Switch>
+			</Routes>
 		</UserCtx.Provider>
 	)
 }
 
 export default AuthShell
 
-function isVerifyEmail(hash: string) {
-	return hash.startsWith('#/verify-email') || hash.startsWith('/verify-email')
+function isVerifyEmail(basename: string) {
+	return window.location.pathname === `/${basename}/verify-email`
 }

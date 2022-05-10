@@ -5,7 +5,7 @@ import { BrowserRouter } from 'react-router-dom'
 function AuthExamplePage() {
 	return (
 		<BrowserRouter>
-			<AuthConfig.Provider value={{ ...DefaultConfig, basename: '/ui' }}>
+			<AuthConfig.Provider value={{ ...DefaultConfig, basename: 'ui/auth' }}>
 				<AuthExample />
 			</AuthConfig.Provider>
 		</BrowserRouter>

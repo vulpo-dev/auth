@@ -9,14 +9,14 @@ import { useTranslations, useSetTranslation } from 'data/translations'
 import { TemplateCtx } from 'templates/ctx'
 import { GhostBar } from 'component/loading'
 import { QueryState } from '@biotic-ui/boson'
-import { useLocation, useHistory } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { useQueryParams } from '@biotic-ui/std'
 import { ErrorMessage } from '@biotic-ui/text'
 
 let languages = Object.entries(Languages)
 
 export let Translations = () => {
-	let history = useHistory()
+	let navigate = useNavigate()
 	let location = useLocation()
 	let params = useQueryParams(location.search)
 	let currentLanguage = params.get('language') ?? 'en'
@@ -25,10 +25,10 @@ export let Translations = () => {
 
 		params.set('language', e.target.value)
 
-		history.replace({
+		navigate({
 			...location,
 			search: `?${params.toString()}`
-		})
+		}, { replace: true })
 	}
 
 	let { project, template } = useContext(TemplateCtx)

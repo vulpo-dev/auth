@@ -1,7 +1,7 @@
 import React from 'react'
 import { Story, Meta } from '@storybook/react/types-6-0'
 
-import { HashRouter, Switch, Route, Redirect } from 'react-router-dom'
+import { HashRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { Translation, DefaultTranslation } from 'context/translation'
 import { AuthConfig, DefaultConfig } from 'context/config'
 import { ErrorCode } from '@riezler/auth-sdk'
@@ -17,18 +17,19 @@ let NewPassword: Story<SetPasswordProps> = (args) => {
 		<AuthConfig.Provider value={DefaultConfig}>
 			<Translation.Provider value={DefaultTranslation}>
 				<HashRouter>
-					<Switch>
+					<Routes>
 
-						<Route path='/signin/set_password'>
+						<Route path='/signin/set_password' element={
 							<div className="vulpo-auth vulpo-auth-container">
 								<div className="vulpo-auth-box-shadow">
 									<SetPassword {...args} />
 								</div>
 							</div>
-						</Route>
+						}></Route>
 
-						<Redirect to='/signin/set_password' />
-					</Switch>
+						<Route element={<Navigate to='/signin/set_password' />} />
+						
+					</Routes>
 				</HashRouter>
 			</Translation.Provider>
 		</AuthConfig.Provider>

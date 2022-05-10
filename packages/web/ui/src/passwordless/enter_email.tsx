@@ -1,13 +1,13 @@
 import React from 'react'
 import { SyntheticEvent, useState } from 'react'
-import { ErrorCode } from '@riezler/auth-sdk'
-import { useHistory, useRouteMatch } from 'react-router-dom'
+import { ErrorCode, Flag } from '@riezler/auth-sdk'
+import { useNavigate, useMatch } from 'react-router-dom'
 import { useAuth } from '@riezler/auth-react'
 
 import { useForm } from '../utils'
 import { Input } from '../component/input'
 import { Button, IconButton } from '../component/button'
-import { useConfig } from '../context/config'
+import { useConfig, useFlags } from '../context/config'
 import { useTranslation, useError } from '../context/translation'
 import { Disclaimer } from '../component/disclaimer'
 
@@ -29,6 +29,13 @@ export let EnterEmail = (props: Props) => {
 	let t = useTranslation()
 	let errorMessage = useError(props.error)
 
+	let flags = useFlags()
+
+	let withBack = (
+		flags.includes(Flag.EmailAndPassword) ||
+		flags.includes(Flag.OAuthGoogle)
+	)
+
 	let [form, setForm] = useForm<Form>({
 		email: ''
 	})
@@ -45,9 +52,11 @@ export let EnterEmail = (props: Props) => {
 	return (
 		<div className="vulpo-auth vulpo-auth-card vulpo-auth-passwordless">
 			<div className="vulpo-auth-card-nav">
-				<IconButton id='back' onClick={props.onBack}>
-					{ config.Arrow }				
-				</IconButton>
+				{ withBack &&
+					<IconButton id='back' onClick={props.onBack}>
+						{ config.Arrow }				
+					</IconButton>
+				}
 				<label htmlFor="back">{label}</label>
 			</div>
 			<header className="vulpo-card-header">
@@ -92,17 +101,18 @@ export let EnterEmail = (props: Props) => {
 
 let EnterEmailContainer = () => {
 	let auth = useAuth()
-	let history = useHistory()
-	let match = useRouteMatch<{ type: 'signin' | 'signup' }>('/:type')
+	let navigate = useNavigate()
+	let { basename } = useConfig()
+	let match = useMatch(`${basename}/:type/*`)
 
 	let [error, setError] = useState<ErrorCode | null>(null)
 	let [loading, setLoading] = useState<boolean>(false)
 
 	function handleBack() {
 		if (match) {
-			history.replace(`/${match.params.type}`)
+			navigate(`/${basename}/${match.params.type}`, { replace: true })
 		} else {
-			history.replace('/')
+			navigate(`/${basename}`, { replace: true })
 		}
 	}
 
@@ -112,20 +122,21 @@ let EnterEmailContainer = () => {
 
 		try {
 			let { id, session } = await auth.passwordless(form.email)
-			history.push(`/signin/link/check-email?id=${id}&session=${session}`)
+			navigate(`/${basename}/signin/link/check-email?id=${id}&session=${session}`)
 		} catch (err) {
 			setLoading(false)
 			setError(err.code)
 		}
 	}
 
+	let ctx = match?.params.type as 'signin' | 'signup' | undefined
 	return (
 		<EnterEmail
 			loading={loading}
 			error={error}
 			onBack={handleBack}
 			onSignIn={handleSignIn}
-			ctx={match?.params.type ?? 'signin'}
+			ctx={ctx ?? 'signin'}
 		/>
 	)
 }

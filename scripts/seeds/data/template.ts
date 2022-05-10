@@ -21,11 +21,11 @@ let translations = [
 ]
 
 let redirects = [
-	["/auth/#/user/change-email/reset", "change_email", translations[0]],
-	["/auth/#/user/change-email/confirm", "confirm_email_change", translations[1]],
-	["/auth/#/forgot-password/set-password", "password_reset", translations[2]],
-	["/auth/#/signin/link/confirm", "passwordless", translations[3]],
-	["/auth/#/verify-email", "verify_email", translations[4]],
+	["/auth/user/change-email/reset", "change_email", translations[0]],
+	["/auth/user/change-email/confirm", "confirm_email_change", translations[1]],
+	["/auth/forgot-password/set-password", "password_reset", translations[2]],
+	["/auth/signin/link/confirm", "passwordless", translations[3]],
+	["/auth/verify-email", "verify_email", translations[4]],
 	["", "password_changed", translations[5]],
 ]
 

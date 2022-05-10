@@ -2,9 +2,10 @@ import React from 'react'
 import { useEffect, useMemo } from 'react'
 import {
 	BrowserRouter,
-	useHistory,
-	Switch,
-	Route
+	useNavigate,
+	Routes,
+	Route,
+    useMatch
 } from 'react-router-dom'
 import App from 'app'
 import { useProject } from 'data/admin'
@@ -14,8 +15,9 @@ import { Auth } from '@riezler/auth-sdk'
 import { GhostPage } from 'component/loading'
 import Setup from 'setup'
 
+
 let Bootstrap = () => {
-	let history = useHistory()
+	let navigate = useNavigate()
 	let [{ data: project, state }, { set: setProjectId }] = useProject()
 
 	let auth = useMemo(() => {
@@ -32,9 +34,9 @@ let Bootstrap = () => {
 	useEffect(() => {
 		let isSetup = window.location.pathname.startsWith('/setup')
 		if (project === null && !isSetup && state === 'loaded') {
-			history.replace('/setup/')
+			navigate('/setup/', { replace: true })
 		}
-	}, [project, state, history, setProjectId])
+	}, [project, state, navigate, setProjectId])
 
 	if (state === 'loading') {
 		return <GhostPage />
@@ -43,17 +45,13 @@ let Bootstrap = () => {
 	return (
 		<AuthCtx.Provider value={auth}>
 			<Http auth={auth} project={project}>
-				<Switch>
-					<Route path='/setup'>
-						<Setup />
-					</Route>
+				<Routes>
+					<Route path='/setup' element={<Setup />} />
 
 					{ auth &&
-						<Route path='/'>
-							<App />
-						</Route>
+						<Route path='/*' element={<App />} />
 					}
-				</Switch>
+				</Routes>
 			</Http>
 		</AuthCtx.Provider>
 	)

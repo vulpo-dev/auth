@@ -153,7 +153,7 @@ export let DefaultTranslation = {
 
 			return (
 				<p className="vulpo-auth-text">
-					We have send an authentication link to <strong>{email}</strong> for you to reset your password.
+					We have send an authentication link to <strong id="email">{email}</strong> for you to reset your password.
 				</p>
 			)
 		}

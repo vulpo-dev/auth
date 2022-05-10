@@ -1,11 +1,12 @@
 import React from 'react'
 import { useEffect, useState } from 'react'
-import { useLocation, useRouteMatch } from 'react-router-dom'
+import { useLocation, useMatch } from 'react-router-dom'
 import { useAuth } from '@riezler/auth-react'
 import { ErrorCode, CancelToken } from '@riezler/auth-sdk'
 
 import { useQueryParams } from '../utils'
 import { useTranslation } from '../context/translation'
+import { useConfig } from 'context/config'
 
 export type Props = {
 	email: string | null;
@@ -35,7 +36,8 @@ let CheckEmailContainer = () => {
 	let auth = useAuth()
 	let location = useLocation()
 	let query = useQueryParams(location.search)
-	let match = useRouteMatch<{ type: 'signin' | 'signup' }>('/:type')
+	let { basename } = useConfig()
+	let match = useMatch(`${basename}/:type/*`)
 	let [_, setError] = useState<ErrorCode | null>(null)
 
 	useEffect(() => {
@@ -56,10 +58,12 @@ let CheckEmailContainer = () => {
 		}
 	}, [])
 
+
+	let type = match?.params.type as 'signin' | 'signup' | undefined
 	return (
 		<CheckEmail
 			email={query.get('email')}
-			type={match?.params.type ?? 'signin'}
+			type={type ?? 'signin'}
 		/>
 	)
 }

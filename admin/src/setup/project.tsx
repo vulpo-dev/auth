@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
 import styled from 'styled-components'
 import { useCreateProject, CreateAdminProject, projectId } from 'data/admin'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { Flow } from '@biotic-ui/leptons'
 import { ErrorMessage } from '@biotic-ui/text'
 import { Input } from '@biotic-ui/input'
@@ -67,19 +67,19 @@ export let Project = ({ error, loading, onSubmit }: Props) => {
 }
 
 let ProjectContainer = () => {
-	let history = useHistory()
+	let navigate = useNavigate()
 	let createProject = useCreateProject()
 	let project = useBosonValue(projectId)
 
 	useEffect(() => {
 		if (project) {
-			history.replace('/setup/user')
+			navigate('/setup/user', { replace: true })
 		}
 	}, [project])
 
 	let handleSubmit = async (form: CreateAdminProject) => {
 		await createProject(form)
-		history.replace('/setup/user')
+		navigate('/setup/user', { replace: true })
 	}
 
 	return <Project

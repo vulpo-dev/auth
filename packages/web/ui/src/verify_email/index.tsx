@@ -1,13 +1,13 @@
 import React, { Fragment, useState, useEffect } from 'react'
 import { ErrorCode, Flag } from '@riezler/auth-sdk'
 import { useAuth } from '@riezler/auth-react'
-import { useLocation, Redirect } from 'react-router-dom'
+import { useLocation, Navigate } from 'react-router-dom'
 
 import { useQueryParams } from '../utils'
 import { Flow } from '../component/loading'
 import CheckIcon from '../component/check'
 import { useTranslation, useError } from '../context/translation'
-import { useFlags } from '../context/config'
+import { useConfig, useFlags } from '../context/config'
 
 export type Props = {
 	loading: boolean;
@@ -50,6 +50,7 @@ let VerifyEmailContainer = () => {
 	let auth = useAuth()
 	let location = useLocation()
 	let query = useQueryParams(location.search)
+	let { basename } = useConfig()
 
 	let [error, setError] = useState<ErrorCode | null>(null)
 	let [loading, setLoading] = useState<boolean>(false)
@@ -78,7 +79,7 @@ let VerifyEmailContainer = () => {
 
 	let flags = useFlags()
 	if (!flags.includes(Flag.VerifyEmail)) {
-		return <Redirect to='/' />
+		return <Navigate to={basename} />
 	}
 
 	return (

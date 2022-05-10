@@ -1,13 +1,13 @@
-import React from 'react'
+import React, { Fragment } from 'react'
 import { useEffect, Suspense, useState } from 'react'
 import styled from 'styled-components'
 import {
-	useRouteMatch,
-	Switch,
+	useMatch,
+	Routes,
 	Route,
 	NavLink,
-	Redirect,
-	useHistory,
+	Navigate,
+	useNavigate,
 	useLocation,
 } from 'react-router-dom'
 
@@ -29,31 +29,35 @@ import Templates from 'dashboard/component/templates'
 import CreateUser from 'user/create'
 
 function Dashboard() {
-	let history = useHistory()
+	let navigate = useNavigate()
 	let [{ data: projects }] = useProjects()
-	let match = useRouteMatch<{ project: string }>('/:project')
-	let project = match?.params?.project ?? ''
+	let match = useMatch('/:project/*')
+	let project = match?.params.project ?? ''
 
 	let [create, setCreate] = useState(false)
+	let hasProjects = projects?.length ?? 0
 
 	useEffect(() => {
-		if (project !== '' || !projects) {
+
+		if (project === 'create' || project !== '' || !projects) {
 			return
 		}
 
-		if (projects.length <= 1) {
-			history.replace(`/project/create`)
+		if (hasProjects <= 1) {
+			navigate(`/project/create`, { replace: true })
 			return
 		}
 
 		let [{ id }] = projects
-		history.replace(`/${id}`)
-	}, [project, projects])
+ 		if (!project) {
+			navigate(`/${id}`)
+		}
+	}, [hasProjects, project, projects])
 
 
 	function handleProjectCreated(project: PartialProject) {
 		setCreate(false)
-		history.push(`/${project.id}`)
+		navigate(`/${project.id}`)
 	}
 
 	let currentProject = !projects ? undefined : projects.find(p => {
@@ -93,9 +97,11 @@ export default function DashboardContainer() {
 
 let Main = () => {
 	let location = useLocation()
-	let match = useRouteMatch<{ project: string }>('/:project')
-	let project = match?.params?.project ?? ''
+	let match = useMatch('/:project/*')
+	let project = match?.params.project ?? ''
 	let base = `/${project}`
+
+	console.log({ project, match })
 
 	let setUrl = useSetBoson(getLatesUrl(project))
 	useEffect(() => {
@@ -108,43 +114,31 @@ let Main = () => {
 	return (
 		<Wrapper>
 			<Bar>				
-				<Switch>
-					<Route path={`${base}/users`}>
-						<h3>Users</h3>
-						<Button onClick={() => setUserDrawer(true)}>Add User</Button>
-						<Drawer open={userDrawer} left={false} maxWidth={600} onClose={() => setUserDrawer(false)} >
-							<CreateUser onCreated={() => setUserDrawer(false)} />
-						</Drawer>
-					</Route>
-					<Route path={`${base}/methods`}>
-						<h3>Sign In Methods</h3>
-					</Route>
-					<Route path={`${base}/templates`}>
-						<h3>Templates</h3>
-					</Route>
-					<Route path={`${base}/settings`}>
-						<h3>Settings</h3>
-					</Route>
-					<Redirect from={base} to={`${base}/users`} />
-				</Switch>
+				<Routes>
+					<Route path={`${base}/users`} element={
+						<Fragment>
+							<h3>Users</h3>
+							<Button onClick={() => setUserDrawer(true)}>Add User</Button>
+							<Drawer open={userDrawer} left={false} maxWidth={600} onClose={() => setUserDrawer(false)} >
+								<CreateUser onCreated={() => setUserDrawer(false)} />
+							</Drawer>
+						</Fragment>
+					}></Route>
+					<Route path={`${base}/methods`} element={<h3>Sign In Methods</h3>} />
+					<Route path={`${base}/templates/*`} element={<h3>Templates</h3>} />
+					<Route path={`${base}/settings`} element={<h3>Settings</h3>} />
+					<Route path={base} element={<Navigate to={`${base}/users`} />} />
+				</Routes>
 			</Bar>
 
 			<Content>
-				<Switch>
-					<Route path={`${base}/users`}>
-						<Users project={project} />
-					</Route>
-					<Route path={`${base}/methods`}>
-						<SignInMethods project={project} />
-					</Route>
-					<Route path={`${base}/templates`}>
-						<Templates />
-					</Route>
-					<Route path={`${base}/settings`}>
-						<Settings />
-					</Route>
-					<Redirect from={base} to={`${base}/users`} />
-				</Switch>
+				<Routes>
+					<Route path={`${base}/users`} element={<Users project={project} />} />
+					<Route path={`${base}/methods`} element={<SignInMethods project={project} />} />
+					<Route path={`${base}/templates/*`} element={<Templates />} />
+					<Route path={`${base}/settings`} element={<Settings />} />
+					<Route path={base} element={<Navigate to={`${base}/users`} />} />
+				</Routes>
 			</Content>
 
 			<Nav>

@@ -24,6 +24,12 @@ export let projectsAtom = boson<ProjectList | undefined>({
 	defaultValue: undefined
 })
 
+let CurrentProject = createContext<string | null>(null)
+
+export function useCurrentProject() {
+	return useContext(CurrentProject)
+}
+
 
 export function useProjects() {
 	let http = useHttp()

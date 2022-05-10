@@ -2,13 +2,14 @@ import React from 'react'
 import { SyntheticEvent, FC, useState, useEffect } from 'react'
 import { ErrorCode } from '@riezler/auth-sdk'
 import { useAuth } from '@riezler/auth-react'
-import { useLocation, useHistory, Link } from 'react-router-dom'
+import { useLocation, useNavigate, Link } from 'react-router-dom'
 
 import { Password } from '../component/input'
 import { Button } from '../component/button'
 import { Flow } from '../component/loading'
 import { checkPasswordLength, useForm, useQueryParams  } from '../utils'
 import { useTranslation, useError } from '../context/translation'
+import { useConfig } from 'context/config'
 
 type Form = {
 	password1: string;
@@ -88,7 +89,7 @@ export let SetPassword: FC<Props> = ({
 
 			{ !verifyToken &&
 
-				<form onSubmit={handleSubmit}>
+				<form id="set-password" onSubmit={handleSubmit}>
 					<section className="vulpo-auth-form-section">
 						<label className="vulpo-auth-label" htmlFor="password1">{t.set_password.new_password}</label>
 						<Password
@@ -133,9 +134,10 @@ export let SetPassword: FC<Props> = ({
 
 let SetPasswordContainer = () => {
 	let auth = useAuth()
-	let history = useHistory()
+	let navigate = useNavigate()
 	let location = useLocation()
 	let query = useQueryParams(location.search)
+	let { basename } = useConfig()
 
 	let [error, setError] = useState<ErrorCode | null>(null)
 	let [loading, setLoading] = useState<boolean>(false)
@@ -178,7 +180,7 @@ let SetPasswordContainer = () => {
 
 		try {
 			await auth.setResetPassword({ ...form, id, token })
-			history.replace('/signin/email')
+			navigate(`/${basename}/signin/email`, { replace: true })
 		} catch(err) {
 			setLoading(false)
 			setError(err.code)

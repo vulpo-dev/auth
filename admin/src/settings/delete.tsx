@@ -4,21 +4,21 @@ import { Input, Section as ISection, Label } from '@biotic-ui/input'
 import { WarnButton } from 'component/button'
 import { useProject, useDeleteProject, projectsAtom } from 'data/project'
 import { useForm } from '@biotic-ui/std'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { useSetBoson } from '@biotic-ui/boson'
 
 let DeleteProject: FunctionComponent<{}> = () => {
 	let [project] = useProject()
 	let deleteProject = useDeleteProject(project.id)
 	let [form, setForm] = useForm({ name: '' })
-	let history = useHistory()
+	let navigate = useNavigate()
 	let setProjects = useSetBoson(projectsAtom)
 
 	async function submit(e: FormEvent) {
 		e.preventDefault()
 
 		await deleteProject()
-		history.replace('/')
+		navigate('/', { replace: true })
 
 		setProjects((projects = []) => {
 			return projects.filter(p => p.id !== project.id)

@@ -1,8 +1,8 @@
 import React from 'react'
-import { Switch, Route, Redirect } from 'react-router-dom'
+import { Routes, Route, Navigate } from 'react-router-dom'
 import { Flag } from '@riezler/auth-sdk'
 
-import { useFlags } from '../context/config'
+import { useConfig, useFlags } from '../context/config'
 
 import EnterEmail from './enter_email'
 import Confirm from './confirm'
@@ -10,25 +10,18 @@ import CheckEmail from './check'
 
 let Passwordless = () => {
 	let flags = useFlags()
+	let { basename } = useConfig()
 
 	if (!flags.includes(Flag.AuthenticationLink)) {
-		return <Redirect to='/' />
+		return <Navigate to={basename} />
 	}
 	
 	return (
-		<Switch>
-			<Route path='/:type/link/check-email'>
-				<CheckEmail />
-			</Route>
-
-			<Route path='/:type/link/confirm'>
-				<Confirm />
-			</Route>
-
-			<Route path='/:type/link'>
-				<EnterEmail />
-			</Route>
-		</Switch>
+		<Routes>
+			<Route path='check-email' element={<CheckEmail />} />
+			<Route path='confirm' element={<Confirm />} />
+			<Route path='/' element={<EnterEmail />} />
+		</Routes>
 	)
 }
 

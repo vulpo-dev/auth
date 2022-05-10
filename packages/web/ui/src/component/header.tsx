@@ -1,10 +1,10 @@
 import React from 'react'
 import { useMemo } from 'react'
-import { useRouteMatch, Link } from 'react-router-dom'
+import { useMatch, Link } from 'react-router-dom'
 import { Flag } from '@riezler/auth-sdk'
 
 import { useTranslation } from '../context/translation'
-import { useFlags } from '../context/config'
+import { useConfig, useFlags } from '../context/config'
 
 type Props = {
 	title: string | null,
@@ -14,26 +14,24 @@ type Props = {
 }
 
 export let Header = ({ title, info, link, to }: Props) => {
+	let { basename } = useConfig()
 	return (
 		<header className="vulpo-card-header vulpo-auth-header">
 			{ title && <h3 className="vulpo-auth-card-title vulpo-auth-header-title">{title}</h3>}
 			{ info &&
 				<p className="vulpo-auth-header-info">
-					{info} { link && <Link className="vulpo-auth-header-link" to={`/${to}`}>{link}</Link>}
+					{info} { link && <Link className="vulpo-auth-header-link" to={`/${basename}/${to}`}>{link}</Link>}
 				</p>
 			}
 		</header>
 	)
 }
-
-type Match = {
-	type: string
-} 
+ 
 
 let HeaderContainer = () => {
-	let match = useRouteMatch<Match>('/:type')
+	let { basename } = useConfig()
+	let match = useMatch(`${basename}/:type/*`)
 	let flags = useFlags()
-
 	let type = match?.params?.type ?? ''
 
 	let title = useTitle(type)

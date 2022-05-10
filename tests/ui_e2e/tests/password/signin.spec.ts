@@ -1,13 +1,14 @@
 import { test, expect } from '@playwright/test'
 import Db from '../utils/db'
-import { removeByEmail, createUserWithEmailPassword } from '../utils/user'
+import { createUserWithEmailPassword, setState } from '../utils/user'
 import { getValidationMessage } from '../utils'
+import { signInNoWait } from '../utils/signin'
 import { v4 as uuid } from 'uuid'
 
 let email = () => `ui.e2e+signin-${uuid()}@vulpo.dev`
 
 let PASSWORD = 'password'
-let PATH = '/auth#/signin/email'
+let PATH = '/auth/signin/email'
 let BTN = 'Sign In'
 
 test.beforeEach(async ({ page }) => {
@@ -79,7 +80,7 @@ test('fails when email is invalid', async ({ page }) => {
 })
 
 
-test('fails for invalid email', async ({ page, browser }) => {
+test('fails for invalid email', async ({ page }) => {
 	let EMAIL = email()
 	await createUserWithEmailPassword(EMAIL, PASSWORD)
 
@@ -93,7 +94,7 @@ test('fails for invalid email', async ({ page, browser }) => {
 })
 
 
-test('fails for invalid password', async ({ page, browser }) => {
+test('fails for invalid password', async ({ page }) => {
 	let EMAIL = email()
 	await createUserWithEmailPassword(EMAIL, PASSWORD)
 
@@ -104,4 +105,26 @@ test('fails for invalid password', async ({ page, browser }) => {
 
 	let error = await page.waitForSelector('.test-error')
 	expect(await error.innerText()).toEqual('Invalid Email or Password')
+})
+
+
+test('can set password', async ({ page }) => {
+	let EMAIL = email()
+	let NEW_PASSWORD = 'new-password'
+	await createUserWithEmailPassword(EMAIL, PASSWORD)
+	await setState(EMAIL, 'set_password')
+	await signInNoWait(page, EMAIL, PASSWORD)
+	await page.waitForSelector('.vulpo-auth-user-set-password')
+
+	await page.fill('input[name="password1"]', NEW_PASSWORD)
+	await page.fill('input[name="password2"]', NEW_PASSWORD)
+	await page.click(`button:has-text("Set Password")`)
+
+	await page.waitForSelector('.App')
+	await page.click(`button:has-text("Sign Out")`)
+	await page.waitForSelector('.vulpo-auth-overview')
+
+	await page.goto('/auth/signin/email')
+	await signInNoWait(page, EMAIL, NEW_PASSWORD)
+	await page.waitForSelector('.App')
 })

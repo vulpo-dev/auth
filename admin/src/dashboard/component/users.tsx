@@ -33,7 +33,7 @@ import { FloatingActionBar, ActionItem, ActionLabel } from 'component/floating_a
 import Tooltip from 'component/tooltip'
 import { useEmailSettings, hasEmailProvider } from 'data/settings'
 import UserDetails from 'user/detail'
-import { useHistory, useLocation } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { UserState } from '@riezler/auth-sdk'
 
 type Props = {
@@ -41,7 +41,7 @@ type Props = {
 }
 
 let Users: FC<Props> = ({ project }) => {
-	let history = useHistory()
+	let navigate = useNavigate()
 	let location = useLocation()
 	let params = useQueryParams(location.search)
 
@@ -72,7 +72,7 @@ let Users: FC<Props> = ({ project }) => {
 	}
 
 	function handleOpen(userId: string) {
-		history.push({
+		navigate({
 			...location,
 			search: `?user=${userId}`
 		})
@@ -80,7 +80,7 @@ let Users: FC<Props> = ({ project }) => {
 
 	function handleClose() {
 		params.delete('user')
-		history.push({
+		navigate({
 			...location,
 			search: `?${params.toString()}`
 		})

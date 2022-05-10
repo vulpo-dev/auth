@@ -1,6 +1,6 @@
 import React, { ChangeEvent } from 'react'
 import { SyntheticEvent, useState } from 'react'
-import { useHistory, useRouteMatch, Link, Redirect } from 'react-router-dom'
+import { useNavigate, useMatch, Link, Navigate } from 'react-router-dom'
 import { ErrorCode, Flag, UserState } from '@riezler/auth-sdk'
 import { useAuth } from '@riezler/auth-react'
 
@@ -33,7 +33,11 @@ export let Password = ({ onSubmit, onBack, ctx, loading, error }: Props) => {
 	let config = useConfig()
 	let flags = useFlags()
 
-	let withBack = flags.includes(Flag.AuthenticationLink)
+	let withBack = (
+		flags.includes(Flag.AuthenticationLink) ||
+		flags.includes(Flag.OAuthGoogle)
+	)
+
 	let withPasswordReset = flags.includes(Flag.PasswordReset)
 	let withNavLink = (
 		flags.includes(Flag.SignIn) &&
@@ -76,7 +80,7 @@ export let Password = ({ onSubmit, onBack, ctx, loading, error }: Props) => {
 	let errorMessage = useError(error)
 
 	if (!flags.includes(Flag.EmailAndPassword)) {
-		return <Redirect to='/' />
+		return <Navigate to={`/${config.basename}`} />
 	}
 
 	return (
@@ -95,7 +99,7 @@ export let Password = ({ onSubmit, onBack, ctx, loading, error }: Props) => {
 					{ withNavLink &&	
 						<section>
 							<small>
-								<Link to={`/${navLink}/email`}>{linkLabel}</Link>
+								<Link to={`/${config.basename}/${navLink}/email`}>{linkLabel}</Link>
 							</small>
 						</section>
 					}
@@ -131,7 +135,7 @@ export let Password = ({ onSubmit, onBack, ctx, loading, error }: Props) => {
 					/>
 					{	
 						(ctx === 'signin' && withPasswordReset) &&
-						<Link className="vulpo-auth-password-forgot-password" to='/forgot-password'>
+						<Link className="vulpo-auth-password-forgot-password" to={`/${config.basename}/forgot-password`}>
 							<small>{t.password.forgot}</small>
 						</Link>
 					}
@@ -163,18 +167,18 @@ type ContainerProps = {
 }
 
 let PasswordContainer = ({ redirect = true, redirectTo }: ContainerProps) => {
-	let history = useHistory()
-
+	let navigate = useNavigate()
+	let { basename } = useConfig()
 	let [error, setError] = useState<ErrorCode | null>(null)
 	let [loading, setLoading] = useState<boolean>(false)
-	let match = useRouteMatch<{ type: Ctx }>('/:type')
+	let match = useMatch(`${basename}/:type/*`)
 	let auth = useAuth()
 
 	function handleBack() {
 		if (match) {
-			history.replace(`/${match.params.type}`)
+			navigate(`/${basename}/${match.params.type}`, { replace: true })
 		} else {
-			history.replace('/')
+			navigate(`/${basename}/`, { replace: true })
 		}
 	}
 
@@ -192,7 +196,7 @@ let PasswordContainer = ({ redirect = true, redirectTo }: ContainerProps) => {
 				: await auth.signUp(form.email, form.password)
 
 			if (redirect && user.state === UserState.SetPassword) {
-				history.replace(redirectTo ?? '/user/set_password')
+				navigate(redirectTo ?? `/${basename}/user/set_password`, { replace: true })
 			}
 		} catch (err: any) {
 			setLoading(false)
@@ -200,11 +204,13 @@ let PasswordContainer = ({ redirect = true, redirectTo }: ContainerProps) => {
 		}
 	}
 
+	let ctx = match?.params?.type as Ctx | undefined
+
 	return (
 		<Password
 			onBack={handleBack}
 			onSubmit={handleSubmit}
-			ctx={match?.params?.type ?? Ctx.SignIn}
+			ctx={ctx ?? Ctx.SignIn}
 			loading={loading}
 			error={error}
 		/>

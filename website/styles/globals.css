@@ -45,9 +45,8 @@ a {
   box-sizing: border-box;
 }
 
-.vulpo-auth-link-button button,
-.vulpo-auth-button {
-  background: #000;
+.vulpo-auth-link-button button {
+  background: var(--brand-color);
   border-color: #111;
   color:  #fff;
   font-weight: 600;

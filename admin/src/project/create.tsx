@@ -3,14 +3,14 @@ import { Fragment } from 'react'
 import styled from 'styled-components'
 import { Header } from 'component/layout'
 import CreateProjectForm from 'component/create_project'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { PartialProject } from 'data/project'
 
 export let CreateProject = () => {
-	let history = useHistory()
+	let navigate = useNavigate()
 
 	function handleSuccess(project: PartialProject) {
-		history.replace(`/${project.id}`)
+		navigate(`/${project.id}`, { replace: true })
 	}
 
 	return (

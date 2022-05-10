@@ -14,8 +14,7 @@
     "@riezler/auth-react": "^0.0.4",
     "@riezler/auth-sdk": "^0.0.4",
     "@riezler/auth-ui": "^0.0.6",
-    "react-router-dom": "^5.2.0",
-    "@types/react-router-dom": "^5.1.6",
+    "react-router-dom": "^6.3.0",
     "@biotic-ui/leptons": "^0.3.9"
   },
   "devDependencies": {

@@ -5,9 +5,9 @@ let pool = new Pool({
   user: 'postgres',
   password: 'postgres',
   database: 'auth',
-  port: 6543,
+  port: 5432,
   max: 20,
-  idleTimeoutMillis: 30000,
+  idleTimeoutMillis: 40000,
   connectionTimeoutMillis: 2000,
 })
 

@@ -31,7 +31,16 @@ pub enum Templates {
 
 impl Templates {
     pub fn from_string(s: &str) -> Option<Templates> {
-        serde_json::from_str(s).ok()
+        match s {
+            "change_email" => Some(Templates::ChangeEmail),
+            "password_reset" => Some(Templates::PasswordReset),
+            "passwordless" => Some(Templates::Passwordless),
+            "verify_email" => Some(Templates::VerifyEmail),
+            "index" => Some(Templates::Index),
+            "button" => Some(Templates::Button),
+            "confirm_email_change" => Some(Templates::ConfirmEmailChange),
+            _ => None,
+        }
     }
 }
 

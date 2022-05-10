@@ -1,6 +1,6 @@
-import React from 'react'
+import React, { Fragment } from 'react'
 import styled from 'styled-components'
-import { HashRouter, Switch, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { Header } from 'component/layout'
 
 import {
@@ -16,7 +16,7 @@ import { Flag } from '@riezler/auth-sdk'
 
 export let Auth = () => {
 	return (
-		<HashRouter>
+		<Fragment>
 			<Header>
 				<h1>Authentication</h1>
 			</Header>
@@ -25,21 +25,16 @@ export let Auth = () => {
 					<Translation.Provider value={DefaultTranslation}>
 						<AuthConfig.Provider value={DefaultConfig}>
 							<div className="vulpo-auth-box-shadow">
-								<Switch>
-									<Route path='/set_password'>
-										<SetPassword />
-									</Route>
-
-									<Route path='/signin'>
-										<Password redirectTo='/set_password' />	
-									</Route>
-								</Switch>
+								<Routes>
+									<Route path='/set_password' element={<SetPassword />} />
+									<Route path='/signin' element={<Password redirectTo='/set_password' />} />
+								</Routes>
 							</div>
 						</AuthConfig.Provider>
 					</Translation.Provider>
 				</FlagsCtx.Provider>
 			</Wrapper>
-		</HashRouter>
+		</Fragment>
 	)
 }
 

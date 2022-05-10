@@ -1,5 +1,5 @@
 import React from 'react'
-import { Switch, Route, Redirect } from 'react-router-dom'
+import { Routes, Route, Navigate } from 'react-router-dom'
 import styled from 'styled-components'
 import { Main, Header as HeaderWrapper } from 'component/layout'
 
@@ -12,17 +12,11 @@ export default function Setup() {
 			<Header />
 			<Wrapper>
 				<Content>
-					<Switch>
-						<Route path='/setup/project'>
-							<Project />
-						</Route>
-
-						<Route path='/setup/user'>
-							<User />
-						</Route>
-
-						<Redirect from='/setup' to='/setup/project' />
-					</Switch>
+					<Routes>
+						<Route path='/setup/project' element={<Project />} />
+						<Route path='/setup/user' element={<User />} />
+						<Route path='/setup' element={<Navigate to='/setup/project' />} />
+					</Routes>
 				</Content>
 			</Wrapper>
 		</Main>

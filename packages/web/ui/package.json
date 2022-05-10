@@ -39,7 +39,7 @@
     "core-js": "^3.9.0",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
-    "react-router-dom": "^5.2.0",
+    "react-router-dom": "^6.3.0",
     "rimraf": "^3.0.2",
     "source-map-loader": "^2.0.1",
     "styled-components": "^5.2.1",
@@ -51,11 +51,10 @@
     "@riezler/auth-react": "^0.0.1",
     "@riezler/auth-sdk": "^0.0.1",
     "react": "^17.0.1 - 18.x",
-    "react-router-dom": "^5.2.0"
+    "react-router-dom": "^6.3.0"
   },
   "dependencies": {
-    "@types/react": "^17.0.2",
-    "@types/react-router-dom": "^5.1.7"
+    "@types/react": "^17.0.2"
   },
   "gitHead": "66f4c8adf32c325739fbdac41dbbe9d189aaba05"
 }

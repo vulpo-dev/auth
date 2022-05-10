@@ -32,6 +32,7 @@ export let project = {
 		'action::verify_email',
 		'method::email_password',
 		'method::authentication_link',
+		'oauth::google',
 	]
 }
 
@@ -46,4 +47,10 @@ export let projectKeys = {
 	private_key: fs.readFileSync(`${keyPath}/project`),
 	is_active: true,
 	project_id: project.id
+}
+
+export let googleCredentials = {
+	client_id: process.env.GOOGLE_CLIENT_ID,
+	client_secret: process.env.GOOGLE_CLIENT_SECRET,
+	redirect_uri: 'http://localhost:5000/auth/oauth/confirm',
 }

@@ -1,15 +1,14 @@
-import React, { FC, HTMLProps, useState } from 'react'
+import React, { FC, forwardRef, HTMLProps, InputHTMLAttributes, useState } from 'react'
 
-type InputProps = HTMLProps<HTMLInputElement>
-
-export let Input = (props: InputProps) => {
+export let Input = forwardRef<HTMLInputElement, InputHTMLAttributes<{}>>(({ children, ...props }, ref) => {
 	return <input
 		className="vulpo-auth-input"
 		{...props}
+		ref={ref}
 	/>
-}
+})
 
-export let Password = (props: InputProps) => {
+export let Password = forwardRef<HTMLInputElement, InputHTMLAttributes<{}>>(({ children , ...props }, ref) => {
 	let [type, setType] = useState<'password' | 'text'>('password')
 
 	function handleShow() {
@@ -22,7 +21,7 @@ export let Password = (props: InputProps) => {
 
 	return (
 		<div className="vulpo-auth-password-input">
-			<Input {...props} type={type} />
+			<Input {...props} ref={ref} type={type} />
 			<button className="vulpo-auth-password-input-button" type="button" onMouseDown={handleShow} onMouseUp={handleHide}>
 				{ type === 'text' &&
 					<Eye />				
@@ -34,7 +33,7 @@ export let Password = (props: InputProps) => {
 			</button>
 		</div>
 	)
-}
+})
 
 let Eye = () => {
 	return (

@@ -1,7 +1,7 @@
 import React from 'react'
 import { Story, Meta } from '@storybook/react/types-6-0'
 
-import { HashRouter, Switch, Route, Redirect } from 'react-router-dom'
+import { HashRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { Overview } from 'overview'
 import { Translation, DefaultTranslation } from 'context/translation'
 import { FlagsCtx } from 'context/config'
@@ -46,18 +46,18 @@ let Template: Story<{ flags: Array<Flag> }> = ({ flags }) => {
 			<FlagsCtx.Provider value={flags}>	
 				<Translation.Provider value={DefaultTranslation}>
 					<HashRouter>
-						<Switch>
+						<Routes>
 
-							<Route path='/:type'>
+							<Route path='/:type' element={
 								<div className="vulpo-auth vulpo-auth-container">
 									<div className="vulpo-auth-box-shadow">
 										<Overview />
 									</div>
 								</div>
-							</Route>
+							}></Route>
 
-							<Redirect to='/signin' from='/' />
-						</Switch>
+							<Route path='signin' element={<Navigate to='/signin' />}/>
+						</Routes>
 					</HashRouter>
 				</Translation.Provider>
 			</FlagsCtx.Provider>

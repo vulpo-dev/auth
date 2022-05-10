@@ -1,14 +1,11 @@
-import React from 'react'
-import { useState, FunctionComponent, ChangeEvent } from 'react'
+import React, { useMemo } from 'react'
+import { useState } from 'react'
 import styled from 'styled-components'
 import { SidebarLayout, Aside, Main } from '@biotic-ui/layout'
-import { Link, useLocation, useRouteMatch, Redirect } from 'react-router-dom'
-import { Location } from 'history'
+import { Link, useLocation, useMatch, Navigate, Route } from 'react-router-dom'
 import { useProject } from 'data/project'
-import { TemplateType, isTemplate, useTemplate, useSaveTemplate } from 'data/template'
-import { Button, LinkButton } from '@biotic-ui/button'
+import { TemplateType, isTemplate } from 'data/template'
 import { useQueryParams } from '@biotic-ui/std'
-import { Section, Label, Input, Textarea } from '@biotic-ui/input'
 
 import { TemplateForm } from 'templates/form'
 import { TemplateList } from 'templates/list'
@@ -24,19 +21,27 @@ let Templates = () => {
 	let [open, setOpen] = useState(true)
 	let location = useLocation()
 	let params = useQueryParams(location.search)
-	let match = useRouteMatch<{ project: string; template: string }>('/:project/templates/:template')
+	let match = useMatch('/:project/templates/:template/*')
 	let [project] = useProject()
 	let currentTab = params.get('tab') ?? Tab.Template
+	let search = useMemo(() => {
+		return new URLSearchParams(location.search)
+	}, [location.search])
 
 	function navigate(tab: Tab) {
-		return (location: Location) => {
-			let search = new URLSearchParams(location.search)
 			search.set('tab', tab)
-			return {
-				...location,
-				search: search.toString(),
-			}
+		return {
+			...location,
+			search: search.toString(),
 		}
+	}
+
+	let template = match?.params.template as TemplateType
+
+	console.log('FFUFUUUFUUU', { match })
+
+	if (!match || !isTemplate(template)) {
+		return <Navigate to={`/${project.id}/templates/${TemplateType.Passwordless}`} />
 	}
 
 	return (
@@ -46,46 +51,38 @@ let Templates = () => {
 					<TemplateList />
 				</Aside>
 				<Main>
-					{ (match && isTemplate(match.params.template)) &&
-						<TemplateCtx.Provider value={{ project: project.id, template: match.params.template }}>						
-							<Layout>
-								<TemplateNav>
-									<StyledListItem
-										$isActive={currentTab === Tab.Template}
-										to={navigate(Tab.Template)}
-									>
-										Template
-									</StyledListItem>
+					<TemplateCtx.Provider value={{ project: project.id, template }}>						
+						<Layout>
+							<TemplateNav>
+								<StyledListItem
+									$isActive={currentTab === Tab.Template}
+									to={navigate(Tab.Template)}
+								>
+									Template
+								</StyledListItem>
 
-									<StyledListItem
-										$isActive={currentTab === Tab.Translations}
-										to={navigate(Tab.Translations)}
-									>
-										Translations
-									</StyledListItem>
-								</TemplateNav>
+								<StyledListItem
+									$isActive={currentTab === Tab.Translations}
+									to={navigate(Tab.Translations)}
+								>
+									Translations
+								</StyledListItem>
+							</TemplateNav>
 
-								<Content>
-									{ currentTab === Tab.Template &&
-										<TemplateForm
-											project={project.id}
-											template={match.params.template}
-										/>
-									}
+							<Content>
+								{ currentTab === Tab.Template &&
+									<TemplateForm
+										project={project.id}
+										template={template}
+									/>
+								}
 
-									{ currentTab === Tab.Translations &&
-										<Translations
-
-										/>
-									}
-								</Content>
-							</Layout>
-						</TemplateCtx.Provider>
-					}
-
-					{ (!match || !isTemplate(match.params.template)) &&
-						<Redirect to={`/${project.id}/templates/${TemplateType.Passwordless}`} />
-					}
+								{ currentTab === Tab.Translations &&
+									<Translations />
+								}
+							</Content>
+						</Layout>
+					</TemplateCtx.Provider>
 				</Main>
 			</SidebarLayout>
 		</Wrapper>

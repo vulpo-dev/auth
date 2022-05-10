@@ -2,7 +2,7 @@ import React from 'react'
 import { Auth as AuthComponent } from 'auth'
 import { User, Auth, UserState } from '@riezler/auth-sdk'
 import { Auth as AuthClient } from '@riezler/auth-react'
-import { HashRouter, Route, Redirect, Switch } from 'react-router-dom'
+import { HashRouter, Route, Navigate, Routes } from 'react-router-dom'
 import { Header, Wrapper } from 'setup'
 import { Story, Meta } from '@storybook/react/types-6-0';
 import { Main } from 'component/layout'
@@ -47,13 +47,10 @@ const Template: Story<{}> = (args) => {
         <Main>
           <Header />
           <Wrapper>
-            <Switch>
-              <Route path='/signin'>
-                  <AuthComponent />
-              </Route>
-
-              <Redirect to='/signin' />
-            </Switch>
+            <Routes>
+              <Route path='/signin' element={<AuthComponent />} />
+              <Route element={<Navigate to='/signin' />} />
+            </Routes>
           </Wrapper>
         </Main>
       </AuthClient.Provider>

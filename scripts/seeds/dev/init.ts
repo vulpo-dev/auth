@@ -8,6 +8,7 @@ import {
   project,
   projectKeys,
   projectSettings,
+  googleCredentials,
 } from '../data/projects'
 
 
@@ -31,6 +32,13 @@ exports.seed = async function(knex: Knex) {
     adminSettings,
     projectSettings,
   ])
+
+  console.log('Insert Google Credentials')
+  await knex('oauth').insert({
+    project_id: projectSettings.project_id,
+    provider: 'google',
+    settings: JSON.stringify(googleCredentials),
+  })
 
   console.log('Insert Email Settings')
   await knex('email_settings').insert([email])

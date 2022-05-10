@@ -1,6 +1,6 @@
 import React from 'react'
 import { useState } from 'react'
-import { Switch, Route, useHistory, Redirect } from 'react-router-dom'
+import { Routes, Route, useNavigate, Navigate } from 'react-router-dom'
 import { useAuthStateChange, useAuth } from '@riezler/auth-react'
 import { UserAuthState, UserState } from '@riezler/auth-sdk'
 import { PageLoad } from 'component/loading'
@@ -11,7 +11,7 @@ import { CurrentUser } from 'auth/ctx'
 import CreateProject from 'project/create'
 
 export default function App() {
-	let history = useHistory()
+	let navigate = useNavigate()
 
 	let [referrer] = useState(() => {
 		if (window.location.pathname.includes('/auth')) {
@@ -33,16 +33,16 @@ export default function App() {
 
 
 		if (user?.state === UserState.SetPassword) {
-			history.replace('/auth/#/set_password')
+			navigate('/auth/set_password', { replace: true })
 			return
 		}
 
 		if (session === null) {
-			history.replace('/auth/#/signin')
+			navigate('/auth/signin', { replace: true })
 		}
 
 		if (session && !currentUser) {
-			history.replace(referrer)
+			navigate(referrer, { replace: true })
 		}
 	})
 
@@ -50,28 +50,26 @@ export default function App() {
 		return <PageLoad />
 	}
 
+	let redirect = (currentUser && currentUser.state !== UserState.SetPassword)
+
+	console.log({ referrer })
+
 	return (
-		<Switch>
-			<Route path='/auth'>
-
-				<Auth />
-
-				{ (currentUser && currentUser.state !== UserState.SetPassword) &&
-					<Redirect to={referrer} />
-				}
+		<Routes>
+			<Route
+				path='/auth/*'
+				element={redirect ? <Navigate to={referrer} /> : <Auth />}>
 			</Route>
 
-			<Route path='/project/create'>
-				<CreateProject />
-			</Route>
+			<Route path='/project/create' element={<CreateProject />} />
 
-			<Route path='/'>
+			<Route path='/*' element={
 				<CurrentUser.Provider value={currentUser}>
 					{ currentUser === null ? <PageLoad /> : <Dashboard /> }
 				</CurrentUser.Provider>
-			</Route>
+			}></Route>
 
-		</Switch>
+		</Routes>
 	)
 }
 

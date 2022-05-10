@@ -1,7 +1,7 @@
 import React from 'react'
 import { SyntheticEvent, useState } from 'react'
 import styled from 'styled-components'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { Input } from '@biotic-ui/input'
 import { useForm } from '@biotic-ui/std' 
 import { Button } from '@biotic-ui/button'
@@ -81,7 +81,7 @@ export let User = ({ onSubmit, loading = false, error }: Props) => {
 }
 
 let UserContainer = () => {
-	let history = useHistory()
+	let navigate = useNavigate()
 	let project = useBosonValue(projectId)
 	let [loading, setLoading] = useState(false)
 	let [error, setError] = useState<null | ApiError>(null)
@@ -95,7 +95,7 @@ let UserContainer = () => {
 		try {
 			setLoading(true)
 			await createAdmin(user, project)
-			history.replace('/auth/#/signin')
+			navigate('/auth/#/signin', { replace: true })
 		} catch (err) {
 			setLoading(false)
 			setError(getErrorCode(err))

@@ -1,7 +1,7 @@
 import React from 'react'
 import { SyntheticEvent, useState } from 'react'
 import { ErrorCode, Flag } from '@riezler/auth-sdk'
-import { useHistory, Switch, Route, Redirect, useLocation } from 'react-router-dom'
+import { useNavigate, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { useAuth } from '@riezler/auth-react'
 
 import { useForm, useQueryParams } from '../utils'
@@ -93,7 +93,7 @@ let PasswordResetContainer = () => {
 	let [error, setError] = useState<ErrorCode | null>(null)
 	let [loading, setLoading] = useState<boolean>(false)
 
-	let history = useHistory()
+	let navigate = useNavigate()
 
 	async function handleReset(form: Form) {
 		setError(null)
@@ -103,7 +103,7 @@ let PasswordResetContainer = () => {
 			await auth.resetPassword(form.email)
 			setLoading(false)
 
-			history.replace(`/forgot-password/check-email?email=${form.email}`)
+			navigate(`check-email?email=${encodeURIComponent(form.email)}`, { replace: true })
 		} catch (err) {
 			setLoading(false)
 			setError(err.code)
@@ -111,7 +111,7 @@ let PasswordResetContainer = () => {
 	}
 
 	function handleBack() {
-		history.replace(`/signin/email`)
+		navigate(`/signin/email`, { replace: true })
 	}
 
 	return (
@@ -127,25 +127,18 @@ let PasswordResetContainer = () => {
 
 export default () => {
 	let flags = useFlags()
+	let { basename } = useConfig()
 
 	if (!flags.includes(Flag.PasswordReset)) {
-		return <Redirect to='/' />
+		return <Navigate to={basename} />
 	}
 
 	return (
-		<Switch>
-			<Route path='/forgot-password/check-email'>
-				<CheckEmail />
-			</Route>
-
-			<Route path='/forgot-password/set-password'>
-				<SetPassword />
-			</Route>
-			
-			<Route path='/forgot-password'>
-				<PasswordResetContainer />
-			</Route>
-		</Switch>
+		<Routes>
+			<Route path='check-email' element={<CheckEmail />} />
+			<Route path='set-password' element={<SetPassword />} />
+			<Route path='/' element={<PasswordResetContainer />} />
+		</Routes>
 	)
 }
 
