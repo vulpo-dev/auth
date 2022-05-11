@@ -1,4 +1,4 @@
-import { AxiosError } from 'axios'
+import axios, { AxiosError } from 'axios'
 
 export enum ErrorCode {
 	InternalServerError = 'internal_error',
@@ -48,7 +48,11 @@ export type ErrorResponse = {
 
 export class ApiError {
 
-	fromResponse(res: AxiosError<ErrorResponse>): HttpError | AuthError | GenericError {
+	fromResponse(res: AxiosError<ErrorResponse>): HttpError | AuthError | GenericError | AxiosError<ErrorResponse> {
+
+		if (axios.isCancel(res)) {
+			return res
+		}
 
 		if (res.response?.status === 503) {
 			return new HttpError(ErrorCode.Unavailable)

@@ -25,10 +25,39 @@
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
     <title>React App</title>
+
+    <style>
+      .vulpo-auth-splashscreen {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        height: 100vh;
+        width: 100vw;
+        position: fixed;
+        top: 0;
+        left: 0;
+        font-family: sans-serif;
+      }
+
+      .vulpo-auth-splashscreen-title {
+        max-width: 19ch;
+        font-size: 3rem;
+        font-size: max(2rem, 4vw);
+        margin-bottom: max(3rem, 4vw);
+        line-height: 1;
+      }
+    </style>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
-    <div id="root"></div>
+    <div id="root">
+      <div class="vulpo-auth-splashscreen">
+        <h1 class="vulpo-auth-splashscreen-title">
+            VULPO
+        </h1>
+      </div>
+    </div>
     <!--
       This HTML file is a template.
       If you open it directly in the browser, you will see an empty page.

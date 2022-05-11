@@ -1,11 +1,10 @@
 import App from './App'
-import { Route } from 'react-router-dom'
+import { Route, Link } from 'react-router-dom'
 import { AuthShell } from '@riezler/auth-ui'
-import '@riezler/auth-ui/styles.css'
 
 let Bootstrap = () => {
 	return (
-		<AuthShell>
+		<AuthShell name="VULPO">
 			<Route path='/page' element={<Page />} />
 			<Route path='/' element={<App />} />
 		</AuthShell>
@@ -16,6 +15,9 @@ export default Bootstrap
 
 function Page() {
 	return (
-		<h1>Page</h1>
+		<div>
+			<h1>Page</h1>
+			<Link to="/">App</Link>
+		</div>
 	)
 }

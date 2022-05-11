@@ -111,10 +111,6 @@
 	background: var(--brand-color--light);
 }
 
-.ui-example {
-	padding: 2rem;	
-}
-
 .ui-example-wrapper {
 	min-height: 50vh;
 	display: flex;

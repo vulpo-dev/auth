@@ -1,6 +1,6 @@
-import React, { FC, forwardRef, HTMLProps, InputHTMLAttributes, useState } from 'react'
+import React, { forwardRef, FunctionComponent, InputHTMLAttributes, ReactNode, useState } from 'react'
 
-export let Input = forwardRef<HTMLInputElement, InputHTMLAttributes<{}>>(({ children, ...props }, ref) => {
+export let Input = forwardRef<HTMLInputElement, InputHTMLAttributes<{}>>(({ ...props }, ref) => {
 	return <input
 		className="vulpo-auth-input"
 		{...props}
@@ -8,7 +8,7 @@ export let Input = forwardRef<HTMLInputElement, InputHTMLAttributes<{}>>(({ chil
 	/>
 })
 
-export let Password = forwardRef<HTMLInputElement, InputHTMLAttributes<{}>>(({ children , ...props }, ref) => {
+export let Password = forwardRef<HTMLInputElement, InputHTMLAttributes<{}>>(({ ...props }, ref) => {
 	let [type, setType] = useState<'password' | 'text'>('password')
 
 	function handleShow() {
@@ -52,7 +52,7 @@ let EyeClosed = () => {
 	)
 }
 
-export let Label: FC = (props) => {
+export let Label: FunctionComponent<{ children: ReactNode }> = (props) => {
 	return (
 		<label className="vulpo-auth-input-label">
 			{props.children}
@@ -60,7 +60,7 @@ export let Label: FC = (props) => {
 	)
 }
 
-export let Section: FC = (props) => {
+export let Section: FunctionComponent<{ children: ReactNode }> = (props) => {
 	return (
 		<section className="vulpo-auth-input-section">
 			{props.children}

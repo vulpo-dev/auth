@@ -17,10 +17,10 @@
   "license": "MPL-2.0",
   "dependencies": {
     "@riezler/auth-sdk": "^0.0.4",
-    "@types/react": "^17.0.2"
+    "@types/react": "^18.0.9"
   },
   "peerDependencies": {
-    "react": "^17.0.1"
+    "react": "16.8 - 18.x"
   },
   "devDependencies": {
     "@babel/core": "^7.13.1",

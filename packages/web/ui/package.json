@@ -37,8 +37,8 @@
     "babel-loader": "^8.2.2",
     "babel-plugin-styled-components": "^1.12.0",
     "core-js": "^3.9.0",
-    "react": "^17.0.1",
-    "react-dom": "^17.0.1",
+    "react": "^18.1.0",
+    "react-dom": "^18.1.0",
     "react-router-dom": "^6.3.0",
     "rimraf": "^3.0.2",
     "source-map-loader": "^2.0.1",
@@ -50,11 +50,11 @@
   "peerDependencies": {
     "@riezler/auth-react": "^0.0.1",
     "@riezler/auth-sdk": "^0.0.1",
-    "react": "^17.0.1 - 18.x",
+    "react": "16.8 - 18.x",
     "react-router-dom": "^6.3.0"
   },
   "dependencies": {
-    "@types/react": "^17.0.2"
+    "@types/react": "^18.0.9"
   },
   "gitHead": "66f4c8adf32c325739fbdac41dbbe9d189aaba05"
 }

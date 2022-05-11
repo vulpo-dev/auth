@@ -1,10 +1,11 @@
-import React, { FunctionComponent, useState, createContext, useContext } from 'react'
+import React, { FunctionComponent, useState, createContext, useContext, ReactNode } from 'react'
 import { Routes, Route, useNavigate, useLocation, Navigate } from 'react-router-dom'
 import { useAuthStateChange, useAuth } from '@riezler/auth-react'
 import { UserAuthState, UserState } from '@riezler/auth-sdk'
 
 import Auth from './auth'
 import { useConfig } from './context/config'
+import Splashscreen from './component/splashscreen'
 
 export let UserCtx = createContext<UserAuthState>(undefined)
 
@@ -12,7 +13,15 @@ export function useUser() {
 	return useContext(UserCtx)
 }
 
-let AuthShell: FunctionComponent = ({ children }) => {
+type Props = {
+	children?: ReactNode,
+	redirect?: string,
+	name?: string,
+	themeColor?: string,
+	splashscreen?: JSX.Element,
+}
+
+let AuthShell: FunctionComponent<Props> = (props) => {
 	let { basename } = useConfig()
 	let navigate = useNavigate()
 	let location = useLocation()
@@ -20,7 +29,7 @@ let AuthShell: FunctionComponent = ({ children }) => {
 	let [referrer] = useState(() => {
 		let { pathname } = window.location
 		if (pathname.startsWith(`/${basename}`)) {
-			return '/'
+			return props.redirect ?? '/'
 		}
 
 		return pathname
@@ -56,13 +65,15 @@ let AuthShell: FunctionComponent = ({ children }) => {
 	if (
 		user === undefined &&
 		!location.pathname.startsWith(`/${basename}`) &&
-		!isVerifyEmail(window.location.hash)
+		!isVerifyEmail(basename)
 	) {
-		return <p>...loading</p>
+		return props.splashscreen ?? <Splashscreen
+			name={props.name}
+			background={props.themeColor}
+		/>
 	}
 
-
-	let redirect = (user && user.state !== UserState.SetPassword && !isVerifyEmail(window.location.hash))
+	let redirect = (user && user?.state !== UserState.SetPassword && !isVerifyEmail(basename))
 	let AuthComponent = (
 		<div className="vulpo-auth vulpo-auth-container">
 			<div className="vulpo-auth-box-shadow">
@@ -78,7 +89,7 @@ let AuthShell: FunctionComponent = ({ children }) => {
 					redirect ? <Navigate to={referrer} /> : AuthComponent
 				} />
 
-				{ children }
+				{ props.children }
 			</Routes>
 		</UserCtx.Provider>
 	)

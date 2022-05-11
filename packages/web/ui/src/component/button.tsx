@@ -1,4 +1,4 @@
-import React, { FC, MouseEventHandler } from 'react'
+import React, { FC, MouseEventHandler, ReactNode } from 'react'
 
 type ButtonProps = {
 	loading?: boolean,
@@ -8,6 +8,7 @@ type ButtonProps = {
 	onClick?: MouseEventHandler<HTMLButtonElement>,
 	'aria-label'?: string,
 	className?: string,
+	children?: ReactNode,
 }
 
 export let Button: FC<ButtonProps> = (props) => {

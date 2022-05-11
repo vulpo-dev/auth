@@ -5,7 +5,6 @@ import {
 	useNavigate,
 	Routes,
 	Route,
-    useMatch
 } from 'react-router-dom'
 import App from 'app'
 import { useProject } from 'data/admin'

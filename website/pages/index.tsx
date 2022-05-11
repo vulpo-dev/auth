@@ -66,7 +66,7 @@ const Home: NextPage = () => {
               </button>
             </div>
           </header>
-          <div className={styles['ui-example']} suppressHydrationWarning={true}>
+          <div suppressHydrationWarning={true}>
             { (process.browser && example === 'ui') &&
               <div className={styles['ui-example-wrapper']}>
                 <AuthExample />
@@ -190,7 +190,7 @@ npm start
               <li>
                 <details>
                   <summary>Install the vulpo auth packages</summary>
-                  <pre>npm install @riezler/auth-react @riezler/auth-sdk @riezler/auth-ui react-router-dom @biotic-ui/leptons</pre>
+                  <pre>npm install @riezler/auth-react @riezler/auth-sdk @riezler/auth-ui react-router-dom </pre>
                 </details>
               </li>
 
@@ -200,15 +200,14 @@ npm start
                   <pre>
                     <code className="language-tsx">
 {`import React from 'react';
-import ReactDOM from 'react-dom';
-// this import provides the base styles for the integrated UI
-import '@biotic-ui/leptons/style/base.css'
+import { createRoot } from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { BrowserRouter } from 'react-router-dom'
 import { Auth as AuthCtx } from '@riezler/auth-react'
 import { Auth } from '@riezler/auth-sdk'
+import '@riezler/auth-ui/styles.css'
 
 let AuthClient = Auth.create({
   // You'll find the ID under your project settings
@@ -216,15 +215,17 @@ let AuthClient = Auth.create({
   baseURL: 'http://127.0.0.1:8000'
 })
 
-ReactDOM.render(
+let container = document.getElementById('root')
+let root = createRoot(container) // createRoot(container!) if you use TypeScript
+
+root.render(
   <React.StrictMode>
-          <BrowserRouter>
-                  <AuthCtx.Provider value={AuthClient}>
-                    <App />
-                  </AuthCtx.Provider>
-          </BrowserRouter>
-  </React.StrictMode>,
-  document.getElementById('root')
+    <BrowserRouter>
+      <AuthCtx.Provider value={AuthClient}>
+        <App />
+      </AuthCtx.Provider>
+    </BrowserRouter>
+  </React.StrictMode>
 );
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))
@@ -248,15 +249,13 @@ import { AuthShell, useUser } from '@riezler/auth-ui'
 let App = () => {
         return (
                 <AuthShell>
-                        <Route path='/user'>
-                               <WithUser />
-                        </Route>
-                        <Route path='/'>
-                                <div>
-                                        <h1>Page</h1>
-                                        <Link to="/user">Page</Link>
-                                </div>
-                        </Route>
+                        <Route path='/' element={<WithUser />} />
+                        <Route path='page' element={
+                          <div>
+                                  <h1>Page</h1>
+                                  <Link to="/">Page</Link>
+                          </div>
+                        } />
                 </AuthShell>
         )
 }
@@ -268,7 +267,7 @@ let WithUser = () => {
         <div>
   
           <h1>With User </h1>
-            <Link to="/">Page</Link>
+            <Link to="page">Page</Link>
             <pre>{JSON.stringify(user, null, 2)}</pre>
         </div>
     )

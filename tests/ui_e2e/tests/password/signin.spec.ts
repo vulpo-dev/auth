@@ -1,5 +1,4 @@
 import { test, expect } from '@playwright/test'
-import Db from '../utils/db'
 import { createUserWithEmailPassword, setState } from '../utils/user'
 import { getValidationMessage } from '../utils'
 import { signInNoWait } from '../utils/signin'
@@ -14,7 +13,6 @@ let BTN = 'Sign In'
 test.beforeEach(async ({ page }) => {
 	await page.goto(PATH)
 })
-test.afterAll(() => Db.end())
 
 test('can sign in with email and password', async ({ page }) => {
 	let EMAIL = email()

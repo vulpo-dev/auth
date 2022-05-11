@@ -1,5 +1,4 @@
 import { test, expect, Page } from '@playwright/test'
-import Db from '../utils/db'
 import { getValidationMessage, followEmail } from '../utils'
 import { v4 as uuid } from 'uuid'
 
@@ -8,10 +7,6 @@ let PATH = '/auth/signup/email'
 
 test.beforeEach(async ({ page }) => {
 	await page.goto(PATH)
-})
-
-test.afterAll(async () => {
-	await Db.end()
 })
 
 test('can sign up with email and password', async ({ page }) => {
