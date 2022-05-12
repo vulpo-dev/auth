@@ -19,6 +19,7 @@ type Props = {
 	name?: string,
 	themeColor?: string,
 	splashscreen?: JSX.Element,
+	authscreen?: JSX.Element,
 	dark?: boolean,
 } & Partial<$AuthConfig>
 
@@ -87,11 +88,13 @@ let AuthShell: FunctionComponent<Props> = (props) => {
 
 	let AuthComponent = (
 		<AuthConfig.Provider value={authConfig}>
-			<div className="vulpo-auth vulpo-auth-container">
-				<div className="vulpo-auth-box-shadow">
-					<Auth />
+			{ props.authscreen ?? (
+				<div className="vulpo-auth vulpo-auth-container">
+					<div className="vulpo-auth-box-shadow">
+						<Auth />
+					</div>
 				</div>
-			</div>
+			)}
 		</AuthConfig.Provider>
 	)
 
