@@ -10,6 +10,7 @@ import { Button, IconButton } from '../component/button'
 import { useConfig, useFlags } from '../context/config'
 import { useTranslation, useError } from '../context/translation'
 import { Disclaimer } from '../component/disclaimer'
+import Card from '../component/card'
 
 type Form = {
 	email: string
@@ -50,7 +51,7 @@ export let EnterEmail = (props: Props) => {
 		: t.signup.label
 
 	return (
-		<div className="vulpo-auth vulpo-auth-card vulpo-auth-passwordless">
+		<Card className="vulpo-auth-passwordless">
 			<div className="vulpo-auth-card-nav">
 				{ withBack &&
 					<IconButton id='back' onClick={props.onBack}>
@@ -94,7 +95,7 @@ export let EnterEmail = (props: Props) => {
 			<footer className="vulpo-auth-footer">
 				<Disclaimer  />
 			</footer>
-		</div>
+		</Card>
 	)
 }
 

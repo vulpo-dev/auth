@@ -2,7 +2,7 @@ import React from 'react'
 
 export default function GoogleAuthIcon() {
     return (
-        <svg width="32px" height="32px" viewBox="0 0 46 46" version="1.1" xmlns="http://www.w3.org/2000/svg">
+        <svg width="26px" height="26px" viewBox="0 0 46 46" version="1.1" xmlns="http://www.w3.org/2000/svg">
             <defs>
                 <filter x="-50%" y="-50%" width="200%" height="200%" filterUnits="objectBoundingBox" id="filter-1">
                     <feOffset dx="0" dy="1" in="SourceAlpha" result="shadowOffsetOuter1"></feOffset>

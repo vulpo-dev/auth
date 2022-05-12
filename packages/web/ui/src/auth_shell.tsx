@@ -4,7 +4,7 @@ import { useAuthStateChange, useAuth } from '@riezler/auth-react'
 import { UserAuthState, UserState } from '@riezler/auth-sdk'
 
 import Auth from './auth'
-import { useConfig } from './context/config'
+import { AuthConfig, DefaultConfig, $AuthConfig } from './context/config'
 import Splashscreen from './component/splashscreen'
 
 export let UserCtx = createContext<UserAuthState>(undefined)
@@ -19,10 +19,12 @@ type Props = {
 	name?: string,
 	themeColor?: string,
 	splashscreen?: JSX.Element,
-}
+	dark?: boolean,
+} & Partial<$AuthConfig>
 
 let AuthShell: FunctionComponent<Props> = (props) => {
-	let { basename } = useConfig()
+	let { basename = DefaultConfig.basename } = props
+
 	let navigate = useNavigate()
 	let location = useLocation()
 
@@ -74,12 +76,23 @@ let AuthShell: FunctionComponent<Props> = (props) => {
 	}
 
 	let redirect = (user && user?.state !== UserState.SetPassword && !isVerifyEmail(basename))
+
+	let authConfig: $AuthConfig = {
+		basename: props.basename ?? DefaultConfig.basename,
+		tos: props.tos ?? DefaultConfig.tos,
+		privacy: props.privacy ?? DefaultConfig.privacy,
+		Arrow: props.Arrow ?? DefaultConfig.Arrow,
+		dark: props.dark ?? DefaultConfig.dark,
+	}
+
 	let AuthComponent = (
-		<div className="vulpo-auth vulpo-auth-container">
-			<div className="vulpo-auth-box-shadow">
-				<Auth />
+		<AuthConfig.Provider value={authConfig}>
+			<div className="vulpo-auth vulpo-auth-container">
+				<div className="vulpo-auth-box-shadow">
+					<Auth />
+				</div>
 			</div>
-		</div>
+		</AuthConfig.Provider>
 	)
 
 	return (

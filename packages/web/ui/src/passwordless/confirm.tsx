@@ -7,6 +7,7 @@ import { useAuth } from '@riezler/auth-react'
 import { Flow } from '../component/loading'
 import { useQueryParams } from '../utils'
 import { useTranslation, useError } from '../context/translation'
+import Card from '../component/card'
 
 type Props = {
 	loading: boolean;
@@ -20,7 +21,7 @@ export let Confirm: FunctionComponent<Props> = ({ loading, error }) => {
 	let Overview = <Link className="vulpo-auth-passwordless-confirm-overview" to='/'>Overview</Link>
 
 	return (
-		<div className="vulpo-auth vulpo-auth-card vulpo-auth-passwordless-confirm">
+		<Card className="vulpo-auth-passwordless-confirm">
 			<header className="vulpo-card-header">
 				<h3 className="vulpo-auth-card-title test-confirm-signin">Confirm Sign In</h3>
 			</header>
@@ -46,7 +47,7 @@ export let Confirm: FunctionComponent<Props> = ({ loading, error }) => {
 				</Fragment>
 			}
 
-		</div>
+		</Card>
 	)
 }
 

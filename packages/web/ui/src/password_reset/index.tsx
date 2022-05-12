@@ -12,6 +12,7 @@ import { useConfig, useFlags } from '../context/config'
 
 import CheckEmail from './check'
 import SetPassword from './set_password'
+import Card from '../component/card'
 
 type Form = {
 	email: string;
@@ -44,7 +45,7 @@ export let PasswordReset: React.FC<Props> = ({
 	}
 
 	return (
-		<div className="vulpo-auth vulpo-auth-card vulpo-auth-password-reset">
+		<Card className="vulpo-auth-password-reset">
 			<div className="vulpo-auth-card-nav">
 				<IconButton
 					id="back"
@@ -83,7 +84,7 @@ export let PasswordReset: React.FC<Props> = ({
 					<p className="vulpo-auth-error">{errorMessage}</p>
 				}
 			</form>
-		</div>
+		</Card>
 	)
 }
 
@@ -94,6 +95,7 @@ let PasswordResetContainer = () => {
 	let [loading, setLoading] = useState<boolean>(false)
 
 	let navigate = useNavigate()
+	let { basename } = useConfig()
 
 	async function handleReset(form: Form) {
 		setError(null)
@@ -111,7 +113,7 @@ let PasswordResetContainer = () => {
 	}
 
 	function handleBack() {
-		navigate(`/signin/email`, { replace: true })
+		navigate(`/${basename}/signin/email`, { replace: true })
 	}
 
 	return (

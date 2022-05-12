@@ -7,6 +7,7 @@ import { ErrorCode, CancelToken } from '@riezler/auth-sdk'
 import { useQueryParams } from '../utils'
 import { useTranslation } from '../context/translation'
 import { useConfig } from 'context/config'
+import Card from '../component/card'
 
 export type Props = {
 	email: string | null;
@@ -17,7 +18,7 @@ export let CheckEmail = ({ email }: Props) => {
 	let t = useTranslation()
 
 	return (
-		<div className="vulpo-auth vulpo-auth-card vulpo-auth-passwordless-check">
+		<Card className="vulpo-auth-passwordless-check">
 			<header className="vulpo-card-header">
 				<h3 className="vulpo-auth-card-title test-check-email">{t.passwordless_check.title}</h3>
 			</header>
@@ -28,7 +29,7 @@ export let CheckEmail = ({ email }: Props) => {
 
 			<t.passwordless_check.description email={email} type={t.signin.label} />
 			<small>{t.passwordless_check.info}</small>
-		</div>
+		</Card>
 	)
 }
 

@@ -1,22 +1,23 @@
-import React from 'react'
+import React, { ReactNode } from 'react'
 import { createContext, useContext } from 'react'
-import { BrowserRouter } from 'react-router-dom'
 import { Flag } from '@riezler/auth-sdk'
 
 import Arrow from '../component/arrow'
 
-type $AuthConfig = {
+export type $AuthConfig = {
 	tos: string;
 	privacy: string;
-	Arrow: JSX.Element;
+	Arrow: ReactNode;
 	basename: string;
+	dark: boolean;
 }
 
 export let DefaultConfig = {
 	tos: '',
 	privacy: '',
 	Arrow: <Arrow />,
-	basename: 'auth'
+	basename: 'auth',
+	dark: false,
 }
 
 export let AuthConfig = createContext<$AuthConfig>(DefaultConfig)

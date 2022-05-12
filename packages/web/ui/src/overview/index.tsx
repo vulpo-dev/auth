@@ -2,13 +2,14 @@ import React from 'react'
 import { useMemo } from 'react'
 import { Link, useLocation, Navigate } from 'react-router-dom'
 import { Flag } from '@riezler/auth-sdk'
+import { useAuth } from '@riezler/auth-react'
 
 import { Button } from '../component/button'
 import Header from '../component/header'
 import { useTranslation } from '../context/translation'
 import GoogleAuthIcon from '../component/google_auth_icon'
 import { useConfig, useFlags } from '../context/config'
-import { useAuth } from '@riezler/auth-react'
+import Card from '../component/card'
 
 export let Overview = () => {
 	let t = useTranslation()
@@ -42,7 +43,7 @@ export let Overview = () => {
 	let disabled = auth.singInWithRedirect.loading
 
 	return (
-		<div className="vulpo-auth vulpo-auth-card vulpo-auth-overview">
+		<Card className="vulpo-auth-overview">
 			<Header />
 
 			<div className="vulpo-auth-overview-buttons">
@@ -69,7 +70,7 @@ export let Overview = () => {
 					</Button>
 				}
 			</div>
-		</div>
+		</Card>
 	)
 }
 

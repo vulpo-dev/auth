@@ -20,7 +20,7 @@ export let Header = ({ title, info, link, to }: Props) => {
 			{ title && <h3 className="vulpo-auth-card-title vulpo-auth-header-title">{title}</h3>}
 			{ info &&
 				<p className="vulpo-auth-header-info">
-					{info} { link && <Link className="vulpo-auth-header-link" to={`/${basename}/${to}`}>{link}</Link>}
+					{info} {' '} { link && <Link className="vulpo-auth-header-link" to={`/${basename}/${to}`}>{link}</Link>}
 				</p>
 			}
 		</header>

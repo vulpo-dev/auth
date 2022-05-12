@@ -8,6 +8,7 @@ import { Flow } from '../component/loading'
 import CheckIcon from '../component/check'
 import { useTranslation, useError } from '../context/translation'
 import { useConfig, useFlags } from '../context/config'
+import Card from '../component/card'
 
 export type Props = {
 	loading: boolean;
@@ -19,7 +20,7 @@ export let VerifyEmail = ({ loading, error }: Props) => {
 	let errorMessage = useError(error)
 
 	return (
-		<div className="vulpo-auth vulpo-auth-card vulpo-auth-verify-email">
+		<Card className="vulpo-auth-verify-email">
 			<header className="vulpo-card-header">
 				<h3 className="vulpo-auth-card-title">{t.verify_email.title}</h3>
 			</header>
@@ -42,7 +43,7 @@ export let VerifyEmail = ({ loading, error }: Props) => {
 			{ error !== null &&
 				<p className="vulpo-auth-error">{errorMessage}</p>
 			}
-		</div>
+		</Card>
 	)
 }
 

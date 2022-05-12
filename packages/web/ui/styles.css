@@ -6,8 +6,21 @@
 	--error: var(--vulpo-auth-error, #ff5555);
 	--card-background: var(--vulpo-auth-card-background, #fff);
 	--shadow: 0 13px 34px rgba(0,0,0,0.25), 0 8px 8px rgba(0,0,0,0.21);
-	--border-color: var(--vulpo-auth-border-color, #e9e9e9);
 	--shadow-2: 0 3px 5px rgba(0,0,0,0.16), 0 3px 5px rgba(0,0,0,0.23);
+	--border-color: var(--vulpo-auth-border-color, #e9e9e9);
+	--copy-color: #000;
+}
+
+.vulpo-auth--dark {
+	color: #fff;
+	--card-background: #282a36;
+	--vulpo-auth-input-color-placeholder: #fff;
+	--border-color: #000;
+	--copy-color: #fff;
+}
+
+.vulpo-auth--dark a {
+	color: #fff;
 }
 
 .vulpo-auth-box-shadow {
@@ -201,26 +214,27 @@
 	box-shadow: none;
 	font-size: inherit;
 	box-sizing: border-box;
+	border-color: var(--border-color);
+	color: var(--copy-color);
 }
 
 .vulpo-auth-input::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
-	color: var(--vulpo-auth-input-color-placeholder);
+	color: var(--vulpo-auth-input-color-placeholder, var(--copy-color));
 	opacity: 1; /* Firefox */
 }
 
 .vulpo-auth-input:-ms-input-placeholder { /* Internet Explorer 10-11 */
-  color: var(--vulpo-auth-input-color-placeholder);
+  color: var(--vulpo-auth-input-color-placeholder, var(--copy-color));
 }
 
 .vulpo-auth-input::-ms-input-placeholder { /* Microsoft Edge */
-  color: var(--vulpo-auth-input-color-placeholder);
+  color: var(--vulpo-auth-input-color-placeholder, var(--copy-color));
 }
 
 .vulpo-auth-input:disabled {
 	opacity: var(--vulpo-auth-input-disabled-opacity, 0.8);
 	background: var(--ivulpo-auth-nput-disabled-background, rgba(100,100,100, 0.1));
 }
-
 
 .vulpo-auth-password-input {
 	position: relative;
@@ -364,29 +378,6 @@
 	margin-block-end: 0;
 }
 
-.vulpo-auth-link-button {
-	display: block;
-	block-size: calc(var(--baseline) * 4);
-}
-
-.vulpo-auth-password-button {
-	display: block;
-	block-size: calc(var(--baseline) * 4);
-}
-
-.vulpo-auth-password-button button,
-.vulpo-auth-link-button button {
-	width: 100%!important;
-}
-
-
-.vulpo-auth-oauth-google {
-	--vulpo-auth-button-bg: #FFFFFF;
-	padding-top: 0!important;
-	padding-bottom: 0!important;
-}
-
-
 
 /* OAuth  */
 
@@ -481,6 +472,12 @@
 	border: var(--vulpo-auth-button-border, var(--default-button-border))
 }
 
+.vulpo-auth--dark .vulpo-auth-button {
+	background: var(--vulpo-auth-button-bg--dark, #202020);
+	color: var(--vulpo-auth-button-color--dark, #fff);
+	border-color: var(--vulpo-auth-button-border--dark, #000);;
+}
+
 .vulpo-auth-icon-button {
 	background: none;
 	border: none;
@@ -489,6 +486,7 @@
 	text-decoration: none;
 	color: inherit;
 	padding: 0;
+	cursor: pointer;
 }
 
 .vulpo-auth-button--disabled {
@@ -497,7 +495,7 @@
 }
 
 .vulpo-auth-button--outline {
-	background: none;
+	background: none!important;
 	border: 1px solid currentColor;
 }
 
@@ -507,6 +505,37 @@
 	align-items: center;
 }
 
+.vulpo-auth-link-button {
+	display: block;
+	block-size: calc(var(--baseline) * 4);
+}
+
+.vulpo-auth-password-button {
+	display: block;
+	block-size: calc(var(--baseline) * 4);
+}
+
+.vulpo-auth-password-button button,
+.vulpo-auth-link-button button {
+	width: 100%!important;
+}
+
+
+.vulpo-auth-oauth-google {
+	--vulpo-auth-button-bg: #FFFFFF;
+	padding-top: 0!important;
+	padding-bottom: 0!important;
+	height: 32px;
+}
+
+.vulpo-auth-oauth-google svg {
+	background: #fff;
+	margin-right: 1rem;
+}
+
+.vulpo-auth--dark .vulpo-auth-oauth-google {
+	background: #4285F4;
+}
 
 .vulpo-auth-splashscreen {
 	display: flex;

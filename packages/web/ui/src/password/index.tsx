@@ -10,6 +10,7 @@ import { useTranslation, useError } from '../context/translation'
 import { useConfig, useFlags } from '../context/config'
 import { Disclaimer } from '../component/disclaimer'
 import { checkPasswordLength, useForm } from '../utils'
+import Card from '../component/card'
 
 type Form = {
 	email: string;
@@ -84,7 +85,7 @@ export let Password = ({ onSubmit, onBack, ctx, loading, error }: Props) => {
 	}
 
 	return (
-		<div className="vulpo-auth vulpo-auth-card vulpo-auth-password">
+		<Card className="vulpo-auth-password">
 			<header className="vulpo-card-header">
 				<div className="vulpo-auth-card-nav vulpo-auth-card-nav--spaced">
 					<section>
@@ -157,7 +158,7 @@ export let Password = ({ onSubmit, onBack, ctx, loading, error }: Props) => {
 			<footer className="vulpo-auth-footer">
 				<Disclaimer  />
 			</footer>
-		</div>
+		</Card>
 	)
 }
 

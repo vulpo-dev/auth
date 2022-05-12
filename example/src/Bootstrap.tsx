@@ -4,7 +4,7 @@ import { AuthShell } from '@riezler/auth-ui'
 
 let Bootstrap = () => {
 	return (
-		<AuthShell name="VULPO">
+		<AuthShell name="VULPO" dark>
 			<Route path='/page' element={<Page />} />
 			<Route path='/' element={<App />} />
 		</AuthShell>

@@ -10,6 +10,7 @@ import { Flow } from '../component/loading'
 import { checkPasswordLength, useForm, useQueryParams  } from '../utils'
 import { useTranslation, useError } from '../context/translation'
 import { useConfig } from 'context/config'
+import Card from '../component/card'
 
 type Form = {
 	password1: string;
@@ -67,7 +68,7 @@ export let SetPassword: FC<Props> = ({
 	)
  
 	return (
-		<div className="vulpo-auth vulpo-auth-card vulpo-auth-password-reset-set-password">
+		<Card className="vulpo-auth-password-reset-set-password">
 			<header className="vulpo-card-header">
 				<h3 className="vulpo-auth-card-title">{t.set_password.title}</h3>
 			</header>
@@ -128,7 +129,7 @@ export let SetPassword: FC<Props> = ({
 
 				</form>
 			}
-		</div>
+		</Card>
 	)
 }
 
