@@ -16,7 +16,7 @@ export {
 } from './context/translation'
 
 export { default as Auth } from './auth'
-export { checkPasswordLength } from './utils'
+export { checkPasswordLength, PrivateRoute, PublicRoute } from './utils'
 export {
 	default as SetPassword,
 	SetPassword as SetPasswordComponent

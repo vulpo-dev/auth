@@ -50,7 +50,7 @@
 .vulpo-auth-card {
 	background: var(--card-background);
 	inline-size: 25rem;
-	max-inline-size: 98vw;
+	max-inline-size: 84vw;
 	border-radius: var(--baseline);
 	padding: calc(var(--baseline) * 3);
 	display: flex;

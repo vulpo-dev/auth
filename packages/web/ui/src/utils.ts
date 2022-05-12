@@ -1,5 +1,6 @@
 import { ErrorMessage } from 'context/translation'
-import { Dispatch, FormEvent, SetStateAction, useMemo, useState } from 'react'
+import { Dispatch, FormEvent, FunctionComponent, SetStateAction, useMemo, useState } from 'react'
+import { RouteProps } from 'react-router-dom'
 
 export type WithClass = {
 	className?: string;
@@ -52,4 +53,12 @@ export function useForm<T>(initalData: T): FormHook<T> {
 	}
 
 	return [form, handleChange, setForm]
+}
+
+export let PublicRoute: FunctionComponent<RouteProps> = () => {
+	return null
+}
+
+export let PrivateRoute: FunctionComponent<RouteProps> = () => {
+	return null
 }

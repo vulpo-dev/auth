@@ -18,3 +18,25 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+.authscreen {
+  display: grid;
+  grid-template-rows: 60px 1fr;
+  height: 100%;
+}
+
+.authscreen-content--dark {
+  background: #363848;
+}
+
+.authscreen-header {
+  border-bottom: 5px solid #000;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2rem;
+}
+
+.vulpo-auth-container {
+  
+}

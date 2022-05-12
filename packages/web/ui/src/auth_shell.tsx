@@ -1,11 +1,12 @@
-import React, { FunctionComponent, useState, createContext, useContext, ReactNode } from 'react'
+import React, { FunctionComponent, useState, createContext, useContext, ReactNode, ReactElement } from 'react'
 import { Routes, Route, useNavigate, useLocation, Navigate } from 'react-router-dom'
 import { useAuthStateChange, useAuth } from '@riezler/auth-react'
 import { UserAuthState, UserState } from '@riezler/auth-sdk'
 
 import Auth from './auth'
-import { AuthConfig, DefaultConfig, $AuthConfig } from './context/config'
+import { AuthConfig, DefaultConfig, $AuthConfig, useConfig } from './context/config'
 import Splashscreen from './component/splashscreen'
+import { PrivateRoute, PublicRoute } from './utils'
 
 export let UserCtx = createContext<UserAuthState>(undefined)
 
@@ -53,28 +54,11 @@ let AuthShell: FunctionComponent<Props> = (props) => {
 			return
 		}
 
-		if (!newUser && !window.location.pathname.startsWith(`/${basename}`)) {
-			navigate(basename, { replace: true })
-			return
-		}
-
-
 		if (!user && newUser) {
 			navigate(referrer, { replace: true })
 			return
 		}
 	})
-
-	if (
-		user === undefined &&
-		!location.pathname.startsWith(`/${basename}`) &&
-		!isVerifyEmail(basename)
-	) {
-		return props.splashscreen ?? <Splashscreen
-			name={props.name}
-			background={props.themeColor}
-		/>
-	}
 
 	let redirect = (user && user?.state !== UserState.SetPassword && !isVerifyEmail(basename))
 
@@ -85,7 +69,7 @@ let AuthShell: FunctionComponent<Props> = (props) => {
 		Arrow: props.Arrow ?? DefaultConfig.Arrow,
 		dark: props.dark ?? DefaultConfig.dark,
 	}
-
+	
 	let AuthComponent = (
 		<AuthConfig.Provider value={authConfig}>
 			{ props.authscreen ?? (
@@ -98,15 +82,55 @@ let AuthShell: FunctionComponent<Props> = (props) => {
 		</AuthConfig.Provider>
 	)
 
+	let routes = React.Children.map(props.children, (child) => {
+		if (!child) {
+			return null
+		}
+
+		let elm = child as ReactElement
+
+		if (elm.type === undefined) {
+			return null
+		}
+
+		if (elm.type === PublicRoute) {
+			return <Route {...elm.props} />
+		}
+
+		if (elm.type === PrivateRoute || elm.type === Route) {
+			return <Route {...elm.props} element={
+				<PrivateRouteElement element={elm.props.element} />
+			}/>
+		}
+	})
+
+	let isLoading = (
+		user === undefined &&
+		!location.pathname.startsWith(`/${basename}`) &&
+		!isVerifyEmail(basename)
+	)
+
+	let splashscreen = props.splashscreen ?? <Splashscreen
+		name={props.name}
+		background={props.themeColor}
+	/>
+
+	let loading = {
+		loading: isLoading,
+		splashscreen,
+	}
+
 	return (
 		<UserCtx.Provider value={user}>
-			<Routes>
-				<Route path={`${basename}/*`} element={
-					redirect ? <Navigate to={referrer} /> : AuthComponent
-				} />
+			<LoadingCtx.Provider value={loading}>			
+				<Routes>
+					<Route path={`${basename}/*`} element={
+						redirect ? <Navigate to={referrer} /> : AuthComponent
+					} />
 
-				{ props.children }
-			</Routes>
+					{ routes }
+				</Routes>
+			</LoadingCtx.Provider>
 		</UserCtx.Provider>
 	)
 }
@@ -115,4 +139,37 @@ export default AuthShell
 
 function isVerifyEmail(basename: string) {
 	return window.location.pathname === `/${basename}/verify-email`
+}
+
+type LoadingCtx = {
+	loading: boolean,
+	splashscreen: ReactElement | null,
+}
+
+let LoadingCtx = createContext<LoadingCtx>({
+	loading: true,
+	splashscreen: null,
+})
+
+let PrivateRouteElement: FunctionComponent<{ element: ReactElement }> = (props) => {
+	let { loading, splashscreen } = useContext(LoadingCtx)
+	let navigate = useNavigate()
+	let { basename } = useConfig()
+
+	useAuthStateChange((newUser) => {
+		if(newUser && newUser.user?.state === UserState.SetPassword) {
+			return
+		}
+
+		if (!newUser && !window.location.pathname.startsWith(`/${basename}`)) {
+			navigate(`/${basename}`)
+			return
+		}
+	})
+
+	if (loading) {
+		return splashscreen
+	}
+
+	return props.element
 }
