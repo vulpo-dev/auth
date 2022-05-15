@@ -191,7 +191,7 @@ npm start
               <li>
                 <details>
                   <summary>Install the vulpo auth packages</summary>
-                  <pre>npm install @vulpo-dev/auth-react @vulpo-dev/auth-sdk @vulpo-dev/auth-ui react-router-dom </pre>
+                  <pre>npm install @vulpo-dev/auth-ui react-router-dom</pre>
                 </details>
               </li>
 

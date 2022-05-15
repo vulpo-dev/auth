@@ -1,6 +1,6 @@
 {
   "name": "@vulpo-dev/auth-ui",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "",
   "main": "lib/main.js",
   "types": "./lib/main.d.ts",
@@ -48,13 +48,13 @@
     "webpack-cli": "^4.5.0"
   },
   "peerDependencies": {
-    "@vulpo-dev/auth-react": "^0.0.5",
-    "@vulpo-dev/auth-sdk": "^0.0.5",
     "react": "16.8 - 18.x",
     "react-router-dom": "^6.3.0"
   },
   "dependencies": {
-    "@types/react": "^18.0.9"
+    "@types/react": "^18.0.9",
+    "@vulpo-dev/auth-react": "^0.0.6",
+    "@vulpo-dev/auth-sdk": "^0.0.6"
   },
   "gitHead": "dedb24c19f448626c4f88f26d784eb06d6325129"
 }
