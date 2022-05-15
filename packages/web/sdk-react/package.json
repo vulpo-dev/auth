@@ -1,6 +1,6 @@
 {
   "name": "@vulpo-dev/auth-react",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "",
   "main": "lib/main.js",
   "types": "./lib/main.d.ts",
@@ -16,8 +16,8 @@
   "author": "Michael Riezler <michael@riezler.co> (https://riezler.co)",
   "license": "MPL-2.0",
   "dependencies": {
-    "@vulpo-dev/auth-sdk": "^0.0.4",
-    "@types/react": "^18.0.9"
+    "@types/react": "^18.0.9",
+    "@vulpo-dev/auth-sdk": "^0.0.5"
   },
   "peerDependencies": {
     "react": "16.8 - 18.x"

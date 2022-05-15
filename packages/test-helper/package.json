@@ -1,6 +1,6 @@
 {
   "name": "@vulpo-dev/test-helper",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "",
   "main": "./lib/main.js",
   "types": "./lib/main.d.ts",
@@ -12,8 +12,8 @@
   "license": "MPL-2",
   "dependencies": {
     "@playwright/test": "^1.14.1",
-    "@vulpo-dev/auth-sdk": "^0.0.4",
     "@types/uuid": "^8.3.1",
+    "@vulpo-dev/auth-sdk": "^0.0.5",
     "axios": "^0.22.0",
     "uuid": "^8.3.2"
   },
