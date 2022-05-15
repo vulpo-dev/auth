@@ -1,6 +1,6 @@
 {
   "name": "@vulpo-dev/auth-sdk",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "",
   "main": "./lib/main.js",
   "types": "./lib/main.d.ts",
