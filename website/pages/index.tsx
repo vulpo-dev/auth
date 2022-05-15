@@ -99,7 +99,7 @@ const Home: NextPage = () => {
 services:
   postgres:
     image: postgres
-    container_name: vulpo_test_db
+    container_name: vulpo_pg
     restart: always
     environment:
       POSTGRES_PASSWORD: postgres
@@ -108,9 +108,10 @@ services:
       - 5432:5432
     volumes:
       - postgres-data:/var/lib/postgres
+
   mailhog:
     image: mailhog/mailhog
-    container_name: vulpo_test_mailhog
+    container_name: vulpo_mailhog
     restart: always
     ports:
       - 1025:1025
@@ -127,7 +128,7 @@ services:
       - VULPO_DB_USERNAME=postgres
       - VULPO_DB_PASSWORD=postgres
       - VULPO_DB_LOG_LEVEL=Off
-      - VULPO_DB_HOST=vulpo_test_db
+      - VULPO_DB_HOST=vulpo_pg
       - VULPO_DB_DATABASE_NAME=auth
       
       
@@ -138,7 +139,7 @@ services:
       
       # this will use an insecure smtp connection and should
       # only be used for local development
-      - VULPO_MAIL_LOCALHOST=vulpo_test_mailhog
+      - VULPO_MAIL_LOCALHOST=vulpo_mailhog
     
     ports:
       - 8000:8000

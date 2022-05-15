@@ -17,7 +17,7 @@ import Setup from 'setup'
 
 let Bootstrap = () => {
 	let navigate = useNavigate()
-	let [{ data: project, state }, { set: setProjectId }] = useProject()
+	let [{ data: project, state }] = useProject()
 
 	let auth = useMemo(() => {
 		if (!project) {
@@ -31,11 +31,11 @@ let Bootstrap = () => {
 	}, [project])
 
 	useEffect(() => {
-		let isSetup = window.location.pathname.startsWith('/setup')
+		let isSetup = window.location.pathname.startsWith('/dashboard/setup')
 		if (project === null && !isSetup && state === 'loaded') {
-			navigate('/setup/', { replace: true })
+			navigate('setup', { replace: true })
 		}
-	}, [project, state, navigate, setProjectId])
+	}, [project, state, navigate])
 
 	if (state === 'loading') {
 		return <GhostPage />
@@ -45,7 +45,7 @@ let Bootstrap = () => {
 		<AuthCtx.Provider value={auth}>
 			<Http auth={auth} project={project}>
 				<Routes>
-					<Route path='/setup' element={<Setup />} />
+					<Route path='setup/*' element={<Setup />} />
 
 					{ auth &&
 						<Route path='/*' element={<App />} />

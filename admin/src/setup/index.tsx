@@ -13,9 +13,9 @@ export default function Setup() {
 			<Wrapper>
 				<Content>
 					<Routes>
-						<Route path='/setup/project' element={<Project />} />
-						<Route path='/setup/user' element={<User />} />
-						<Route path='/setup' element={<Navigate to='/setup/project' />} />
+						<Route path='project' element={<Project />} />
+						<Route path='user' element={<User />} />
+						<Route path='/*' element={<Navigate to='project' />} />
 					</Routes>
 				</Content>
 			</Wrapper>
