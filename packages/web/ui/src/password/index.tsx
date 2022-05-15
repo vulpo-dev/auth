@@ -1,8 +1,8 @@
 import React, { ChangeEvent } from 'react'
 import { SyntheticEvent, useState } from 'react'
 import { useNavigate, useMatch, Link, Navigate } from 'react-router-dom'
-import { ErrorCode, Flag, UserState } from '@riezler/auth-sdk'
-import { useAuth } from '@riezler/auth-react'
+import { ErrorCode, Flag, UserState } from '@vulpo-dev/auth-sdk'
+import { useAuth } from '@vulpo-dev/auth-react'
 
 import { Input, Password as PasswordInput } from '../component/input'
 import { Button, IconButton } from '../component/button'

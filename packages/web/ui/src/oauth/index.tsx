@@ -1,4 +1,4 @@
-import { useAuth } from '@riezler/auth-react'
+import { useAuth } from '@vulpo-dev/auth-react'
 import { useTranslation } from 'context/translation'
 import React, { useEffect } from 'react'
 import { useLocation } from 'react-router-dom'

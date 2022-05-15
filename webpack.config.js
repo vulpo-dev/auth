@@ -45,10 +45,10 @@ module.exports = function createConfig (webpackEnv) {
           commonjs2: 'recoil',
           amd: 'recoil'
         },
-        '@riezler/auth-react': {
-          commonjs: '@riezler/auth-react',
-          commonjs2: '@riezler/auth-react',
-          amd: '@riezler/auth-react'
+        '@vulpo-dev/auth-react': {
+          commonjs: '@vulpo-dev/auth-react',
+          commonjs2: '@vulpo-dev/auth-react',
+          amd: '@vulpo-dev/auth-react'
         },
      },
     output: {

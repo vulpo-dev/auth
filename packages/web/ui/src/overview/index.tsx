@@ -1,8 +1,8 @@
 import React from 'react'
 import { useMemo } from 'react'
 import { Link, useLocation, Navigate } from 'react-router-dom'
-import { Flag } from '@riezler/auth-sdk'
-import { useAuth } from '@riezler/auth-react'
+import { Flag } from '@vulpo-dev/auth-sdk'
+import { useAuth } from '@vulpo-dev/auth-react'
 
 import { Button } from '../component/button'
 import Header from '../component/header'

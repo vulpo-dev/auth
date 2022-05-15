@@ -1,6 +1,6 @@
 import React, { Fragment, useState, useEffect } from 'react'
-import { ErrorCode, Flag } from '@riezler/auth-sdk'
-import { useAuth } from '@riezler/auth-react'
+import { ErrorCode, Flag } from '@vulpo-dev/auth-sdk'
+import { useAuth } from '@vulpo-dev/auth-react'
 import { useLocation, Navigate } from 'react-router-dom'
 
 import { useQueryParams } from '../utils'

@@ -1,8 +1,8 @@
 import React from 'react'
 import { useState } from 'react'
 import { Routes, Route, useNavigate, Navigate } from 'react-router-dom'
-import { useAuthStateChange, useAuth } from '@riezler/auth-react'
-import { UserAuthState, UserState } from '@riezler/auth-sdk'
+import { useAuthStateChange, useAuth } from '@vulpo-dev/auth-react'
+import { UserAuthState, UserState } from '@vulpo-dev/auth-sdk'
 import { PageLoad } from 'component/loading'
 
 import Dashboard from 'dashboard'

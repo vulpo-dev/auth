@@ -1,5 +1,5 @@
 import AuthExample from './auth_example'
-import { AuthConfig, DefaultConfig } from '@riezler/auth-ui'
+import { AuthConfig, DefaultConfig } from '@vulpo-dev/auth-ui'
 import { MemoryRouter } from 'react-router-dom'
 
 function AuthWithMemoryRouter() {

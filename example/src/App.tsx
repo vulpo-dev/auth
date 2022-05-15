@@ -1,7 +1,7 @@
 import React from 'react';
 import logo from './logo.svg';
 import './App.css';
-import { useAuth } from '@riezler/auth-react'
+import { useAuth } from '@vulpo-dev/auth-react'
 import { Link } from 'react-router-dom'
 
 function App() {

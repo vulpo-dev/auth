@@ -9,7 +9,7 @@ import { Translation, DefaultTranslation } from 'context/translation'
 import { EnterEmail } from 'passwordless/enter_email'
 import { CheckEmail } from 'passwordless/check'
 import { Confirm } from 'passwordless/confirm'
-import { ErrorCode } from '@riezler/auth-sdk'
+import { ErrorCode } from '@vulpo-dev/auth-sdk'
 
 export default {
 	title: 'Passwordless',

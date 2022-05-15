@@ -5,7 +5,7 @@ import { HashRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { Password, Props } from 'password'
 import { Translation, DefaultTranslation } from 'context/translation'
 import { AuthConfig, DefaultConfig, FlagsCtx } from 'context/config'
-import { ErrorCode, Flag } from '@riezler/auth-sdk'
+import { ErrorCode, Flag } from '@vulpo-dev/auth-sdk'
 
 export default {
 	title: 'Password',

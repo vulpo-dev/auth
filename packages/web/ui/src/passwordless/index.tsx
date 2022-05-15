@@ -1,6 +1,6 @@
 import React from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
-import { Flag } from '@riezler/auth-sdk'
+import { Flag } from '@vulpo-dev/auth-sdk'
 
 import { useConfig, useFlags } from '../context/config'
 

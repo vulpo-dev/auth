@@ -1,8 +1,8 @@
 import React from 'react'
 import { SyntheticEvent, useState } from 'react'
-import { ErrorCode, Flag } from '@riezler/auth-sdk'
 import { useNavigate, useMatch } from 'react-router-dom'
-import { useAuth } from '@riezler/auth-react'
+import { ErrorCode, Flag } from '@vulpo-dev/auth-sdk'
+import { useAuth } from '@vulpo-dev/auth-react'
 
 import { useForm } from '../utils'
 import { Input } from '../component/input'

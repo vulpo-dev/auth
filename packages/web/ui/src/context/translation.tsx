@@ -2,7 +2,7 @@ import React from 'react'
 import { FC, useMemo } from 'react'
 import { createContext, useContext } from 'react'
 import { Link } from 'react-router-dom'
-import { ErrorCode } from '@riezler/auth-sdk'
+import { ErrorCode } from '@vulpo-dev/auth-sdk'
 
 type DisclaimerProps = { tos: string, privacy: string }
 type ResetProps = { email: string | null };

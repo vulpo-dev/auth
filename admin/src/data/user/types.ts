@@ -1,4 +1,4 @@
-import { UserState } from "@riezler/auth-sdk"
+import { UserState } from "@vulpo-dev/auth-sdk"
 
 export enum Provider {
 	Email,

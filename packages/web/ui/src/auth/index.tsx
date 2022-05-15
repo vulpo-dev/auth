@@ -1,8 +1,8 @@
 import React from 'react'
 import { useEffect, useState, Fragment } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
-import { useAuth } from '@riezler/auth-react'
-import { Flag, ErrorCode } from '@riezler/auth-sdk'
+import { useAuth } from '@vulpo-dev/auth-react'
+import { Flag, ErrorCode } from '@vulpo-dev/auth-sdk'
 import Axios from 'axios'
 
 import { Flow } from '../component/loading'

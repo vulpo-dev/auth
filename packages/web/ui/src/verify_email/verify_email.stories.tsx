@@ -1,6 +1,6 @@
 import React from 'react'
 import { Story, Meta } from '@storybook/react/types-6-0'
-import { ErrorCode } from '@riezler/auth-sdk'
+import { ErrorCode } from '@vulpo-dev/auth-sdk'
 import { VerifyEmail } from 'verify_email'
 
 export default {

@@ -11,8 +11,8 @@ import {
 	Password,
 	FlagsCtx,
 	SetPassword
-} from '@riezler/auth-ui'
-import { Flag } from '@riezler/auth-sdk'
+} from '@vulpo-dev/auth-ui'
+import { Flag } from '@vulpo-dev/auth-sdk'
 
 export let Auth = () => {
 	return (

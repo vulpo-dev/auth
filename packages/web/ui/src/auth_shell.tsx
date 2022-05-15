@@ -1,7 +1,7 @@
 import React, { FunctionComponent, useState, createContext, useContext, ReactNode, ReactElement } from 'react'
 import { Routes, Route, useNavigate, useLocation, Navigate } from 'react-router-dom'
-import { useAuthStateChange, useAuth } from '@riezler/auth-react'
-import { UserAuthState, UserState } from '@riezler/auth-sdk'
+import { useAuthStateChange, useAuth } from '@vulpo-dev/auth-react'
+import { UserAuthState, UserState } from '@vulpo-dev/auth-sdk'
 
 import Auth from './auth'
 import { AuthConfig, DefaultConfig, $AuthConfig, useConfig } from './context/config'

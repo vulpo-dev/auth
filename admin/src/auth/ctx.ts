@@ -1,5 +1,5 @@
 import { createContext, useContext } from 'react'
-import { UserAuthState } from '@riezler/auth-sdk'
+import { UserAuthState } from '@vulpo-dev/auth-sdk'
 
 export let CurrentUser = createContext<UserAuthState>(null)
 

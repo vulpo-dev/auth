@@ -8,7 +8,7 @@ import {
 	AxiosResponse,
 	AxiosRequestConfig,
 } from 'axios'
-import { AuthClient, addToken } from '@riezler/auth-sdk'
+import { AuthClient, addToken } from '@vulpo-dev/auth-sdk'
 
 export let CancelToken = Axios.CancelToken
 

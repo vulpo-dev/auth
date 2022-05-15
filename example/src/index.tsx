@@ -1,11 +1,11 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client'
 import './index.css';
-import '@riezler/auth-ui/styles.css'
+import '@vulpo-dev/auth-ui/styles.css'
 import Bootstrap from './Bootstrap';
 import reportWebVitals from './reportWebVitals';
 import { BrowserRouter } from 'react-router-dom'
-import { Auth as AuthCtx } from '@riezler/auth-react'
+import { Auth as AuthCtx } from '@vulpo-dev/auth-react'
 import AuthClient from './Auth'
 
 let root = createRoot(

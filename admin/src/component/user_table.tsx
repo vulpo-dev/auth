@@ -8,7 +8,7 @@ import { format } from 'data/date'
 import Tooltip from 'component/tooltip'
 import Clipboard from 'clipboard'
 import { useClickHandler } from '@biotic-ui/std'
-import { UserState } from '@riezler/auth-sdk'
+import { UserState } from '@vulpo-dev/auth-sdk'
 
 export let Wrapper = styled.div`
 	display: inline-grid;

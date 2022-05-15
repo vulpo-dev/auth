@@ -1,8 +1,8 @@
 import React from 'react'
 import { FunctionComponent, Fragment, useState, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { ErrorCode } from '@riezler/auth-sdk'
-import { useAuth } from '@riezler/auth-react'
+import { ErrorCode } from '@vulpo-dev/auth-sdk'
+import { useAuth } from '@vulpo-dev/auth-react'
 
 import { Flow } from '../component/loading'
 import { useQueryParams } from '../utils'

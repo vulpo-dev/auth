@@ -190,7 +190,7 @@ npm start
               <li>
                 <details>
                   <summary>Install the vulpo auth packages</summary>
-                  <pre>npm install @riezler/auth-react @riezler/auth-sdk @riezler/auth-ui react-router-dom </pre>
+                  <pre>npm install @vulpo-dev/auth-react @vulpo-dev/auth-sdk @vulpo-dev/auth-ui react-router-dom </pre>
                 </details>
               </li>
 
@@ -205,9 +205,9 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { BrowserRouter } from 'react-router-dom'
-import { Auth as AuthCtx } from '@riezler/auth-react'
-import { Auth } from '@riezler/auth-sdk'
-import '@riezler/auth-ui/styles.css'
+import { Auth as AuthCtx } from '@vulpo-dev/auth-react'
+import { Auth } from '@vulpo-dev/auth-sdk'
+import '@vulpo-dev/auth-ui/styles.css'
 
 let AuthClient = Auth.create({
   // You'll find the ID under your project settings
@@ -244,7 +244,7 @@ reportWebVitals();
                     <code className="language-tsx">
 {`import React from 'react'
 import { Route, Link } from 'react-router-dom'
-import { AuthShell, useUser } from '@riezler/auth-ui'
+import { AuthShell, useUser } from '@vulpo-dev/auth-ui'
 
 let App = () => {
         return (
@@ -285,7 +285,7 @@ let WithUser = () => {
             <pre>
               <code className="language-tsx">
 {`// App.js
-import { useUser, useAuth } from '@riezler/auth-react'
+import { useUser, useAuth } from '@vulpo-dev/auth-react'
 
 let WithUser = () => {
    let user = useUser()

@@ -1,6 +1,6 @@
 import App from './App'
 import { Link } from 'react-router-dom'
-import { AuthShell, Auth, PrivateRoute, PublicRoute } from '@riezler/auth-ui'
+import { AuthShell, Auth, PrivateRoute, PublicRoute } from '@vulpo-dev/auth-ui'
 import { createContext, useContext, useState } from 'react'
 
 let Bootstrap = () => {

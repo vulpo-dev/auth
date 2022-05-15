@@ -34,7 +34,7 @@ import Tooltip from 'component/tooltip'
 import { useEmailSettings, hasEmailProvider } from 'data/settings'
 import UserDetails from 'user/detail'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { UserState } from '@riezler/auth-sdk'
+import { UserState } from '@vulpo-dev/auth-sdk'
 
 type Props = {
 	project: string;

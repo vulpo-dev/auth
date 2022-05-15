@@ -1,5 +1,5 @@
 {
-  "name": "@riezler/auth-react",
+  "name": "@vulpo-dev/auth-react",
   "version": "0.0.4",
   "description": "",
   "main": "lib/main.js",
@@ -16,7 +16,7 @@
   "author": "Michael Riezler <michael@riezler.co> (https://riezler.co)",
   "license": "MPL-2.0",
   "dependencies": {
-    "@riezler/auth-sdk": "^0.0.4",
+    "@vulpo-dev/auth-sdk": "^0.0.4",
     "@types/react": "^18.0.9"
   },
   "peerDependencies": {

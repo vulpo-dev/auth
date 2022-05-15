@@ -1,5 +1,5 @@
 {
-  "name": "@riezler/auth-sdk",
+  "name": "@vulpo-dev/auth-sdk",
   "version": "0.0.4",
   "description": "",
   "main": "./lib/main.js",

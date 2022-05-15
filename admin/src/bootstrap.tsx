@@ -9,8 +9,8 @@ import {
 import App from 'app'
 import { useProject } from 'data/admin'
 import { Http } from 'data/http'
-import { Auth as AuthCtx } from '@riezler/auth-react'
-import { Auth } from '@riezler/auth-sdk'
+import { Auth as AuthCtx } from '@vulpo-dev/auth-react'
+import { Auth } from '@vulpo-dev/auth-sdk'
 import { GhostPage } from 'component/loading'
 import Setup from 'setup'
 

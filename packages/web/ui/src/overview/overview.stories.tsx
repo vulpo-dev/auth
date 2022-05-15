@@ -6,8 +6,8 @@ import { Overview } from 'overview'
 import { Translation, DefaultTranslation } from 'context/translation'
 import { FlagsCtx } from 'context/config'
 
-import { Auth as AuthClient, Flag } from '@riezler/auth-sdk'
-import { Auth as AuthCtx } from '@riezler/auth-react'
+import { Auth as AuthClient, Flag } from '@vulpo-dev/auth-sdk'
+import { Auth as AuthCtx } from '@vulpo-dev/auth-react'
 
 let auth = AuthClient.create({
 	project: 'ae16cc4a-33be-4b4e-a408-e67018fe453b',

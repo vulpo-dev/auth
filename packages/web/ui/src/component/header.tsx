@@ -1,7 +1,7 @@
 import React from 'react'
 import { useMemo } from 'react'
 import { useMatch, Link } from 'react-router-dom'
-import { Flag } from '@riezler/auth-sdk'
+import { Flag } from '@vulpo-dev/auth-sdk'
 
 import { useTranslation } from '../context/translation'
 import { useConfig, useFlags } from '../context/config'

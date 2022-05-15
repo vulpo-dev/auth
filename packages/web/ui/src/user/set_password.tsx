@@ -1,7 +1,7 @@
 import React from 'react'
 import { SyntheticEvent, FC, useState } from 'react'
-import { ErrorCode } from '@riezler/auth-sdk'
-import { useAuth } from '@riezler/auth-react'
+import { ErrorCode } from '@vulpo-dev/auth-sdk'
+import { useAuth } from '@vulpo-dev/auth-react'
 import { Link } from 'react-router-dom'
 
 import { useForm } from '../utils'

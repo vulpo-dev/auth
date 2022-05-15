@@ -15,6 +15,6 @@
   "license": "ISC",
   "dependencies": {
     "@playwright/test": "^1.14.1",
-    "@vulpo/test-helper": "^0.1.2"
+    "@vulpo-dev/test-helper": "^0.0.2"
   }
 }

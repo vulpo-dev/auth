@@ -5,7 +5,7 @@ module.exports = function ({ browser }, argv) {
 
 	if (browser) {
 		config.output = {
-			library: 'BentoAuth',
+			library: 'VulpoAuth',
 			libraryExport: 'Auth',
 	    	globalObject: 'this',
 	     	filename: '[name].js',

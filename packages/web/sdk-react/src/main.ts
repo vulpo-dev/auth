@@ -1,7 +1,7 @@
 import {
 	AuthClient,
 	AuthCallback,
-} from '@riezler/auth-sdk'
+} from '@vulpo-dev/auth-sdk'
 
 import {
 	createContext,

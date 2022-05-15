@@ -1,7 +1,7 @@
-import { Auth } from '@riezler/auth-sdk'
+import { Auth } from '@vulpo-dev/auth-sdk'
 import { Route } from 'react-router-dom'
-import { AuthShell, useUser } from '@riezler/auth-ui'
-import { Auth as AuthCtx, useAuth } from '@riezler/auth-react'
+import { AuthShell, useUser } from '@vulpo-dev/auth-ui'
+import { Auth as AuthCtx, useAuth } from '@vulpo-dev/auth-react'
 
 let auth = Auth.create({
 	project: process.env.NEXT_PUBLIC_AUTH_PROJECT ?? '',

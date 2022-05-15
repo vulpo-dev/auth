@@ -1,7 +1,7 @@
 import React from 'react'
 import { Auth as AuthComponent } from 'auth'
-import { User, Auth, UserState } from '@riezler/auth-sdk'
-import { Auth as AuthClient } from '@riezler/auth-react'
+import { User, Auth, UserState } from '@vulpo-dev/auth-sdk'
+import { Auth as AuthClient } from '@vulpo-dev/auth-react'
 import { HashRouter, Route, Navigate, Routes } from 'react-router-dom'
 import { Header, Wrapper } from 'setup'
 import { Story, Meta } from '@storybook/react/types-6-0';

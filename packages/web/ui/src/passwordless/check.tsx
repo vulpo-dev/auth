@@ -1,8 +1,8 @@
 import React from 'react'
 import { useEffect, useState } from 'react'
 import { useLocation, useMatch } from 'react-router-dom'
-import { useAuth } from '@riezler/auth-react'
-import { ErrorCode, CancelToken } from '@riezler/auth-sdk'
+import { useAuth } from '@vulpo-dev/auth-react'
+import { ErrorCode, CancelToken } from '@vulpo-dev/auth-sdk'
 
 import { useQueryParams } from '../utils'
 import { useTranslation } from '../context/translation'

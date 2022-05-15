@@ -9,5 +9,5 @@
     "website"
   ],
   "version": "independent",
-  "npmClient": "yarn"
+  "npmClient": "npm"
 }

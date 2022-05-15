@@ -3,8 +3,8 @@ import { Story, Meta } from '@storybook/react/types-6-0'
 
 import Auth from 'auth'
 
-import { Auth as AuthCtx } from '@riezler/auth-react'
-import { Auth as AuthClient } from '@riezler/auth-sdk'
+import { Auth as AuthCtx } from '@vulpo-dev/auth-react'
+import { Auth as AuthClient } from '@vulpo-dev/auth-sdk'
 
 let auth = AuthClient.create({
 	project: 'ae16cc4a-33be-4b4e-a408-e67018fe453b',
