@@ -4,8 +4,7 @@ let HtmlWebpackPlugin = require("html-webpack-plugin")
 let ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin')
 let ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin')
 let TerserPlugin = require('terser-webpack-plugin')
-let OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin')
-let safePostCssParser = require('postcss-safe-parser')  
+let CssMinimizerPlugin = require("css-minimizer-webpack-plugin")
 
 let webpackDevClientEntry = require.resolve(
   'react-dev-utils/webpackHotDevClient'
@@ -24,7 +23,7 @@ let publicPath = '/dashboard'
 
 module.exports = function createConfig (_, argv) {
   let isDevelopment = isDev(argv)
-  console.log({ isDevelopment })
+  console.log('Mode: ', isDevelopment ? 'development' : 'production')
 
   if (isDevelopment) {
     // set terminal title
@@ -83,6 +82,7 @@ module.exports = function createConfig (_, argv) {
             , 'i18next': path.resolve('./node_modules/i18next')
             , 'react-i18next': path.resolve('./node_modules/react-i18next')
             , 'recoil': path.resolve('./node_modules/recoil')
+            , 'axios': path.resolve('./node_modules/axios'),
             }
         }
 
@@ -279,15 +279,7 @@ function optimization(isDev) {
         }
       }),
      
-      new OptimizeCSSAssetsPlugin({
-        cssProcessorOptions: {
-          parser: safePostCssParser,
-          map: false,
-        },
-        cssProcessorPluginOptions: {
-          preset: ['default', { minifyFontValues: { removeQuotes: false } }],
-        },
-      }),
+      new CssMinimizerPlugin(),
     ],
 
     splitChunks: {

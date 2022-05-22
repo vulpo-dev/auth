@@ -61,11 +61,5 @@ SetNewPassword.argTypes = {
 			type: 'boolean'
 		}
 	},
-	verifyToken: {
-		defaultValue: false,
-		control: {
-			type: 'boolean'
-		}
-	},
 	onSubmit: { action: 'reset password' },
 }

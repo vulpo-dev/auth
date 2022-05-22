@@ -12,7 +12,7 @@ RUN npm run build
 
 
 # SERVER
-FROM clux/muslrust:1.55.0 AS build
+FROM clux/muslrust:1.60.0 AS build
 WORKDIR /usr/src
 
 COPY . ./

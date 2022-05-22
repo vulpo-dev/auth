@@ -29,7 +29,7 @@ const Home: NextPage = () => {
 
       <header className={styles.header}>
         <nav className={styles['header-nav']}>
-
+          <span>v{ process.env.NEXT_PUBLIC_VERSION }</span>
           <a href="https://github.com/riezler-co/auth">Github</a>
         </nav>
 
@@ -322,7 +322,120 @@ let WithUser = () => {
           </section>
 
         </section>
+
+        <section>
+          <h2>Config</h2>
+
+          <section>
+            <h3>Environment Variables</h3>
+
+            <dl>
+              <dt>VULPO_SECRETS_PASSPHRASE</dt>
+              <dd>
+                <ul>
+                  <li>Required</li>
+                </ul>
+              </dd>
+
+              <dt>VULPO_DB_PORT</dt>
+              <dd>
+                <ul>
+                  <li>Default: 5432</li>
+                </ul>
+              </dd>
+
+              <dt>VULPO_DB_USERNAME</dt>
+              <dd>
+                <ul>
+                  <li>Default: postgres</li>
+                </ul>
+              </dd>
+              
+              <dt>VULPO_DB_PASSWORD</dt>
+              <dd>
+                <ul>
+                  <li>Default: postgres</li>
+                </ul>
+              </dd>
+              
+              <dt>VULPO_DB_LOG_LEVEL</dt>
+              <dd>
+                <ul>
+                  <li>Required</li>
+                  <li>Values: Off | Error | Warn | Info | Debug | Trace</li>
+                </ul>
+              </dd>
+              
+              <dt>VULPO_DB_HOST</dt>
+              <dd>
+                <ul>
+                  <li>Default: localhost</li>
+                </ul>
+              </dd>
+              
+              <dt>VULPO_DB_DATABASE_NAME</dt>
+              <dd>
+                <ul>
+                  <li>Default: auth</li>
+                </ul>
+              </dd>
+              
+              <dt>VULPO_RUN_MIGRATIONS</dt>
+              <dd>
+                <ul>
+                  <li>Will run migrations on start up when the variable is present</li>
+                </ul>
+              </dd>
+              
+              <dt>VULPO_MAIL_LOCALHOST</dt>
+              <dd>
+                <ul>
+                  <li>When Email host is equal to localhost, an insecure SMTP connection will be used, you can use this variable to overwrite the local email host</li>
+                </ul>
+              </dd>
+              
+              <dt>VULPO_SERVER_*</dt>
+              <dd>
+                <ul>
+                  <li>Vulpo Auth is using <a href="https://rocket.rs/">Rocket</a> for the web framework and thus environment variables with the VULPO_SERVER_ prefix will use the same configuration options as Rocket</li>
+                  <li>You have to replace the ROCKET_ prefix with the VULPO_SERVER_ <a href="prefix https://rocket.rs/v0.5-rc/guide/configuration/#environment-variables">prefix https://rocket.rs/v0.5-rc/guide/configuration/#environment-variables</a></li>
+                </ul>
+              </dd>
+            </dl>
+          </section>
+
+          <section>
+            <h3>Vulpo.toml</h3>
+            <pre>
+              <code className="language-toml">{`## rocket server config: https://rocket.rs/v0.5-rc/guide/configuration/#rockettoml
+[server]
+address = "127.0.0.1"
+port = 8000
+workers = 16
+keep_alive = 5
+ident = "Rocket"
+log_level = "normal"
+cli_colors = true
+
+[secrets]
+## NOTE: Generate your own secure key!
+passphrase = "password"
+
+[database]
+host = "localhost"
+database_name = "auth"
+username = "postgres"
+password = "postgres"
+port = 5432
+log_level = "Off"`}</code>
+            </pre>
+          </section>
+        </section>
       </main>
+
+      <footer>
+        <a href="https://riezler.co">riezler.co</a>
+      </footer>
     </div>
   )
 }

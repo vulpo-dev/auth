@@ -16,7 +16,7 @@
 
 .header-nav {
 	display: flex;
-	justify-content: flex-end;
+	justify-content: space-between;
 	padding-top: max(1rem, 1vw);
 	padding-bottom: max(1.5rem, 2vw);
 }

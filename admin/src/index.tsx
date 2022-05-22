@@ -1,4 +1,4 @@
-import React, { FunctionComponent } from 'react'
+import React from 'react'
 import ReactDOM from 'react-dom'
 import 'style'
 
@@ -10,3 +10,5 @@ ReactDOM.render(
   </React.StrictMode>,
   document.getElementById('root')
 )
+
+console.log('Version: ', process.env.REACT_APP_VERSION)

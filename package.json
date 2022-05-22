@@ -10,7 +10,10 @@
     "bootstrap": "lerna bootstrap",
     "clean:modules": "rimraf **/node_modules/",
     "clean:lib": "rimraf **/lib/",
-    "clean": "npm run clean:lib && npm run clean:modules "
+    "clean": "npm run clean:lib && npm run clean:modules",
+    "build:admin": "powershell scripts/build/admin.ps1",
+    "build:linux-musl": "powershell scripts/build/linux-musl.ps1",
+    "build:docker": "powershell scripts/build/docker.ps1"
   },
   "keywords": [],
   "author": "Michael Riezler <michael@riezler.co> (https://riezler.co)",

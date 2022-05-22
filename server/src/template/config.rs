@@ -1,6 +1,5 @@
 use serde;
 use serde::{Deserialize, Serialize};
-use serde_json;
 
 #[derive(Debug, Deserialize, Serialize, PartialEq, Copy, Clone)]
 pub enum Templates {

@@ -1,13 +1,8 @@
 import React from 'react'
 
-import { createContext, useContext, FC, useMemo, useEffect } from 'react'
+import { createContext, useContext, FC, useMemo } from 'react'
 import Axios from 'axios'
-import {
-	AxiosInstance,
-	AxiosError,
-	AxiosResponse,
-	AxiosRequestConfig,
-} from 'axios'
+import type { AxiosInstance } from 'axios'
 import { AuthClient, addToken } from '@vulpo-dev/auth-sdk'
 
 export let CancelToken = Axios.CancelToken
@@ -33,7 +28,10 @@ export let Http: FC<Props> = ({ auth, project, children }) => {
 			},
 		})
 
-		addToken(instance, auth)
+		// had to use any here because the
+		// build was throwing a mismatched type
+		// error inside of docker build
+		addToken(instance as any, auth)
 
 		return instance
 	}, [project, auth])
