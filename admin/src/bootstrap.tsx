@@ -14,7 +14,6 @@ import { Auth } from '@vulpo-dev/auth-sdk'
 import { GhostPage } from 'component/loading'
 import Setup from 'setup'
 
-
 let Bootstrap = () => {
 	let navigate = useNavigate()
 	let [{ data: project, state }] = useProject()

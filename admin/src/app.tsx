@@ -52,8 +52,6 @@ export default function App() {
 
 	let redirect = (currentUser && currentUser.state !== UserState.SetPassword)
 
-	console.log({ referrer })
-
 	return (
 		<Routes>
 			<Route

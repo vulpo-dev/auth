@@ -101,8 +101,6 @@ let Main = () => {
 	let project = match?.params.project ?? ''
 	let base = `/${project}`
 
-	console.log({ project, match })
-
 	let setUrl = useSetBoson(getLatesUrl(project))
 	useEffect(() => {
 		setUrl(location.pathname)

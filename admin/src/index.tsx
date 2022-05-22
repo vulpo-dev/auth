@@ -10,5 +10,3 @@ ReactDOM.render(
   </React.StrictMode>,
   document.getElementById('root')
 )
-
-console.log('Version: ', process.env.REACT_APP_VERSION)

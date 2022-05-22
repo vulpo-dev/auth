@@ -38,8 +38,6 @@ let Templates = () => {
 
 	let template = match?.params.template as TemplateType
 
-	console.log('FFUFUUUFUUU', { match })
-
 	if (!match || !isTemplate(template)) {
 		return <Navigate to={`/${project.id}/templates/${TemplateType.Passwordless}`} />
 	}

@@ -247,6 +247,7 @@
 	border: none;
 	outline: none;
 	position: absolute;
+	right: 0.5rem;
 	inset-inline-end: var(--baseline);
 	z-index: 5;
 	background: var(--input-bg, none);
