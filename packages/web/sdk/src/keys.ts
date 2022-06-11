@@ -1,20 +1,9 @@
-import { v4 as uuid } from 'uuid'
-import { Keys, Sessions, Session, Key } from './storage'
-
-export async function createSession(extractable = false): Promise<Session> {
-	let keys = await generateKeys(extractable)
-	let id = uuid()
-
-	Sessions.insert({ id })
-
-	await Keys.set(id, { ...keys })
-	return { id, ...keys }	
-}
+import { Session, Key } from './storage'
 
 export async function getPublicKey(session: Session): Promise<Array<number>> {
 	let exported = await crypto.subtle.exportKey("spki", session.publicKey)
 	let exportedAsString = ab2str(exported)
-	let exportedAsBase64 = window.btoa(exportedAsString)
+	let exportedAsBase64 = globalThis.btoa(exportedAsString)
 	let pemExported = `-----BEGIN PUBLIC KEY-----${exportedAsBase64}-----END PUBLIC KEY-----`
 	let enc = new TextEncoder()
 	return Array.from(enc.encode(pemExported))
@@ -29,51 +18,7 @@ export function ratPayload() {
 	}
 }
 
-export async function generateAccessToken(sessionId: string, claims: Object = {}): Promise<string | null> {
-	let session = await Keys.get(sessionId)
-
-	if (!session) {
-		return null
-	}
-
-	let header = isRsa(session.privateKey.algorithm.name)
-		?	{
-				alg: "RS256",
-				typ: "JWT"
-			}
-		:	{
-				alg: "ES384",
-				typ: "JWT"
-			}
-
-	let payload = {
-		...claims,
-		jti: uuid(),
-	}
-
-	let h = base64url(JSON.stringify(header))
-	let p = base64url(JSON.stringify(payload))
-
-	let enc = new TextEncoder()
-	let encoded = enc.encode(`${h}.${p}`)
-
-	let sign = isRsa(session.privateKey.algorithm.name)
-		?	"RSASSA-PKCS1-v1_5"
-		:	{
-		    	name: "ECDSA",
-		   		hash: {name: "SHA-384"},
-		  	}
-
-	let signature = await window.crypto.subtle.sign(
-	  sign,
-	  session.privateKey,
-	  encoded
-	)
-
-	return `${h}.${p}.${base64url(ab2str(signature))}`
-}
-
-async function generateKeys(extractable = false): Promise<Key> {
+export async function generateKeys(extractable = false): Promise<Key> {
 	// https://bugzilla.mozilla.org/show_bug.cgi?id=1133698
 	let algo = isFirefox()
 		? 	{
@@ -87,23 +32,33 @@ async function generateKeys(extractable = false): Promise<Key> {
 			  namedCurve: "P-384"
 			}
 
-	let keys = await window.crypto.subtle.generateKey(algo, extractable, ["sign", "verify"])
+	let keys = await globalThis.crypto
+		.subtle
+		.generateKey(algo, extractable, ["sign", "verify"])
+
 	return keys as Key
 }
 
-function ab2str(buf: ArrayBuffer): string {
+export function ab2str(buf: ArrayBuffer): string {
   let arr = Array.from(new Uint8Array(buf))
   return String.fromCharCode(...arr)
 }
 
-function isFirefox(): boolean {
-	return navigator.userAgent.toLowerCase().indexOf('firefox') > -1
+export function isFirefox(): boolean {
+	return navigator
+		.userAgent
+		.toLowerCase()
+		.indexOf('firefox') > -1
 }
 
-function isRsa(name: string): boolean {
+export function isRsa(name: string): boolean {
 	return name === 'RSASSA-PKCS1-v1_5'
 }
 
-function base64url(str: string): string {
-	return window.btoa(str).replaceAll('+', '-').replaceAll('/', '_').replace(/=+$/, '')
+export function base64url(str: string): string {
+	return globalThis
+		.btoa(str)
+		.replaceAll('+', '-')
+		.replaceAll('/', '_')
+		.replace(/=+$/, '')
 }

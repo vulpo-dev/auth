@@ -27,4 +27,3 @@ export {
 export { default as Auth, CancelToken, AuthClient } from './client'
 export { addToken } from './interceptor'
 export { ApiError, ErrorCode, HttpError, AuthError } from './error'
-export { createSession } from './keys'

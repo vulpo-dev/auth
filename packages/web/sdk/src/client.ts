@@ -20,8 +20,15 @@ import {
     OAuthAuthorizeUrlResponse,
 } from './types'
 
-import { Session } from './session'
-import { Session as SessionEntry, OAuthState } from './storage'
+import { SessionService } from './session'
+import {
+	Session as SessionEntry,
+	SessionsStorage,
+	KeyStorage,
+	OAuthState,
+	Storage,
+	StorageEvents,
+} from './storage'
 import { Tokens } from './tokens'
 import {
 	ApiError,
@@ -32,8 +39,7 @@ import {
 	ErrorResponse,
     AuthError,
 } from './error'
-import { createSession, getPublicKey, generateAccessToken, ratPayload } from './keys'
-import { Sessions, Keys } from './storage'
+import { getPublicKey, ratPayload } from './keys'
 import { getLanguages } from './utils'
 import { v4 as uuid } from 'uuid'
 
@@ -41,23 +47,29 @@ import Axios, { AxiosInstance, AxiosRequestConfig, AxiosError } from 'axios'
 
 export const CancelToken = Axios.CancelToken;
 
+
+type ClientDep = {
+	sessionService: SessionService,
+	tokens: Tokens,
+	httpService: AxiosInstance,
+	config: Config,
+	keyStorage: KeyStorage,
+}
+
 export class AuthClient {
-	private session: Session;
+	private sessionService: SessionService;
 	private tokens: Tokens;
-	private http: AxiosInstance;
+	private httpService: AxiosInstance;
 	private error: ApiError = new ApiError();
 	private config: Config;
+	private keyStorage: KeyStorage;
 		
-	constructor(
-		session: Session,
-		tokens: Tokens,
-		http: AxiosInstance,
-		config: Config,
-	) {
-		this.session = session
-		this.tokens = tokens
-		this.http = http
-		this.config = config
+	constructor(dep: ClientDep) {
+		this.sessionService = dep.sessionService
+		this.tokens = dep.tokens
+		this.httpService = dep.httpService
+		this.config = dep.config
+		this.keyStorage = dep.keyStorage
 	}
 
 	private async emailPasswordAuth(
@@ -66,7 +78,7 @@ export class AuthClient {
 		password: string,
 		config?: AxiosRequestConfig
 	) {
-		let session = await createSession()
+		let session = await this.sessionService.create()
 		let public_key = await getPublicKey(session)
 
 		let payload: EmailPasswordPayload = {
@@ -78,19 +90,19 @@ export class AuthClient {
 		}
 
 		let onError = async (res: AxiosError<ErrorResponse>) => {
-			await Sessions.delete(session.id)
+			await this.sessionService.remove(session.id)
 			return Promise.reject(this.error.fromResponse(res))
 		}
 
-		let { data } = await this.http
+		let { data } = await this.httpService
 			.post<SessionResponse>(url, payload, config)
 			.catch(onError)
 		
-		let { user } = await this.session
+		let { user } = await this.sessionService
 			.fromResponse(data)
 			.catch(onError)
 
-		this.session.activate(data.session)
+		this.sessionService.activate(data.session)
 		this.tokens.fromResponse(data)
 		return user!
 	}
@@ -131,16 +143,16 @@ export class AuthClient {
 		sessionId?: string,
 		config?: AxiosRequestConfig,
 	) {
-		let session = sessionId ?? this.session.active?.id
+		let session = sessionId ?? this.sessionService.active?.id
 
 		if (!session) {
 			return
 		}
 
-		let value = await generateAccessToken(session, ratPayload())
-		await this.session.remove(session)
+		let value = await this.sessionService.generateAccessToken(session, ratPayload())
+		await this.sessionService.remove(session)
 		let _url = url.replace(':session', session)
-		return await this.http
+		return await this.httpService
 			.post(_url, { value }, config)
 			.catch(err => Promise.reject(this.error.fromResponse(err)))
 	}
@@ -148,7 +160,7 @@ export class AuthClient {
 	/**
 	 * Sign out a user from the current session
 	 * 
-	 * @param if sessionId is undefined, the currently active session will be used
+	 * @param sessionId when sessionId is undefined, the currently active session will be used
 	*/
 	async signOut(sessionId?: string, config?: AxiosRequestConfig): Promise<unknown> {
 		return await this.removeSession(Url.SignOut, sessionId, config)
@@ -157,7 +169,7 @@ export class AuthClient {
 	/**
 	 * Sign out a user from all sessions
 	 * 
-	 * @param if sessionId is undefined, the currently active session will be used
+	 * @param sessionId when sessionId is undefined, the currently active session will be used
 	*/
 	async signOutAll(sessionId?: string, config?: AxiosRequestConfig): Promise<unknown> {
 		return await this.removeSession(Url.SignOutAll, sessionId, config)
@@ -168,14 +180,14 @@ export class AuthClient {
 		sessionId?: string,
 	) {
 		try {
-			let info = this.session.current(sessionId)
+			let info = this.sessionService.current(sessionId)
 			if (!info) {
 				return Promise.reject(new SessionNotFoundError())
 			}
 
-			let keys = await Keys.get(info.id)
+			let keys = await this.keyStorage.get(info.id)
 			if (!keys) {
-				this.session.setCurrent(null)
+				this.sessionService.setCurrent(null)
 				return Promise.reject(new SessionKeysNotFoundError())
 			}
 
@@ -186,8 +198,8 @@ export class AuthClient {
 				? res
 				: this.error.fromResponse(res as AxiosError)
 
-			if (this.session.active) {
-				await this.session.remove(this.session.active.id)
+			if (this.sessionService.active) {
+				await this.sessionService.remove(this.sessionService.active.id)
 			}
 
 			throw err
@@ -198,7 +210,7 @@ export class AuthClient {
 	 * Get an AccessToken for a given session, getting a new token when the current
 	 * token expires
 	 * 
-	 * @param if sessionId is undefined, the currently active session will be used
+	 * @param sessionId when sessionId is undefined, the currently active session will be used
 	*/
 	async getToken(sessionId?: string): Promise<string> {
 		return await this.getAccessToken(this.tokens.getToken, sessionId)
@@ -208,7 +220,7 @@ export class AuthClient {
 	 * Get a new AccessToken for a given session, this method will force a new tokem
 	 * even if the current token is still valid
 	 * 
-	 * @param if sessionId is undefined, the currently active session will be used
+	 * @param sessionId when sessionId is undefined, the currently active session will be used
 	*/
 	async forceToken(sessionId?: string): Promise<string> {
 		return await this.getAccessToken(this.tokens.forceToken, sessionId)
@@ -223,7 +235,7 @@ export class AuthClient {
 	*/
 	async resetPassword(email: string, config?: AxiosRequestConfig): Promise<void> {
 		let payload: PasswordResetPayload = { email }
-		await this.http
+		await this.httpService
 			.post(Url.RequestPasswordReset, payload, config)
 			.catch(err => Promise.reject(this.error.fromResponse(err)))
 	}
@@ -234,7 +246,7 @@ export class AuthClient {
 	 * reset the password
 	*/
 	async setResetPassword(body: SetPasswordPayload, config?: AxiosRequestConfig): Promise<void> {
-		await this.http
+		await this.httpService
 			.post(Url.PasswordReset, body, config)
 			.catch(err => Promise.reject(this.error.fromResponse(err)))
 	}
@@ -243,7 +255,7 @@ export class AuthClient {
 	 * Update a Users password
 	*/
 	async setPassword(password: string, config?: AxiosRequestConfig): Promise<void> {
-		let currentSession = this.session.current()
+		let currentSession = this.sessionService.current()
 		
 		if (!currentSession) {
 			return
@@ -251,7 +263,7 @@ export class AuthClient {
 
 		let accessToken = await this.getToken(currentSession.id)
 
-		await this.http
+		await this.httpService
 			.post(Url.UserSetPassword, { password }, {
 				...config,
 				headers: {
@@ -262,13 +274,13 @@ export class AuthClient {
 			.catch(err => Promise.reject(this.error.fromResponse(err)))
 
 
-		await this.session.fromResponse({
+		await this.sessionService.fromResponse({
 			session: currentSession.id,
 			expire_at: currentSession.expire_at!,
 			access_token: accessToken
 		})
 		
-		this.session.activate(currentSession.id)
+		this.sessionService.activate(currentSession.id)
 	}
 
 	/**
@@ -277,7 +289,7 @@ export class AuthClient {
 	*/
 	async verifyToken(id: string, token: string, config?: AxiosRequestConfig): Promise<void> {
 		let payload: VerifyResetTokenPayload = { id, token }
-		await this.http
+		await this.httpService
 			.post(Url.VerifyResetToken, payload, config)
 			.catch(err => Promise.reject(this.error.fromResponse(err)))
 	}
@@ -287,7 +299,7 @@ export class AuthClient {
 	 * user will be created
 	*/
 	async passwordless(email: string, config?: AxiosRequestConfig): Promise<{ id: string; session: string }> {
-		let session = await createSession()
+		let session = await this.sessionService.create()
 		let public_key = await getPublicKey(session)
 
 		let payload: RequestPasswordlessPayload = {
@@ -297,10 +309,10 @@ export class AuthClient {
 			device_languages: getLanguages([...navigator.languages]),
 		}
 
-		let { data } = await this.http
+		let { data } = await this.httpService
 			.post<PasswordlessResponse>(Url.Passwordless, payload, config)
 			.catch(async err => {
-				await Sessions.delete(session.id)
+				await this.sessionService.remove(session.id)
 				return Promise.reject(this.error.fromResponse(err))
 			})
 
@@ -313,7 +325,7 @@ export class AuthClient {
 	*/
 	async confirmPasswordless(id: string, token: string, config?: AxiosRequestConfig): Promise<void> {
 		let payload: ConfirmPasswordlessPayload = { id, token }
-		await this.http
+		await this.httpService
 			.post(Url.PasswordlessConfim, payload, config)
 			.catch(err => Promise.reject(this.error.fromResponse(err)))
 	}
@@ -323,7 +335,7 @@ export class AuthClient {
 	*/
 	async verifyEmail(id: string, token: string, config?: AxiosRequestConfig): Promise<void> {
 		let payload: VerifyEmailPayload = { id, token }
-		await this.http
+		await this.httpService
 			.post(Url.UserVerifyEmail, payload, config)
 			.catch(err => Promise.reject(this.error.fromResponse(err)))
 	}
@@ -337,7 +349,7 @@ export class AuthClient {
 			let device_languages = getLanguages([...navigator.languages])
 
 			let check = async () => {
-				let token = await generateAccessToken(session, ratPayload())
+				let token = await this.sessionService.generateAccessToken(session, ratPayload())
 
 				if (!token) {
 					reject(null)
@@ -351,13 +363,13 @@ export class AuthClient {
 					device_languages,
 				}
 
-				let { data } = await this.http
+				let { data } = await this.httpService
 					.post<SessionResponse>(Url.PasswordlessVerify, payload, config)
 
 				this.tokens.fromResponse(data)
-				let { user } = await this.session.fromResponse(data)
+				let { user } = await this.sessionService.fromResponse(data)
 
-				this.session.activate(data.session)
+				this.sessionService.activate(data.session)
 				resolve(user!)
 			}
 
@@ -369,7 +381,7 @@ export class AuthClient {
 					} else if (Axios.isCancel(err)) {
 						resolve(null)
 					} else {
-						await Sessions.delete(session)
+						await this.sessionService.remove(session)
 						reject(error)
 					}
 				})	
@@ -383,8 +395,8 @@ export class AuthClient {
 	 * The callback will be called when the session information changes
 	*/
 	authStateChange(cb: AuthCallback): Unsubscribe {
-		let sub = this.session.subscribe(cb)
-		let session = this.session.current(this.session.active?.id)
+		let sub = this.sessionService.subscribe(cb)
+		let session = this.sessionService.current(this.sessionService.active?.id)
 		cb(session)
 		return sub
 	}
@@ -393,14 +405,14 @@ export class AuthClient {
 	 * Activate a new session for a given userId
 	*/
 	activate(userId: string) {
-		this.session.activate(userId)
+		this.sessionService.activate(userId)
 	}
 
 	/**
 	 * Get the current session ID
 	*/
 	get active(): SessionInfo | null {
-		return this.session.active
+		return this.sessionService.active
 	}
 
 	/**
@@ -434,7 +446,7 @@ export class AuthClient {
 	 * get the currently active flags for a project
 	*/
 	async flags(config?: AxiosRequestConfig): Promise<Array<Flag>> {
-		return this.http
+		return this.httpService
 			.get<{ items: Array<Flag> }>(`${Url.Flags}?project=${this.config.project}`, config)
 			.then(res => res.data.items)
 			.catch(err => Promise.reject(this.error.fromResponse(err)))
@@ -444,7 +456,7 @@ export class AuthClient {
 	 * get the currently active user
 	*/
 	getUser(): User | null {
-		return this.session.getActiveUser()
+		return this.sessionService.getActiveUser()
 	}
 
 
@@ -460,12 +472,16 @@ export class AuthClient {
 
 		OAuthState.insert(provider, request_id)
 
-		return this.http
+		return this.httpService
 			.post<OAuthAuthorizeUrlResponse>(`/oauth/${provider}/authorize_url`, payload, config)
 			.then(res => res.data.url)
 			.catch(err => Promise.reject(this.error.fromResponse(err)))
 	}
 
+	/**
+	 * handle the OAuth callback and sign in the user if the
+	 * code and csrf_token are valid
+	*/
 	async oAuthConfirm(csrf_token: string, code: string, config?: AxiosRequestConfig): Promise<[User | null, string]> {
 		let oAuthState = OAuthState.get()
 
@@ -473,12 +489,12 @@ export class AuthClient {
 			return [null, '/']
 		}
 
-		let session = await createSession()
+		let session = await this.sessionService.create()
 		let public_key = await getPublicKey(session)
 
 		let onError = async (res: AxiosError<ErrorResponse>) => {
 			OAuthState.delete()
-			await Sessions.delete(session.id)
+			await this.sessionService.remove(session.id)
 			return Promise.reject(this.error.fromResponse(res))
 		}
 
@@ -492,15 +508,15 @@ export class AuthClient {
 			device_languages: getLanguages([...navigator.languages]),
 		}
 
-		let { data } = await this.http
+		let { data } = await this.httpService
 			.post<SessionResponse>(`/oauth/${oAuthState.provider}/confirm`, payload, config)
 			.catch(onError)
 		
-		let { user } = await this.session
+		let { user } = await this.sessionService
 			.fromResponse(data)
 			.catch(onError)
 
-		this.session.activate(data.session)
+		this.sessionService.activate(data.session)
 		this.tokens.fromResponse(data)
 		OAuthState.delete()
 		
@@ -511,22 +527,38 @@ export class AuthClient {
 export let Auth = {
 	create(config: Config): AuthClient {
 
-		let http = config.http ?? Axios.create({
+		let httpService = config.http ?? Axios.create({
 			baseURL: config.baseURL,
 			headers: {
 				'Vulpo-Project': config.project
 			}
 		})
 
-		let sessions = new Session(config, http)
-		let tokens = new Tokens(sessions, http)
+		let storageEvents = new StorageEvents()
+		let storage = new Storage({ storageEvents })
+		let keyStorage = new KeyStorage()
+		let sessionStorage = new SessionsStorage({
+			keyStorage,
+			storageEvents,
+		})
 
-		let client = new AuthClient(
-			sessions,
-			tokens,
-			http,
+		let sessionService = new SessionService({
 			config,
-		)
+			httpService,
+			sessionStorage,
+			keyStorage,
+			storage,
+		})
+
+		let tokens = new Tokens(sessionService, httpService)
+
+		let client = new AuthClient({
+			sessionService,
+			tokens,
+			httpService,
+			config,
+			keyStorage
+		})
 
 		if (config.preload) {
 			client.forceToken().catch(() => {})

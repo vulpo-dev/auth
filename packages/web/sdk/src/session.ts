@@ -9,12 +9,14 @@ import {
 	SessionInfo,
     Url,
 } from './types'
-import Storage, { Sessions } from './storage'
+import { Storage, SessionsStorage, KeyStorage, Session } from './storage'
 import { makeId } from './utils'
 import { ApiError } from './error'
+import { ab2str, base64url, generateKeys, isRsa } from './keys'
 
 import { AxiosInstance } from 'axios'
 import { shallowEqualObjects } from 'shallow-equal'
+import { v4 as uuid } from 'uuid'
 
 type Listener = {
 	id: number;
@@ -27,7 +29,15 @@ type FromSessionResponse = Pick<SessionResponse,
 	"access_token"
 >
 
-export class Session {
+type SessionServiceDep = {
+	config: Config,
+	sessionStorage: SessionsStorage,
+	keyStorage: KeyStorage,
+	storage: Storage,
+	httpService: AxiosInstance,
+}
+
+export class SessionService {
 	sessions = new Map<SessionId, SessionInfo>()
  	active: SessionInfo | null = null
 	config: Config
@@ -35,12 +45,22 @@ export class Session {
 	private getId = makeId()
 	private listener: Array<Listener> = []
 	private http: AxiosInstance;
-	private error: ApiError = new ApiError();
+	private error: ApiError = new ApiError()
 
-	constructor(config: Config, http: AxiosInstance) {
-		let id = Storage.getActive()
+	private sessionStorage: SessionsStorage
+	private keyStorage: KeyStorage
+	private storage: Storage
+
+	constructor(dep: SessionServiceDep) {
+		let id = dep.storage.getActive()
+
+		this.config = dep.config
+		this.http = dep.httpService
+		this.sessionStorage = dep.sessionStorage
+		this.keyStorage = dep.keyStorage
+		this.storage = dep.storage
 			
-		Sessions.getAll().forEach(session => {
+		this.sessionStorage.getAll().forEach(session => {
 			if (session.id === id) {
 				this.active = session
 				this.setCurrent(session)
@@ -48,41 +68,92 @@ export class Session {
 			this.sessions.set(session.id, session)
 		})
 
-		Sessions.changes(sessions => {
+		this.sessionStorage.changes(sessions => {
 			this.sessions.clear()
 			sessions.forEach(session => {
 				this.sessions.set(session.id, session)
 			})
 		})
 
-		Storage.changes(active => {
+		this.storage.changes(active => {
 			if (active === null) {
 				this.setCurrent(null)
 				return
 			}
 
-			let session = Sessions.get(active)
+			let session = this.sessionStorage.get(active)
 			this.setCurrent(session)
 		})
+	}
 
-		this.config = config
-		this.http = http
+	async create(extractable = false): Promise<Session> {
+		let keys = await generateKeys(extractable)
+		let id = uuid()
+
+		this.sessionStorage.insert({ id })
+
+		await this.keyStorage.set(id, { ...keys })
+		return { id, ...keys }
+	}
+
+	async generateAccessToken(sessionId: string, claims: Object = {}): Promise<string | null> {
+		let session = await this.keyStorage.get(sessionId)
+
+		if (!session) {
+			return null
+		}
+
+		let header = isRsa(session.privateKey.algorithm.name)
+			?	{
+					alg: "RS256",
+					typ: "JWT"
+				}
+			:	{
+					alg: "ES384",
+					typ: "JWT"
+				}
+
+		let payload = {
+			...claims,
+			jti: uuid(),
+		}
+
+		let h = base64url(JSON.stringify(header))
+		let p = base64url(JSON.stringify(payload))
+
+		let enc = new TextEncoder()
+		let encoded = enc.encode(`${h}.${p}`)
+
+		let sign = isRsa(session.privateKey.algorithm.name)
+			?	"RSASSA-PKCS1-v1_5"
+			:	{
+			    	name: "ECDSA",
+			   		hash: {name: "SHA-384"},
+			  	}
+
+		let signature = await window.crypto.subtle.sign(
+		  sign,
+		  session.privateKey,
+		  encoded
+		)
+
+		return `${h}.${p}.${base64url(ab2str(signature))}`
 	}
 
 	current(session?: SessionId): SessionInfo | null {
-		let id = session ?? Storage.getActive()
+		let id = session ?? this.storage.getActive()
 		if (!id) {
 			return null
 		}
-		let s = Sessions.get(id)
+		let s = this.sessionStorage.get(id)
 		return s ?? null
 	}
 
 	activate(id: SessionId) {
-		let session = Sessions.get(id)
+		let session = this.sessionStorage.get(id)
 		
 		if (session) {
-			Storage.setActive(session.id)
+			this.storage.setActive(session.id)
 		}
 
 		this.setCurrent(session)
@@ -104,7 +175,7 @@ export class Session {
 		let user = await this.getUser(data.access_token)
 			.catch(res => Promise.reject(this.error.fromResponse(res)))
 
-		let staleSessions = Sessions
+		let staleSessions = this.sessionStorage
 			.getAll()
 			.filter(session => (
 				session.id !== data.session &&
@@ -113,18 +184,18 @@ export class Session {
 
 		await Promise.all(
 			staleSessions.map(session =>  {
-				Sessions.delete(session.id)
+				this.sessionStorage.delete(session.id)
 			})
 		)
 		
-		let session = Sessions.upsert({
+		let session = this.sessionStorage.upsert({
 			id: data.session,
 			expire_at: data.expire_at,
 			user,
 		})
 
 		return session
-	};
+	}
 
 	async getUser(token: AccessToken): Promise<User> {
 		return this.http
@@ -137,18 +208,18 @@ export class Session {
 	}
 
 	async remove(session: SessionId) {
-		await Sessions.delete(session)
+		await this.sessionStorage.delete(session)
 
 		if (session === this.active?.id) {
-			let [next] = Sessions.getAll()
+			let [next] = this.sessionStorage.getAll()
 			this.setCurrent(next ?? null)
-			Storage.setActive(next?.id)
+			this.storage.setActive(next?.id)
 		}
 	}
 
 	async removeAll() {
-		Storage.removeAll()
-		await Sessions.deleteAll()
+		this.storage.removeAll()
+		await this.sessionStorage.deleteAll()
 		this.sessions.clear()
 		this.setCurrent(null)
 	}
@@ -161,7 +232,7 @@ export class Session {
 		}
 
 		if (this.active === null && session) {
-			Storage.setActive(session.id)
+			this.storage.setActive(session.id)
 		}
 
 		this.active = session

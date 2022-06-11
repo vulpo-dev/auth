@@ -5,6 +5,14 @@ import { createStore, get, set, del } from 'idb-keyval'
 
 const OAUTH_STATE_KEY = 'vulpo-auth-oauth-state'
 
+export class StorageEvents {
+	addListener(fn: (event: StorageEvent) => void) {
+		globalThis.addEventListener?.('storage', (event: StorageEvent) => {
+			fn(event)
+		})
+	}
+}
+
 type OAuthState = {
 	requestdId: string,
 	referrer: string,
@@ -45,7 +53,7 @@ export type Key = {
 	publicKey: CryptoKey,
 }
 
-class KeyStorage {
+export class KeyStorage {
 	store = createStore('auth-db', 'keys')
 
 	async get(id: string): Promise<Key | undefined> {
@@ -61,21 +69,27 @@ class KeyStorage {
 	}
 }
 
-export let Keys = new KeyStorage()
-
 type SessionsChangeCallback = (sessions: Array<SessionInfo>) => void
 
 export type Session = SessionInfo & Key
 
-class SessionsStorage {
+type SessionsStorageDep = {
+	keyStorage: KeyStorage,
+	storageEvents: StorageEvents,
+}
+
+export class SessionsStorage {
 	private key = 'auth-db::sessions'
 	private cache: Array<SessionInfo> | undefined = undefined
 
 	private ids = makeId()
 	private listener = new Map<number, SessionsChangeCallback>()
+	private keyStorage: KeyStorage
 
-	constructor() {
-		window.addEventListener('storage', (event: StorageEvent) => {
+	constructor(dep: SessionsStorageDep) {
+		this.keyStorage = dep.keyStorage
+
+		dep.storageEvents.addListener((event: StorageEvent) => {
 			if (event.key !== this.key) {
 				return
 			}
@@ -126,12 +140,12 @@ class SessionsStorage {
 	async delete(id: SessionId) {
 		let entries = this.getAll().filter(session => session.id !== id)
 		this.set(entries)
-		await Keys.delete(id)
+		await this.keyStorage.delete(id)
 	}
 
 	async deleteAll() {
 		let sink = this.getAll().map(session => {
-			return Keys.delete(session.id)
+			return this.keyStorage.delete(session.id)
 		})
 
 		await Promise.all(sink)
@@ -179,20 +193,21 @@ class SessionsStorage {
 	}
 }
 
-export let Sessions = new SessionsStorage()
-
-
 type ActiveUserCallback = (sessions: string | null) => void
 
-class Storage {
+type StorageDep = {
+	storageEvents: StorageEvents
+}
+
+export class Storage {
 	key = 'auth-db::active_user'
 	cache: string | undefined | null = undefined
 
 	private ids = makeId()
 	private listener = new Map<number, ActiveUserCallback>()
 
-	constructor() {
-		window.addEventListener('storage', (event: StorageEvent) => {
+	constructor(dep: StorageDep) {
+		dep.storageEvents.addListener((event: StorageEvent) => {
 			if (event.key !== this.key) {
 				return
 			}
@@ -242,5 +257,3 @@ class Storage {
 		this.cache = session
 	}
 }
-
-export default new Storage()

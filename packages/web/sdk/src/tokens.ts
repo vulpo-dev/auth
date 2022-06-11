@@ -6,8 +6,8 @@ import {
 	RefreshAccessTokenPayload,
 } from './types'
 import { Session as SessionEntry } from './storage'
-import { generateAccessToken, ratPayload } from './keys'
-import { Session } from './session'
+import { ratPayload } from './keys'
+import { SessionService } from './session'
 
 import { AxiosInstance } from 'axios'
 
@@ -17,10 +17,10 @@ export class Tokens {
 	tokens: Map<SessionId, AccessToken> = new Map();
 
 	private inFlight: Map<SessionId, InFlight> = new Map();
-	private session: Session;
+	private session: SessionService;
 	private http: AxiosInstance;
 
-	constructor(session: Session, http: AxiosInstance) {
+	constructor(session: SessionService, http: AxiosInstance) {
 		this.session = session
 		this.http = http
 	}
@@ -54,7 +54,7 @@ export class Tokens {
 	}
 
 	private async _getToken(session: SessionEntry): Promise<AccessToken> {
-		let value = await generateAccessToken(session.id, ratPayload())
+		let value = await this.session.generateAccessToken(session.id, ratPayload())
 
 		if (!value) {
 			return Promise.reject(null)
