@@ -9,12 +9,11 @@ import {
 	SessionInfo,
     Url,
 } from './types'
-import { Storage, SessionsStorage, KeyStorage, Session } from './storage'
-import { makeId } from './utils'
+import { IStorage, ISessionsStorage, IKeyStorage, Session } from './storage'
+import { makeId, IHttpService } from './utils'
 import { ApiError } from './error'
 import { ab2str, base64url, generateKeys, isRsa } from './keys'
 
-import { AxiosInstance } from 'axios'
 import { shallowEqualObjects } from 'shallow-equal'
 import { v4 as uuid } from 'uuid'
 
@@ -31,10 +30,10 @@ type FromSessionResponse = Pick<SessionResponse,
 
 type SessionServiceDep = {
 	config: Config,
-	sessionStorage: SessionsStorage,
-	keyStorage: KeyStorage,
-	storage: Storage,
-	httpService: AxiosInstance,
+	sessionStorage: ISessionsStorage,
+	keyStorage: IKeyStorage,
+	storage: IStorage,
+	httpService: IHttpService,
 }
 
 export class SessionService {
@@ -44,12 +43,12 @@ export class SessionService {
 
 	private getId = makeId()
 	private listener: Array<Listener> = []
-	private http: AxiosInstance;
+	private http: IHttpService;
 	private error: ApiError = new ApiError()
 
-	private sessionStorage: SessionsStorage
-	private keyStorage: KeyStorage
-	private storage: Storage
+	private sessionStorage: ISessionsStorage
+	private keyStorage: IKeyStorage
+	private storage: IStorage
 
 	constructor(dep: SessionServiceDep) {
 		let id = dep.storage.getActive()

@@ -53,7 +53,13 @@ export type Key = {
 	publicKey: CryptoKey,
 }
 
-export class KeyStorage {
+export interface IKeyStorage {
+	get(id: string): Promise<Key | undefined>;
+	set(session: string, keys: Key): Promise<void>;
+	delete(id: string): Promise<void>;
+}
+
+export class KeyStorage implements IKeyStorage {
 	store = createStore('auth-db', 'keys')
 
 	async get(id: string): Promise<Key | undefined> {
@@ -73,12 +79,23 @@ type SessionsChangeCallback = (sessions: Array<SessionInfo>) => void
 
 export type Session = SessionInfo & Key
 
+export interface ISessionsStorage {
+	changes(fn: SessionsChangeCallback): () => void;
+	getAll(): Array<SessionInfo>;
+	get(id: SessionId): SessionInfo | null;
+	delete(id: SessionId): Promise<void>;
+	deleteAll(): Promise<void>;
+	insert(session: SessionInfo): SessionInfo;
+	update(session: SessionInfo): SessionInfo;
+	upsert(session: SessionInfo): SessionInfo;
+}
+
 type SessionsStorageDep = {
 	keyStorage: KeyStorage,
 	storageEvents: StorageEvents,
 }
 
-export class SessionsStorage {
+export class SessionsStorage implements ISessionsStorage {
 	private key = 'auth-db::sessions'
 	private cache: Array<SessionInfo> | undefined = undefined
 
@@ -199,7 +216,15 @@ type StorageDep = {
 	storageEvents: StorageEvents
 }
 
-export class Storage {
+export interface IStorage {
+	changes(fn: ActiveUserCallback): () => void;
+	remove(id: SessionId): boolean;
+	removeAll(): void;
+	getActive(): SessionId | null;
+	setActive(session: SessionId): void;
+}
+
+export class Storage implements IStorage {
 	key = 'auth-db::active_user'
 	cache: string | undefined | null = undefined
 

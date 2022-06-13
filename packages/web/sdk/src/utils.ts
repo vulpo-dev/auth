@@ -1,3 +1,4 @@
+import { AxiosRequestConfig, AxiosResponse } from "axios"
 
 
 export let makeId = (): () => number => {
@@ -24,4 +25,9 @@ export function getLanguages(arr: Array<string>): Array<string> {
 
 		return [lang, fallback]
 	})
+}
+
+export interface IHttpService {
+	get<T = any, R = AxiosResponse<T>>(url: string, config?: AxiosRequestConfig): Promise<R>;
+	post<T = any, R = AxiosResponse<T>>(url: string, data?: any, config?: AxiosRequestConfig): Promise<R>;
 }
