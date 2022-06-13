@@ -21,14 +21,7 @@ import {
 } from './types'
 
 import { SessionService } from './session'
-import {
-	Session as SessionEntry,
-	SessionsStorage,
-	KeyStorage,
-	OAuthState,
-	Storage,
-	StorageEvents,
-} from './storage'
+import { Session, IKeyStorage, OAuthState } from './storage'
 import { Tokens } from './tokens'
 import {
 	ApiError,
@@ -41,6 +34,7 @@ import {
 } from './error'
 import { getPublicKey, ratPayload } from './keys'
 import { getLanguages } from './utils'
+
 import { v4 as uuid } from 'uuid'
 
 import Axios, { AxiosInstance, AxiosRequestConfig, AxiosError } from 'axios'
@@ -53,7 +47,7 @@ type ClientDep = {
 	tokens: Tokens,
 	httpService: AxiosInstance,
 	config: Config,
-	keyStorage: KeyStorage,
+	keyStorage: IKeyStorage,
 }
 
 export class AuthClient {
@@ -62,7 +56,7 @@ export class AuthClient {
 	private httpService: AxiosInstance;
 	private error: ApiError = new ApiError();
 	private config: Config;
-	private keyStorage: KeyStorage;
+	private keyStorage: IKeyStorage;
 		
 	constructor(dep: ClientDep) {
 		this.sessionService = dep.sessionService
@@ -176,7 +170,7 @@ export class AuthClient {
 	}
 
 	private async getAccessToken(
-		fn: (session: SessionEntry) => Promise<string>,
+		fn: (session: Session) => Promise<string>,
 		sessionId?: string,
 	) {
 		try {
@@ -523,49 +517,3 @@ export class AuthClient {
 		return [user!, oAuthState.referrer]
 	}
 }
-
-export let Auth = {
-	create(config: Config): AuthClient {
-
-		let httpService = config.http ?? Axios.create({
-			baseURL: config.baseURL,
-			headers: {
-				'Vulpo-Project': config.project
-			}
-		})
-
-		let storageEvents = new StorageEvents()
-		let storage = new Storage({ storageEvents })
-		let keyStorage = new KeyStorage()
-		let sessionStorage = new SessionsStorage({
-			keyStorage,
-			storageEvents,
-		})
-
-		let sessionService = new SessionService({
-			config,
-			httpService,
-			sessionStorage,
-			keyStorage,
-			storage,
-		})
-
-		let tokens = new Tokens(sessionService, httpService)
-
-		let client = new AuthClient({
-			sessionService,
-			tokens,
-			httpService,
-			config,
-			keyStorage
-		})
-
-		if (config.preload) {
-			client.forceToken().catch(() => {})
-		}
-
-		return client
-	}	
-}
-
-export default Auth
