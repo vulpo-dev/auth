@@ -14,12 +14,14 @@ export default function App() {
 	let navigate = useNavigate()
 
 	let [referrer] = useState(() => {
-		if (window.location.pathname.includes('/auth')) {
+		let admin = '/dashboard'
+		let pathname = window.location.pathname.slice(admin.length)
+
+		if (pathname === '' || pathname.includes('/auth')) {
 			return '/'
 		}
 
-		let admin = '/dashboard'
-		return window.location.pathname.slice(admin.length)
+		return pathname
 	}) 
 
 	let auth = useAuth()
@@ -33,12 +35,13 @@ export default function App() {
 
 
 		if (user?.state === UserState.SetPassword) {
-			navigate('/auth/set_password', { replace: true })
+			navigate('auth/set_password', { replace: true })
 			return
 		}
 
 		if (session === null) {
-			navigate('/auth/signin', { replace: true })
+			navigate('auth/signin', { replace: true })
+			return
 		}
 
 		if (session && !currentUser) {
@@ -55,18 +58,17 @@ export default function App() {
 	return (
 		<Routes>
 			<Route
-				path='/auth/*'
+				path='auth/*'
 				element={redirect ? <Navigate to={referrer} /> : <Auth />}>
 			</Route>
 
-			<Route path='/project/create' element={<CreateProject />} />
+			<Route path='project/create' element={<CreateProject />} />
 
 			<Route path='/*' element={
 				<CurrentUser.Provider value={currentUser}>
 					{ currentUser === null ? <PageLoad /> : <Dashboard /> }
 				</CurrentUser.Provider>
 			}></Route>
-
 		</Routes>
 	)
 }

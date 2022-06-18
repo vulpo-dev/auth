@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react'
 import styled from 'styled-components'
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { Routes, Route } from 'react-router-dom'
 import { Header } from 'component/layout'
 
 import {
@@ -26,8 +26,8 @@ export let Auth = () => {
 						<AuthConfig.Provider value={DefaultConfig}>
 							<div className="vulpo-auth-box-shadow">
 								<Routes>
-									<Route path='/set_password' element={<SetPassword />} />
-									<Route path='/signin' element={<Password redirectTo='/set_password' />} />
+									<Route path='set_password' element={<SetPassword />} />
+									<Route path='signin' element={<Password redirectTo='/auth/set_password' />} />
 								</Routes>
 							</div>
 						</AuthConfig.Provider>
