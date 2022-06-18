@@ -67,7 +67,7 @@ const Home: NextPage = () => {
             </div>
           </header>
           <div suppressHydrationWarning={true}>
-            { (process.browser && example === 'ui') &&
+            { (example === 'ui') &&
               <div className={styles['ui-example-wrapper']}>
                 <AuthExample />
               </div>
@@ -433,7 +433,7 @@ log_level = "Off"`}</code>
         </section>
       </main>
 
-      <footer>
+      <footer className='footer'>
         <a href="https://riezler.co">riezler.co</a>
       </footer>
     </div>

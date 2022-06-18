@@ -9,7 +9,7 @@ let auth = Auth.create({
 })
 
 let App = () => (
-	<AuthShell>
+	<AuthShell basename='ui'>
 		<Route path='/' element={<DummyPage />}/>
 	</AuthShell>
 )
