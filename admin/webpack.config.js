@@ -5,6 +5,7 @@ let ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin')
 let ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin')
 let TerserPlugin = require('terser-webpack-plugin')
 let CssMinimizerPlugin = require("css-minimizer-webpack-plugin")
+let { DefinePlugin } = require('webpack')
 
 let webpackDevClientEntry = require.resolve(
   'react-dev-utils/webpackHotDevClient'
@@ -22,6 +23,8 @@ let src = path.resolve(cwd, 'src')
 let publicPath = '/dashboard'
 
 module.exports = function createConfig (_, argv) {
+  console.log('Version: ', process.env.VulpoAuthVersion)
+  
   let isDevelopment = isDev(argv)
   console.log('Mode: ', isDevelopment ? 'development' : 'production')
 
@@ -155,6 +158,9 @@ module.exports = function createConfig (_, argv) {
 
     , plugins:
         [ new CleanWebpackPlugin()
+        , new DefinePlugin({
+            'VERSION': JSON.stringify(process.env.VulpoAuthVersion),
+          })
         , html(isDevelopment)
         , css(isDevelopment)
         , new ForkTsCheckerWebpackPlugin({

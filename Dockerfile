@@ -1,3 +1,6 @@
+ARG version # you could give this a default value as well
+ENV VulpoAuthVersion=$version
+
 # ADMIN
 FROM node:16.10.0 as build_admin
 WORKDIR /usr/src

@@ -41,9 +41,11 @@ const TEMPLATE: Dir = include_dir!("./template");
 
 #[rocket::main]
 async fn main() {
+    let version = option_env!("VulpoAuthVersion");
+
     openssl_probe::init_ssl_cert_env_vars();
 
-    let matches = cli::get_matches();
+    let matches = cli::get_matches(version);
     let file = config::get_dir(matches.value_of("config"));
     let figment = Figment::new().merge(Toml::file(file).nested());
     let db_config = config::db(&figment);
