@@ -8,4 +8,4 @@ if ($SkipAdmin -eq $false) {
 
 
 $Env:SQLX_OFFLINE="true"
-cross build --target x86_64-unknown-linux-musl
+cross build --target x86_64-unknown-linux-musl --release

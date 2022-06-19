@@ -1,2 +1,4 @@
-$CalVer = Get-Date -Format "yy.M.dd"
-$Env:VulpoAuthVersion = "$CalVer-alpha"
+$CalVer = Get-Content -Path $PSScriptRoot\..\..\VERSION -First 1
+$Env:VulpoAuthVersion = "$CalVer"
+
+echo "Version: $Env:VulpoAuthVersion"
