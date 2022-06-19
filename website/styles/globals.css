@@ -1,3 +1,29 @@
+@font-face {
+    font-family: 'Prompt';
+    src: url('/fonts/prompt-blackitalic-webfont.woff2') format('woff2'),
+         url('/fonts/prompt-blackitalic-webfont.woff') format('woff');
+    font-weight: 900;
+    font-style: italic;
+
+}
+
+@font-face {
+    font-family: 'Prompt';
+    src: url('/fonts/prompt-regular-webfont.woff2') format('woff2'),
+         url('/fonts/prompt-regular-webfont.woff') format('woff');
+    font-weight: 400;
+    font-style: normal;
+
+}
+
+@font-face {
+    font-family: 'Prompt';
+    src: url('/fonts/prompt-extrabold-webfont.woff2') format('woff2'),
+         url('/fonts/prompt-extrabold-webfont.woff') format('woff');
+    font-weight: 800;
+    font-style: normal;
+
+}
 
 :root {
   --font-headline: 'Prompt', sans-serif;
@@ -35,6 +61,7 @@ body {
 
 h1, h2, h3 {
   font-weight: 800;
+  letter-spacing: 1px;
 }
 
 a {
@@ -84,6 +111,6 @@ dd {
 .footer a {
   color: #fff;
   font-size: 1.5rem;
-  font-style: italic;
+  font-weight: 800;
   letter-spacing: 1px;
 }
