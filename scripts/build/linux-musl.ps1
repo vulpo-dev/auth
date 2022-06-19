@@ -1,7 +1,8 @@
+param([switch]$SkipAdmin)
+
 Import-Module -Name $PSScriptRoot\version.ps1
 Import-Module -Name $PSScriptRoot\..\utils.ps1
 
-param([switch]$SkipAdmin)
 
 if ($SkipAdmin -eq $false) {
     Import-Module -Name $PSScriptRoot\admin.ps1

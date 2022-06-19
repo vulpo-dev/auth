@@ -1,8 +1,9 @@
-ARG version # you could give this a default value as well
-ENV VulpoAuthVersion=$version
-
 # ADMIN
 FROM node:16.10.0 as build_admin
+
+ARG version
+ENV VulpoAuthVersion=$version
+
 WORKDIR /usr/src
 RUN npm set unsafe-perm true
 
@@ -16,6 +17,10 @@ RUN npm run build
 
 # SERVER
 FROM clux/muslrust:1.60.0 AS build
+
+ARG version
+ENV VulpoAuthVersion=$version
+
 WORKDIR /usr/src
 
 COPY . ./
