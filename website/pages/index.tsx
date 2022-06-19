@@ -30,7 +30,7 @@ const Home: NextPage = () => {
       <header className={styles.header}>
         <nav className={styles['header-nav']}>
           <span>v{ process.env.NEXT_PUBLIC_VERSION }</span>
-          <a href="https://github.com/riezler-co/auth">Github</a>
+          <a href="https://github.com/vulpo-dev/auth">Github</a>
         </nav>
 
         <div className={styles['header-bottom']}>
