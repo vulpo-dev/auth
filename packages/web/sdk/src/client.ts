@@ -33,36 +33,34 @@ import {
     AuthError,
 } from './error'
 import { getPublicKey, ratPayload } from './keys'
-import { getLanguages } from './utils'
-
+import { getLanguages, IHttpService } from './utils'
 import { v4 as uuid } from 'uuid'
+import Axios, { AxiosRequestConfig, AxiosError } from 'axios'
 
-import Axios, { AxiosInstance, AxiosRequestConfig, AxiosError } from 'axios'
-
-export const CancelToken = Axios.CancelToken;
+export const CancelToken = Axios.CancelToken
 
 
-type ClientDep = {
+export type ClientDep = {
 	sessionService: SessionService,
 	tokens: Tokens,
-	httpService: AxiosInstance,
-	config: Config,
+	httpService: IHttpService,
+	projectId: string,
 	keyStorage: IKeyStorage,
 }
 
 export class AuthClient {
-	private sessionService: SessionService;
-	private tokens: Tokens;
-	private httpService: AxiosInstance;
-	private error: ApiError = new ApiError();
-	private config: Config;
-	private keyStorage: IKeyStorage;
+	private sessionService: SessionService
+	private tokens: Tokens
+	private httpService: IHttpService
+	private error: ApiError = new ApiError()
+	private projectId: string
+	private keyStorage: IKeyStorage
 		
 	constructor(dep: ClientDep) {
 		this.sessionService = dep.sessionService
 		this.tokens = dep.tokens
 		this.httpService = dep.httpService
-		this.config = dep.config
+		this.projectId = dep.projectId
 		this.keyStorage = dep.keyStorage
 	}
 
@@ -104,6 +102,37 @@ export class AuthClient {
 	/**
 	 * Create a new session with Email and Password
 	 * 
+	 * ```html
+	 *  <form id="signIn">
+	 *      <section>
+	 *          <label>Email</label>
+	 *          <input name="email" type="email" />
+	 *      </section>
+	 * 
+	 *      <section>
+	 *          <label>Password</label>
+	 *          <input name="password" type="password" />
+	 *      </section>
+	 *
+	 *      <button>Sign In</button>
+	 *  </form>
+	 * 
+	 *  <script>
+	 *      let auth = Auth.create({ /\* config *\/})
+	 *      let signIn = document.querySelector("#signIn")
+	 * 		
+	 *      signIn.addEventListener("submit", async (event) => {
+	 *          event.preventDefault()
+	 *  
+	 *          let formData = new FormData(event.target)
+	 *          let user = await auth.signIn(
+	 *              formData.get("email"),
+	 *              formData.get("password"),
+	 *          )
+	 *      })
+	 *  </script>
+	 * ```
+	 * 
 	 * @param email - The user email address
 	 * @param password - The user password
  	 * @returns the user
@@ -119,6 +148,37 @@ export class AuthClient {
 
 	/**
 	 * Create a new session with Email and Password and create the user if not exists
+	 * 
+	 * ```html
+	 *  <form id="signUp">
+	 *      <section>
+	 *          <label>Email</label>
+	 *          <input name="email" type="email" />
+	 *      </section>
+	 * 
+	 *      <section>
+	 *          <label>Password</label>
+	 *          <input name="password" type="password" />
+	 *      </section>
+	 *
+	 *      <button>Sign Up</button>
+	 *  </form>
+	 * 
+	 *  <script>
+	 *      let auth = Auth.create({ /\* config *\/})
+	 *      let signUp = document.querySelector("#signUp")
+	 * 		
+	 *      signUp.addEventListener("submit", async (event) => {
+	 *          event.preventDefault()
+	 *  
+	 *          let formData = new FormData(event.target)
+	 *          let user = await auth.signUp(
+	 *              formData.get("email"),
+	 *              formData.get("password"),
+	 *          )
+	 *      })
+	 *  </script>
+	 * ```
 	 * 
 	 * @param email - The user email address
 	 * @param password - The user password
@@ -238,6 +298,17 @@ export class AuthClient {
 	 * This method is use in combination with the {@link AuthClient.resetPassword} method, the generated link
 	 * to reset your password contains a token id and the token value that will be used to
 	 * reset the password
+	 * 
+	 * ```js
+	 *   let params = new URLSearchParams(window.location.search)
+	 *   
+	 *   auth.setResetPassword({
+	 *       id: params.get("id"),
+	 *       token: params.get("token"),
+	 *       password1: 'new-password',
+	 *       password2: 'new-password',
+	 *   })
+	 * ```
 	*/
 	async setResetPassword(body: SetPasswordPayload, config?: AxiosRequestConfig): Promise<void> {
 		await this.httpService
@@ -280,6 +351,15 @@ export class AuthClient {
 	/**
 	 * This method is used in combination with the {@link AuthClient.setPassword} method and is used to
 	 * valid whether the given token is valid or not
+	 * 
+	 * ```js
+	 *   let params = new URLSearchParams(window.location.search)
+	 *   
+	 *   auth.verifyToken(
+	 *       id: params.get("id"),
+	 *       token: params.get("token"),
+	 *   )
+	 * ```
 	*/
 	async verifyToken(id: string, token: string, config?: AxiosRequestConfig): Promise<void> {
 		let payload: VerifyResetTokenPayload = { id, token }
@@ -316,6 +396,15 @@ export class AuthClient {
 	/**
 	 * This method is used in combination with the {@link AuthClient.passwordless} method and is used
 	 * to confim the authentication link
+	 * 
+	 * ```js
+	 *   let params = new URLSearchParams(window.location.search)
+	 *   
+	 *   auth.confirmPasswordless(
+	 *       id: params.get("id"),
+	 *       token: params.get("token"),
+	 *   )
+	 * ```
 	*/
 	async confirmPasswordless(id: string, token: string, config?: AxiosRequestConfig): Promise<void> {
 		let payload: ConfirmPasswordlessPayload = { id, token }
@@ -326,6 +415,17 @@ export class AuthClient {
 
 	/**
 	 * Verify a users email address
+	 * 
+	 * When the {@link Flag.VerifyEmail} flag is set, an email will be
+	 * send to the user containing a link to verify the email.
+	 * 
+	 * ```js
+	 *   let params = new URLSearchParams(window.location.search)
+	 *   
+	 *   auth.verifyEmail(
+	 *       id: params.get("id"),
+	 *       token: params.get("token"),
+	 *   )
 	*/
 	async verifyEmail(id: string, token: string, config?: AxiosRequestConfig): Promise<void> {
 		let payload: VerifyEmailPayload = { id, token }
@@ -335,8 +435,13 @@ export class AuthClient {
 	}
 
 	/**
-	 * This method is used in combination witht the {@link AuthClient.passwordless} method, it pulls the
+	 * This method is used in combination witht the {@link AuthClient.passwordless} method, it polls the
 	 * server for update and resolves the promise once the authentication link has been confirmed
+	 * 
+	 * ```js
+	 *   let { id, session } = await auth.passwordless("email@vulpo.dev")
+	 *   let user = await auth.verifyPasswordless(id, session)
+	 * ```
 	*/
 	verifyPasswordless(id: string, session: string, config?: AxiosRequestConfig): Promise<User | null> {
 		return new Promise((resolve, reject) => {
@@ -387,6 +492,14 @@ export class AuthClient {
 
 	/**
 	 * The callback will be called when the session information changes
+	 * 
+	 * ```js
+	 *   auth.authStateChange(session => {
+	 *       // when session === undefined => loading
+	 *       // when session === null => no session
+	 *       // otherwise we have a valid {@link SessionInfo}
+	 *   })
+	 * ```
 	*/
 	authStateChange(cb: AuthCallback): Unsubscribe {
 		let sub = this.sessionService.subscribe(cb)
@@ -396,23 +509,35 @@ export class AuthClient {
 	}
 
 	/**
-	 * Activate a new session for a given userId
+	 * The SDK supports multiple users, you can switch between user sessions 
+	 * by calling `activate`
 	*/
 	activate(userId: string) {
 		this.sessionService.activate(userId)
 	}
 
 	/**
-	 * Get the current session ID
+	 * Get the current session information
 	*/
 	get active(): SessionInfo | null {
 		return this.sessionService.active
 	}
 
 	/**
-	 * `withToken` can be used to make http calls, the callback will receive the current access token.
+	 * `withToken` can be used to handle authenticated http calls, the callback will receive the
+	 * current access token.
 	 * When the request returns a `401`, a new access token will be requested and the request will
-	 * be retried
+	 * be retried once.
+	 * 
+	 * ```js
+	 *  let res = await auth.withToken(token => {
+	 *      return fetch('api.your.app', {
+	 *          headers: {
+	 *              'Authorization': `Bearer ${token}`,
+	 *          }
+	 *      })
+	 *  })
+	 * ```
 	*/
 	async withToken(fn: (token: string) => Promise<Response>, session?: string): Promise<Response> {
 		let token = await this.getToken(session)
@@ -440,8 +565,9 @@ export class AuthClient {
 	 * get the currently active flags for a project
 	*/
 	async flags(config?: AxiosRequestConfig): Promise<Array<Flag>> {
+		let url = Url.Flags.replace(':projectId', this.projectId)
 		return this.httpService
-			.get<{ items: Array<Flag> }>(`${Url.Flags}?project=${this.config.project}`, config)
+			.get<{ items: Array<Flag> }>(url, config)
 			.then(res => res.data.items)
 			.catch(err => Promise.reject(this.error.fromResponse(err)))
 	}
@@ -475,6 +601,11 @@ export class AuthClient {
 	/**
 	 * handle the OAuth callback and sign in the user if the
 	 * code and csrf_token are valid
+	 * 
+	 * ```js
+	 *  let params = new URLSearchParams(window.location.search)
+	 *  auth.oAuthConfirm(params.get("state"), params.get("code"))
+	 * ```
 	*/
 	async oAuthConfirm(csrf_token: string, code: string, config?: AxiosRequestConfig): Promise<[User | null, string]> {
 		let oAuthState = OAuthState.get()

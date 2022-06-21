@@ -75,7 +75,7 @@ export class KeyStorage implements IKeyStorage {
 	}
 }
 
-type SessionsChangeCallback = (sessions: Array<SessionInfo>) => void
+export type SessionsChangeCallback = (sessions: Array<SessionInfo>) => void
 
 export type Session = SessionInfo & Key
 
@@ -210,7 +210,7 @@ export class SessionsStorage implements ISessionsStorage {
 	}
 }
 
-type ActiveUserCallback = (sessions: string | null) => void
+export type ActiveUserCallback = (sessions: string | null) => void
 
 type StorageDep = {
 	storageEvents: StorageEvents

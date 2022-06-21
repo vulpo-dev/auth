@@ -1,4 +1,5 @@
 import type { AxiosInstance } from 'axios'
+import { IHttpService } from './utils'
 
 export type EmailPasswordPayload = {
 	email: string;
@@ -127,7 +128,7 @@ export type Config = {
 	baseURL: string;
 	project: string;
 	preload?: boolean;
-	http?: AxiosInstance;
+	http?: IHttpService;
 }
 
 export type UserAuthState = User | null | undefined
@@ -168,7 +169,7 @@ export enum Url {
 
 	TokenRefresh = '/token/refresh/:session',
 
-	Flags = '/project/flags'
+	Flags = '/project/flags?project=:projectId'
 }
 
 export enum Flag {

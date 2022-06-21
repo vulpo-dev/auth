@@ -22,14 +22,13 @@ type Listener = {
 	cb: AuthCallback;
 }
 
-type FromSessionResponse = Pick<SessionResponse,
+export type FromSessionResponse = Pick<SessionResponse,
 	"session" |
 	"expire_at" |
 	"access_token"
 >
 
-type SessionServiceDep = {
-	config: Config,
+export type SessionServiceDep = {
 	sessionStorage: ISessionsStorage,
 	keyStorage: IKeyStorage,
 	storage: IStorage,
@@ -39,7 +38,6 @@ type SessionServiceDep = {
 export class SessionService {
 	sessions = new Map<SessionId, SessionInfo>()
  	active: SessionInfo | null = null
-	config: Config
 
 	private getId = makeId()
 	private listener: Array<Listener> = []
@@ -53,7 +51,6 @@ export class SessionService {
 	constructor(dep: SessionServiceDep) {
 		let id = dep.storage.getActive()
 
-		this.config = dep.config
 		this.http = dep.httpService
 		this.sessionStorage = dep.sessionStorage
 		this.keyStorage = dep.keyStorage
@@ -85,6 +82,11 @@ export class SessionService {
 		})
 	}
 
+	/**
+	 * Create and store a new session
+	 * 
+	 * @param extractable defaults to false
+	*/
 	async create(extractable = false): Promise<Session> {
 		let keys = await generateKeys(extractable)
 		let id = uuid()

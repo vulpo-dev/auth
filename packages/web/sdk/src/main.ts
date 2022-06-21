@@ -23,18 +23,19 @@ export type {
 	UserAuthState,
 } from './types'
 
-export {
-	UserState,
-} from './types'
-
-export {
-	Flag,
-	Url,
-} from './types'
-
+export { UserState, Flag, Url } from './types'
+export type { SessionId } from './types'
 export { CancelToken, AuthClient } from './client'
+export type { ClientDep } from './client'
 export { addToken } from './interceptor'
 export { ApiError, ErrorCode, HttpError, AuthError } from './error'
+export type { ErrorResponse, GenericError } from './error'
+export { SessionService } from './session'
+export type { SessionServiceDep, FromSessionResponse } from './session'
+export type { IKeyStorage, ISessionsStorage, IStorage, Session, Key, SessionsChangeCallback, ActiveUserCallback } from './storage'
+export type { Tokens } from './tokens'
+export type { IHttpService } from './utils'
+export type { AxiosRequestConfig, AxiosError, AxiosResponse } from 'axios'
 
 
 export let Auth = {
@@ -56,7 +57,6 @@ export let Auth = {
 		})
 
 		let sessionService = new SessionService({
-			config,
 			httpService,
 			sessionStorage,
 			keyStorage,
@@ -69,7 +69,7 @@ export let Auth = {
 			sessionService,
 			tokens,
 			httpService,
-			config,
+			projectId: config.project,
 			keyStorage
 		})
 
