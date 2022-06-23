@@ -1,6 +1,6 @@
-import { ErrorMessage } from 'context/translation'
 import { Dispatch, FormEvent, FunctionComponent, SetStateAction, useMemo, useState } from 'react'
 import { RouteProps } from 'react-router-dom'
+import { ErrorMessage } from './context/translation'
 
 export type WithClass = {
 	className?: string;

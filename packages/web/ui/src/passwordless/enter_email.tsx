@@ -1,7 +1,7 @@
 import React from 'react'
 import { SyntheticEvent, useState } from 'react'
 import { useNavigate, useMatch } from 'react-router-dom'
-import { ErrorCode, Flag } from '@vulpo-dev/auth-sdk'
+import { ErrorCode, Flag, ErrorResponse } from '@vulpo-dev/auth-sdk'
 import { useAuth } from '@vulpo-dev/auth-react'
 
 import { useForm } from '../utils'
@@ -124,8 +124,10 @@ let EnterEmailContainer = () => {
 		try {
 			let { id, session } = await auth.passwordless(form.email)
 			navigate(`/${basename}/signin/link/check-email?id=${id}&session=${session}`)
-		} catch (err) {
+		} catch (error) {
 			setLoading(false)
+
+			let err = error as ErrorResponse
 			setError(err.code)
 		}
 	}

@@ -1,9 +1,10 @@
 import React, { forwardRef, FunctionComponent, InputHTMLAttributes, ReactNode, useState } from 'react'
 
-export let Input = forwardRef<HTMLInputElement, InputHTMLAttributes<{}>>(({ ...props }, ref) => {
+export let Input = forwardRef<HTMLInputElement, InputHTMLAttributes<{}>>(({ style, ...props }, ref) => {
 	return <input
 		className="vulpo-auth-input"
 		{...props}
+		style={style as any}
 		ref={ref}
 	/>
 })

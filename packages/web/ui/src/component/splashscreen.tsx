@@ -10,7 +10,7 @@ let Splashscreen: FunctionComponent<Props> = (props) => {
 
 	let style = {
 		background: props.background ?? '#fff'
-	} as React.CSSProperties
+	}
 
 	return (
 		<div style={style} className="vulpo-auth vulpo-auth-splashscreen">

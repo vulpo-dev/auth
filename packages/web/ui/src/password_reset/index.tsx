@@ -1,6 +1,6 @@
 import React from 'react'
 import { SyntheticEvent, useState } from 'react'
-import { ErrorCode, Flag } from '@vulpo-dev/auth-sdk'
+import { ErrorCode, Flag, ErrorResponse } from '@vulpo-dev/auth-sdk'
 import { useNavigate, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { useAuth } from '@vulpo-dev/auth-react'
 
@@ -106,8 +106,10 @@ let PasswordResetContainer = () => {
 			setLoading(false)
 
 			navigate(`check-email?email=${encodeURIComponent(form.email)}`, { replace: true })
-		} catch (err) {
+		} catch (error) {
 			setLoading(false)
+
+			let err = error as ErrorResponse
 			setError(err.code)
 		}
 	}

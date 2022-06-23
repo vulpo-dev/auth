@@ -2,10 +2,5 @@
   "extends": "../../../tsconfig.json",
   "include": [
     "src"
-  ],
-  "typedocOptions": {
-      "entryPoints": ["src/main.ts"],
-      "out": "docs",
-      "excludePrivate": true
-  }
+  ]
 }

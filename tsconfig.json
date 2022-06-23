@@ -19,5 +19,14 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "react"
-  }
+  },
+  "exclude": [
+    "website",
+    "admin",
+    "tests",
+    "scripts",
+    "example",
+    "**/test/**",
+    "**/*.stories.tsx"
+  ]
 }

@@ -10,21 +10,58 @@ import { PrivateRoute, PublicRoute } from './utils'
 
 export let UserCtx = createContext<UserAuthState>(undefined)
 
+/**
+ * returns a User if a user exists.
+ * on public routes `undefined` is returned while the user is still loading
+ * if no user is logged in, `null` will be returned.
+ */
 export function useUser() {
 	return useContext(UserCtx)
 }
 
-type Props = {
+export type AuthShellProps = {
 	children?: ReactNode,
+
+	/** set a default redirect after successful authentication */
 	redirect?: string,
+	
+	/** The name that will be displayed on the splashscreen */
 	name?: string,
+
+	/** The background color of the splashscreen */
 	themeColor?: string,
+
+	/** Provide a custom splashscreen */
 	splashscreen?: JSX.Element,
+
+	/** Provide a custom authentication screen*/
 	authscreen?: JSX.Element,
+
+	/** toggle light/dark mode, defaults to false*/
 	dark?: boolean,
 } & Partial<$AuthConfig>
 
-let AuthShell: FunctionComponent<Props> = (props) => {
+
+/**
+ * The authentication shell manages the authentication
+ * state for your application. You can pass either public
+ * or private routes as children.
+ * 
+ * Public routes are accessible even when the user is not signed in.
+ * Private routes on the other hand require the user to be authenticated.
+ * If an unauthenticated user tries to access a private route, they will
+ * get redirected to the authentication screen where they are able to either
+ * sign in or sign up. On success full sign in/up the user will be redirected
+ * to the inital referrer.
+ * 
+ * ```
+ * <AuthShell>
+ *   <PrivateRoute element={} />
+ *   <PublicRoute element={} />
+ * </AuthShell>
+ * ```
+*/
+let AuthShell: FunctionComponent<AuthShellProps> = (props) => {
 	let { basename = DefaultConfig.basename } = props
 
 	let navigate = useNavigate()

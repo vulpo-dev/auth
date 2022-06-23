@@ -1,6 +1,6 @@
 import React from 'react'
 import { SyntheticEvent, FC, useState } from 'react'
-import { ErrorCode } from '@vulpo-dev/auth-sdk'
+import { ErrorCode, ErrorResponse } from '@vulpo-dev/auth-sdk'
 import { useAuth } from '@vulpo-dev/auth-react'
 import { Link } from 'react-router-dom'
 
@@ -131,8 +131,10 @@ let SetPasswordContainer = () => {
 
 		try {
 			await auth.setPassword(form.password1)
-		} catch(err) {
+		} catch(error) {
 			setLoading(false)
+
+			let err = error as ErrorResponse
 			setError(err.code)
 		}
 	}

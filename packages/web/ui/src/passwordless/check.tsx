@@ -6,7 +6,7 @@ import { ErrorCode, CancelToken } from '@vulpo-dev/auth-sdk'
 
 import { useQueryParams } from '../utils'
 import { useTranslation } from '../context/translation'
-import { useConfig } from 'context/config'
+import { useConfig } from '../context/config'
 import Card from '../component/card'
 
 export type Props = {

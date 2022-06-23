@@ -1,6 +1,6 @@
 import React from 'react'
 import { SyntheticEvent, FC, useState, useEffect } from 'react'
-import { ErrorCode } from '@vulpo-dev/auth-sdk'
+import { ErrorCode, ErrorResponse } from '@vulpo-dev/auth-sdk'
 import { useAuth } from '@vulpo-dev/auth-react'
 import { useLocation, useNavigate, Link } from 'react-router-dom'
 
@@ -9,7 +9,7 @@ import { Button } from '../component/button'
 import { Flow } from '../component/loading'
 import { checkPasswordLength, useForm, useQueryParams  } from '../utils'
 import { useTranslation, useError } from '../context/translation'
-import { useConfig } from 'context/config'
+import { useConfig } from '../context/config'
 import Card from '../component/card'
 
 type Form = {
@@ -182,8 +182,10 @@ let SetPasswordContainer = () => {
 		try {
 			await auth.setResetPassword({ ...form, id, token })
 			navigate(`/${basename}/signin/email`, { replace: true })
-		} catch(err) {
+		} catch(error) {
 			setLoading(false)
+
+			let err = error as ErrorResponse
 			setError(err.code)
 		}
 	}

@@ -13,7 +13,12 @@ import type { AppProps } from 'next/app'
 function MyApp({ Component, pageProps }: AppProps) {
 
   useEffect(() => {
-    let doNotTrack = navigator.doNotTrack === '1' || process.env.NODE_ENV !== 'production'
+    let doNotTrack = (
+      navigator.doNotTrack === '1' ||
+      process.env.NODE_ENV !== 'production' ||
+      window.location.hostname === 'localhost'
+    )
+    
     if (doNotTrack) {
       return
     }

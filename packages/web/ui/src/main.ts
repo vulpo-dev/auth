@@ -23,3 +23,4 @@ export {
 } from './user/set_password'
 
 export { default as AuthShell, useUser } from './auth_shell'
+export type { AuthShellProps } from './auth_shell'

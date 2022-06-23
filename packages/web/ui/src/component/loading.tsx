@@ -8,9 +8,9 @@ type LoadingProps = {
 export let Flow: FC<LoadingProps> = ({ size, color }) => {
 
 	let style = {
-		'--size': size,
-		'--color': color,
-	} as React.CSSProperties
+		['--size' as any]: size,
+		['--color' as any]: color,
+	}
 
 	return (
 		<div style={style} className="vulpo-auth-flow">

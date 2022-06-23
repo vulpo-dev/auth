@@ -13,8 +13,8 @@ type ButtonProps = {
 
 export let Button: FC<ButtonProps> = (props) => {
 	let style = {
-		'--size': '1em',
-	} as React.CSSProperties
+		['--size' as any]: '1em',
+	}
 
 	let classes = [
 		'vulpo-auth-button',

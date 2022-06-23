@@ -8,6 +8,7 @@ let exampleCode = fs.readFileSync(
 
 /** @type {import('next').NextConfig} */
 module.exports = {
+  productionBrowserSourceMaps: true,
   reactStrictMode: true,
   env: {
     exampleCode
@@ -23,7 +24,7 @@ module.exports = {
           react: path.resolve('./node_modules/react'),
           'react-router-dom': path.resolve('./node_modules/react-router-dom'),
         }
-      }
+      },
     }
   }
 }

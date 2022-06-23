@@ -1,8 +1,8 @@
-import { useAuth } from '@vulpo-dev/auth-react'
-import { useTranslation } from 'context/translation'
 import React, { useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
+import { useAuth } from '@vulpo-dev/auth-react'
 
+import { useTranslation } from '../context/translation'
 import { useQueryParams } from '../utils'
 import { Flow } from '../component/loading'
 
