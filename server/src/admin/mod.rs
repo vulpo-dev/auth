@@ -26,7 +26,7 @@ fn files(path: Option<PathBuf>) -> Option<File> {
         },
     };
 
-    Some(File::from(file))
+    Some(File::from(file.to_owned()))
 }
 
 #[get("/")]
@@ -36,7 +36,7 @@ fn admin_index() -> Option<File> {
         None => return None,
     };
 
-    Some(File::from(file))
+    Some(File::from(file.to_owned()))
 }
 
 #[get("/")]

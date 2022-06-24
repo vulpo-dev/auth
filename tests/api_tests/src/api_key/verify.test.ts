@@ -31,7 +31,6 @@ describe("Verify ApiKey", () => {
 
 		expect(res.status).toEqual(200)
 		expect(res.data.sub).toEqual(user.id)
-		expect(res.data.iss).toEqual(PROJECT_ID)
 		expect(res.data.traits).toEqual(TRAITS)
 	})
 

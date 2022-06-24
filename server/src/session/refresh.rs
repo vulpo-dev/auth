@@ -46,8 +46,8 @@ pub async fn handler(
     let user = User::get_by_id(&pool, &user_id, &project.id).await?;
 
     let exp = Utc::now() + Duration::minutes(15);
-    let access_token = AccessToken::new(&user.id, &user.traits, exp, &project.id)
-        .to_jwt_rsa(&private_key)
+    let access_token = AccessToken::new(&user.id, &user.traits, exp)
+        .to_jwt_rsa(&project.id, &private_key)
         .map_err(|_| ApiError::InternalServerError)?;
 
     Ok(SessionResponse {

@@ -11,32 +11,35 @@ license = "MPL-2.0"
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-uuid = { version = "0.8", features = ["serde", "v4"] }
-include_dir = "0.6"
+uuid = { version = "1.0", features = ["serde", "v4"] }
+include_dir = "0.7"
 clap = "3.0.0-beta.2"
-rand = "0.8.4"
-bcrypt = "0.10.0"
-handlebars = "4.1"
+rand = "0.8.5"
+bcrypt = "0.13.0"
+handlebars = "4.3"
 reqwest = { version = "0.11", features = ["json"] }
 diesel_migrations = "1.4"
 diesel = { version = "1.4", features = ["postgres"] }
-jsonwebtoken = "7.2"
+jsonwebtoken = "8.1"
 chrono = { version = "0.4.19", features = ["serde"] }
 openssl-sys = "0.9"
 openssl = { version = "0.10" }
 figment = { version = "0.10", features= ["env"] }
 vulpo = { path = "../packages/rust/sdk" }
-log = { version = "0.4.14", features = ["serde"] }
+log = { version = "0.4.17", features = ["serde"] }
 openssl-probe = "0.1.4"
 base64 = "0.13.0"
-argon2 = "0.3"
-pbkdf2 = "0.10.0"
+argon2 = "0.4"
+pbkdf2 = "0.11.0"
 rand_core = { version = "0.6", features = ["std"] }
 oauth2 = "4.2.0"
 urlencoding = "2.1.0"
+p384 = "0.11.1"
+aes-gcm-siv = "0.11.0-pre"
+futures = "0.3.21"
 
 [dependencies.sqlx]
-version = "0.5"
+version = "0.6"
 default-features = false
 features = [
 	"runtime-tokio-rustls",
@@ -54,5 +57,5 @@ version = "0.10.0-rc.3"
 features = ["tokio1", "tokio1-rustls-tls", "tokio1-native-tls"]
 
 [dependencies.rocket]
-version = "0.5.0-rc.1"
+version = "0.5.0-rc.2"
 features = ["uuid", "json"]

@@ -21,23 +21,17 @@ impl AccessToken {
 }
 
 impl AccessToken {
-    pub fn new(
-        user_id: &Uuid,
-        traits: &Vec<String>,
-        exp: DateTime<Utc>,
-        project: &Uuid,
-    ) -> AccessToken {
+    pub fn new(user_id: &Uuid, traits: &Vec<String>, exp: DateTime<Utc>) -> AccessToken {
         let claims = Claims {
             sub: user_id.clone(),
             exp: exp.timestamp(),
             traits: traits.clone(),
-            iss: project.clone(),
         };
 
         AccessToken(claims)
     }
 
-    pub fn to_jwt_rsa(&self, key: &String) -> Result<String, ApiError> {
+    pub fn to_jwt_rsa(&self, project: &Uuid, key: &String) -> Result<String, ApiError> {
         let key = key.as_bytes();
         let encoding_key = match EncodingKey::from_rsa_pem(key) {
             Ok(key) => key,
@@ -46,7 +40,8 @@ impl AccessToken {
             }
         };
 
-        let header = Header::new(Algorithm::RS256);
+        let mut header = Header::new(Algorithm::RS256);
+        header.kid = Some(project.to_string());
         encode(&header, &self.0, &encoding_key).map_err(|_| ApiError::InternalServerError)
     }
 

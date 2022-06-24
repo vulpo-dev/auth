@@ -7,7 +7,7 @@ use crate::project::Project;
 use crate::response::error::ApiError;
 use crate::session::data::{AccessToken, Claims};
 
-use rocket::futures::join;
+use futures::join;
 use rocket::http::Status;
 use rocket::request::Outcome;
 use rocket::request::{self, FromRequest, Request};

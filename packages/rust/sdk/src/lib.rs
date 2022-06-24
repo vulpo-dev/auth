@@ -6,6 +6,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fmt;
 use std::mem;
+use std::str::FromStr;
 use std::sync::Mutex;
 use uuid::Uuid;
 
@@ -44,7 +45,6 @@ mod test;
 pub struct Claims {
     pub sub: Uuid,
     pub exp: i64,
-    pub iss: Uuid,
     pub traits: Vec<String>,
 }
 
@@ -188,20 +188,22 @@ impl AuthKeys {
         }
     }
 
-    fn dangerous_claims(token: &String) -> Result<Claims, Error> {
-        match jwt::dangerous_insecure_decode::<Claims>(&token) {
-            Err(err) => match err.into_kind() {
-                ErrorKind::ExpiredSignature => Err(Error::Expired),
-                _ => Err(Error::InvalidClaims),
-            },
-            Ok(token_data) => Ok(token_data.claims),
-        }
+    fn decode_header(token: &String) -> Result<jwt::Header, Error> {
+        jwt::decode_header(&token).map_err(|err| match err.into_kind() {
+            ErrorKind::ExpiredSignature => Error::Expired,
+            _ => Error::InvalidClaims,
+        })
     }
 
     pub async fn verify_jwt(&self, token: &String) -> Result<Claims, Error> {
-        let claims = AuthKeys::dangerous_claims(&token)?;
+        let header = AuthKeys::decode_header(&token)?;
 
-        let key = match self.key(&claims.iss).await {
+        let kid = header
+            .kid
+            .and_then(|kid| Uuid::from_str(&kid).ok())
+            .ok_or(Error::InvalidClaims)?;
+
+        let key = match self.key(&kid).await {
             None => return Err(Error::KeyMissing),
             Some(key) => key,
         };

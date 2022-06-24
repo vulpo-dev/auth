@@ -36,8 +36,8 @@ use figment::{
 use include_dir::{include_dir, Dir};
 use std::env;
 
-const ADMIN_CLIENT: Dir = include_dir!("../admin/build");
-const TEMPLATE: Dir = include_dir!("./template");
+const ADMIN_CLIENT: Dir = include_dir!("$CARGO_MANIFEST_DIR/../admin/build");
+const TEMPLATE: Dir = include_dir!("$CARGO_MANIFEST_DIR/template");
 
 #[rocket::main]
 async fn main() {

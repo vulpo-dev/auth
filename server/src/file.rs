@@ -35,7 +35,7 @@ impl<'r> Responder<'r, 'static> for File {
 
         let content = file.contents();
         Response::build()
-            .sized_body(content.len(), Cursor::new(content))
+            .sized_body(content.len(), Cursor::new(content.to_owned()))
             .header(content_type)
             .ok()
     }
