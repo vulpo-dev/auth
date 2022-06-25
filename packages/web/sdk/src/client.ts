@@ -1,5 +1,4 @@
 import {
-	Config,
 	AuthCallback,
 	Unsubscribe,
 	User,
@@ -39,7 +38,6 @@ import Axios, { AxiosRequestConfig, AxiosError } from 'axios'
 
 export const CancelToken = Axios.CancelToken
 
-
 export type ClientDep = {
 	sessionService: SessionService,
 	tokens: Tokens,
@@ -48,7 +46,32 @@ export type ClientDep = {
 	keyStorage: IKeyStorage,
 }
 
-export class AuthClient {
+export interface IAuthClient {
+	signIn(email: string, password: string, config?: AxiosRequestConfig): Promise<User>;
+	signUp(email: string, password: string, config?: AxiosRequestConfig): Promise<User>;
+	signOut(sessionId?: string, config?: AxiosRequestConfig): Promise<unknown>;
+	signOutAll(sessionId?: string, config?: AxiosRequestConfig): Promise<unknown>;
+	getToken(sessionId?: string): Promise<string>;
+	forceToken(sessionId?: string): Promise<string>;
+	resetPassword(email: string, config?: AxiosRequestConfig): Promise<void>;
+	setResetPassword(body: SetPasswordPayload, config?: AxiosRequestConfig): Promise<void>;
+	setPassword(password: string, config?: AxiosRequestConfig): Promise<void>;
+	verifyToken(id: string, token: string, config?: AxiosRequestConfig): Promise<void>;
+	passwordless(email: string, config?: AxiosRequestConfig): Promise<{ id: string; session: string }>;
+	confirmPasswordless(id: string, token: string, config?: AxiosRequestConfig): Promise<void>;
+	verifyEmail(id: string, token: string, config?: AxiosRequestConfig): Promise<void>;
+	verifyPasswordless(id: string, session: string, config?: AxiosRequestConfig): Promise<User | null>;
+	authStateChange(cb: AuthCallback): Unsubscribe;
+	activate(userId: string): void;
+	readonly active: SessionInfo | null;
+	withToken(fn: (token: string) => Promise<Response>, session?: string): Promise<Response>;
+	flags(config?: AxiosRequestConfig): Promise<Array<Flag>>;
+	getUser(): User | null;
+	oAuthGetAuthorizeUrl(provider: 'google', config?: AxiosRequestConfig): Promise<string>;
+	oAuthConfirm(csrf_token: string, code: string, config?: AxiosRequestConfig): Promise<[User | null, string]>;
+}
+
+export class AuthClient implements IAuthClient {
 	private sessionService: SessionService
 	private tokens: Tokens
 	private httpService: IHttpService

@@ -26,7 +26,7 @@ export type {
 export { UserState, Flag, Url } from './types'
 export type { SessionId } from './types'
 export { CancelToken, AuthClient } from './client'
-export type { ClientDep } from './client'
+export type { ClientDep, IAuthClient } from './client'
 export { addToken } from './interceptor'
 export { ApiError, ErrorCode, HttpError, AuthError } from './error'
 export type { ErrorResponse, GenericError } from './error'

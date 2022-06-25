@@ -13,7 +13,7 @@ let DummyPage = () => {
 	let user = useUser()
 
 	return (
-		<div>
+		<div className='demo-wrapper'>
 			<button onClick={() => auth.signOut()}>
 				Sign Out
 			</button>
@@ -25,7 +25,6 @@ let DummyPage = () => {
 }
 
 export default function App() {
-	console.log({ AuthClient })
 	return (
 	  	<AuthCtx.Provider value={AuthClient}>
 	    	<AuthShell basename='ui'>

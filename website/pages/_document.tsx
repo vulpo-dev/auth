@@ -10,6 +10,8 @@ class MyDocument extends Document {
         <body>
           <Main />
           <NextScript />
+
+          <script defer async src="/scripts/prism.js"></script>
         </body>
       </Html>
     )

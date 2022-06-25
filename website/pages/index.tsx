@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react'
 import type { NextPage } from 'next'
 import Head from 'next/head'
 import dynamic from 'next/dynamic'
 
 import styles from '../styles/Home.module.css'
+
+import MockBrowser from '../components/mock_browser'
 
 let AuthExample = dynamic(() => import('../components/auth_memory'), {
   ssr: false,
@@ -12,13 +13,6 @@ let AuthExample = dynamic(() => import('../components/auth_memory'), {
 let description = 'Vulpo Auth is a complete authentication solution for your single page application, it comes as a single binary that you can host anywhere and modular SDKs for you to create a unique authentication experiences.'
 
 const Home: NextPage = () => {
-
-  let [example, setExample] = useState<'ui' | 'code' | undefined>()
-  useEffect(() => {
-    if (example === undefined) {
-      setExample('ui')
-    }
-  }, [example])
 
   return (
     <div>
@@ -46,48 +40,39 @@ const Home: NextPage = () => {
         </div>
       </header>
 
-      <main className={styles.content}>
-        <section className={`${styles.hero} ${styles.section}`}>
+      <main>
+        <section className={`${styles.section} ${styles.hero} `}>
           <h1 className={styles['hero-title']}>
-            Effortless Authentication for your Web Application.
+            <span className={styles.outlined}>Effortless</span>
+            <span>Authentication</span>
+            <small>for your Web Application.</small>
           </h1>
-          <a href="#get-started" className={`${styles['get-started']}`}>Get Started</a>
         </section>
 
-        <section className={styles.section}>
-          <header className={styles['demo-header']}>
-            <h2 className={styles['demo-title']}>Demo: Drop-in UI</h2>
-
-            <div className={styles['demo-buttons']}>
-              <button
-                className={`${styles['demo-button']} ${example === 'ui' ? styles['demo-button--active'] : ''}`}
-                onClick={() => setExample('ui')}>
-                UI
-              </button>
-              <button
-                className={`${styles['demo-button']} ${example === 'code' ? styles['demo-button--active'] : ''}`}
-                onClick={() => setExample('code')}>
-                Code
-              </button>
-            </div>
-          </header>
-          <div suppressHydrationWarning={true}>
-            { (example === 'ui') &&
-              <div className={styles['ui-example-wrapper']}>
-                <AuthExample />
-              </div>
-            }
-
-            <div style={{ display: example === 'code' ? 'block' : 'none' }}>
-              <pre>
-                <code className="language-tsx">                  
-                  { process.env.exampleCode }
-                </code>
-              </pre>
+        <section className={`${styles.section} ${styles['demo-section']}`}>
+          <div className={styles.demo}>
+            <pre className={styles['demo-code']} suppressHydrationWarning={true}>
+              <code className="language-tsx">                  
+                { process.env.exampleCode }
+              </code>
+            </pre>
+            
+            <div className={styles['ui-example-wrapper']}>
+              <MockBrowser>
+                <div className={styles['example-content']}>
+                  <AuthExample />
+                </div>
+              </MockBrowser>
             </div>
           </div>
+
+          <div className={styles['get-started-wrapper']}>
+            <a className={styles['get-started']} href='/guides/quickstart'>
+              Get Started: 5 minute Quickstart {'>'}
+            </a>
+          </div>
         </section>
-        
+
       </main>
 
       <footer className='footer'>

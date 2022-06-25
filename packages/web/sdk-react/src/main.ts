@@ -1,6 +1,8 @@
 import {
 	AuthClient,
 	AuthCallback,
+    ErrorCode,
+    IAuthClient,
 } from '@vulpo-dev/auth-sdk'
 
 import {
@@ -12,7 +14,7 @@ import {
     useState,
 } from 'react'
 
-export let Auth = createContext<AuthClient | null>(null)
+export let Auth = createContext<IAuthClient | null>(null)
 
 export function useAuthStateChange(fn: AuthCallback) {
 	let auth = useContext(Auth)
@@ -40,9 +42,10 @@ export function useAuthStateChange(fn: AuthCallback) {
 export interface SingInWithRedirect {
 	(provider: 'google'): Promise<void>;
 	loading: boolean;
+	error: ErrorCode | null;
 }
 
-export type UseAuth = AuthClient & {
+export type UseAuth = IAuthClient & {
 	singInWithRedirect: SingInWithRedirect,
 }
 
@@ -50,11 +53,13 @@ export function useAuth(): UseAuth {
 	let auth = useContext(Auth)
 	
 	let mounted = useRef(true)
-	useEffect(() => () => {
-		mounted.current = false
+	useEffect(() => {
+		mounted.current = true
+		return () => { mounted.current = false }
 	}, [])
 
 	let [redirectState, setRedirectState] = useState(false)
+	let [redirectError, setRedirectError] = useState(null)
 
 	let singInWithRedirectFn = useCallback(async (provider: 'google') => {
 
@@ -64,15 +69,20 @@ export function useAuth(): UseAuth {
 
 		setRedirectState(true)
 
-		let url = await auth.oAuthGetAuthorizeUrl(provider)
+		let url = await auth
+			.oAuthGetAuthorizeUrl(provider)
+			.catch(err => { mounted.current && setRedirectError(err.code) })
+			.finally(() => mounted.current && setRedirectState(false))
 
-		if (mounted.current) {
+		if (mounted.current && url) {
 			window.location.href = url
-			setRedirectState(false)
 		}
 	}, [auth])
 
-	let singInWithRedirect: SingInWithRedirect = Object.assign(singInWithRedirectFn, { loading: redirectState })
+	let singInWithRedirect: SingInWithRedirect = Object.assign(singInWithRedirectFn, {
+		loading: redirectState,
+		error: redirectError,
+	})
 
 	if (auth === null) {
 		throw new AuthClientError()

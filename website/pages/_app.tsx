@@ -2,7 +2,6 @@ import { useEffect } from 'react'
 import * as Sentry from "@sentry/browser";
 import { BrowserTracing } from "@sentry/tracing";
 
-import '../scripts/prism'
 import '../styles/prism.css'
 import '@vulpo-dev/auth-ui/styles.css'
 import '../styles/globals.css'
