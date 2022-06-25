@@ -6,4 +6,8 @@ Set-Location ./website
 npm run build
 Set-Location ../
 
+echo "build api docs"
 Import-Module -Name $PSScriptRoot\docs-web.ps1
+
+echo "build guides"
+Import-Module -Name $PSScriptRoot\guides.ps1
