@@ -1,7 +1,3 @@
----
-sidebar_position: 1
----
-
 # Quickstart
 
 ## Set up the Authentication server

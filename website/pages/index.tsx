@@ -5,6 +5,7 @@ import dynamic from 'next/dynamic'
 import styles from '../styles/Home.module.css'
 
 import MockBrowser from '../components/mock_browser'
+import HeaderNav from '../components/header_nav'
 
 let AuthExample = dynamic(() => import('../components/auth_memory'), {
   ssr: false,
@@ -22,15 +23,7 @@ const Home: NextPage = () => {
       </Head>
 
       <header className={styles.header}>
-        <nav className={styles['header-nav']}>
-          <span>v{ process.env.NEXT_PUBLIC_VERSION }</span>
-          
-          <section>
-            <a href="/docs/guides">Guides</a>
-            <a href="/docs/web/overview">Docs</a>
-            <a href="https://github.com/vulpo-dev/auth">Github</a>
-          </section>
-        </nav>
+        <HeaderNav />
 
         <div className={styles['header-bottom']}>
           <h2 className={styles.name}>Vulpo Auth</h2>
@@ -68,7 +61,7 @@ const Home: NextPage = () => {
 
           <div className={styles['get-started-wrapper']}>
             <a className={styles['get-started']} href='/guides/quickstart'>
-              Get Started: 5 minute Quickstart {'>'}
+              Quickstart Guide - 5min ⏱️
             </a>
           </div>
         </section>

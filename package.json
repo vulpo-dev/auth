@@ -39,7 +39,7 @@
     "webpack-cli": "^4.5.0"
   },
   "dependencies": {
-    "@vulpo-dev/typedoc-theme": "^0.2.0",
-    "typedoc": "^0.23.0-beta.5"
+    "@vulpo-dev/typedoc-theme": "^0.8.0",
+    "typedoc": "^0.23.0-beta.7"
   }
 }

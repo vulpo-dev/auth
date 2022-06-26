@@ -6,7 +6,7 @@ npx typedoc `
     --readme ./packages/web/README.md `
     --name "Vulpo Auth" `
     --out ./website/out/docs/web `
-    --theme vulpo `
+    --theme vulpo
 
 $DocsRoot = "$PSScriptRoot\..\..\website\out\docs\web"
 

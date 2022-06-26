@@ -27,6 +27,7 @@
     "scripts",
     "example",
     "**/test/**",
-    "**/*.stories.tsx"
+    "**/*.stories.tsx",
+    "guides"
   ]
 }
