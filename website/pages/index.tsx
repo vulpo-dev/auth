@@ -60,7 +60,7 @@ const Home: NextPage = () => {
           </div>
 
           <div className={styles['get-started-wrapper']}>
-            <a className={styles['get-started']} href='/guides/quickstart'>
+            <a className={styles['get-started']} href='/guides'>
               Quickstart Guide - 5min ⏱️
             </a>
           </div>

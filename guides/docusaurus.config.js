@@ -42,15 +42,16 @@ const config = {
         title: 'Vulpo Auth',
         items: [
           {
+            position: 'left',
+            href: 'https://auth.vulpo.dev',
+            label: 'Website',
+            target: '_self'
+          },
+          {
             type: 'doc',
             docId: 'quickstart',
             position: 'left',
             label: 'Guides',
-          },
-          {
-            position: 'right',
-            href: 'https://auth.vulpo.dev',
-            label: 'Website',
           },
           {
             href: 'https://github.com/vulpo-dev/auth',
@@ -67,7 +68,7 @@ const config = {
             items: [
               {
                 label: 'Guides',
-                to: '/quickstart',
+                to: '/',
               },
             ],
           },

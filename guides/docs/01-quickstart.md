@@ -1,3 +1,7 @@
+---
+slug: /
+---
+
 # Quickstart
 
 ## Set up the Authentication server

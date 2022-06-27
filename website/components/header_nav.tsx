@@ -11,7 +11,7 @@ let HeaderNav = () => {
 		  
 		  <section>
 		  	{ !isHome && <Link href="/">Home</Link> }
-		    <a href="/guides/quickstart">Guides</a>
+		    <a href="/guides">Guides</a>
 		    <a href="/docs/web/overview">Docs</a>
 		    <a href="https://github.com/vulpo-dev/auth">Github</a>
 		  </section>

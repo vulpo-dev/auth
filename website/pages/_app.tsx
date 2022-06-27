@@ -2,7 +2,14 @@ import { useEffect } from 'react'
 import * as Sentry from "@sentry/browser";
 import { BrowserTracing } from "@sentry/tracing";
 
-import '../styles/prism.css'
+import Prism from 'prismjs'
+
+import 'prismjs/components/prism-javascript'
+import 'prismjs/components/prism-css'
+import 'prismjs/components/prism-jsx'
+import 'prismjs/components/prism-tsx'
+import 'prismjs/themes/prism-okaidia.css'
+
 import '@vulpo-dev/auth-ui/styles.css'
 import '../styles/globals.css'
 
@@ -10,6 +17,10 @@ import type { AppProps } from 'next/app'
 
 
 function MyApp({ Component, pageProps }: AppProps) {
+
+  useEffect(() => {
+    Prism.highlightAll()
+  })
 
   useEffect(() => {
     let doNotTrack = (

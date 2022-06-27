@@ -133,6 +133,10 @@ dd {
   border-radius: 2rem;
 }
 
+pre {
+  background: #272822;
+}
+
 pre[class*="language-"] {
   margin-top: 0;
   margin-bottom: 0;
