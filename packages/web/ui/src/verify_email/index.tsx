@@ -1,4 +1,4 @@
-import React, { Fragment, useState, useEffect } from 'react'
+import React, { Fragment, useState, useCallback } from 'react'
 import { ErrorCode, Flag } from '@vulpo-dev/auth-sdk'
 import { useAuth } from '@vulpo-dev/auth-react'
 import { useLocation, Navigate } from 'react-router-dom'
@@ -9,13 +9,16 @@ import CheckIcon from '../component/check'
 import { useTranslation, useError } from '../context/translation'
 import { useConfig, useFlags } from '../context/config'
 import Card from '../component/card'
+import { Button } from 'component/button'
 
 export type Props = {
 	loading: boolean;
 	error: ErrorCode | null;
+	onVerify: () => void;
+	verified: boolean;
 }
 
-export let VerifyEmail = ({ loading, error }: Props) => {
+export let VerifyEmail = ({ loading, error, onVerify, verified }: Props) => {
 	let t = useTranslation()
 	let errorMessage = useError(error)
 
@@ -25,13 +28,21 @@ export let VerifyEmail = ({ loading, error }: Props) => {
 				<h3 className="vulpo-auth-card-title">{t.verify_email.title}</h3>
 			</header>
 
+			{ (!loading && !error && !verified) &&
+				<div className='vulpo-auth-verify-email-confirm'>
+					<Button onClick={onVerify}>
+						{ t.verify_email.label }
+					</Button>
+				</div>
+			}
+
 			{ (loading && error === null) &&
 				<div className="vulpo-auth-loading-wrapper">
 					<Flow />
 				</div>
 			}
 
-			{ (!loading && error === null) &&
+			{ (!loading && !error && verified) &&
 				<Fragment>
 					<div className="vulpo-auth-loading-wrapper">
 						<CheckIcon />
@@ -55,8 +66,9 @@ let VerifyEmailContainer = () => {
 
 	let [error, setError] = useState<ErrorCode | null>(null)
 	let [loading, setLoading] = useState<boolean>(false)
+	let [verified, setVerified] = useState<boolean>(false)
 
-	useEffect(() => {
+	let verify = useCallback(() => {
 		let id = query.get('id')
 		let token = query.get('token')
 
@@ -65,18 +77,18 @@ let VerifyEmailContainer = () => {
 			return
 		}
 
+		setLoading(true)
+
 		let sink = Promise.all([
 			wait(2000),
 			auth.verifyEmail(id, token)
 		])
 		
-		sink.then(() => setLoading(false))
-			.catch(err => {
-				setLoading(false)
-				setError(err.code)
-			})
+		sink.then(() => setVerified(true))
+			.catch(err => setError(err.code))
+			.finally(() => setLoading(false))
 
-	}, [])
+	}, [query])
 
 	let flags = useFlags()
 	if (!flags.includes(Flag.VerifyEmail)) {
@@ -84,7 +96,12 @@ let VerifyEmailContainer = () => {
 	}
 
 	return (
-		<VerifyEmail loading={loading} error={error} />
+		<VerifyEmail
+			verified={verified}
+			loading={loading}
+			error={error}
+			onVerify={verify}
+		/>
 	)
 }
 

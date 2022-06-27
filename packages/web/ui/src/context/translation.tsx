@@ -151,6 +151,7 @@ export let DefaultTranslation = {
 	verify_email: {
 		title: 'Verifying Email',
 		success: 'Your email has been verified',
+		label: 'Verify Email'
 	},
 }
 
