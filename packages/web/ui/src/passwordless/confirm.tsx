@@ -8,7 +8,7 @@ import { Flow } from '../component/loading'
 import { useQueryParams } from '../utils'
 import { useTranslation, useError } from '../context/translation'
 import Card from '../component/card'
-import { Button } from 'component/button'
+import { Button } from '../component/button'
 
 type Props = {
 	loading: boolean;

@@ -9,7 +9,7 @@ import CheckIcon from '../component/check'
 import { useTranslation, useError } from '../context/translation'
 import { useConfig, useFlags } from '../context/config'
 import Card from '../component/card'
-import { Button } from 'component/button'
+import { Button } from '../component/button'
 
 export type Props = {
 	loading: boolean;
