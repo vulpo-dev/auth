@@ -313,6 +313,14 @@
 	margin-block-start: calc(var(--baseline) * -0.375);
 }
 
+.vulpo-auth-passwordless-confirm-signin {
+	min-height: 100px;
+	width: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
 .vulpo-auth-passwordless-confirm .vulpo-auth-card-title {
 	line-height: 1;
 	margin-block-start: calc(var(--baseline) * -0.375);

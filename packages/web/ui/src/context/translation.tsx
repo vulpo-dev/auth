@@ -1,5 +1,5 @@
 import React from 'react'
-import { FC, useMemo } from 'react'
+import { useMemo } from 'react'
 import { createContext, useContext } from 'react'
 import { Link } from 'react-router-dom'
 import { ErrorCode } from '@vulpo-dev/auth-sdk'
@@ -26,82 +26,6 @@ export type ErrorMessage = {
 	generic: string;
 	not_allowed: string;
 	unavailable: string;
-}
-
-type Translations = {
-	signin: {
-		title: string;
-		label: string;
-		info: string;
-		nav: string;
-	};
-
-	signup: {
-		title: string;
-		label: string;
-		info: string;
-		nav: string;
-	};
-
-	email: {
-		label: string;
-	};
-
-	password: {
-		label: string;
-		title: string;
-		forgot: string;
-	};
-
-	google: {
-		label: string;
-	};
-
-	reset_password: {
-		title: string;
-		info: string;
-		button: string;
-	};
-
-	set_password: {
-		title: string;
-		new_password: string;
-		repeat_password: string;
-		button_label: string;
-	};
-
-	reset_check_mail: {
-		title: string;
-		description: FC<ResetProps>;
-		info: string;
-	};
-
-	label: {
-		email: string;
-		password: string;
-	};
-
-	passwordless: {
-		title: string;
-		info: FC<{ label: string }>;
-		button: string;
-	};
-
-	passwordless_check: {
-		title: string;
-		info: string;
-		description: FC<PasswordlessProps>;
-		warning: string;
-	};
-
-	Disclaimer: FC<DisclaimerProps>;
-
-	error: ErrorMessage;
-
-	verify_email: {
-		title: string;
-		success: string;
-	};
 }
 
 export let DefaultTranslation = {
@@ -187,6 +111,12 @@ export let DefaultTranslation = {
 		}
 	},
 
+	passwordless_confirm: {
+		title: "Confirm Sign In",
+		success: "Your sign in has been confirmed.",
+		info: "You can now close this window.",
+	},
+
 	set_password: {
 		title: 'Set New Password',
 		new_password: 'New Password',
@@ -223,6 +153,8 @@ export let DefaultTranslation = {
 		success: 'Your email has been verified',
 	},
 }
+
+export type Translations = typeof DefaultTranslation
 
 export let Translation = createContext(DefaultTranslation)
 

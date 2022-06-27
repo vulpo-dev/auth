@@ -1,5 +1,5 @@
-import React from 'react'
-import { FunctionComponent, Fragment, useState, useEffect } from 'react'
+import React, { useCallback } from 'react'
+import { FunctionComponent, Fragment, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { ErrorCode } from '@vulpo-dev/auth-sdk'
 import { useAuth } from '@vulpo-dev/auth-react'
@@ -8,13 +8,16 @@ import { Flow } from '../component/loading'
 import { useQueryParams } from '../utils'
 import { useTranslation, useError } from '../context/translation'
 import Card from '../component/card'
+import { Button } from 'component/button'
 
 type Props = {
 	loading: boolean;
 	error: null | ErrorCode;
+	authenticated: boolean;
+	onSignIn: () => void;
 }
 
-export let Confirm: FunctionComponent<Props> = ({ loading, error }) => {
+export let Confirm: FunctionComponent<Props> = ({ loading, error, authenticated, onSignIn }) => {
 	let t = useTranslation()
 	let errorMessage = useError(error)
 
@@ -23,7 +26,9 @@ export let Confirm: FunctionComponent<Props> = ({ loading, error }) => {
 	return (
 		<Card className="vulpo-auth-passwordless-confirm">
 			<header className="vulpo-card-header">
-				<h3 className="vulpo-auth-card-title test-confirm-signin">Confirm Sign In</h3>
+				<h3 className="vulpo-auth-card-title">
+					{ t.passwordless_confirm.title }
+				</h3>
 			</header>
 
 			{ loading &&
@@ -39,12 +44,20 @@ export let Confirm: FunctionComponent<Props> = ({ loading, error }) => {
 				</Fragment>
 			}
 
-			{ (!error && !loading) &&
+			{ (!error && !loading && authenticated) &&
 				<Fragment>
-					<span>Your sign in has been confirmed.</span>
-					<strong>You can now close this window.</strong>
+					<span className='test-confirm-success'>{ t.passwordless_confirm.success }</span>
+					<strong>{ t.passwordless_confirm.info }</strong>
 					{ Overview }
 				</Fragment>
+			}
+
+			{ (!error && !loading && !authenticated) &&
+				<div className='vulpo-auth-passwordless-confirm-signin test-confirm-signin'>
+					<Button onClick={onSignIn}>
+						{ t.signin.label }
+					</Button>
+				</div>
 			}
 
 		</Card>
@@ -58,8 +71,9 @@ let ConfirmContainer = () => {
 
 	let [error, setError] = useState<ErrorCode | null>(null)
 	let [loading, setLoading] = useState<boolean>(false)
+	let [authenticated, setAuthenticated] = useState<boolean>(false)
 
-	useEffect(() => {
+	let signIn = useCallback(() => {
 		let id = query.get('id')
 		let token = query.get('token')
 
@@ -68,19 +82,24 @@ let ConfirmContainer = () => {
 			return
 		}
 
+		setLoading(true)
+
 		let sink = Promise.all([
 			wait(2000),
 			auth.confirmPasswordless(id, token)
 		])
 		
-		sink.then(() => setLoading(false))
-			.catch(err => {
-				setLoading(false)
-				setError(err.code)
-			})
-	}, [])
+		sink.then(() => setAuthenticated(true))
+			.catch(err => setError(err.code))
+			.finally(() => setLoading(false))
+	}, [query])
 
-	return <Confirm loading={loading} error={error} />
+	return <Confirm
+		loading={loading}
+		error={error}
+		authenticated={authenticated}
+		onSignIn={signIn}
+	/>
 }
 
 export default ConfirmContainer

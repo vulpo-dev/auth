@@ -35,4 +35,7 @@ export async function passwordless(page: Page, browser: Browser, email: string, 
 
 	await confirm.waitForLoadState();
 	await confirm.waitForSelector('.test-confirm-signin')
+
+	await confirm.click(`button:has-text("Sign In")`)
+	await confirm.waitForSelector('.test-confirm-success')
 }
