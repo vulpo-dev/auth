@@ -8,12 +8,12 @@ The `<AuthShell />` is a a top level component that handles the entire authentic
 
 ## Set up
 
-Make sure you have an instance of the authentication server running and you have installed the required packages. Head over to our [Quickstart Guide](../01-quickstart.md) in order to get your envirnoment up and running.
+Make sure you have an instance of the authentication server running and you have installed the required packages. Head over to our [Quickstart Guide](../01-quickstart.md) in order to get your environment up and running.
 
 ### Install packages
 `npm install @vulpo-dev/auth-ui react-router-dom`
 
-### Configute the shell
+### Configure the shell
 
 1. Initialize the [`AuthClient`](https://auth.vulpo.dev/docs/web/classes/sdk_src_main.AuthClient)
 ```tsx
@@ -69,9 +69,9 @@ export default App
 
 ## Configure
 
-### Darkmode
+### Dark mode
 
-By default, the auth shell uses a light theme to render it the auth screens. You can use the `dark` prop to change the default behaviror like so:
+By default, the auth shell uses a light theme to render it the auth screens. You can use the `dark` prop to change the default behavior like so:
 ```tsx
 <AuthShell dark />
 ```
@@ -90,19 +90,19 @@ export default function Component() {
 
 ```
 
-### Splashscreen
-The splash screen is what the user sees the first time they enter your application, the android documentation provides a great overview: https://developer.android.com/guide/topics/ui/splash-screen. The `<AuthShell />` provides a basic splash screen for you that you can customize either through css or by providing your own component.
+### Splash screen
+The splash screen is what the user sees the first time they enter your application, the android documentation provides a great overview: https://developer.android.com/guide/topics/ui/splash-screen. The `<AuthShell />` provides a basic splash screen for you that you can customize either through CSS or by providing your own component.
 
 #### CSS
 
-1. Let's start by passing the `name` that should be renderd on the splash screen.
+1. Let's start by passing the `name` that should be rendered on the splash screen.
 ```tsx
-<AuthShell name="Applocation name" />
+<AuthShell name="Application name" />
 ```
 
-2. Overwrite the default styles, there are two `css` classes that you can target: `vulpo-auth-splashscreen` and `vulpo-auth-splashscreen-title`
+2. Overwrite the default styles, there are two `CSS` classes that you can target: `vulpo-auth-splashscreen` and `vulpo-auth-splashscreen-title`
 ```css
-/* The splash sceen wrapper */
+/* The splash screen wrapper */
 .vulpo-auth-splashscreen {
 
 }
@@ -127,7 +127,7 @@ The splash screen is what the user sees the first time they enter your applicati
 
 #### Bring your own component
 
-If you require more cusomization, you can also pass a custom compoent to `<AuthShell />` that will be renderd instead of the [default implementation](https://github.com/vulpo-dev/auth/blob/master/packages/web/ui/src/component/splashscreen.tsx).
+If you require more customization, you can also pass a custom component to `<AuthShell />` that will be rendered instead of the [default implementation](https://github.com/vulpo-dev/auth/blob/master/packages/web/ui/src/component/splashscreen.tsx).
 
 1. Create your custom splash screen, here is the default implementation as reference:
 ```tsx
@@ -162,10 +162,10 @@ export default Splashscreen
 ```
 
 
-### Authscreen
-You can pass a custom authentication screen to the `<AuthSchell />` that will be rendered instead. The `authscreen` is the compoent that will be rendered when a user is not authenticated.
+### Auth screen
+You can pass a custom authentication screen to the `<AuthSchell />` that will be rendered instead. The `auth screen` is the component that will be rendered when a user is not authenticated.
 
-1. Create your `authscreen`
+1. Create your `auth screen`
 ```tsx
 // Auth contains all of the authentication screens,
 // it also handles routing, flags and error handling
