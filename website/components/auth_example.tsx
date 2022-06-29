@@ -8,6 +8,16 @@ let AuthClient = Auth.create({
 	baseURL: process.env.NEXT_PUBLIC_AUTH_URL ?? ''
 })
 
+export default function App() {
+	return (
+	  	<AuthCtx.Provider value={AuthClient}>
+	    	<AuthShell basename='ui'>
+				<Route path='/' element={<DummyPage />}/>
+			</AuthShell>
+	  	</AuthCtx.Provider>
+	)
+}
+
 let DummyPage = () => {
 	let auth = useAuth()
 	let user = useUser()
@@ -21,15 +31,5 @@ let DummyPage = () => {
 				{ JSON.stringify(user, null, 2) }
 			</pre>		
 		</div>
-	)
-}
-
-export default function App() {
-	return (
-	  	<AuthCtx.Provider value={AuthClient}>
-	    	<AuthShell basename='ui'>
-				<Route path='/' element={<DummyPage />}/>
-			</AuthShell>
-	  	</AuthCtx.Provider>
 	)
 }

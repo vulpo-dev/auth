@@ -1,11 +1,12 @@
 import type { NextPage } from 'next'
 import Head from 'next/head'
 import dynamic from 'next/dynamic'
+import { ArrowBendLeftUp } from 'phosphor-react'
 
 import styles from '../styles/Home.module.css'
-
 import MockBrowser from '../components/mock_browser'
 import HeaderNav from '../components/header_nav'
+import Banner from '../components/banner'
 
 let AuthExample = dynamic(() => import('../components/auth_memory'), {
   ssr: false,
@@ -36,7 +37,7 @@ const Home: NextPage = () => {
       <main>
         <section className={`${styles.section} ${styles.hero} `}>
           <h1 className={styles['hero-title']}>
-            <span className={styles.outlined}>Effortless</span>
+            <span className='outlined'>Effortless</span>
             <span>Authentication</span>
             <small>for your Web Application.</small>
           </h1>
@@ -53,7 +54,13 @@ const Home: NextPage = () => {
             <div className={styles['ui-example-wrapper']}>
               <MockBrowser>
                 <div className={styles['example-content']}>
-                  <AuthExample />
+                  <div className={styles['example-example']}>
+                    <AuthExample />
+                  </div>
+                  <div className={styles['example-content-try']}>
+                    <ArrowBendLeftUp size={40} />
+                    <p>Try me</p>
+                  </div>
                 </div>
               </MockBrowser>
             </div>
@@ -64,6 +71,15 @@ const Home: NextPage = () => {
               Quickstart Guide - 5min ⏱️
             </a>
           </div>
+        </section>
+
+        <section style={{ position: 'relative' }}>
+            <Banner>
+                <span>Open Source</span>
+                <span>Open Source</span>
+                <span>Open Source</span>
+                <span>Open Source</span>
+            </Banner>
         </section>
 
       </main>

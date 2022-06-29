@@ -16,7 +16,9 @@ function AuthPage() {
 			<header>
 				<HeaderNav />
 			</header>
-			<AuthExample />
+			<div style={{ maxWidth: 600, margin: '0 auto' }}>
+				<AuthExample />
+			</div>
 		</div>
 	)
 }

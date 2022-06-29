@@ -97,6 +97,7 @@ pre {
   overflow: auto;
   font-family: monospace;
   padding: 1rem;
+  max-height: 95vh;
 }
 
 summary {
@@ -124,6 +125,14 @@ dd {
   letter-spacing: 1px;
 }
 
+pre {
+  background: #272822;
+}
+
+pre[class*="language-"] {
+  margin-top: 0;
+  margin-bottom: 0;
+}
 
 .demo-wrapper {
   background: #fff;
@@ -133,11 +142,11 @@ dd {
   border-radius: 2rem;
 }
 
-pre {
-  background: #272822;
+.demo-wrapper pre {
+  background: #fff;
 }
 
-pre[class*="language-"] {
-  margin-top: 0;
-  margin-bottom: 0;
+.outlined {
+  -webkit-text-stroke: 1px #fff;
+  color: var(--brand-color);
 }
