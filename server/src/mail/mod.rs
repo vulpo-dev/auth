@@ -43,7 +43,7 @@ impl Email {
             let host = env::var("VULPO_MAIL_LOCALHOST").unwrap_or("localhost".to_string());
             AsyncSmtpTransport::<Tokio1Executor>::builder_dangerous(&host)
         } else {
-            AsyncSmtpTransport::<Tokio1Executor>::relay(&settings.host).unwrap()
+            AsyncSmtpTransport::<Tokio1Executor>::starttls_relay(&settings.host).unwrap()
         };
 
         let mailer: AsyncSmtpTransport<Tokio1Executor> =
