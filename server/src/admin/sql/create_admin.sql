@@ -16,9 +16,10 @@ with insert_admin as (
           )
      returning id
 )
-insert into passwords(user_id, alg, hash)
+insert into passwords(user_id, alg, hash, project_id)
 select insert_admin.id as "user_id"
      , 'bcrypt' as "alg"
      , $2 as "hash"
+     , $3 as "project_id"
   from insert_admin 
 returning user_id as "id"

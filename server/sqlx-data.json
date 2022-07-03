@@ -328,8 +328,8 @@
       ]
     }
   },
-  "3a388d6d2bcf254c7cdcb66582094090727e9925ac4c07ca0cb92c5ef4bc8bcc": {
-    "query": "\r\nwith insert_admin as (\r\n     insert into users\r\n          ( email\r\n          , project_id\r\n          , traits\r\n          , data\r\n          , provider_id\r\n          )\r\n     values\r\n          ( $1\r\n          , $3\r\n          , '{ \"Admin\" }'\r\n          , '{}'::jsonb\r\n          , 'email'\r\n          )\r\n     returning id\r\n)\r\ninsert into passwords(user_id, alg, hash)\r\nselect insert_admin.id as \"user_id\"\r\n     , 'bcrypt' as \"alg\"\r\n     , $2 as \"hash\"\r\n  from insert_admin \r\nreturning user_id as \"id\"",
+  "39e2375bf16515b7c08ba5adc0e6bb60645b8684138088279435151856e1e099": {
+    "query": "\r\nwith insert_admin as (\r\n     insert into users\r\n          ( email\r\n          , project_id\r\n          , traits\r\n          , data\r\n          , provider_id\r\n          )\r\n     values\r\n          ( $1\r\n          , $3\r\n          , '{ \"Admin\" }'\r\n          , '{}'::jsonb\r\n          , 'email'\r\n          )\r\n     returning id\r\n)\r\ninsert into passwords(user_id, alg, hash, project_id)\r\nselect insert_admin.id as \"user_id\"\r\n     , 'bcrypt' as \"alg\"\r\n     , $2 as \"hash\"\r\n     , $3 as \"project_id\"\r\n  from insert_admin \r\nreturning user_id as \"id\"",
     "describe": {
       "columns": [
         {
