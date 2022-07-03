@@ -261,6 +261,15 @@ impl User {
 
         Ok(())
     }
+
+    pub async fn project(pool: &PgPool, user_id: &Uuid) -> Result<Option<Uuid>, ApiError> {
+        let row = sqlx::query_file!("src/user/sql/get_project_id.sql", user_id)
+            .fetch_optional(pool)
+            .await
+            .map_err(|_| ApiError::InternalServerError)?;
+
+        Ok(row.map(|r| r.project_id))
+    }
 }
 
 pub enum SortDirection {

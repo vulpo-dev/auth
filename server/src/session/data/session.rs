@@ -1,7 +1,7 @@
 use crate::response::error::ApiError;
 use crate::session::data::SessionClaims;
 
-use chrono::{DateTime, Utc, TimeZone};
+use chrono::{DateTime, TimeZone, Utc};
 use jsonwebtoken as jwt;
 use jsonwebtoken::{Algorithm, DecodingKey, Validation};
 use serde::Deserialize;
@@ -10,7 +10,7 @@ use uuid::Uuid;
 
 pub struct Session {
     pub id: Uuid,
-    pub project_id: Option<Uuid>,
+    pub project_id: Uuid,
     pub public_key: Vec<u8>,
     pub expire_at: DateTime<Utc>,
     pub user_id: Option<Uuid>,
@@ -103,13 +103,15 @@ impl Session {
         pool: &PgPool,
         claims: &SessionClaims,
         session: &Uuid,
+        project_id: &Uuid,
     ) -> Result<bool, ApiError> {
         let exp = Utc.timestamp(claims.exp.into(), 0);
         let row = sqlx::query_file!(
             "src/session/sql/token_is_valid.sql",
             claims.jti,
             session,
-            exp
+            exp,
+            project_id,
         )
         .fetch_one(pool)
         .await
@@ -120,7 +122,6 @@ impl Session {
             Some(value) => Ok(value),
         }
     }
-
 }
 
 #[derive(Deserialize)]

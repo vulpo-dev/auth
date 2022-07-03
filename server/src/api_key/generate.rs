@@ -1,6 +1,8 @@
 use crate::api_key::data::ApiKey;
+
 use crate::response::error::ApiError;
 use crate::session::data::AccessToken;
+use crate::user::data::User;
 use crate::{crypto::Token, db::Db};
 
 use base64;
@@ -29,7 +31,20 @@ pub async fn generate(
     let hashed_token = Token::hash(&token)?;
 
     let user_id = access_token.sub();
-    let id = ApiKey::insert(&pool, &hashed_token, &user_id, &body.expire_at, &body.name).await?;
+
+    let project_id = User::project(&pool, &user_id)
+        .await?
+        .ok_or(ApiError::BadRequest)?;
+
+    let id = ApiKey::insert(
+        &pool,
+        &hashed_token,
+        &user_id,
+        &body.expire_at,
+        &body.name,
+        &project_id,
+    )
+    .await?;
 
     let token = format!("{}:{}", id, token);
     let api_key = base64::encode(token);

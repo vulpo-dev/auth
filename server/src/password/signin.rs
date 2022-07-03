@@ -55,7 +55,8 @@ pub async fn sign_in(
     let current_alg = ProjectData::password_alg(&pool, &project.id).await?;
 
     if current_alg != password.alg {
-        Password::create_password(&pool, &user.id, &body.password, &current_alg).await?;
+        Password::create_password(&pool, &user.id, &body.password, &current_alg, &project.id)
+            .await?;
     }
 
     if user.state == UserState::Disabled {
@@ -67,7 +68,7 @@ pub async fn sign_in(
         public_key: body.public_key.to_owned(),
         user_id: Some(user.id),
         expire_at: Utc::now() + Duration::days(30),
-        project_id: Some(project.id),
+        project_id: project.id,
     };
 
     let session = Session::create(&pool, session).await?;

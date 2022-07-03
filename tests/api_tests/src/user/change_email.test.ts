@@ -1,10 +1,9 @@
 import Db from '../utils/db'
 import Http from '../utils/http'
-import { generateKeyPair } from '../utils/crypto'
 import { PROJECT_ID } from '../utils/env'
 import { makeCreateUser } from '../utils/passwordless'
 import { makeGenerateAccessToken, makeTokenPayload } from '../utils/user'
-import { projectKeys } from '@seeds/data/projects'
+import { project, projectKeys } from '@seeds/data/projects'
 
 import { v4 as uuid } from 'uuid'
 import * as bcrypt from 'bcryptjs'
@@ -12,7 +11,6 @@ import * as bcrypt from 'bcryptjs'
 const EMAIL = 'api.test+change_email@vulpo.dev'
 const NEW_EMAIL = 'api.test+change_new_email@vulpo.dev'
 const USER_ID = '4d883557-1efb-4a4b-9108-40e68d597fbc'
-const KEYS = generateKeyPair()
 
 let createUser = makeCreateUser(
 	USER_ID,
@@ -204,10 +202,18 @@ async function insertChangeRequestToken({ expired = false } = {}) {
 		: new Date(Date.now() + 30 * 60 * 1000)
 
 	let { rows } = await Db.query(`
-		insert into email_change_request(old_email, new_email, user_id, token, reset_token, expire_at)
-		values($1, $2, $3, $4, $5, $6)
+		insert into email_change_request
+			( old_email
+			, new_email
+			, user_id
+			, token
+			, reset_token
+			, expire_at
+			, project_id
+			)
+		values($1, $2, $3, $4, $5, $6, $7)
 		returning id
-	`, [EMAIL, NEW_EMAIL, USER_ID, hashedToken, hashedResetToken, expireAt])
+	`, [EMAIL, NEW_EMAIL, USER_ID, hashedToken, hashedResetToken, expireAt, project.id])
 	
 	let id = rows[0].id
 
@@ -236,7 +242,7 @@ async function dataIsUnchanged(changeRequestId: string, state: string, email: st
 
 
 
-async function confirm(payload) {
+async function confirm(payload: any) {
 	let token = generateAccessToken({
 		payload: tokenPayload()
 	})

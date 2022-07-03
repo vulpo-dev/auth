@@ -16,59 +16,63 @@ import { ErrorCode } from '@sdk-js/error'
 import { PROJECT_ID } from '../utils/env'
 
 const SALT = bcrypt.genSaltSync(10);
-const EMAIL = getEmail()
 const PASSWORD = 'password'
-const ID = '031eb841-9650-4b52-a62f-1aa2742ceb43'
-
-beforeAll(() => {
-	return createUser({
-		id: ID,
-		password: PASSWORD,
-		email: EMAIL,
-	})
-})
-
-beforeEach(() => {
-	return Db.query(`
-		delete from password_change_requests
-		 where user_id = $1
-	`, [ID])
-})
 
 afterAll(() => Db.end())
 
-
 describe("Reset Password", () => {
 	test("should create reset token", async () => {
+		let user_id = uuid()
+		let email = getEmail()
+		await createUser({
+			id: user_id,
+			password: PASSWORD,
+			email: email,
+		})
 
 		let payload: PasswordResetPayload = {
-			email: EMAIL
+			email: email
 		}
 
 		let res = await Http.post(Url.RequestPasswordReset, payload)
 		expect(res.status).toBe(200)
 
-		let token = await getToken()
+		let token = await getToken(user_id)
 		expect(token).toBeTruthy()
 	})
 
 
 	test("should return ok for non existing user", async () => {
+		let user_id = uuid()
+		let email = getEmail()
+		await createUser({
+			id: user_id,
+			password: PASSWORD,
+			email: email,
+		})
+
 		let payload: PasswordResetPayload = {
-			email: `wrong-${EMAIL}`
+			email: `wrong-${email}`
 		}
 
 		let res = await Http.post(Url.RequestPasswordReset, payload)
 		expect(res.status).toBe(200)
 
-		let token = await getToken()
+		let token = await getToken(user_id)
 		expect(token).toBe(null)
 	})
 
 
 	test("should verify reset token", async () => {
+		let user_id = uuid()
+		await createUser({
+			id: user_id,
+			password: PASSWORD,
+			email: getEmail(),
+		})
+
 		let { token, hashed } = generateToken()
-		let tokenId = await insertToken(hashed)
+		let tokenId = await insertToken(user_id, hashed)
 
 		let payload: VerifyResetTokenPayload = {
 			id: tokenId,
@@ -84,8 +88,15 @@ describe("Reset Password", () => {
 
 
 	test("verify should fail when token is expired", async () => {
+		let user_id = uuid()
+		await createUser({
+			id: user_id,
+			password: PASSWORD,
+			email: getEmail(),
+		})
+
 		let { token, hashed } = generateToken()
-		let tokenId = await insertToken(hashed, true)
+		let tokenId = await insertToken(user_id, hashed, true)
 
 		let payload: VerifyResetTokenPayload = {
 			id: tokenId,
@@ -102,8 +113,15 @@ describe("Reset Password", () => {
 
 
 	test("verify should fail when token is invalid", async () => {
+		let user_id = uuid()
+		await createUser({
+			id: user_id,
+			password: PASSWORD,
+			email: getEmail(),
+		})
+
 		let { token, hashed } = generateToken()
-		let tokenId = await insertToken(hashed)
+		let tokenId = await insertToken(user_id, hashed)
 
 		let payload: VerifyResetTokenPayload = {
 			id: tokenId,
@@ -120,9 +138,16 @@ describe("Reset Password", () => {
 
 
 	test("should set new password", async () => {
+		let user_id = uuid()
+		await createUser({
+			id: user_id,
+			password: PASSWORD,
+			email: getEmail(),
+		})
+
 		let password = 'password'
 		let { token, hashed } = generateToken()
-		let tokenId = await insertToken(hashed)
+		let tokenId = await insertToken(user_id, hashed)
 
 		let payload: SetPasswordPayload = {
 			id: tokenId,
@@ -141,7 +166,7 @@ describe("Reset Password", () => {
 				select hash
 				  from passwords
 				 where user_id = $1
-			`, [ID])
+			`, [user_id])
 			.then(res => res.rows)
 
 		let passwordSet = await argon2.verify(user.hash, password)
@@ -207,9 +232,16 @@ describe("Reset Password", () => {
 
 
 	test("set password should fail when token is expired", async () => {
+		let user_id = uuid()
+		await createUser({
+			id: user_id,
+			password: PASSWORD,
+			email: getEmail(),
+		})
+
 		let password = 'password'
 		let { token, hashed } = generateToken()
-		let tokenId = await insertToken(hashed, true)
+		let tokenId = await insertToken(user_id, hashed, true)
 
 		let payload: SetPasswordPayload = {
 			id: tokenId,
@@ -228,9 +260,16 @@ describe("Reset Password", () => {
 
 
 	test("set password should fail when token is invalid", async () => {
+		let user_id = uuid()
+		await createUser({
+			id: user_id,
+			password: PASSWORD,
+			email: getEmail(),
+		})
+
 		let password = 'password'
 		let { token, hashed } = generateToken()
-		let tokenId = await insertToken(hashed)
+		let tokenId = await insertToken(user_id, hashed)
 
 		let payload: SetPasswordPayload = {
 			id: tokenId,
@@ -249,14 +288,14 @@ describe("Reset Password", () => {
 })
 
 
-async function getToken(): Promise<{ id: string, token: string } | null> {
+async function getToken(id: string): Promise<{ id: string, token: string } | null> {
 	let { rows } = await Db.query(`
 		select id
 		     , token
 		  from password_change_requests
 		 where user_id = $1
 		   and project_id = $2
-	`, [ID, PROJECT_ID])
+	`, [id, PROJECT_ID])
 
 	return rows[0] ?? null
 }
@@ -269,7 +308,7 @@ function generateToken() {
 }
 
 
-async function insertToken(token: string, expired: boolean = false): Promise<string> {
+async function insertToken(user_id: string, token: string, expired: boolean = false): Promise<string> {
 
 	let expiredAt = !expired
 		? new Date(Date.now() + 32 * 60 * 1000)
@@ -279,7 +318,7 @@ async function insertToken(token: string, expired: boolean = false): Promise<str
 		insert into password_change_requests (token, user_id, project_id, expire_at)
 		values ($1, $2, $3, $4)
 		returning id
-	`, [token, ID, PROJECT_ID, expiredAt])
+	`, [token, user_id, PROJECT_ID, expiredAt])
 
 	return rows[0].id
 }

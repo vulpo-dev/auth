@@ -38,7 +38,7 @@ export let project = {
 
 export let projectSettings = {
 	name: 'Development',
-	domain: 'http://localhost:4200',
+	domain: 'http://localhost:5000',
 	project_id: project.id,
 }
 

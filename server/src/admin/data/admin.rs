@@ -173,7 +173,7 @@ impl Admin {
 
         if let Some(password) = user.password {
             let alg = ProjectData::password_alg(&pool, &user.project_id).await?;
-            Password::create_password(&pool, &row.id, &password, &alg).await?;
+            Password::create_password(&pool, &row.id, &password, &alg, &user.project_id).await?;
         }
 
         Ok(row.id)

@@ -62,6 +62,7 @@ exports.seed = async function(knex: Knex) {
         user_id: u.id,
         alg: 'bcrypt',
         hash: password,
+        project_id: u.project_id,
       }
     })
   )
@@ -93,6 +94,7 @@ exports.seed = async function(knex: Knex) {
         subject: t.subject,
         redirect_to: t.redirect_to,
         of_type: t.of_type,
+        project_id: t.project_id,
       }
     })
   )
@@ -104,6 +106,7 @@ exports.seed = async function(knex: Knex) {
         template_id: t.id,
         language: 'en',
         content: t.translation,
+        project_id: t.project_id,
       }
     })
   )

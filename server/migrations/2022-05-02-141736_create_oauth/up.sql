@@ -24,6 +24,7 @@ create table if not exists oauth_data
 
 create table if not exists oauth_request_state
 	( request_id uuid primary key default uuid_generate_v4()
+	, project_id uuid not null references projects(id) on delete cascade
 	, csrf_token text not null
 	, pkce_code_verifier text
 	, created_at timestamptz not null default now()

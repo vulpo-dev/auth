@@ -5,10 +5,12 @@ with raw_template_data as (
            id uuid
          , translation jsonb
          , template_type text
+         , project_id uuid
          )
 )
 insert into template_translations
-select raw_template_data.id as template_id
+select raw_template_data.project_id 
+     , raw_template_data.id as template_id
      , 'en' as language
      , raw_template_data.translation
   from raw_template_data

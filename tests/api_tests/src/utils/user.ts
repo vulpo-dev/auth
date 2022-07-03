@@ -114,10 +114,10 @@ export async function createUser({
 		let hash = await argon2.hash(password, { type: argon2.argon2id })
 
 		await Db.query(`
-			insert into passwords(user_id, alg, hash)
-			values($1, 'argon2id', $2)
+			insert into passwords(user_id, alg, hash, project_id)
+			values($1, 'argon2id', $2, $3)
 			on conflict do nothing
-		`, [id, hash])
+		`, [id, hash, project])
 	}
 
 	return { id, email, project, traits, password: password ?? '', state }

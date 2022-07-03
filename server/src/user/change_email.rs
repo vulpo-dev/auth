@@ -48,7 +48,7 @@ pub async fn create_email_change_request(
         reset_token: hashed_reset_token,
     };
 
-    let request_id = EmailChangeRequest::create(&pool, &change_request).await?;
+    let request_id = EmailChangeRequest::create(&pool, &change_request, &project.id).await?;
 
     let (settings, reset_settings) = join(
         ProjectEmail::from_project_template(&pool, &project.id, Templates::ConfirmEmailChange),

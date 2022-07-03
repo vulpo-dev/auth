@@ -4,9 +4,10 @@ with insert_user as (
         values($1, $3, 'password', $4)
         returning id
 )
-insert into passwords(user_id, alg, hash)
+insert into passwords(user_id, alg, hash, project_id)
 select insert_user.id as "user_id"
      , 'bcrypt' as "alg"
      , $2 as "hash"
+     , $3 as "project_id"
   from insert_user 
 returning user_id as "id"

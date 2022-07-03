@@ -63,7 +63,7 @@ pub async fn sign_up(
         public_key: body.public_key.to_owned(),
         user_id: Some(user_id),
         expire_at: Utc::now() + Duration::days(30),
-        project_id: Some(project.id),
+        project_id: project.id,
     };
 
     let session = Session::create(&pool, session).await?;

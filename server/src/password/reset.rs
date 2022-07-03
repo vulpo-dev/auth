@@ -91,7 +91,7 @@ pub struct ResetPassword {
 pub async fn password_reset(
     pool: Db,
     body: Json<ResetPassword>,
-    _project: Project,
+    project: Project,
 ) -> Result<Status, ApiError> {
     if body.password1 != body.password2 {
         return Err(ApiError::ResetPasswordMismatch);
@@ -114,7 +114,7 @@ pub async fn password_reset(
     // todo: move "remove password reset token" into "set_password" query
     PasswordReset::remove(&pool, &reset.user_id).await?;
     let alg = ProjectData::password_alg_by_user(&pool, &reset.user_id).await?;
-    Password::set_password(&pool, &reset.user_id, &body.password1, &alg).await?;
+    Password::set_password(&pool, &reset.user_id, &body.password1, &alg, &project.id).await?;
 
     Ok(Status::Ok)
 }

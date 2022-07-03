@@ -19,12 +19,14 @@ impl OAuthRequestState {
         request_id: Uuid,
         csrf_token: Option<&str>,
         pkce_code_verifier: Option<&str>,
+        project_id: &Uuid,
     ) -> Result<(), ApiError> {
         sqlx::query_file!(
             "src/oauth/sql/insert_oauth_request_state.sql",
             request_id,
             csrf_token,
-            pkce_code_verifier
+            pkce_code_verifier,
+            project_id,
         )
         .execute(pool)
         .await

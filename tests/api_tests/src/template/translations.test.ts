@@ -45,11 +45,11 @@ beforeAll(async () => {
 	`, [TEMPLATE_ID, TEMPLATE, PROJECT_ID])
 
 	await Db.query(`
-		insert into template_translations(template_id, language, content)
-		select template_id, language, content
+		insert into template_translations(template_id, language, content, project_id)
+		select template_id, language, content, $2 as project_id
 		  from json_to_recordset($1)
 		    as x(template_id uuid, language text, content jsonb)
-	`, [JSON.stringify(translations)])
+	`, [JSON.stringify(translations), PROJECT_ID])
 })
 
 

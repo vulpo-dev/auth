@@ -10,7 +10,8 @@ create table if not exists templates
 	);
 
 create table if not exists template_data
-	( from_name text not null
+	( project_id uuid not null references projects(id) on delete cascade
+	, from_name text not null
 	, subject text not null
 	, template_id uuid not null references templates(id) on delete cascade
 	, redirect_to text not null
@@ -19,7 +20,8 @@ create table if not exists template_data
 	);
 
 create table if not exists template_translations
-	( template_id uuid not null references templates(id) on delete cascade
+	( project_id uuid not null references projects(id) on delete cascade
+	, template_id uuid not null references templates(id) on delete cascade
 	, language text not null default 'en'
 	, content jsonb not null
 	, primary key(template_id, language)

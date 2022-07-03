@@ -8,10 +8,12 @@ with raw_template_data as (
          , redirect_to text
          , of_type text
          , template_type text
+         , project_id uuid
          )
 )
 insert into template_data
-select raw_template_data.from_name
+select raw_template_data.project_id
+     , raw_template_data.from_name
      , '{{t.subject}}' as subject
      , raw_template_data.id as template_id
      , raw_template_data.redirect_to

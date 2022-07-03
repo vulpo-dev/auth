@@ -82,6 +82,8 @@ test('can verify email', async ({ page, browser }) => {
 	let email = await signUp(page)
 	let verifyPage = await followEmail(browser, email, 'Verify Email')
 
+	await verifyPage.click('button:has-text("Verify Email")')
+
 	let text = "Your email has been verified"
 	await verifyPage.waitForSelector(`//p[contains(@class, vulpo-auth-verify-email-text) and text()="${text}"]`)
 })

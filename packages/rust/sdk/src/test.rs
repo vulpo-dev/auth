@@ -98,7 +98,6 @@ async fn verify_jwt() {
     let expire_at = Utc::now() + Duration::minutes(15);
     for keypair in keypairs.iter() {
         let payload = Claims {
-            iss: keypair.id,
             exp: expire_at.timestamp(),
             sub: Uuid::new_v4(),
             traits: vec![],
@@ -121,7 +120,6 @@ async fn verify_token_expired() {
     let expire_at = Utc::now() - Duration::minutes(15);
     for keypair in keypairs.iter() {
         let payload = Claims {
-            iss: keypair.id,
             exp: expire_at.timestamp(),
             sub: Uuid::new_v4(),
             traits: vec![],
@@ -145,7 +143,6 @@ async fn verify_token_fails_for_missing_key() {
     let keypair = keypairs.get(0).unwrap();
 
     let payload = Claims {
-        iss: Uuid::new_v4(),
         exp: expire_at.timestamp(),
         sub: Uuid::new_v4(),
         traits: vec![],
@@ -165,11 +162,9 @@ async fn verify_token_invalid_token() {
     let auth = AuthKeys::init("http://localhost:7000").await.unwrap();
 
     let expire_at = Utc::now() + Duration::minutes(15);
-    let keypair = keypairs.get(0).unwrap();
     let keypair2 = keypairs.get(1).unwrap();
 
     let payload = Claims {
-        iss: keypair.id,
         exp: expire_at.timestamp(),
         sub: Uuid::new_v4(),
         traits: vec![],

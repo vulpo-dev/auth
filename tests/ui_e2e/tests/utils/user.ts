@@ -35,9 +35,9 @@ export async function createUserWithEmailPassword(email: string, password: strin
 	let hash = bcrypt.hashSync(password, SALT)
 
 	await Db.query(`
-		insert into passwords(user_id, hash, alg)
-		values($1, $2, 'bcrypt')
-	`, [id, hash])
+		insert into passwords(user_id, hash, alg, project_id)
+		values($1, $2, 'bcrypt', $3)
+	`, [id, hash, 'ae16cc4a-33be-4b4e-a408-e67018fe453b'])
 }
 
 export async function setState(email: string, state: 'active' | 'disabled' | 'set_password') {

@@ -85,9 +85,9 @@ describe("User Sign Out", () => {
 			})
 
 			await Db.query(`
-				insert into refresh_access_tokens(id, session_id, expire_at)
-				values($1, $2, now() + '5 minutes')
-			`, [jti, SESSION_ID])
+				insert into refresh_access_tokens(id, session_id, expire_at, project_id)
+				values($1, $2, now() + '5 minutes', $3)
+			`, [jti, SESSION_ID, PROJECT_ID])
 
 			let url = Url.SignOut.replace(':session', SESSION_ID)
 			let res = await Http.post(url, {
@@ -153,9 +153,9 @@ describe("User Sign Out", () => {
 			})
 
 			await Db.query(`
-				insert into refresh_access_tokens(id, session_id, expire_at)
-				values($1, $2, now() + '5 minutes')
-			`, [jti, SESSION_ID])
+				insert into refresh_access_tokens(id, session_id, expire_at, project_id)
+				values($1, $2, now() + '5 minutes', $3)
+			`, [jti, SESSION_ID, PROJECT_ID])
 
 			let url = Url.SignOutAll.replace(':session', SESSION_ID)
 			let res = await Http.post(url, {

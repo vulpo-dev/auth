@@ -1,12 +1,12 @@
 use crate::crypto::Token;
 use crate::response::error::ApiError;
-use vulpo::Claims;
 
 use base64;
 use chrono::{DateTime, Utc};
 use sqlx::PgPool;
 use std::str::{self, FromStr};
 use uuid::Uuid;
+use vulpo::Claims;
 
 pub struct ApiKey {
     pub api_key: String,
@@ -24,6 +24,7 @@ impl ApiKey {
         user_id: &Uuid,
         expire_at: &Option<DateTime<Utc>>,
         name: &Option<String>,
+        project_id: &Uuid,
     ) -> Result<Uuid, ApiError> {
         let default_name = String::from("");
         let name = name.as_ref().unwrap_or(&default_name);
@@ -33,6 +34,7 @@ impl ApiKey {
             user_id,
             *expire_at,
             name,
+            project_id,
         )
         .fetch_one(pool)
         .await

@@ -1,5 +1,6 @@
 use crate::admin::data::Admin;
 use crate::db::Db;
+use crate::project::Project;
 use crate::response::error::ApiError;
 use crate::session::data::{RefreshAccessToken, Session};
 
@@ -12,10 +13,11 @@ pub async fn sign_out(
     pool: Db,
     session_id: Uuid,
     rat: Json<RefreshAccessToken>,
+    project: Project,
 ) -> Result<(), ApiError> {
     let session = Session::get(&pool, &session_id).await?;
     let claims = Session::validate_token(&session, &rat)?;
-    let is_valid = Session::is_valid(&pool, &claims, &session_id).await?;
+    let is_valid = Session::is_valid(&pool, &claims, &session_id, &project.id).await?;
 
     if !is_valid {
         return Err(ApiError::Forbidden);
@@ -37,10 +39,11 @@ pub async fn sign_out_all(
     pool: Db,
     session_id: Uuid,
     rat: Json<RefreshAccessToken>,
+    project: Project,
 ) -> Result<(), ApiError> {
     let session = Session::get(&pool, &session_id).await?;
     let claims = Session::validate_token(&session, &rat)?;
-    let is_valid = Session::is_valid(&pool, &claims, &session_id).await?;
+    let is_valid = Session::is_valid(&pool, &claims, &session_id, &project.id).await?;
 
     if !is_valid {
         return Err(ApiError::Forbidden);

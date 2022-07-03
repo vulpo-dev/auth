@@ -48,6 +48,7 @@ impl Password {
         user_id: &Uuid,
         password: &str,
         alg: &PasswordAlg,
+        project_id: &Uuid,
     ) -> Result<(), ApiError> {
         let password = Password::hash(password, alg).map_err(|_| ApiError::InternalServerError)?;
 
@@ -55,7 +56,8 @@ impl Password {
             "src/password/sql/set_password.sql",
             user_id,
             password,
-            alg as &PasswordAlg
+            alg as &PasswordAlg,
+            project_id,
         )
         .execute(pool)
         .await
@@ -69,6 +71,7 @@ impl Password {
         user_id: &Uuid,
         password: &str,
         alg: &PasswordAlg,
+        project_id: &Uuid,
     ) -> Result<(), ApiError> {
         let password = Password::hash(password, alg).map_err(|_| ApiError::InternalServerError)?;
 
@@ -76,7 +79,8 @@ impl Password {
             "src/password/sql/create_password.sql",
             user_id,
             password,
-            alg as &PasswordAlg
+            alg as &PasswordAlg,
+            project_id,
         )
         .execute(pool)
         .await

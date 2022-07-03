@@ -63,6 +63,7 @@ pub async fn get_auth_url(
         body.request_id,
         Some(csrf_state.secret()),
         Some(pkce_code_verifier.secret()),
+        &project.id,
     )
     .await?;
 
@@ -165,7 +166,7 @@ pub async fn exchange_code(
         public_key: body.public_key.to_owned(),
         user_id: Some(user.id),
         expire_at: Utc::now() + Duration::days(30),
-        project_id: Some(project.id),
+        project_id: project.id,
     };
 
     let session = Session::create(&db, session).await?;

@@ -27,7 +27,7 @@ pub async fn handler(
     }
 
     let claims = Session::validate_token(&session, &rat)?;
-    let is_valid = Session::is_valid(&pool, &claims, &session_id).await?;
+    let is_valid = Session::is_valid(&pool, &claims, &session_id, &project.id).await?;
 
     if !is_valid {
         return Err(ApiError::Forbidden);

@@ -35,7 +35,7 @@ pub async fn set_password(
     password::validate_password_length(&body.password)?;
 
     let alg = ProjectData::password_alg(&pool, &project.id).await?;
-    Password::set_password(&pool, &user_id, &body.password, &alg).await?;
+    Password::set_password(&pool, &user_id, &body.password, &alg, &project.id).await?;
 
     let settings =
         ProjectEmail::from_project_template(&pool, &project.id, Templates::PasswordReset).await;
