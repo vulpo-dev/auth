@@ -55,12 +55,12 @@ exports.seed = async function(knex: Knex) {
   await knex('users').insert(users)
 
   console.log('Insert Passwords')
-  let password = hash('password')
+  let password = await hash('password')
   await knex('passwords').insert(
     users.map(u => {
       return {
         user_id: u.id,
-        alg: 'bcrypt',
+        alg: 'argon2id',
         hash: password,
         project_id: u.project_id,
       }

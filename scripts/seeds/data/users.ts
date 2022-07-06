@@ -1,9 +1,7 @@
 import { admin, project } from './projects'
-import * as bcrypt from 'bcryptjs'
 import * as faker from 'faker'
 import { v4 as uuid } from 'uuid'
-
-let salt = bcrypt.genSaltSync(10);
+import * as argon2 from 'argon2'
 
 export let adminUser = {
 	id: uuid(),
@@ -36,5 +34,5 @@ export function getUsers(total: number) {
 }
 
 export function hash(password: string) {
-	return bcrypt.hashSync(password, salt)
+	return argon2.hash(password)
 }

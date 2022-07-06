@@ -1,5 +1,6 @@
 use crate::admin::data::{Admin, NewAdmin};
 use crate::db::Db;
+use crate::password::data::{Password, PasswordAlg};
 use crate::project::Project;
 use crate::response::error::ApiError;
 
@@ -14,10 +15,16 @@ pub async fn handler(
     project: Project,
     _admin: Admin,
 ) -> Result<Json<[Uuid; 1]>, ApiError> {
-    Admin::create(&pool, body.into_inner(), project.id)
-        .await
-        .map(|id| [id])
-        .map(Json)
+    let password = Password::hash(&body.password, &PasswordAlg::Argon2id)
+        .map_err(|_| ApiError::InternalServerError)?;
+
+    let admin = NewAdmin {
+        password,
+        ..body.into_inner()
+    };
+
+    let id = Admin::create(&pool, admin, project.id).await?;
+    Ok(Json([id]))
 }
 
 #[post("/__/create_once", format = "json", data = "<body>")]
@@ -32,8 +39,14 @@ pub async fn create_once(
         return Err(ApiError::AdminHasAdmin);
     }
 
-    Admin::create(&pool, body.into_inner(), project.id)
-        .await
-        .map(|id| [id])
-        .map(Json)
+    let password = Password::hash(&body.password, &PasswordAlg::Argon2id)
+        .map_err(|_| ApiError::InternalServerError)?;
+
+    let admin = NewAdmin {
+        password,
+        ..body.into_inner()
+    };
+
+    let id = Admin::create(&pool, admin, project.id).await?;
+    Ok(Json([id]))
 }

@@ -17,10 +17,8 @@ pub struct Project {
 
 #[get("/__/project/has")]
 pub async fn has(pool: Db) -> Result<Json<Project>, ApiError> {
-    Admin::get_project(&pool)
-        .await
-        .map(|id| Project { id })
-        .map(Json)
+    let id = Admin::get_project(&pool).await?;
+    Ok(Json(Project { id }))
 }
 
 #[derive(Deserialize)]
@@ -72,5 +70,6 @@ pub async fn create(
 
 #[get("/__/project/list")]
 pub async fn list(pool: Db, _admin: Admin) -> Result<Json<Vec<PartialProject>>, ApiError> {
-    Admin::project_list(&pool).await.map(Json)
+    let projects = Admin::project_list(&pool).await?;
+    Ok(Json(projects))
 }

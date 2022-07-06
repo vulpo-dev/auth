@@ -4,116 +4,132 @@ use rocket::request::Request;
 use rocket::response::{self, Responder, Response};
 use serde::Serialize;
 use serde_json;
+use sqlx::postgres::PgDatabaseError;
 use std::io::Cursor;
+use thiserror::Error;
 
 #[derive(Debug, Serialize)]
 pub struct Message {
-    pub code: ApiError,
+    pub code: String,
 }
 
-#[derive(Debug, Serialize, PartialEq, Copy, Clone)]
+#[derive(Error, Debug, PartialEq, Copy, Clone)]
 pub enum ApiError {
-    #[serde(rename = "internal_error")]
+    #[error("internal_error")]
     InternalServerError,
 
-    #[serde(rename = "bad_request")]
+    #[error("bad_request")]
     BadRequest,
 
-    #[serde(rename = "not_found")]
+    #[error("not_found")]
     NotFound,
 
-    #[serde(rename = "forbidden")]
+    #[error("forbidden")]
     Forbidden,
 
-    #[serde(rename = "project/name_exists")]
+    #[error("project/name_exists")]
     ProjectNameExists,
 
-    #[serde(rename = "project/not_found")]
+    #[error("project/not_found")]
     ProjectNotFound,
 
-    #[serde(rename = "user/exists")]
+    #[error("user/exists")]
     UserExists,
 
-    #[serde(rename = "user/invalid_project")]
+    #[error("user/invalid_project")]
     UserInvalidProject,
 
-    #[serde(rename = "admin/has_admin")]
+    #[error("admin/has_admin")]
     AdminHasAdmin,
 
-    #[serde(rename = "admin/admin_project_exists")]
+    #[error("admin/admin_project_exists")]
     AdminProjectExists,
 
-    #[serde(rename = "admin/auth")]
+    #[error("admin/auth")]
     AdminAuth,
 
-    #[serde(rename = "admin/exits")]
-    AdminExists,
-
-    #[serde(rename = "auth/token_missing")]
+    #[error("auth/token_missing")]
     AuthTokenMissing,
 
-    #[serde(rename = "password/min_length")]
+    #[error("password/min_length")]
     PasswordMinLength,
 
-    #[serde(rename = "password/max_length")]
+    #[error("password/max_length")]
     PasswordMaxLength,
 
-    #[serde(rename = "auth/refresh_token_missing")]
+    #[error("auth/refresh_token_missing")]
     AuthRefreshTokenMissing,
 
-    #[serde(rename = "auth/refresh_token_not_found")]
+    #[error("auth/refresh_token_not_found")]
     AuthRefreshTokenNotFound,
 
-    #[serde(rename = "auth/refresh_token_invalid_format")]
+    #[error("auth/refresh_token_invalid_format")]
     AuthRefreshTokenInvalidFormat,
 
-    #[serde(rename = "auth/invalid_email_password")]
+    #[error("auth/invalid_email_password")]
     UserNotFound,
 
-    #[serde(rename = "auth/invalid_email_password")]
+    #[error("auth/invalid_email_password")]
     UserInvalidPassword,
 
-    #[serde(rename = "user/duplicate")]
+    #[error("user/duplicate")]
     UserDuplicate,
 
-    #[serde(rename = "user/disabled")]
+    #[error("user/disabled")]
     UserDisabled,
 
-    #[serde(rename = "token/not_found")]
+    #[error("token/not_found")]
     TokenNotFound,
 
-    #[serde(rename = "token/invalid")]
+    #[error("token/invalid")]
     TokenInvalid,
 
-    #[serde(rename = "token/expired")]
+    #[error("token/expired")]
     TokenExpired,
 
-    #[serde(rename = "reset/invalid_token")]
+    #[error("reset/invalid_token")]
     ResetInvalidToken,
 
-    #[serde(rename = "reset/token_not_found")]
+    #[error("reset/token_not_found")]
     ResetTokenNotFound,
 
-    #[serde(rename = "reset/expired")]
+    #[error("reset/expired")]
     ResetExpired,
 
-    #[serde(rename = "reset/password_mismatch")]
+    #[error("reset/password_mismatch")]
     ResetPasswordMismatch,
 
-    #[serde(rename = "passwordless/invalid_token")]
+    #[error("passwordless/invalid_token")]
     PasswordlessInvalidToken,
 
-    #[serde(rename = "passwordless/token_expire")]
+    #[error("passwordless/token_expire")]
     PasswordlessTokenExpire,
 
-    #[serde(rename = "passwordless/await_confirm")]
+    #[error("passwordless/await_confirm")]
     PasswordlessAwaitConfirm,
 
-    #[serde(rename = "template/render")]
+    #[error("template/render")]
     TemplateRender,
 
-    #[serde(rename = "session/expired")]
+    #[error("session/expired")]
     SessionExpired,
+}
+
+impl From<sqlx::Error> for ApiError {
+    fn from(error: sqlx::Error) -> Self {
+        match error {
+            sqlx::Error::Database(err) => {
+                let err = err.downcast::<PgDatabaseError>();
+                match err.constraint() {
+                    Some("project_settings_name_key") => ApiError::ProjectNameExists,
+                    Some("users_project_id_email_key") => ApiError::UserExists,
+                    Some("users_project_id_fkey") => ApiError::UserInvalidProject,
+                    _ => ApiError::InternalServerError,
+                }
+            }
+            _ => ApiError::InternalServerError,
+        }
+    }
 }
 
 impl ApiError {
@@ -139,7 +155,9 @@ impl ApiError {
 impl<'r> Responder<'r, 'static> for ApiError {
     fn respond_to(self, req: &'r Request<'_>) -> response::Result<'static> {
         let status = self.get_status();
-        let body = Message { code: self };
+        let body = Message {
+            code: format!("{}", self),
+        };
         let body = match serde_json::to_string(&body) {
             Ok(json) => json,
             Err(_) => return Response::build().status(Status::InternalServerError).ok(),

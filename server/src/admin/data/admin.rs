@@ -1,8 +1,6 @@
 use crate::api_key::data::ApiKey;
 use crate::db::Db;
 use crate::keys::data::{NewProjectKeys, ProjectKeys};
-use crate::password::data::Password;
-use crate::project::data::Project as ProjectData;
 use crate::project::Project;
 use crate::response::error::ApiError;
 use crate::session::data::{AccessToken, Claims};
@@ -12,12 +10,11 @@ use rocket::http::Status;
 use rocket::request::Outcome;
 use rocket::request::{self, FromRequest, Request};
 
-use bcrypt::{hash, DEFAULT_COST};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use serde_json::value::Value;
-use sqlx::postgres::PgDatabaseError;
-use sqlx::{self, Error, PgPool};
+
+use sqlx::{self, PgPool};
 use uuid::Uuid;
 
 #[derive(Debug, Serialize)]
@@ -54,29 +51,15 @@ pub struct NewUser {
 pub struct Admin(Claims);
 
 impl Admin {
-    pub async fn create(pool: &PgPool, body: NewAdmin, project: Uuid) -> Result<Uuid, ApiError> {
-        let password =
-            hash(body.password, DEFAULT_COST).map_err(|_| ApiError::InternalServerError)?;
-
+    pub async fn create(pool: &PgPool, body: NewAdmin, project: Uuid) -> sqlx::Result<Uuid> {
         let row = sqlx::query_file!(
             "src/admin/sql/create_admin.sql",
             &body.email,
-            &password,
+            &body.password,
             &project
         )
         .fetch_one(pool)
-        .await
-        .map_err(|err| match err {
-            Error::Database(err) => {
-                let err = err.downcast::<PgDatabaseError>();
-                match err.constraint() {
-                    Some("users_project_id_fkey") => ApiError::ProjectNotFound,
-                    Some("users_project_id_email_key") => ApiError::AdminExists,
-                    _ => ApiError::InternalServerError,
-                }
-            }
-            _ => ApiError::InternalServerError,
-        })?;
+        .await?;
 
         Ok(row.id)
     }
@@ -94,7 +77,7 @@ impl Admin {
         pool: &PgPool,
         body: &NewProject,
         keys: &NewProjectKeys,
-    ) -> Result<Uuid, ApiError> {
+    ) -> sqlx::Result<Uuid> {
         let row = sqlx::query_file!(
             "src/admin/sql/create_project.sql",
             body.name,
@@ -105,49 +88,36 @@ impl Admin {
             keys.expire_at,
         )
         .fetch_one(pool)
-        .await
-        .map_err(|err| match err {
-            Error::Database(err) => {
-                let err = err.downcast::<PgDatabaseError>();
-                match err.code() {
-                    "23505" => ApiError::ProjectNameExists,
-                    _ => ApiError::InternalServerError,
-                }
-            }
-            _ => ApiError::InternalServerError,
-        })?;
+        .await?;
 
         Ok(row.id)
     }
 
-    pub async fn project_list(pool: &PgPool) -> Result<Vec<PartialProject>, ApiError> {
+    pub async fn project_list(pool: &PgPool) -> sqlx::Result<Vec<PartialProject>> {
         sqlx::query_file_as!(PartialProject, "src/admin/sql/project_list.sql")
             .fetch_all(pool)
             .await
-            .map_err(|_| ApiError::InternalServerError)
     }
 
-    pub async fn set_admin(pool: &PgPool, id: &Uuid) -> Result<(), ApiError> {
+    pub async fn set_admin(pool: &PgPool, id: &Uuid) -> sqlx::Result<()> {
         sqlx::query_file!("src/admin/sql/set_admin.sql", id)
             .execute(pool)
-            .await
-            .map_err(|_| ApiError::InternalServerError)?;
+            .await?;
 
         Ok(())
     }
 
-    pub async fn get_project(pool: &PgPool) -> Result<Option<Uuid>, ApiError> {
+    pub async fn get_project(pool: &PgPool) -> sqlx::Result<Option<Uuid>> {
         let rows = sqlx::query_file!("src/admin/sql/get_project.sql")
             .fetch_all(pool)
-            .await
-            .map_err(|_err| ApiError::InternalServerError)?;
+            .await?;
 
         let id = rows.get(0).and_then(|row| Some(row.id));
         Ok(id)
     }
 
-    pub async fn create_user(pool: &PgPool, user: NewUser) -> Result<Uuid, ApiError> {
-        let data = user.data.unwrap_or(json!({}));
+    pub async fn create_user(pool: &PgPool, user: &NewUser) -> Result<Uuid, ApiError> {
+        let data = user.data.clone().unwrap_or(json!({}));
 
         let row = sqlx::query_file!(
             "src/admin/sql/create_user.sql",
@@ -158,23 +128,7 @@ impl Admin {
             user.project_id,
         )
         .fetch_one(pool)
-        .await
-        .map_err(|err| match err {
-            Error::Database(err) => {
-                let db_err = err.downcast::<PgDatabaseError>();
-                match db_err.code() {
-                    "23505" => ApiError::UserExists,
-                    "23503" => ApiError::UserInvalidProject,
-                    _ => ApiError::InternalServerError,
-                }
-            }
-            _ => ApiError::InternalServerError,
-        })?;
-
-        if let Some(password) = user.password {
-            let alg = ProjectData::password_alg(&pool, &user.project_id).await?;
-            Password::create_password(&pool, &row.id, &password, &alg, &user.project_id).await?;
-        }
+        .await?;
 
         Ok(row.id)
     }

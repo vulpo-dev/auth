@@ -33,7 +33,7 @@ export let User = ({ onSubmit, loading = false, error }: Props) => {
 			case ApiError.AdminHasAdmin:
 				return "An admin user already exists"
 
-			case ApiError.AdminExists:
+			case ApiError.UserExists:
 				return "User already exists"
 
 			case ApiError.ProjectNotFound:

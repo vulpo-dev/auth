@@ -1,6 +1,8 @@
 use crate::admin::data::{Admin, NewUser};
 use crate::db::Db;
 use crate::password;
+use crate::password::data::Password;
+use crate::project::data::Project as ProjectData;
 use crate::response::error::ApiError;
 
 use rocket;
@@ -21,8 +23,12 @@ pub async fn handler(
         }
     }
 
-    Admin::create_user(&pool, body.into_inner())
-        .await
-        .map(|id| [id])
-        .map(Json)
+    let user_id = Admin::create_user(&pool, &body).await?;
+
+    if let Some(password) = &body.password {
+        let alg = ProjectData::password_alg(&pool, &body.project_id).await?;
+        Password::create_password(&pool, &user_id, &password, &alg, &body.project_id).await?;
+    }
+
+    Ok(Json([user_id]))
 }

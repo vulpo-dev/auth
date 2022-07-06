@@ -9,7 +9,6 @@ export enum ApiError {
 	GenericError = 'generic_error',
 
 	AdminHasAdmin = "admin/has_admin",
-	AdminExists = "admin/exits",
 
 	ProjectNotFound = "project/not_found",
 	ProjectNameExists = "project/name_exists",
