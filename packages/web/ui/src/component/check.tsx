@@ -1,5 +1,3 @@
-import React from 'react'
-
 export default function Check() {
 	return (
 		<svg className="vulpo-auth-icon-check" xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="#000000" viewBox="0 0 256 256">

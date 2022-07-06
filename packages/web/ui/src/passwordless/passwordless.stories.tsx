@@ -1,14 +1,10 @@
-import React from 'react'
-
 import { Story, Meta } from '@storybook/react/types-6-0'
 import { action } from '@storybook/addon-actions'
 import { HashRouter } from 'react-router-dom'
 
-import { AuthConfig, DefaultConfig } from 'context/config'
-import { Translation, DefaultTranslation } from 'context/translation'
-import { EnterEmail } from 'passwordless/enter_email'
-import { CheckEmail } from 'passwordless/check'
-import { Confirm } from 'passwordless/confirm'
+import { EnterEmail } from './enter_email'
+import { CheckEmail } from './check'
+import { Confirm } from './confirm'
 import { ErrorCode } from '@vulpo-dev/auth-sdk'
 
 export default {
@@ -58,6 +54,8 @@ export let ConfirmAuth: Story = () => {
 					<Confirm
 						loading
 						error={null}
+						authenticated={false}
+						onSignIn={() => {}}
 					/>
 				</div>
 			</div>
@@ -73,6 +71,8 @@ export let ConfirmError: Story = () => {
 					<Confirm
 						loading={false}
 						error={ErrorCode.GenericError}
+						authenticated={false}
+						onSignIn={() => {}}
 					/>
 				</div>
 			</div>
@@ -89,6 +89,8 @@ export let ConfirmSuccess: Story = () => {
 					<Confirm
 						loading={false}
 						error={null}
+						authenticated={false}
+						onSignIn={() => {}}
 					/>
 				</div>
 			</div>

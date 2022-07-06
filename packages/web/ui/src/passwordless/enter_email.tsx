@@ -1,4 +1,3 @@
-import React from 'react'
 import { SyntheticEvent, useState } from 'react'
 import { useNavigate, useMatch } from 'react-router-dom'
 import { ErrorCode, Flag, ErrorResponse } from '@vulpo-dev/auth-sdk'

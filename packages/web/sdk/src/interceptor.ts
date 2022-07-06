@@ -6,7 +6,7 @@ import type {
 } from 'axios'
 import Axios from 'axios'
 
-import { ErrorCode, HttpError, AuthError } from './error'
+import { ErrorCode, AuthError } from './error'
 
 import type { AuthClient } from './client'
 
@@ -22,11 +22,12 @@ export function addToken(axios: AxiosInstance, auth: AuthClient) {
 					'Authorization': `Bearer ${token}`,
 				}
 			}
-		} catch (err: any) {
-			if (err instanceof HttpError && err.code === ErrorCode.NotAllowed) {
+		} catch (err) {
+			if (Axios.isAxiosError(err) && getStatus(err) === 403){
 				await auth.signOut()
 			}
-			throw new Axios.Cancel(err?.message ?? '')
+
+			throw err
 		}
 	})
 

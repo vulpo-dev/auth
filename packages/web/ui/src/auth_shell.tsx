@@ -1,4 +1,12 @@
-import React, { FunctionComponent, useState, createContext, useContext, ReactNode, ReactElement } from 'react'
+import {
+	FunctionComponent,
+	useState,
+	createContext,
+	useContext,
+	ReactNode,
+	ReactElement,
+	Children,
+} from 'react'
 import { Routes, Route, useNavigate, useLocation, Navigate } from 'react-router-dom'
 import { useAuthStateChange, useAuth } from '@vulpo-dev/auth-react'
 import { UserAuthState, UserState } from '@vulpo-dev/auth-sdk'
@@ -119,7 +127,7 @@ let AuthShell: FunctionComponent<AuthShellProps> = (props) => {
 		</AuthConfig.Provider>
 	)
 
-	let routes = React.Children.map(props.children, (child) => {
+	let routes = Children.map(props.children, (child) => {
 		if (!child) {
 			return null
 		}

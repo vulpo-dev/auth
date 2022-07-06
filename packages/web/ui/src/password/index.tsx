@@ -1,5 +1,4 @@
-import React, { ChangeEvent } from 'react'
-import { SyntheticEvent, useState } from 'react'
+import { ChangeEvent, SyntheticEvent, useState } from 'react'
 import { useNavigate, useMatch, Link, Navigate } from 'react-router-dom'
 import { ErrorCode, Flag, UserState } from '@vulpo-dev/auth-sdk'
 import { useAuth } from '@vulpo-dev/auth-react'

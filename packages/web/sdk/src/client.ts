@@ -47,6 +47,7 @@ export type ClientDep = {
 }
 
 export interface IAuthClient {
+	setProject(id: string): void;
 	signIn(email: string, password: string, config?: AxiosRequestConfig): Promise<User>;
 	signUp(email: string, password: string, config?: AxiosRequestConfig): Promise<User>;
 	signOut(sessionId?: string, config?: AxiosRequestConfig): Promise<unknown>;
@@ -85,6 +86,10 @@ export class AuthClient implements IAuthClient {
 		this.httpService = dep.httpService
 		this.projectId = dep.projectId
 		this.keyStorage = dep.keyStorage
+	}
+
+	setProject(id: string): void {
+		this.projectId = id    
 	}
 
 	private async emailPasswordAuth(

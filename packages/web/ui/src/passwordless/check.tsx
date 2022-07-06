@@ -1,4 +1,3 @@
-import React from 'react'
 import { useEffect, useState } from 'react'
 import { useLocation, useMatch } from 'react-router-dom'
 import { useAuth } from '@vulpo-dev/auth-react'

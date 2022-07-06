@@ -1,4 +1,3 @@
-import React from 'react'
 import { SyntheticEvent, FC, useState, useEffect } from 'react'
 import { ErrorCode, ErrorResponse } from '@vulpo-dev/auth-sdk'
 import { useAuth } from '@vulpo-dev/auth-react'

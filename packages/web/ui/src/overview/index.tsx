@@ -1,4 +1,3 @@
-import React from 'react'
 import { useMemo } from 'react'
 import { Link, useLocation, Navigate } from 'react-router-dom'
 import { Flag } from '@vulpo-dev/auth-sdk'

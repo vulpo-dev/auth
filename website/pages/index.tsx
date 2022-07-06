@@ -73,13 +73,21 @@ const Home: NextPage = () => {
           </div>
         </section>
 
-        <section style={{ position: 'relative' }}>
+        <section style={{ position: 'relative', marginBottom: 'max(10vw, 5rem)' }}>
             <Banner>
                 <span>Open Source</span>
                 <span>Open Source</span>
                 <span>Open Source</span>
                 <span>Open Source</span>
             </Banner>
+        </section>
+
+
+        <section className={`${styles.section}`}>
+          <h2>About</h2>
+          <p>
+            Authentication should be easy to implement. 
+          </p>
         </section>
 
       </main>

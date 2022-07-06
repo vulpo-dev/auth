@@ -1,4 +1,4 @@
-import React, { forwardRef, FunctionComponent, InputHTMLAttributes, ReactNode, useState } from 'react'
+import { forwardRef, FunctionComponent, InputHTMLAttributes, ReactNode, useState } from 'react'
 
 export let Input = forwardRef<HTMLInputElement, InputHTMLAttributes<{}>>(({ style, ...props }, ref) => {
 	return <input

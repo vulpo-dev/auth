@@ -1,4 +1,3 @@
-import React from 'react'
 import { useEffect, useState, Fragment } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { useAuth } from '@vulpo-dev/auth-react'

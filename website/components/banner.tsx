@@ -18,10 +18,7 @@ let Banner = (props: Props) => {
 					--move-initial: calc(-25% + var(--offset));
 					--move-final: calc(-50% + var(--offset));
 					--item-font-size: 8vw;
-
-					position: absolute;
-					top: 0;
-					left: 0;
+					
 					width: var(--marquee-width);
 					overflow: hidden;
 					pointer-events: none;

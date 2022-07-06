@@ -1,4 +1,4 @@
-import React, { Fragment, useState, useCallback } from 'react'
+import { Fragment, useState, useCallback } from 'react'
 import { ErrorCode, Flag } from '@vulpo-dev/auth-sdk'
 import { useAuth } from '@vulpo-dev/auth-react'
 import { useLocation, Navigate } from 'react-router-dom'

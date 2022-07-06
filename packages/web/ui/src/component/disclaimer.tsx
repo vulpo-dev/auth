@@ -1,5 +1,3 @@
-import React from 'react'
-
 import { useConfig } from '../context/config' 
 import { useTranslation } from '../context/translation' 
 

@@ -1,12 +1,10 @@
-import React from 'react'
 import { Story, Meta } from '@storybook/react/types-6-0'
-
-import { HashRouter, Routes, Route, Navigate } from 'react-router-dom'
-import { Translation, DefaultTranslation } from 'context/translation'
-import { AuthConfig, DefaultConfig } from 'context/config'
 import { ErrorCode } from '@vulpo-dev/auth-sdk'
 
-import { SetPassword, Props as SetPasswordProps } from 'user/set_password'
+import { HashRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { Translation, DefaultTranslation } from '../context/translation'
+import { AuthConfig, DefaultConfig } from '../context/config'
+import { SetPassword, Props as SetPasswordProps } from './set_password'
 
 export default {
 	title: 'User',

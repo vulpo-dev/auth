@@ -1,14 +1,13 @@
-import React from 'react'
 import { Story, Meta } from '@storybook/react/types-6-0'
 
 import { HashRouter, Routes, Route, Navigate } from 'react-router-dom'
-import { Translation, DefaultTranslation } from 'context/translation'
-import { AuthConfig, DefaultConfig } from 'context/config'
+import { Translation, DefaultTranslation } from '../context/translation'
+import { AuthConfig, DefaultConfig } from '../context/config'
 import { ErrorCode } from '@vulpo-dev/auth-sdk'
 
-import { PasswordReset, Props } from 'password_reset'
-import { CheckReset } from 'password_reset/check'
-import { SetPassword, Props as SetPasswordProps } from 'password_reset/set_password'
+import { PasswordReset, Props } from '../password_reset'
+import { CheckReset } from '../password_reset/check'
+import { SetPassword, Props as SetPasswordProps } from '../password_reset/set_password'
 
 export default {
 	title: 'Password Reset',
