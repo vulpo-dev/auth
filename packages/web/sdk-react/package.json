@@ -1,6 +1,6 @@
 {
   "name": "@vulpo-dev/auth-react",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "",
   "main": "lib/main.js",
   "types": "./lib/main.d.ts",
@@ -17,7 +17,7 @@
   "license": "MPL-2.0",
   "dependencies": {
     "@types/react": "^18.0.9",
-    "@vulpo-dev/auth-sdk": "^0.0.9"
+    "@vulpo-dev/auth-sdk": "^0.0.10"
   },
   "peerDependencies": {
     "react": "16.8 - 18.x"
