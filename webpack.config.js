@@ -19,6 +19,11 @@ module.exports = function createConfig (webpackEnv) {
           commonjs2: 'styled-components',
           amd: 'styled-components'
         },
+        'axios': {
+          commonjs: 'axios',
+          commonjs2: 'axios',
+          amd: 'axios'
+        },
         react: {
           root: 'React',
           commonjs: 'react',
@@ -49,6 +54,11 @@ module.exports = function createConfig (webpackEnv) {
           commonjs: '@vulpo-dev/auth-react',
           commonjs2: '@vulpo-dev/auth-react',
           amd: '@vulpo-dev/auth-react'
+        },
+        '@vulpo-dev/auth-sdk': {
+          commonjs: '@vulpo-dev/auth-sdk',
+          commonjs2: '@vulpo-dev/auth-sdk',
+          amd: '@vulpo-dev/auth-sdk'
         },
      },
     output: {

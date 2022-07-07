@@ -2,7 +2,6 @@ import {
 	User,
 	AuthCallback,
 	SessionResponse,
-	Config,
 	Unsubscribe,
 	SessionId,
 	AccessToken,
@@ -11,7 +10,6 @@ import {
 } from './types'
 import { IStorage, ISessionsStorage, IKeyStorage, Session } from './storage'
 import { makeId, IHttpService } from './utils'
-import { ApiError } from './error'
 import { ab2str, base64url, generateKeys, isRsa } from './keys'
 
 import { shallowEqualObjects } from 'shallow-equal'
@@ -42,7 +40,6 @@ export class SessionService {
 	private getId = makeId()
 	private listener: Array<Listener> = []
 	private http: IHttpService;
-	private error: ApiError = new ApiError()
 
 	private sessionStorage: ISessionsStorage
 	private keyStorage: IKeyStorage
@@ -174,7 +171,6 @@ export class SessionService {
 
 	async fromResponse(data: FromSessionResponse): Promise<SessionInfo> {
 		let user = await this.getUser(data.access_token)
-			.catch(res => Promise.reject(this.error.fromResponse(res)))
 
 		let staleSessions = this.sessionStorage
 			.getAll()
@@ -199,13 +195,9 @@ export class SessionService {
 	}
 
 	async getUser(token: AccessToken): Promise<User> {
-		return this.http
-			.get<User>(Url.UserGet, {
-				headers: {
-					'Authorization': `Bearer ${token}`,
-				}
-			})
-			.then(res => res.data)
+		let headers = new Headers()
+		headers.set('Authorization', `Bearer ${token}`)
+		return this.http.get<User>(Url.UserGet, { headers })
 	}
 
 	async remove(session: SessionId) {

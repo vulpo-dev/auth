@@ -1,5 +1,3 @@
-import axios, { AxiosError } from 'axios'
-
 export enum ErrorCode {
 	InternalServerError = 'internal_error',
 	BadRequest = 'bad_request',
@@ -8,6 +6,7 @@ export enum ErrorCode {
 	Unavailable = 'unavailable',
 	GenericError = 'generic_error',
 	Unauthorized = 'unauthorized',
+	AbortError = 'aborted',
 
 	AuthTokenMissing = 'auth/token_missing',
 	PasswordMinLength = 'password/min_length',
@@ -47,32 +46,31 @@ export type ErrorResponse = {
 	code: ErrorCode
 }
 
-export class ApiError {
+export function isErrorResponse(data: any): data is ErrorResponse {
+	return Boolean(data) && data.code
+}
 
-	fromResponse(res: AxiosError<ErrorResponse>): HttpError | AuthError | GenericError | AxiosError<ErrorResponse> {
+export function errorFromResponse(response: Response, data: ErrorResponse): ApiError {
+		let { status } = response
 
-		if (axios.isCancel(res)) {
-			return res
+		if (status === 503) {
+			return new GenericError(ErrorCode.Unavailable)
 		}
 
-		if (res.response?.status === 503) {
-			return new HttpError(ErrorCode.Unavailable)
+		if (status === 403 && !data.code) {
+			return new GenericError(ErrorCode.NotAllowed)
 		}
 
-		if (res.response?.status === 403 && !res.response?.data.code) {
-			return new HttpError(ErrorCode.NotAllowed)
+		if (status === 401 && !data.code) {
+			return new GenericError(ErrorCode.Unauthorized)
 		}
 
-		if (res.response?.status === 401 && !res.response?.data.code) {
-			return new HttpError(ErrorCode.Unauthorized)
-		}
-
-		switch(res.response?.data?.code) {
+		switch(data.code) {
 			case ErrorCode.NotFound:
 			case ErrorCode.BadRequest:
 			case ErrorCode.InternalServerError:
 			case ErrorCode.NotAllowed:
-				return new HttpError(res.response.data.code)
+				return new GenericError(data.code)
 
 			case ErrorCode.UserDisabled:
 			case ErrorCode.AuthTokenMissing:
@@ -91,23 +89,14 @@ export class ApiError {
 			case ErrorCode.PasswordlessTokenExpire:
 			case ErrorCode.PasswordlessInvalidToken:
 			case ErrorCode.SessionExpired:
-				return new AuthError(res.response?.data.code)
+				return new AuthError(data.code)
 
 			default:
-				return new GenericError(res.response?.statusText)
+				return new GenericError(response.statusText)
 		}
 	}
-}
 
-export class HttpError extends Error {
-	code: ErrorCode;
-
-	constructor(code: ErrorCode) {
-		super(code)
-		this.name = 'HttpError'
-		this.code = code
-	}
-}
+export type ApiError = AuthError | GenericError
 
 export class AuthError extends Error {
 	code: ErrorCode;
@@ -130,6 +119,9 @@ export class GenericError extends Error {
 	}
 }
 
+export class AbortError extends Error {
+	code = ErrorCode.AbortError
+}
 
 export class ClientError extends Error {
 	code: ErrorCode

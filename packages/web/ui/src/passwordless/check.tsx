@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useLocation, useMatch } from 'react-router-dom'
 import { useAuth } from '@vulpo-dev/auth-react'
-import { ErrorCode, CancelToken } from '@vulpo-dev/auth-sdk'
+import { ErrorCode, ApiError } from '@vulpo-dev/auth-sdk'
 
 import { useQueryParams } from '../utils'
 import { useTranslation } from '../context/translation'
@@ -49,12 +49,16 @@ let CheckEmailContainer = () => {
 			return
 		}
 
-		let source = CancelToken.source()
-		auth.verifyPasswordless(id, session, { cancelToken: source.token })
-			.catch((err) => setError(err.code))
+		let controller = new AbortController();
+		auth.verifyPasswordless(id, session, { signal: controller.signal })
+			.catch((err: ApiError) => {
+				if (err.code !== ErrorCode.AbortError) {
+					setError(err.code)
+				}
+			})
 
 		return () => {
-			source.cancel()
+			controller.abort()
 		}
 	}, [])
 

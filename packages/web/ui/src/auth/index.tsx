@@ -1,8 +1,7 @@
 import { useEffect, useState, Fragment } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { useAuth } from '@vulpo-dev/auth-react'
-import { Flag, ErrorCode } from '@vulpo-dev/auth-sdk'
-import Axios from 'axios'
+import { Flag, ErrorCode, ApiError } from '@vulpo-dev/auth-sdk'
 
 import { Flow } from '../component/loading'
 import Overview from '../overview'
@@ -23,17 +22,18 @@ let Auth = () => {
 	let errorMessage = useError(error)
 
 	useEffect(() => {
-		let source = Axios.CancelToken.source()
-		auth.flags({ cancelToken: source.token })
+		let controller = new AbortController();
+
+		auth.flags({ signal: controller.signal })
 			.then((flags: Array<Flag>) => setFlags(flags))
-			.catch((err) => {
-				if (!Axios.isCancel(err)) {
+			.catch((err: ApiError) => {
+				if (err.code !== ErrorCode.AbortError) {
 					setError(err.code)
 				}
 			})
 
 		return () => {
-			source.cancel()
+			controller.abort()
 		}
 	}, [auth])
 

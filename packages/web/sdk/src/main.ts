@@ -1,10 +1,10 @@
 import { AuthClient } from './client'
 import { Config } from './types'
 
-import Axios from 'axios'
 import { KeyStorage, SessionsStorage, StorageEvents, Storage } from './storage'
 import { SessionService } from './session'
 import { Tokens } from './tokens'
+import { HttpSerivce } from './utils'
 
 
 export type {
@@ -25,11 +25,11 @@ export type {
 
 export { UserState, Flag, Url } from './types'
 export type { SessionId } from './types'
-export { CancelToken, AuthClient } from './client'
+export { AuthClient } from './client'
 export type { ClientDep, IAuthClient } from './client'
 export { addToken } from './interceptor'
-export { ApiError, ErrorCode, HttpError, AuthError } from './error'
-export type { ErrorResponse, GenericError } from './error'
+export { ErrorCode, AuthError } from './error'
+export type { ApiError, ErrorResponse, GenericError } from './error'
 export { SessionService } from './session'
 export type { SessionServiceDep, FromSessionResponse } from './session'
 export type { IKeyStorage, ISessionsStorage, IStorage, Session, Key, SessionsChangeCallback, ActiveUserCallback } from './storage'
@@ -40,13 +40,7 @@ export type { AxiosRequestConfig, AxiosError, AxiosResponse } from 'axios'
 
 export let Auth = {
 	create(config: Config): AuthClient {
-
-		let httpService = config.http ?? Axios.create({
-			baseURL: config.baseURL,
-			headers: {
-				'Vulpo-Project': config.project
-			}
-		})
+		let httpService = config.http ?? new HttpSerivce(config.baseURL, config.project)
 
 		let storageEvents = new StorageEvents()
 		let storage = new Storage({ storageEvents })

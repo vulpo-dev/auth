@@ -25,18 +25,13 @@ import { Tokens } from './tokens'
 import {
 	ApiError,
 	ErrorCode,
-	ClientError,
 	SessionNotFoundError,
 	SessionKeysNotFoundError,
-	ErrorResponse,
     AuthError,
 } from './error'
 import { getPublicKey, ratPayload } from './keys'
 import { getLanguages, IHttpService } from './utils'
 import { v4 as uuid } from 'uuid'
-import Axios, { AxiosRequestConfig, AxiosError } from 'axios'
-
-export const CancelToken = Axios.CancelToken
 
 export type ClientDep = {
 	sessionService: SessionService,
@@ -46,37 +41,38 @@ export type ClientDep = {
 	keyStorage: IKeyStorage,
 }
 
+type RequestConfig = Partial<Request>
+
 export interface IAuthClient {
 	setProject(id: string): void;
-	signIn(email: string, password: string, config?: AxiosRequestConfig): Promise<User>;
-	signUp(email: string, password: string, config?: AxiosRequestConfig): Promise<User>;
-	signOut(sessionId?: string, config?: AxiosRequestConfig): Promise<unknown>;
-	signOutAll(sessionId?: string, config?: AxiosRequestConfig): Promise<unknown>;
+	signIn(email: string, password: string, config?: RequestConfig): Promise<User>;
+	signUp(email: string, password: string, config?: RequestConfig): Promise<User>;
+	signOut(sessionId?: string, config?: RequestConfig): Promise<unknown>;
+	signOutAll(sessionId?: string, config?: RequestConfig): Promise<unknown>;
 	getToken(sessionId?: string): Promise<string>;
 	forceToken(sessionId?: string): Promise<string>;
-	resetPassword(email: string, config?: AxiosRequestConfig): Promise<void>;
-	setResetPassword(body: SetPasswordPayload, config?: AxiosRequestConfig): Promise<void>;
-	setPassword(password: string, config?: AxiosRequestConfig): Promise<void>;
-	verifyToken(id: string, token: string, config?: AxiosRequestConfig): Promise<void>;
-	passwordless(email: string, config?: AxiosRequestConfig): Promise<{ id: string; session: string }>;
-	confirmPasswordless(id: string, token: string, config?: AxiosRequestConfig): Promise<void>;
-	verifyEmail(id: string, token: string, config?: AxiosRequestConfig): Promise<void>;
-	verifyPasswordless(id: string, session: string, config?: AxiosRequestConfig): Promise<User | null>;
+	resetPassword(email: string, config?: RequestConfig): Promise<void>;
+	setResetPassword(body: SetPasswordPayload, config?: RequestConfig): Promise<void>;
+	setPassword(password: string, config?: RequestConfig): Promise<void>;
+	verifyToken(id: string, token: string, config?: RequestConfig): Promise<void>;
+	passwordless(email: string, config?: RequestConfig): Promise<{ id: string; session: string }>;
+	confirmPasswordless(id: string, token: string, config?: RequestConfig): Promise<void>;
+	verifyEmail(id: string, token: string, config?: RequestConfig): Promise<void>;
+	verifyPasswordless(id: string, session: string, config?: RequestConfig): Promise<User | null>;
 	authStateChange(cb: AuthCallback): Unsubscribe;
 	activate(userId: string): void;
 	readonly active: SessionInfo | null;
 	withToken(fn: (token: string) => Promise<Response>, session?: string): Promise<Response>;
-	flags(config?: AxiosRequestConfig): Promise<Array<Flag>>;
+	flags(config?: RequestConfig): Promise<Array<Flag>>;
 	getUser(): User | null;
-	oAuthGetAuthorizeUrl(provider: 'google', config?: AxiosRequestConfig): Promise<string>;
-	oAuthConfirm(csrf_token: string, code: string, config?: AxiosRequestConfig): Promise<[User | null, string]>;
+	oAuthGetAuthorizeUrl(provider: 'google', config?: RequestConfig): Promise<string>;
+	oAuthConfirm(csrf_token: string, code: string, config?: RequestConfig): Promise<[User | null, string]>;
 }
 
 export class AuthClient implements IAuthClient {
 	private sessionService: SessionService
 	private tokens: Tokens
 	private httpService: IHttpService
-	private error: ApiError = new ApiError()
 	private projectId: string
 	private keyStorage: IKeyStorage
 		
@@ -96,7 +92,7 @@ export class AuthClient implements IAuthClient {
 		url: Url.SignIn | Url.SignUp,
 		email: string,
 		password: string,
-		config?: AxiosRequestConfig
+		config?: RequestConfig,
 	) {
 		let session = await this.sessionService.create()
 		let public_key = await getPublicKey(session)
@@ -109,12 +105,12 @@ export class AuthClient implements IAuthClient {
 			device_languages: getLanguages([...navigator.languages]),
 		}
 
-		let onError = async (res: AxiosError<ErrorResponse>) => {
+		let onError = async (err: ApiError) => {
 			await this.sessionService.remove(session.id)
-			return Promise.reject(this.error.fromResponse(res))
+			return Promise.reject(err)
 		}
 
-		let { data } = await this.httpService
+		let data = await this.httpService
 			.post<SessionResponse>(url, payload, config)
 			.catch(onError)
 		
@@ -165,7 +161,7 @@ export class AuthClient implements IAuthClient {
 	 * @param password - The user password
  	 * @returns the user
 	*/
-	async signIn(email: string, password: string, config?: AxiosRequestConfig): Promise<User> {
+	async signIn(email: string, password: string, config?: RequestConfig): Promise<User> {
 		return await this.emailPasswordAuth(
 			Url.SignIn,
 			email,
@@ -211,7 +207,7 @@ export class AuthClient implements IAuthClient {
 	 * @param email - The user email address
 	 * @param password - The user password
 	*/
-	async signUp(email: string, password: string, config?: AxiosRequestConfig): Promise<User> {
+	async signUp(email: string, password: string, config?: RequestConfig): Promise<User> {
 		return await this.emailPasswordAuth(
 			Url.SignUp,
 			email,
@@ -223,7 +219,7 @@ export class AuthClient implements IAuthClient {
 	private async removeSession(
 		url: Url.SignOut | Url.SignOutAll,
 		sessionId?: string,
-		config?: AxiosRequestConfig,
+		config?: RequestConfig,
 	) {
 		let session = sessionId ?? this.sessionService.active?.id
 
@@ -234,9 +230,7 @@ export class AuthClient implements IAuthClient {
 		let value = await this.sessionService.generateAccessToken(session, ratPayload())
 		await this.sessionService.remove(session)
 		let _url = url.replace(':session', session)
-		return await this.httpService
-			.post(_url, { value }, config)
-			.catch(err => Promise.reject(this.error.fromResponse(err)))
+		return await this.httpService.post(_url, { value }, config)
 	}
 
 	/**
@@ -244,7 +238,7 @@ export class AuthClient implements IAuthClient {
 	 * 
 	 * @param sessionId when sessionId is undefined, the currently active session will be used
 	*/
-	async signOut(sessionId?: string, config?: AxiosRequestConfig): Promise<unknown> {
+	async signOut(sessionId?: string, config?: RequestConfig): Promise<unknown> {
 		return await this.removeSession(Url.SignOut, sessionId, config)
 	}
 
@@ -253,7 +247,7 @@ export class AuthClient implements IAuthClient {
 	 * 
 	 * @param sessionId when sessionId is undefined, the currently active session will be used
 	*/
-	async signOutAll(sessionId?: string, config?: AxiosRequestConfig): Promise<unknown> {
+	async signOutAll(sessionId?: string, config?: RequestConfig): Promise<unknown> {
 		return await this.removeSession(Url.SignOutAll, sessionId, config)
 	}
 
@@ -275,11 +269,7 @@ export class AuthClient implements IAuthClient {
 
 			let session = { ...info, ...keys }
 			return await fn(session)
-		} catch (res) {
-			let err = res instanceof ClientError
-				? res
-				: this.error.fromResponse(res as AxiosError)
-
+		} catch (err) {
 			if (this.sessionService.active) {
 				await this.sessionService.remove(this.sessionService.active.id)
 			}
@@ -315,11 +305,10 @@ export class AuthClient implements IAuthClient {
 	 * 
 	 * @param email - the user email address
 	*/
-	async resetPassword(email: string, config?: AxiosRequestConfig): Promise<void> {
+	async resetPassword(email: string, config?: RequestConfig): Promise<void> {
 		let payload: PasswordResetPayload = { email }
 		await this.httpService
 			.post(Url.RequestPasswordReset, payload, config)
-			.catch(err => Promise.reject(this.error.fromResponse(err)))
 	}
 
 	/**
@@ -338,16 +327,15 @@ export class AuthClient implements IAuthClient {
 	 *   })
 	 * ```
 	*/
-	async setResetPassword(body: SetPasswordPayload, config?: AxiosRequestConfig): Promise<void> {
+	async setResetPassword(body: SetPasswordPayload, config?: RequestConfig): Promise<void> {
 		await this.httpService
 			.post(Url.PasswordReset, body, config)
-			.catch(err => Promise.reject(this.error.fromResponse(err)))
 	}
 
 	/**
 	 * Update a Users password
 	*/
-	async setPassword(password: string, config?: AxiosRequestConfig): Promise<void> {
+	async setPassword(password: string, config?: RequestConfig): Promise<void> {
 		let currentSession = this.sessionService.current()
 		
 		if (!currentSession) {
@@ -356,15 +344,14 @@ export class AuthClient implements IAuthClient {
 
 		let accessToken = await this.getToken(currentSession.id)
 
+		let headers = config?.headers ?? new Headers()
+		headers.set('Authorization', `Bearer ${accessToken}`)
+
 		await this.httpService
 			.post(Url.UserSetPassword, { password }, {
 				...config,
-				headers: {
-					...(config?.headers ?? {}),
-					'Authorization': `Bearer ${accessToken}`,
-				}
+				headers,
 			})
-			.catch(err => Promise.reject(this.error.fromResponse(err)))
 
 
 		await this.sessionService.fromResponse({
@@ -389,18 +376,17 @@ export class AuthClient implements IAuthClient {
 	 *   )
 	 * ```
 	*/
-	async verifyToken(id: string, token: string, config?: AxiosRequestConfig): Promise<void> {
+	async verifyToken(id: string, token: string, config?: RequestConfig): Promise<void> {
 		let payload: VerifyResetTokenPayload = { id, token }
 		await this.httpService
 			.post(Url.VerifyResetToken, payload, config)
-			.catch(err => Promise.reject(this.error.fromResponse(err)))
 	}
 
 	/**
 	 * Create new session using an authentication link, if the user does not exits, a new
 	 * user will be created
 	*/
-	async passwordless(email: string, config?: AxiosRequestConfig): Promise<{ id: string; session: string }> {
+	async passwordless(email: string, config?: RequestConfig): Promise<{ id: string; session: string }> {
 		let session = await this.sessionService.create()
 		let public_key = await getPublicKey(session)
 
@@ -411,11 +397,11 @@ export class AuthClient implements IAuthClient {
 			device_languages: getLanguages([...navigator.languages]),
 		}
 
-		let { data } = await this.httpService
+		let data = await this.httpService
 			.post<PasswordlessResponse>(Url.Passwordless, payload, config)
 			.catch(async err => {
 				await this.sessionService.remove(session.id)
-				return Promise.reject(this.error.fromResponse(err))
+				return Promise.reject(err)
 			})
 
 		return { id: data.id, session: session.id }
@@ -434,11 +420,10 @@ export class AuthClient implements IAuthClient {
 	 *   )
 	 * ```
 	*/
-	async confirmPasswordless(id: string, token: string, config?: AxiosRequestConfig): Promise<void> {
+	async confirmPasswordless(id: string, token: string, config?: RequestConfig): Promise<void> {
 		let payload: ConfirmPasswordlessPayload = { id, token }
 		await this.httpService
 			.post(Url.PasswordlessConfim, payload, config)
-			.catch(err => Promise.reject(this.error.fromResponse(err)))
 	}
 
 	/**
@@ -455,11 +440,10 @@ export class AuthClient implements IAuthClient {
 	 *       token: params.get("token"),
 	 *   )
 	*/
-	async verifyEmail(id: string, token: string, config?: AxiosRequestConfig): Promise<void> {
+	async verifyEmail(id: string, token: string, config?: RequestConfig): Promise<void> {
 		let payload: VerifyEmailPayload = { id, token }
 		await this.httpService
 			.post(Url.UserVerifyEmail, payload, config)
-			.catch(err => Promise.reject(this.error.fromResponse(err)))
 	}
 
 	/**
@@ -471,7 +455,7 @@ export class AuthClient implements IAuthClient {
 	 *   let user = await auth.verifyPasswordless(id, session)
 	 * ```
 	*/
-	verifyPasswordless(id: string, session: string, config?: AxiosRequestConfig): Promise<User | null> {
+	verifyPasswordless(id: string, session: string, config?: RequestConfig): Promise<User | null> {
 		return new Promise((resolve, reject) => {
 			let device_languages = getLanguages([...navigator.languages])
 
@@ -490,7 +474,7 @@ export class AuthClient implements IAuthClient {
 					device_languages,
 				}
 
-				let { data } = await this.httpService
+				let data = await this.httpService
 					.post<SessionResponse>(Url.PasswordlessVerify, payload, config)
 
 				this.tokens.fromResponse(data)
@@ -501,11 +485,10 @@ export class AuthClient implements IAuthClient {
 			}
 
 			let loop = () => {
-				check().catch(async err => {
-					let error = this.error.fromResponse(err)
+				check().catch(async (error: ApiError) => {
 					if (error.code === ErrorCode.PasswordlessAwaitConfirm) {
 						setTimeout(loop, 1000)
-					} else if (Axios.isCancel(err)) {
+					} else if (error.code === ErrorCode.AbortError) {
 						resolve(null)
 					} else {
 						await this.sessionService.remove(session)
@@ -592,12 +575,11 @@ export class AuthClient implements IAuthClient {
 	/**
 	 * get the currently active flags for a project
 	*/
-	async flags(config?: AxiosRequestConfig): Promise<Array<Flag>> {
+	async flags(config?: RequestConfig): Promise<Array<Flag>> {
 		let url = Url.Flags.replace(':projectId', this.projectId)
 		return this.httpService
 			.get<{ items: Array<Flag> }>(url, config)
-			.then(res => res.data.items)
-			.catch(err => Promise.reject(this.error.fromResponse(err)))
+			.then(res => res.items)
 	}
 
 	/**
@@ -611,7 +593,7 @@ export class AuthClient implements IAuthClient {
 	/**
 	 * get the authorization url for a given OAuth provider
 	*/
-	async oAuthGetAuthorizeUrl(provider: 'google', config?: AxiosRequestConfig): Promise<string> {
+	async oAuthGetAuthorizeUrl(provider: 'google', config?: RequestConfig): Promise<string> {
 		let request_id = uuid()
 
 		let payload: OAuthAuthorizeUrlPayload = {
@@ -622,8 +604,7 @@ export class AuthClient implements IAuthClient {
 
 		return this.httpService
 			.post<OAuthAuthorizeUrlResponse>(`/oauth/${provider}/authorize_url`, payload, config)
-			.then(res => res.data.url)
-			.catch(err => Promise.reject(this.error.fromResponse(err)))
+			.then(res => res.url)
 	}
 
 	/**
@@ -635,7 +616,7 @@ export class AuthClient implements IAuthClient {
 	 *  auth.oAuthConfirm(params.get("state"), params.get("code"))
 	 * ```
 	*/
-	async oAuthConfirm(csrf_token: string, code: string, config?: AxiosRequestConfig): Promise<[User | null, string]> {
+	async oAuthConfirm(csrf_token: string, code: string, config?: RequestConfig): Promise<[User | null, string]> {
 		let oAuthState = OAuthState.get()
 
 		if (!oAuthState) {
@@ -645,10 +626,10 @@ export class AuthClient implements IAuthClient {
 		let session = await this.sessionService.create()
 		let public_key = await getPublicKey(session)
 
-		let onError = async (res: AxiosError<ErrorResponse>) => {
+		let onError = async (res: ApiError) => {
 			OAuthState.delete()
 			await this.sessionService.remove(session.id)
-			return Promise.reject(this.error.fromResponse(res))
+			return Promise.reject(res)
 		}
 
 		let payload = {
@@ -661,7 +642,7 @@ export class AuthClient implements IAuthClient {
 			device_languages: getLanguages([...navigator.languages]),
 		}
 
-		let { data } = await this.httpService
+		let data = await this.httpService
 			.post<SessionResponse>(`/oauth/${oAuthState.provider}/confirm`, payload, config)
 			.catch(onError)
 		

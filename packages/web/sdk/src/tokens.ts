@@ -61,7 +61,7 @@ export class Tokens {
 
 		let url = Url.TokenRefresh.replace(':session', session.id)
 		let payload: RefreshAccessTokenPayload = { value }
-		let { data } = await this.httpService.post<SessionResponse>(url, payload)
+		let data = await this.httpService.post<SessionResponse>(url, payload)
 		this.fromResponse(data)
 		this.session.fromResponse(data)
 		this.inFlight.delete(session.id)
