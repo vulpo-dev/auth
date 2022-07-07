@@ -31,7 +31,7 @@ impl Password {
         pool: &PgPool,
         email: &str,
         project: &Uuid,
-    ) -> Result<Password, ApiError> {
+    ) -> sqlx::Result<Password> {
         sqlx::query_file_as!(
             Password,
             "src/password/sql/get_by_email.sql",
@@ -40,7 +40,6 @@ impl Password {
         )
         .fetch_one(pool)
         .await
-        .map_err(|_| ApiError::UserInvalidPassword)
     }
 
     pub async fn set_password(

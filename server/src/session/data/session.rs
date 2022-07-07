@@ -17,7 +17,7 @@ pub struct Session {
 }
 
 impl Session {
-    pub async fn create(pool: &PgPool, session: Session) -> Result<Session, ApiError> {
+    pub async fn create(pool: &PgPool, session: Session) -> sqlx::Result<Session> {
         sqlx::query_file_as!(
             Session,
             "src/session/sql/create_session.sql",
@@ -29,7 +29,6 @@ impl Session {
         )
         .fetch_one(pool)
         .await
-        .map_err(|_| ApiError::InternalServerError)
     }
 
     pub async fn get(pool: &PgPool, session: &Uuid) -> Result<Session, ApiError> {
@@ -46,7 +45,7 @@ impl Session {
         session: &Uuid,
         user_id: &Uuid,
         expire_at: &DateTime<Utc>,
-    ) -> Result<Session, ApiError> {
+    ) -> sqlx::Result<Session> {
         sqlx::query_file_as!(
             Session,
             "src/session/sql/confirm_session.sql",
@@ -56,45 +55,40 @@ impl Session {
         )
         .fetch_one(pool)
         .await
-        .map_err(|_| ApiError::InternalServerError)
     }
 
     pub async fn extend(
         pool: &PgPool,
         session: &Uuid,
         expire_at: &DateTime<Utc>,
-    ) -> Result<(), ApiError> {
+    ) -> sqlx::Result<()> {
         sqlx::query_file!("src/session/sql/extend_session.sql", session, expire_at)
             .execute(pool)
-            .await
-            .map_err(|_| ApiError::InternalServerError)?;
+            .await?;
 
         Ok(())
     }
 
-    pub async fn delete(pool: &PgPool, session: &Uuid) -> Result<(), ApiError> {
+    pub async fn delete(pool: &PgPool, session: &Uuid) -> sqlx::Result<()> {
         sqlx::query_file!("src/session/sql/remove_session.sql", session)
             .execute(pool)
-            .await
-            .map_err(|_| ApiError::InternalServerError)?;
+            .await?;
 
         Ok(())
     }
 
-    pub async fn delete_all(pool: &PgPool, session: &Uuid) -> Result<(), ApiError> {
+    pub async fn delete_all(pool: &PgPool, session: &Uuid) -> sqlx::Result<()> {
         sqlx::query_file!("src/session/sql/remove_all_sessions.sql", session)
             .execute(pool)
-            .await
-            .map_err(|_| ApiError::InternalServerError)?;
+            .await?;
 
         Ok(())
     }
 
-    pub async fn delete_by_user(pool: &PgPool, user: &Uuid) -> Result<(), ApiError> {
+    pub async fn delete_by_user(pool: &PgPool, user: &Uuid) -> sqlx::Result<()> {
         sqlx::query_file!("src/session/sql/remove_user_sessions.sql", user)
             .execute(pool)
-            .await
-            .map_err(|_| ApiError::InternalServerError)?;
+            .await?;
 
         Ok(())
     }

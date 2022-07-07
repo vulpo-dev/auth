@@ -39,6 +39,7 @@ export enum ErrorCode {
 
 	UserDisabled = 'user/disabled',
 	UserDuplicate = 'user/duplicate',
+	UserExists = 'user/exists',
 
 }
 

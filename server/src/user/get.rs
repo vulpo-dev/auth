@@ -15,9 +15,10 @@ pub async fn handler(
     token: AccessToken,
 ) -> Result<Json<User>, ApiError> {
     let user_id = token.sub();
-    User::get_by_id(&pool, &user_id, &project.id)
-        .await
-        .map(Json)
+    let user = User::get_by_id(&pool, &user_id, &project.id)
+        .await?
+        .ok_or(ApiError::NotFound)?;
+    Ok(Json(user))
 }
 
 #[get("/get_by_id?<user>&<project>")]
@@ -27,5 +28,8 @@ pub async fn admin_handler(
     project: Uuid,
     _admin: Admin,
 ) -> Result<Json<User>, ApiError> {
-    User::get_by_id(&pool, &user, &project).await.map(Json)
+    let user = User::get_by_id(&pool, &user, &project)
+        .await?
+        .ok_or(ApiError::NotFound)?;
+    Ok(Json(user))
 }

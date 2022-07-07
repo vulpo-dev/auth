@@ -31,10 +31,9 @@ pub async fn handler(
     let order_by = UserOrder::from_str(order_by.as_str()).map_err(|_| ApiError::BadRequest)?;
     let direction = SortDirection::from_str(sort.as_str()).map_err(|_| ApiError::BadRequest)?;
 
-    User::list(&pool, &project, &order_by, direction, offset, limit)
-        .await
-        .map(|items| Response { items })
-        .map(Json)
+    let items = User::list(&pool, &project, &order_by, direction, offset, limit).await?;
+
+    Ok(Json(Response { items }))
 }
 
 #[derive(Serialize)]
@@ -44,5 +43,6 @@ pub struct Response {
 
 #[get("/total?<project>")]
 pub async fn total(pool: Db, project: Uuid) -> Result<Json<TotalUsers>, ApiError> {
-    User::total(&pool, &project).await.map(Json)
+    let total = User::total(&pool, &project).await?;
+    Ok(Json(total))
 }

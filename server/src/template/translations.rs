@@ -18,10 +18,8 @@ pub async fn get_translations(
     template: String,
     _admin: Admin,
 ) -> Result<Json<TranslationsResponse>, ApiError> {
-    Translations::get_by_project(&pool, &project, &template)
-        .await
-        .map(|t| t.value)
-        .map(Json)
+    let translations = Translations::get_by_project(&pool, &project, &template).await?;
+    Ok(Json(translations.value))
 }
 
 #[post("/translations/set", format = "json", data = "<body>")]
@@ -30,7 +28,8 @@ pub async fn set_translation(
     body: Json<SetTranslation>,
     _admin: Admin,
 ) -> Result<Status, ApiError> {
-    Translations::set(&pool, &body).await.map(|_| Status::Ok)
+    Translations::set(&pool, &body).await?;
+    Ok(Status::Ok)
 }
 
 #[post("/translations/delete", format = "json", data = "<body>")]
@@ -39,5 +38,6 @@ pub async fn delete_translation(
     body: Json<DeleteTranslation>,
     _admin: Admin,
 ) -> Result<Status, ApiError> {
-    Translations::delete(&pool, &body).await.map(|_| Status::Ok)
+    Translations::delete(&pool, &body).await?;
+    Ok(Status::Ok)
 }

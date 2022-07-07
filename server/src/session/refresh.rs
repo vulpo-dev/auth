@@ -43,7 +43,9 @@ pub async fn handler(
         Some(id) => id,
     };
 
-    let user = User::get_by_id(&pool, &user_id, &project.id).await?;
+    let user = User::get_by_id(&pool, &user_id, &project.id)
+        .await?
+        .ok_or_else(|| ApiError::NotFound)?;
 
     let exp = Utc::now() + Duration::minutes(15);
     let access_token = AccessToken::new(&user.id, &user.traits, exp)

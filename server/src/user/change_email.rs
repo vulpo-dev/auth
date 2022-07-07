@@ -31,8 +31,9 @@ pub async fn create_email_change_request(
     project: Project,
 ) -> Result<Status, ApiError> {
     let user_id = access_token.sub();
-    let current_email = User::email(&pool, &user_id).await?;
-    let user = User::get_by_id(&pool, &user_id, &project.id).await?;
+    let user = User::get_by_id(&pool, &user_id, &project.id)
+        .await?
+        .ok_or(ApiError::NotFound)?;
 
     let token = Token::create();
     let hashed_token = Token::hash(&token)?;
@@ -43,7 +44,7 @@ pub async fn create_email_change_request(
     let change_request = NewChangeRequest {
         user_id,
         new_email: body.new_email.clone(),
-        old_email: current_email.clone(),
+        old_email: user.email.clone(),
         token: hashed_token,
         reset_token: hashed_reset_token,
     };
@@ -69,7 +70,7 @@ pub async fn create_email_change_request(
         "project": confirm_settings.name.clone(),
         "user": Some(user.clone()),
         "expire_in": 15,
-        "old_email": current_email.clone(),
+        "old_email": user.email.clone(),
         "new_email": body.new_email.clone(),
     });
 
@@ -83,7 +84,7 @@ pub async fn create_email_change_request(
         "project": reset_settings.name.clone(),
         "user": Some(user.clone()),
         "expire_in": 15,
-        "old_email": current_email.clone(),
+        "old_email": user.email.clone(),
         "new_email": body.new_email.clone(),
     });
 
@@ -101,7 +102,7 @@ pub async fn create_email_change_request(
             &pool,
             &project.id,
             &user.device_languages,
-            &current_email,
+            &user.email,
             &reset_ctx,
             &reset_settings,
             Templates::ChangeEmail,

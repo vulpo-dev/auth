@@ -32,15 +32,14 @@ impl Translations {
         pool: &PgPool,
         project: &Uuid,
         template: &str,
-    ) -> Result<Translations, ApiError> {
+    ) -> sqlx::Result<Translations> {
         let rows = sqlx::query_file!(
             "src/template/sql/get_translations_by_project.sql",
             project,
             template,
         )
         .fetch_all(pool)
-        .await
-        .map_err(|_| ApiError::InternalServerError)?;
+        .await?;
 
         let value = rows
             .into_iter()
@@ -50,7 +49,7 @@ impl Translations {
         Ok(Translations { value })
     }
 
-    pub async fn set(pool: &PgPool, translation: &SetTranslation) -> Result<(), ApiError> {
+    pub async fn set(pool: &PgPool, translation: &SetTranslation) -> sqlx::Result<()> {
         sqlx::query_file!(
             "src/template/sql/set_translation.sql",
             translation.project,
@@ -59,13 +58,12 @@ impl Translations {
             translation.content,
         )
         .execute(pool)
-        .await
-        .map_err(|_| ApiError::InternalServerError)?;
+        .await?;
 
         Ok(())
     }
 
-    pub async fn delete(pool: &PgPool, data: &DeleteTranslation) -> Result<(), ApiError> {
+    pub async fn delete(pool: &PgPool, data: &DeleteTranslation) -> sqlx::Result<()> {
         sqlx::query_file!(
             "src/template/sql/remove_translation.sql",
             data.language,
@@ -73,8 +71,7 @@ impl Translations {
             data.template,
         )
         .execute(pool)
-        .await
-        .map_err(|_| ApiError::InternalServerError)?;
+        .await?;
 
         Ok(())
     }

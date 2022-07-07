@@ -33,11 +33,10 @@ impl GoogleConfig {
         Ok(())
     }
 
-    pub async fn get(pool: &PgPool, project: &Uuid) -> Result<Option<GoogleConfig>, ApiError> {
+    pub async fn get(pool: &PgPool, project: &Uuid) -> sqlx::Result<Option<GoogleConfig>> {
         let row = sqlx::query_file!("src/oauth/sql/get_config.sql", project, "google",)
             .fetch_optional(pool)
-            .await
-            .map_err(|_| ApiError::InternalServerError)?;
+            .await?;
 
         Ok(row
             .map(|row| serde_json::from_value(row.settings).ok())

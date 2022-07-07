@@ -13,15 +13,14 @@ pub struct Key {
 
 #[get("/public?<project>")]
 pub async fn public(pool: Db, project: Uuid) -> Result<Json<Vec<Key>>, ApiError> {
-    PublicKey::get_by_project(&pool, &project)
-        .await
-        .map(|keys| {
-            keys.iter()
-                .map(|item| Key {
-                    id: item.id,
-                    key: str::from_utf8(&item.key).unwrap().to_string(),
-                })
-                .collect()
-        })
-        .map(Json)
+    let keys = PublicKey::get_by_project(&pool, &project).await?;
+
+    Ok(Json(
+        keys.iter()
+            .map(|item| Key {
+                id: item.id,
+                key: str::from_utf8(&item.key).unwrap().to_string(),
+            })
+            .collect(),
+    ))
 }

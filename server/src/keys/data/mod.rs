@@ -48,12 +48,11 @@ impl ProjectKeys {
         private_key.map_err(|_| ApiError::InternalServerError)
     }
 
-    pub async fn get_public_key(pool: &PgPool, project_id: &Uuid) -> Result<Vec<u8>, ApiError> {
+    pub async fn get_public_key(pool: &PgPool, project_id: &Uuid) -> sqlx::Result<Vec<u8>> {
         sqlx::query_file!("src/keys/sql/get_public_key.sql", project_id)
             .fetch_one(pool)
             .await
             .map(|row| row.public_key)
-            .map_err(|_| ApiError::InternalServerError)
     }
 
     pub fn create_keys(
@@ -85,20 +84,15 @@ pub struct PublicKey {
 }
 
 impl PublicKey {
-    pub async fn get_all(pool: &PgPool) -> Result<Vec<PublicKey>, ApiError> {
+    pub async fn get_all(pool: &PgPool) -> sqlx::Result<Vec<PublicKey>> {
         sqlx::query_file_as!(PublicKey, "src/keys/sql/get_public_keys.sql")
             .fetch_all(pool)
             .await
-            .map_err(|_| ApiError::InternalServerError)
     }
 
-    pub async fn get_by_project(
-        pool: &PgPool,
-        project_id: &Uuid,
-    ) -> Result<Vec<PublicKey>, ApiError> {
+    pub async fn get_by_project(pool: &PgPool, project_id: &Uuid) -> sqlx::Result<Vec<PublicKey>> {
         sqlx::query_file_as!(PublicKey, "src/keys/sql/get_by_project.sql", project_id)
             .fetch_all(pool)
             .await
-            .map_err(|_| ApiError::InternalServerError)
     }
 }

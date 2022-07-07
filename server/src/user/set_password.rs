@@ -26,7 +26,9 @@ pub async fn set_password(
     body: Json<Payload>,
 ) -> Result<Status, ApiError> {
     let user_id = token.sub();
-    let user = User::get_by_id(&pool, &user_id, &project.id).await?;
+    let user = User::get_by_id(&pool, &user_id, &project.id)
+        .await?
+        .ok_or_else(|| ApiError::NotFound)?;
 
     if user.state != UserState::SetPassword {
         return Err(ApiError::Forbidden);
@@ -45,7 +47,7 @@ pub async fn set_password(
         if is_admin {
             return Ok(Status::Ok);
         } else {
-            return Err(err);
+            return Err(ApiError::from(err));
         }
     }
 

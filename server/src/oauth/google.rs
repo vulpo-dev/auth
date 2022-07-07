@@ -5,6 +5,7 @@ use crate::keys::data::ProjectKeys;
 use crate::oauth::data::google::GoogleMeResponse;
 use crate::oauth::data::OAuthData;
 use crate::oauth::data::{google::GoogleConfig, OAuthRequestState};
+use crate::project::data::Flags;
 use crate::project::Project;
 use crate::response::error::ApiError;
 use crate::response::SessionResponse;
@@ -47,6 +48,8 @@ pub async fn get_auth_url(
     body: Json<GetAuthUrlPayload>,
     project: Project,
 ) -> Result<Json<GetAuthUrlResponse>, ApiError> {
+    Flags::has_flags(&db, &project.id, &[Flags::EmailAndPassword]).await?;
+
     let client = get_client(&db, &project.id).await?;
 
     let (pkce_code_challenge, pkce_code_verifier) = PkceCodeChallenge::new_random_sha256();
@@ -138,8 +141,12 @@ pub async fn exchange_code(
     let user_id = OAuthData::get_user_id(&db, &google_id, GOOGLE, &project.id).await?;
 
     let user = match user_id {
-        Some(uid) => User::get_by_id(&db, &uid, &project.id).await?,
+        Some(uid) => User::get_by_id(&db, &uid, &project.id)
+            .await?
+            .ok_or(ApiError::InternalServerError)?,
         None => {
+            Flags::has_flags(&db, &project.id, &[Flags::SignUp]).await?;
+
             let provider_user = get_user(res, body.device_languages.clone())?;
             let user = User::create_provider(&db, &provider_user, &project.id).await?;
 
@@ -209,13 +216,14 @@ pub async fn get_config(
     db: Db,
     project: Uuid,
 ) -> Result<Json<Option<GoogleConfig>>, ApiError> {
-    GoogleConfig::get(&db, &project).await.map(Json)
+    let config = GoogleConfig::get(&db, &project).await?;
+    Ok(Json(config))
 }
 
 async fn get_client(pool: &PgPool, project_id: &Uuid) -> Result<BasicClient, ApiError> {
     let config = GoogleConfig::get(&pool, &project_id)
-        .await
-        .and_then(|value| value.ok_or(ApiError::BadRequest))?;
+        .await?
+        .ok_or(ApiError::BadRequest)?;
 
     let google_client_id = ClientId::new(config.client_id);
     let google_client_secret = ClientSecret::new(config.client_secret);

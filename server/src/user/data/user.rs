@@ -65,8 +65,8 @@ impl User {
         pool: &PgPool,
         user_id: &Uuid,
         user: &UpdateUser,
-    ) -> Result<UpdatedUser, ApiError> {
-        let row = sqlx::query_file_as!(
+    ) -> sqlx::Result<UpdatedUser> {
+        sqlx::query_file_as!(
             UpdatedUser,
             "src/user/sql/set_user.sql",
             user_id,
@@ -77,47 +77,22 @@ impl User {
         )
         .fetch_one(pool)
         .await
-        .map_err(|err| match err {
-            Error::Database(err) => {
-                let err = err.downcast::<PgDatabaseError>();
-                match err.constraint() {
-                    Some("users_project_id_fkey") => ApiError::ProjectNotFound,
-                    Some("users_project_id_email_key") => ApiError::UserDuplicate,
-                    _ => ApiError::InternalServerError,
-                }
-            }
-            _ => ApiError::InternalServerError,
-        })?;
-
-        Ok(row)
     }
 
     pub async fn get_by_email(
         pool: &PgPool,
         email: &str,
         project: &Uuid,
-    ) -> Result<Option<User>, ApiError> {
+    ) -> sqlx::Result<Option<User>> {
         sqlx::query_file_as!(User, "src/user/sql/get_by_email.sql", email, project)
             .fetch_optional(pool)
             .await
-            .map_err(|_| ApiError::InternalServerError)
     }
 
-    pub async fn get_by_id(pool: &PgPool, id: &Uuid, project: &Uuid) -> Result<User, ApiError> {
-        let row = sqlx::query_file_as!(User, "src/user/sql/get_by_id.sql", id, project)
+    pub async fn get_by_id(pool: &PgPool, id: &Uuid, project: &Uuid) -> sqlx::Result<Option<User>> {
+        sqlx::query_file_as!(User, "src/user/sql/get_by_id.sql", id, project)
             .fetch_optional(pool)
             .await
-            .map_err(|_| ApiError::InternalServerError)?;
-
-        row.ok_or_else(|| ApiError::NotFound)
-    }
-
-    pub async fn email(pool: &PgPool, user_id: &Uuid) -> Result<String, ApiError> {
-        sqlx::query_file!("src/user/sql/get_email.sql", user_id)
-            .fetch_one(pool)
-            .await
-            .map(|row| row.email)
-            .map_err(|_| ApiError::InternalServerError)
     }
 
     pub async fn create(
@@ -158,7 +133,7 @@ impl User {
         email: &str,
         project: &Uuid,
         languages: &Vec<String>,
-    ) -> Result<User, ApiError> {
+    ) -> sqlx::Result<User> {
         sqlx::query_file_as!(
             User,
             "src/user/sql/create_passwordless.sql",
@@ -168,24 +143,13 @@ impl User {
         )
         .fetch_one(pool)
         .await
-        .map_err(|err| match err {
-            Error::Database(err) => {
-                let err = err.downcast::<PgDatabaseError>();
-                match err.constraint() {
-                    Some("users_project_id_fkey") => ApiError::ProjectNotFound,
-                    Some("users_project_id_email_key") => ApiError::UserDuplicate,
-                    _ => ApiError::InternalServerError,
-                }
-            }
-            _ => ApiError::InternalServerError,
-        })
     }
 
     pub async fn create_provider(
         pool: &PgPool,
         user: &UserProvider,
         project_id: &Uuid,
-    ) -> Result<User, ApiError> {
+    ) -> sqlx::Result<User> {
         sqlx::query_file_as!(
             User,
             "src/user/sql/create_provider.sql",
@@ -198,7 +162,6 @@ impl User {
         )
         .fetch_one(pool)
         .await
-        .map_err(|_| ApiError::InternalServerError)
     }
 
     // todo: direction
@@ -209,7 +172,7 @@ impl User {
         _direction: SortDirection,
         offset: i64,
         limit: i64,
-    ) -> Result<Vec<PartialUser>, ApiError> {
+    ) -> sqlx::Result<Vec<PartialUser>> {
         sqlx::query_file_as!(
             PartialUser,
             "src/user/sql/get_users.sql",
@@ -220,53 +183,47 @@ impl User {
         )
         .fetch_all(pool)
         .await
-        .map_err(|_| ApiError::InternalServerError)
     }
 
-    pub async fn total(pool: &PgPool, project: &Uuid) -> Result<TotalUsers, ApiError> {
+    pub async fn total(pool: &PgPool, project: &Uuid) -> sqlx::Result<TotalUsers> {
         let row = sqlx::query_file!("src/user/sql/get_user_count.sql", project)
             .fetch_one(pool)
-            .await
-            .map_err(|_| ApiError::InternalServerError)?;
+            .await?;
 
         match row.total_users {
-            None => Err(ApiError::InternalServerError),
+            None => Ok(TotalUsers { total_users: 0 }),
             Some(total_users) => Ok(TotalUsers { total_users }),
         }
     }
 
-    pub async fn remove(pool: &PgPool, user_id: &Uuid) -> Result<(), ApiError> {
+    pub async fn remove(pool: &PgPool, user_id: &Uuid) -> sqlx::Result<()> {
         sqlx::query_file!("src/user/sql/remove_user.sql", user_id)
             .execute(pool)
-            .await
-            .map_err(|_| ApiError::InternalServerError)?;
+            .await?;
 
         Ok(())
     }
 
-    pub async fn disable(pool: &PgPool, user: &Uuid, project: &Uuid) -> Result<(), ApiError> {
+    pub async fn disable(pool: &PgPool, user: &Uuid, project: &Uuid) -> sqlx::Result<()> {
         sqlx::query_file!("src/user/sql/disable_user.sql", user, project)
             .execute(pool)
-            .await
-            .map_err(|_| ApiError::InternalServerError)?;
+            .await?;
 
         Ok(())
     }
 
-    pub async fn enable(pool: &PgPool, user: &Uuid, project: &Uuid) -> Result<(), ApiError> {
+    pub async fn enable(pool: &PgPool, user: &Uuid, project: &Uuid) -> sqlx::Result<()> {
         sqlx::query_file!("src/user/sql/enable_user.sql", user, project)
             .execute(pool)
-            .await
-            .map_err(|_| ApiError::InternalServerError)?;
+            .await?;
 
         Ok(())
     }
 
-    pub async fn project(pool: &PgPool, user_id: &Uuid) -> Result<Option<Uuid>, ApiError> {
+    pub async fn project(pool: &PgPool, user_id: &Uuid) -> sqlx::Result<Option<Uuid>> {
         let row = sqlx::query_file!("src/user/sql/get_project_id.sql", user_id)
             .fetch_optional(pool)
-            .await
-            .map_err(|_| ApiError::InternalServerError)?;
+            .await?;
 
         Ok(row.map(|r| r.project_id))
     }

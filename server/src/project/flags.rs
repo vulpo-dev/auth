@@ -7,10 +7,8 @@ use rocket::serde::{json::Json, Serialize};
 
 #[get("/flags?<project>")]
 pub async fn handler(pool: Db, project: Uuid) -> Result<Json<Response>, ApiError> {
-    Flags::from_project(&pool, &project)
-        .await
-        .map(|items| Response { items })
-        .map(Json)
+    let items = Flags::from_project(&pool, &project).await?;
+    Ok(Json(Response { items }))
 }
 
 #[derive(Serialize)]

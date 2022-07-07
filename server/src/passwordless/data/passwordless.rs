@@ -1,5 +1,3 @@
-use crate::response::error::ApiError;
-
 use bcrypt;
 use chrono::{DateTime, Utc};
 use sqlx::PgPool;
@@ -26,7 +24,7 @@ impl Passwordless {
         verification_token: &str,
         project: &Uuid,
         session_id: &Uuid,
-    ) -> Result<Uuid, ApiError> {
+    ) -> sqlx::Result<Uuid> {
         sqlx::query_file!(
             "src/passwordless/sql/insert_passwordless_token.sql",
             id,
@@ -38,36 +36,30 @@ impl Passwordless {
         .fetch_one(pool)
         .await
         .map(|row| row.id)
-        .map_err(|_| ApiError::InternalServerError)
     }
 
-    pub async fn get(pool: &PgPool, id: &Uuid) -> Result<Passwordless, ApiError> {
-        let row = sqlx::query_file_as!(
+    pub async fn get(pool: &PgPool, id: &Uuid) -> sqlx::Result<Option<Passwordless>> {
+        sqlx::query_file_as!(
             Passwordless,
             "src/passwordless/sql/get_passwordless.sql",
             id
         )
         .fetch_optional(pool)
         .await
-        .map_err(|_| ApiError::InternalServerError)?;
-
-        row.ok_or_else(|| ApiError::NotFound)
     }
 
-    pub async fn confirm(pool: &PgPool, id: &Uuid) -> Result<(), ApiError> {
+    pub async fn confirm(pool: &PgPool, id: &Uuid) -> sqlx::Result<()> {
         sqlx::query_file!("src/passwordless/sql/confirm_passwordless.sql", id)
             .execute(pool)
-            .await
-            .map_err(|_| ApiError::InternalServerError)?;
+            .await?;
 
         Ok(())
     }
 
-    pub async fn remove_all(pool: &PgPool, email: &str, project: &Uuid) -> Result<(), ApiError> {
+    pub async fn remove_all(pool: &PgPool, email: &str, project: &Uuid) -> sqlx::Result<()> {
         sqlx::query_file!("src/passwordless/sql/remove_all.sql", email, project)
             .execute(pool)
-            .await
-            .map_err(|_| ApiError::InternalServerError)?;
+            .await?;
 
         Ok(())
     }

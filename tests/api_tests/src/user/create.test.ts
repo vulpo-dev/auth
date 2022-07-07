@@ -245,7 +245,7 @@ describe("Create User", () => {
 			})
 			.catch(err => err.response)
 
-		expect(res.status).toEqual(409)
+		expect(res.status).toEqual(400)
 		expect(res.data.code).toEqual(ApiError.UserExists)
 	})
 

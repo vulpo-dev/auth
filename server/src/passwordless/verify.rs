@@ -29,7 +29,9 @@ pub async fn handler(
     secrets: &State<Secrets>,
     project: Project,
 ) -> Result<SessionResponse, ApiError> {
-    let token = Passwordless::get(&pool, &body.id).await?;
+    let token = Passwordless::get(&pool, &body.id)
+        .await?
+        .ok_or_else(|| ApiError::NotFound)?;
 
     if token.confirmed == false {
         return Err(ApiError::PasswordlessAwaitConfirm);
@@ -66,7 +68,9 @@ pub async fn handler(
             User::create_passwordless(&pool, &token.email, &token.project_id, &device_languages)
                 .await?
         }
-        Some(user_id) => User::get_by_id(&pool, &user_id, &token.project_id).await?,
+        Some(user_id) => User::get_by_id(&pool, &user_id, &token.project_id)
+            .await?
+            .ok_or_else(|| ApiError::NotFound)?,
     };
 
     let expire_at = Utc::now() + Duration::days(30);

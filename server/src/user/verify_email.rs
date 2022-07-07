@@ -1,10 +1,10 @@
 use crate::admin::data::Admin;
+use crate::crypto::Token;
 use crate::db::Db;
 use crate::mail::data::VerifyEmail;
 use crate::mail::Email;
 use crate::project::Project;
 use crate::response::error::ApiError;
-use crate::crypto::Token;
 use crate::settings::data::ProjectEmail;
 use crate::template::{Template, TemplateCtx, Templates, Translations};
 
@@ -22,7 +22,9 @@ pub struct Verify {
 
 #[post("/verify_email", format = "json", data = "<body>")]
 pub async fn handler(pool: Db, body: Json<Verify>, _project: Project) -> Result<Status, ApiError> {
-    let verify = VerifyEmail::get(&pool, &body.id).await?;
+    let verify = VerifyEmail::get(&pool, &body.id)
+        .await?
+        .ok_or_else(|| ApiError::TokenNotFound)?;
 
     let is_valid = Token::verify(&body.token, &verify.token)?;
 

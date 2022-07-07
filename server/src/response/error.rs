@@ -139,7 +139,7 @@ impl ApiError {
             ApiError::NotFound => Status::NotFound,
             ApiError::Forbidden => Status::Forbidden,
             ApiError::TokenInvalid => Status::Forbidden,
-            ApiError::ProjectNameExists | ApiError::UserExists => Status::Conflict,
+            ApiError::ProjectNameExists | ApiError::UserExists => Status::BadRequest,
             ApiError::ProjectNotFound => Status::NotFound,
             ApiError::PasswordlessAwaitConfirm
             | ApiError::TokenExpired

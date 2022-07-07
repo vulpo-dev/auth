@@ -1,5 +1,3 @@
-use crate::response::error::ApiError;
-
 use chrono::{DateTime, Utc};
 use sqlx::PgPool;
 use uuid::Uuid;
@@ -40,7 +38,7 @@ impl EmailChangeRequest {
         pool: &PgPool,
         request: &NewChangeRequest,
         project_id: &Uuid,
-    ) -> Result<Uuid, ApiError> {
+    ) -> sqlx::Result<Uuid> {
         sqlx::query_file!(
             "src/user/sql/email/insert_change_request.sql",
             request.old_email,
@@ -53,13 +51,9 @@ impl EmailChangeRequest {
         .fetch_one(pool)
         .await
         .map(|row| row.id)
-        .map_err(|_| ApiError::InternalServerError)
     }
 
-    pub async fn get_confirm_token(
-        pool: &PgPool,
-        token_id: &Uuid,
-    ) -> Result<ConfirmToken, ApiError> {
+    pub async fn get_confirm_token(pool: &PgPool, token_id: &Uuid) -> sqlx::Result<ConfirmToken> {
         sqlx::query_file_as!(
             ConfirmToken,
             "src/user/sql/email/get_confirm_token.sql",
@@ -67,10 +61,9 @@ impl EmailChangeRequest {
         )
         .fetch_one(pool)
         .await
-        .map_err(|_| ApiError::InternalServerError)
     }
 
-    pub async fn get_reset_token(pool: &PgPool, token_id: &Uuid) -> Result<ResetToken, ApiError> {
+    pub async fn get_reset_token(pool: &PgPool, token_id: &Uuid) -> sqlx::Result<ResetToken> {
         sqlx::query_file_as!(
             ResetToken,
             "src/user/sql/email/get_reset_token.sql",
@@ -78,22 +71,19 @@ impl EmailChangeRequest {
         )
         .fetch_one(pool)
         .await
-        .map_err(|_| ApiError::InternalServerError)
     }
 
-    pub async fn set_email(pool: &PgPool, token_id: &Uuid) -> Result<(), ApiError> {
+    pub async fn set_email(pool: &PgPool, token_id: &Uuid) -> sqlx::Result<()> {
         sqlx::query_file!("src/user/sql/email/set_email.sql", token_id)
             .execute(pool)
             .await
             .map(|_| ())
-            .map_err(|_| ApiError::InternalServerError)
     }
 
-    pub async fn reset_email(pool: &PgPool, token_id: &Uuid) -> Result<(), ApiError> {
+    pub async fn reset_email(pool: &PgPool, token_id: &Uuid) -> sqlx::Result<()> {
         sqlx::query_file!("src/user/sql/email/reset_email.sql", token_id)
             .execute(pool)
             .await
             .map(|_| ())
-            .map_err(|_| ApiError::InternalServerError)
     }
 }

@@ -25,7 +25,7 @@ impl ApiKey {
         expire_at: &Option<DateTime<Utc>>,
         name: &Option<String>,
         project_id: &Uuid,
-    ) -> Result<Uuid, ApiError> {
+    ) -> sqlx::Result<Uuid> {
         let default_name = String::from("");
         let name = name.as_ref().unwrap_or(&default_name);
         sqlx::query_file!(
@@ -39,14 +39,12 @@ impl ApiKey {
         .fetch_one(pool)
         .await
         .map(|row| row.id)
-        .map_err(|_| ApiError::InternalServerError)
     }
 
-    pub async fn get_token(pool: &PgPool, id: &Uuid) -> Result<Option<ApiKeyToken>, ApiError> {
+    pub async fn get_token(pool: &PgPool, id: &Uuid) -> sqlx::Result<Option<ApiKeyToken>> {
         sqlx::query_file_as!(ApiKeyToken, "src/api_key/sql/get_token.sql", id)
             .fetch_optional(pool)
             .await
-            .map_err(|_| ApiError::InternalServerError)
     }
 
     pub async fn get_claims(pool: &PgPool, token: &str) -> Result<Claims, ApiError> {

@@ -24,11 +24,10 @@ pub enum Flags {
 }
 
 impl Flags {
-    pub async fn from_project(pool: &PgPool, id: &Uuid) -> Result<Vec<Flags>, ApiError> {
+    pub async fn from_project(pool: &PgPool, id: &Uuid) -> sqlx::Result<Vec<Flags>> {
         let row = sqlx::query_file!("src/project/sql/get_flags.sql", id)
             .fetch_one(pool)
-            .await
-            .map_err(|_| ApiError::InternalServerError)?;
+            .await?;
 
         let flags: Vec<Flags> = row
             .flags
@@ -41,7 +40,7 @@ impl Flags {
         Ok(flags)
     }
 
-    pub async fn set_flags(pool: &PgPool, project: &Uuid, flags: &[Flags]) -> Result<(), ApiError> {
+    pub async fn set_flags(pool: &PgPool, project: &Uuid, flags: &[Flags]) -> sqlx::Result<()> {
         let flags = flags
             .into_iter()
             .map(|flag| flag.to_string())
@@ -50,8 +49,7 @@ impl Flags {
 
         sqlx::query_file!("src/project/sql/set_flags.sql", project, &flags)
             .execute(pool)
-            .await
-            .map_err(|_| ApiError::InternalServerError)?;
+            .await?;
 
         Ok(())
     }

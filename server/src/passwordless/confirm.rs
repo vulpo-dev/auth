@@ -16,7 +16,9 @@ pub struct ConfirmPasswordless {
 
 #[post("/confirm", format = "json", data = "<body>")]
 pub async fn handler(pool: Db, body: Json<ConfirmPasswordless>) -> Result<Status, ApiError> {
-    let token = Passwordless::get(&pool, &body.id).await?;
+    let token = Passwordless::get(&pool, &body.id)
+        .await?
+        .ok_or_else(|| ApiError::NotFound)?;
 
     if token.is_valid == false {
         return Err(ApiError::PasswordlessInvalidToken);

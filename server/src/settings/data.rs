@@ -1,4 +1,3 @@
-use crate::response::error::ApiError;
 use crate::template::{DefaultRedirect, DefaultSubject, Template, Templates};
 
 use serde::{Deserialize, Serialize};
@@ -12,11 +11,10 @@ impl ProjectEmail {
     pub async fn from_project(
         pool: &PgPool,
         project_id: Uuid,
-    ) -> Result<Option<EmailSettings>, ApiError> {
+    ) -> sqlx::Result<Option<EmailSettings>> {
         let row = sqlx::query_file!("src/settings/sql/get_email_settings.sql", project_id)
             .fetch_optional(pool)
-            .await
-            .map_err(|_| ApiError::InternalServerError)?;
+            .await?;
 
         let settings = row.map(|row| EmailSettings {
             from_name: row.from_name,
@@ -34,15 +32,14 @@ impl ProjectEmail {
         pool: &PgPool,
         project_id: &Uuid,
         template: Templates,
-    ) -> Result<TemplateEmail, ApiError> {
+    ) -> sqlx::Result<TemplateEmail> {
         let row = sqlx::query_file!(
             "src/settings/sql/get_template_settings.sql",
             project_id,
             template.to_string()
         )
         .fetch_one(pool)
-        .await
-        .map_err(|_| ApiError::InternalServerError)?;
+        .await?;
 
         let email = EmailSettings {
             from_name: row.from_name,
@@ -79,7 +76,7 @@ impl ProjectEmail {
         pool: &PgPool,
         project_id: Uuid,
         settings: EmailSettings,
-    ) -> Result<(), ApiError> {
+    ) -> sqlx::Result<()> {
         let port = settings.port as i32;
         sqlx::query_file!(
             "src/settings/sql/insert_email_settings.sql",
@@ -92,8 +89,7 @@ impl ProjectEmail {
             port,
         )
         .execute(pool)
-        .await
-        .map_err(|_| ApiError::InternalServerError)?;
+        .await?;
 
         Ok(())
     }
