@@ -1,6 +1,6 @@
 {
   "name": "@vulpo-dev/auth-ui",
-  "version": "0.0.14",
+  "version": "0.0.15",
   "description": "",
   "main": "lib/main.js",
   "types": "./lib/main.d.ts",
@@ -52,8 +52,8 @@
   },
   "dependencies": {
     "@types/react": "^18.0.9",
-    "@vulpo-dev/auth-react": "^0.0.8",
-    "@vulpo-dev/auth-sdk": "^0.0.8"
+    "@vulpo-dev/auth-react": "^0.0.9",
+    "@vulpo-dev/auth-sdk": "^0.0.9"
   },
   "gitHead": "dedb24c19f448626c4f88f26d784eb06d6325129"
 }
