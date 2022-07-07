@@ -1,1 +1,1 @@
-C:/workspace/src/riezler.co/vulpo/guides/docs/01-quickstart.md
+./guides/docs/01-quickstart.md
