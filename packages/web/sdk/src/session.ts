@@ -9,11 +9,10 @@ import {
     Url,
 } from './types'
 import { IStorage, ISessionsStorage, IKeyStorage, Session } from './storage'
-import { makeId, IHttpService } from './utils'
+import { makeId, IHttpService, uuid } from './utils'
 import { ab2str, base64url, generateKeys, isRsa } from './keys'
 
 import { shallowEqualObjects } from 'shallow-equal'
-import { v4 as uuid } from 'uuid'
 
 type Listener = {
 	id: number;

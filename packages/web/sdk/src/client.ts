@@ -30,8 +30,7 @@ import {
     AuthError,
 } from './error'
 import { getPublicKey, ratPayload } from './keys'
-import { getLanguages, IHttpService } from './utils'
-import { v4 as uuid } from 'uuid'
+import { getLanguages, IHttpService, uuid } from './utils'
 
 export type ClientDep = {
 	sessionService: SessionService,

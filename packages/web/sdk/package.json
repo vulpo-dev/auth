@@ -46,11 +46,9 @@
     "webpack-cli": "^4.5.0"
   },
   "dependencies": {
-    "@types/uuid": "^8.3.0",
     "idb-keyval": "^5.0.4",
     "jwt-decode": "^3.1.2",
-    "shallow-equal": "^1.2.1",
-    "uuid": "^8.3.2"
+    "shallow-equal": "^1.2.1"
   },
   "gitHead": "dedb24c19f448626c4f88f26d784eb06d6325129"
 }
