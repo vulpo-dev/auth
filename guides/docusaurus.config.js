@@ -18,6 +18,14 @@ const config = {
     locales: ['en'],
   },
 
+  scripts: [
+
+    {
+      src: "/guides/js/plausible.js",
+      async: true,
+    }
+  ],
+
   presets: [
     [
       'classic',

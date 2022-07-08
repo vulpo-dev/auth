@@ -8,12 +8,8 @@ type Props = {
 let MockBrowser = (props: Props) => {
 	return (
 		<div className="mock-browser-wrapper">
-			<div className="top-bar">
-				<div className="blink"></div>
-			</div>
-			<div className="content">
-				{ props.children }
-			</div>
+			<div className="top-bar"></div>
+			<div className="content">{ props.children }</div>
 
 			<style jsx>{`
 				.mock-browser-wrapper {
@@ -41,38 +37,6 @@ let MockBrowser = (props: Props) => {
 				.content {
 					width: 100%;
 					flex-grow: 1;
-				}
-
-				.blink {
-					width: 15px;
-					height: 15px;
-					border-radius: 50%;
-					background: rgb(173, 75, 142);
-				    -webkit-animation: blink 4s infinite both;
-				            animation: blink 4s infinite both;
-				}
-
-				@-webkit-keyframes blink {
-				  0%,
-				  50%,
-				  100% {
-				    opacity: 1;
-				  }
-				  25%,
-				  75% {
-				    opacity: 0;
-				  }
-				}
-				@keyframes blink {
-				  0%,
-				  50%,
-				  100% {
-				    opacity: 1;
-				  }
-				  25%,
-				  75% {
-				    opacity: 0;
-				  }
 				}
 			`}</style>
 		</div>
