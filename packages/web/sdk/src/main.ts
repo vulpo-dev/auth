@@ -34,8 +34,6 @@ export type { SessionServiceDep, FromSessionResponse } from './session'
 export type { IKeyStorage, ISessionsStorage, IStorage, Session, Key, SessionsChangeCallback, ActiveUserCallback } from './storage'
 export type { Tokens } from './tokens'
 export type { IHttpService } from './utils'
-export type { AxiosRequestConfig, AxiosError, AxiosResponse } from 'axios'
-
 
 export let Auth = {
 	create(config: Config): AuthClient {
