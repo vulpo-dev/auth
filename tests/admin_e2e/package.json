@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "admin_e2e",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -15,6 +15,6 @@
   "license": "ISC",
   "dependencies": {
     "@playwright/test": "^1.14.1",
-    "@vulpo-dev/test-helper": "^0.0.9"
+    "@vulpo-dev/test-helper": "^0.0.10"
   }
 }
