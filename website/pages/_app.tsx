@@ -37,6 +37,8 @@ function MyApp({ Component, pageProps }: AppProps) {
       return
     }
 
+    let use = (params.get('use') ?? '').split(',')
+
     Sentry.init({
       dsn: process.env.NEXT_SENTRY_DSN,
       integrations: [new BrowserTracing()],
@@ -51,7 +53,7 @@ function MyApp({ Component, pageProps }: AppProps) {
 
     window.document.head.appendChild(plausible)
 
-    if (params.has('heatmap')) {
+    if (params.has('heatmap') || use.includes('h')) {
       // @ts-ignore
       window._mfq = window._mfq || [];
       let mf = document.createElement("script");

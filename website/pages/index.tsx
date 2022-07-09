@@ -21,6 +21,11 @@ const Home: NextPage = () => {
       <Head>
         <title>Vulpo Auth</title>
         <meta name="description" content={description} />
+
+        <meta property="og:title" content='Effortless Authentication - Vulpo Auth' />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://auth.vulpo.dev" />
+        <meta property="description" content={description} />
       </Head>
 
       <header className={styles.header}>
@@ -85,7 +90,7 @@ const Home: NextPage = () => {
         </section>
 
         <section className={`${styles.section}`}>
-          <h2 className={styles['section-header']}>Features</h2>
+          <h2 className={styles['section-header']}>Roadmap</h2>
           <ul className={styles['features']}>
             <Feature title='Email Password Authentication' status='complete' />
             <Feature title='Reset Password' status='complete' />
