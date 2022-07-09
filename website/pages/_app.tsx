@@ -1,6 +1,4 @@
 import { useEffect } from 'react'
-import * as Sentry from "@sentry/browser";
-import { BrowserTracing } from "@sentry/tracing";
 
 import Prism from 'prismjs'
 
@@ -39,15 +37,14 @@ function MyApp({ Component, pageProps }: AppProps) {
 
     let use = (params.get('use') ?? '').split(',')
 
-    Sentry.init({
-      dsn: process.env.NEXT_SENTRY_DSN,
-      integrations: [new BrowserTracing()],
-      tracesSampleRate: 1.0,
-    })
+    import('@sentry/browser')
+      .then(Sentry => { Sentry.init({ dsn: process.env.NEXT_SENTRY_DSN }) })
+      .catch(() => {})
 
     let plausible = document.createElement('script')
-    plausible.src = 'https://plausible.io/js/plausible.js'
+    plausible.setAttribute('src', '/_/p/js/script.js')
     plausible.setAttribute('data-domain', 'auth.vulpo.dev')
+    plausible.setAttribute('data-api', '/_/p/api/event')
     plausible.setAttribute('defer', '')
     plausible.setAttribute('type', 'text/javascript')
 
@@ -57,10 +54,11 @@ function MyApp({ Component, pageProps }: AppProps) {
       // @ts-ignore
       window._mfq = window._mfq || [];
       let mf = document.createElement("script");
-      mf.type = "text/javascript";
-      mf.defer = true;
-      mf.src = "https://cdn.mouseflow.com/projects/83dfc88b-f41f-49dd-a4be-b3ac82501a29.js";
-      document.getElementsByTagName("head")[0].appendChild(mf);
+      mf.setAttribute('type', 'text/javascript');
+      mf.setAttribute('defer', '')
+      mf.setAttribute('src', 'https://cdn.mouseflow.com/projects/83dfc88b-f41f-49dd-a4be-b3ac82501a29.js')
+
+      window.document.head.appendChild(mf)
     }
   }, [])
 
