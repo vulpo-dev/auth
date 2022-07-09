@@ -155,11 +155,11 @@ export default function UserDetails({ userId }: Props) {
 			</form>
 			<Section>
 				<Label>Updated At:</Label>
-				<p>{user.updated_at}</p>
+				<p>{user.updated_at.toISOString()}</p>
 			</Section>
 			<Section>
 				<Label>Created At:</Label>
-				<p>{user.created_at}</p>
+				<p>{user.created_at.toISOString()}</p>
 			</Section>
 		</Wrapper>
 	)

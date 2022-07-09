@@ -1,4 +1,4 @@
-import { AxiosError } from 'axios'
+import { ApiError as SdkError } from '@vulpo-dev/auth-sdk'
 
 export enum ApiError {
 	InternalServerError = "internal_error",
@@ -22,16 +22,12 @@ function isApiError(maybeCode: string): maybeCode is ApiError {
 	return index !== -1
 }
 
-type ErrorResponse = {
-	code: string
-}
-
-export function getErrorCode(res: AxiosError<ErrorResponse>): ApiError {
-	if (res.response?.status === 503) {
+export function getErrorCode(res: SdkError): ApiError {
+	if (!res.code) {
 		return ApiError.Unavailable
 	}
 
-	let code = res.response?.data?.code
+	let { code } = res
 
 	if (!code) {
 		return ApiError.GenericError

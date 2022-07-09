@@ -61,7 +61,12 @@ export class HttpSerivce implements IHttpService {
 
 	private getUrl(url: string) {
 		let pathname = url.startsWith('/') ? url.substring(1) : url
-		return `${this.baseURL}/${pathname}`
+		let baseURL = this.baseURL === '/' ? '' : this.baseURL
+		return `${baseURL}/${pathname}`
+	}
+
+	private getMode() {
+		return this.baseURL === '/' ? 'same-origin' : 'cors'
 	}
 
 	private isEmpty(length: string | null): boolean {
@@ -76,7 +81,7 @@ export class HttpSerivce implements IHttpService {
 	async get<R = void>(url: string, config: Partial<Request> = {}): Promise<R> {
 	    let response = await fetch(this.getUrl(url), {
 	    	...config,
-	    	mode: 'cors',
+	    	mode: this.getMode(),
 	    	method: 'GET',
 	    	headers: this.getHeaders(config)
 	    })
@@ -111,7 +116,7 @@ export class HttpSerivce implements IHttpService {
 	async post<R>(url: string, body: unknown, config: Partial<Request> = {}): Promise<R> {
 	    let response = await fetch(this.getUrl(url), {
 	    	...config,
-	    	mode: 'cors',
+	    	mode: this.getMode(),
 	    	cache: 'no-cache',
 	    	method: 'POST',
 	    	headers: this.getHeaders(config),

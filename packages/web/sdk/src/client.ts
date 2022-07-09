@@ -555,15 +555,19 @@ export class AuthClient implements IAuthClient {
 		return fn(token).then(async response => {
 			if (response.status === 401) {
 				let token = await this.forceToken(session)
-				return fn(token).catch(async error => {
-		    		let status = error?.response?.status
+				return fn(token).then(async response => {
+		    		let { status } = response
 
 		    		if (status === 401) {
 		    			await this.signOut()
-		    			return Promise.reject(new AuthError(ErrorCode.SessionExpired))
+		    			return Promise.reject(new AuthError(ErrorCode.SessionExpired, response))
 		    		}
 
-		    		return Promise.reject(error)
+		    		if (status > 400) {
+		    			return Promise.reject(response)
+		    		}
+
+		    		return response
 		    	})
 			}
 

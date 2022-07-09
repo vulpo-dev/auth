@@ -1,5 +1,4 @@
-import React from 'react'
-import { FunctionComponent } from 'react'
+import { ReactNode, FunctionComponent } from 'react'
 import styled from 'styled-components'
 import { Link, useLocation } from 'react-router-dom'
 import { useProject } from 'data/project'
@@ -58,6 +57,7 @@ let StyledListItem = styled.li<{ $isActive: boolean }>`
 
 type ListItemProps = {
 	type: TemplateType;
+	children: ReactNode;
 }
 
 let ListItem: FunctionComponent<ListItemProps> = ({ children, type }) => {

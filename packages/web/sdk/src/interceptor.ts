@@ -56,7 +56,7 @@ export function addToken(axios: AxiosInstance, auth: AuthClient) {
 
 		    		if (status === 401) {
 		    			await auth.signOut()
-		    			return Promise.reject(new AuthError(ErrorCode.SessionExpired))
+		    			return Promise.reject(new AuthError(ErrorCode.SessionExpired, err.response))
 		    		}
 
 		    		return Promise.reject(err)

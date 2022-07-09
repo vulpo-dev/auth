@@ -9,6 +9,7 @@ import { useBosonValue } from '@biotic-ui/boson'
 import { ErrorMessage } from '@biotic-ui/text'
 import { projectId, createAdmin, CreateAdmin } from 'data/admin'
 import { ApiError, getErrorCode } from 'error'
+import { ApiError as SdkError } from '@vulpo-dev/auth-sdk'
 
 export type Props = {
 	onSubmit: (user: CreateAdmin) => void;
@@ -98,7 +99,7 @@ let UserContainer = () => {
 			navigate('/auth/#/signin', { replace: true })
 		} catch (err) {
 			setLoading(false)
-			setError(getErrorCode(err))
+			setError(getErrorCode(err as SdkError))
 		}
 	}
 

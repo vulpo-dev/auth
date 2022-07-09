@@ -33,7 +33,7 @@ export const HasAdmin = Template.bind({})
 HasAdmin.args = { error: ApiError.AdminHasAdmin }
 
 export const UserExists = Template.bind({})
-UserExists.args = { error: ApiError.AdminExists }
+UserExists.args = { error: ApiError.UserExists }
 
 export const ProjectNotFound = Template.bind({})
 ProjectNotFound.args = { error: ApiError.ProjectNotFound }

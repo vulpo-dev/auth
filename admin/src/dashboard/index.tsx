@@ -73,7 +73,7 @@ function Dashboard() {
 				<StyledAddButton onClick={() => setCreate(true)} />
 			</TabBar>
 			
-			{ projects &&
+			{ (projects && project) &&
 				<ProjectCtx.Provider value={currentProject}>
 					<Main />
 				</ProjectCtx.Provider>
@@ -125,7 +125,6 @@ let Main = () => {
 					<Route path={`${base}/methods`} element={<h3>Sign In Methods</h3>} />
 					<Route path={`${base}/templates/*`} element={<h3>Templates</h3>} />
 					<Route path={`${base}/settings`} element={<h3>Settings</h3>} />
-					<Route path={base} element={<Navigate to={`${base}/users`} />} />
 				</Routes>
 			</Bar>
 

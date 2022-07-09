@@ -1,5 +1,4 @@
-import React from 'react'
-import { FC, useRef, useEffect } from 'react'
+import { FC, ReactNode } from 'react'
 import styled from 'styled-components'
 import { motion } from 'framer-motion'
 import { useOnEscape } from '@biotic-ui/std'
@@ -27,6 +26,7 @@ export let ContentWrapper = styled.div<{ open: boolean }>`
 type Props = {
 	open?: boolean;
 	onClose?: () => void;
+	children: ReactNode;
 }
 
 export let FloatingActionBar: FC<Props> = ({

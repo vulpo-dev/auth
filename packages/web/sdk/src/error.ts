@@ -54,15 +54,15 @@ export function errorFromResponse(response: Response, data: ErrorResponse): ApiE
 		let { status } = response
 
 		if (status === 503) {
-			return new GenericError(ErrorCode.Unavailable)
+			return new GenericError(response, ErrorCode.Unavailable)
 		}
 
 		if (status === 403 && !data.code) {
-			return new GenericError(ErrorCode.NotAllowed)
+			return new GenericError(response, ErrorCode.NotAllowed)
 		}
 
 		if (status === 401 && !data.code) {
-			return new GenericError(ErrorCode.Unauthorized)
+			return new GenericError(response, ErrorCode.Unauthorized)
 		}
 
 		switch(data.code) {
@@ -70,7 +70,7 @@ export function errorFromResponse(response: Response, data: ErrorResponse): ApiE
 			case ErrorCode.BadRequest:
 			case ErrorCode.InternalServerError:
 			case ErrorCode.NotAllowed:
-				return new GenericError(data.code)
+				return new GenericError(response, data.code)
 
 			case ErrorCode.UserDisabled:
 			case ErrorCode.AuthTokenMissing:
@@ -89,10 +89,10 @@ export function errorFromResponse(response: Response, data: ErrorResponse): ApiE
 			case ErrorCode.PasswordlessTokenExpire:
 			case ErrorCode.PasswordlessInvalidToken:
 			case ErrorCode.SessionExpired:
-				return new AuthError(data.code)
+				return new AuthError(data.code, response)
 
 			default:
-				return new GenericError(response.statusText)
+				return new GenericError(response, response.statusText)
 		}
 	}
 
@@ -100,22 +100,26 @@ export type ApiError = AuthError | GenericError
 
 export class AuthError extends Error {
 	code: ErrorCode;
+	response: Response;
 
-	constructor(code: ErrorCode) {
+	constructor(code: ErrorCode, response: Response) {
 		super(code)
 		this.name = 'AuthError'
 		this.code = code
+		this.response = response
 	}
 }
 
 
 export class GenericError extends Error {
 	code: ErrorCode;
+	response: Response;
 
-	constructor(message?: string) {
+	constructor(response: Response, message?: string) {
 		super(message)
 		this.name = 'GenericError'
 		this.code = ErrorCode.GenericError
+		this.response = response
 	}
 }
 

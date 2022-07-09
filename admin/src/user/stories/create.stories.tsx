@@ -2,7 +2,6 @@ import React from 'react'
 import styled from 'styled-components'
 import { CreateUser } from 'user/create'
 import { NewUser } from 'data/user/types'
-import { Header, Wrapper, Content } from 'setup'
 import { Story, Meta } from '@storybook/react/types-6-0';
 import { action } from '@storybook/addon-actions';
 import { Drawer } from '@biotic-ui/drawer'

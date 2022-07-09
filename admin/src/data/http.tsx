@@ -1,9 +1,10 @@
-import React from 'react'
+import { ReactNode } from 'react'
 
 import { createContext, useContext, FC, useMemo } from 'react'
 import Axios from 'axios'
 import type { AxiosInstance } from 'axios'
-import { AuthClient, addToken } from '@vulpo-dev/auth-sdk'
+import { AuthClient } from '@vulpo-dev/auth-sdk'
+import { addToken } from '@vulpo-dev/auth-sdk/lib/interceptor'
 
 export let CancelToken = Axios.CancelToken
 
@@ -12,6 +13,7 @@ let HttpCtx = createContext<AxiosInstance>(Axios)
 type Props = {
 	project?: string | null;
 	auth: AuthClient | null;
+	children: ReactNode,
 }
 
 export let Http: FC<Props> = ({ auth, project, children }) => {
