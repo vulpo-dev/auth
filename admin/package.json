@@ -40,7 +40,7 @@
     "style-loader": "^2.0.0",
     "ts-loader": "^8.0.17",
     "type-fest": "^0.21.2",
-    "typescript": "^4.2.2",
+    "typescript": "^4.7.4",
     "webpack": "^5.24.2",
     "webpack-cli": "^4.5.0"
   },
@@ -55,7 +55,6 @@
     "@biotic-ui/select": "^0.3.16",
     "@biotic-ui/std": "^0.3.7",
     "@biotic-ui/text": "^0.3.4",
-    "@reduxjs/toolkit": "^1.8.3",
     "@storybook/addon-actions": "^6.3.8",
     "@storybook/builder-webpack5": "^6.3.8",
     "@storybook/manager-webpack5": "^6.3.8",
@@ -73,13 +72,14 @@
     "phosphor-react": "^1.1.2",
     "postcss-safe-parser": "^5.0.2",
     "react": "18.1.0",
-    "react-dom": "18.1.0",
     "react-content-loader": "^6.0.1",
+    "react-dom": "18.1.0",
     "react-router-dom": "^6.3.0",
     "rxjs": "^6.6.3",
     "scheduler": "^0.20.1",
     "styled-components": "^5.2.1",
     "terser-webpack-plugin": "^5.1.1",
+    "typescript": "4.7.4",
     "webpack-dev-server": "^3.11.2"
   },
   "gitHead": "4499aab95a130575a36a26a4bef7fab19d5efb27"
