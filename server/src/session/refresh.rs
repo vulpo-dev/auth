@@ -12,13 +12,12 @@ use rocket::serde::json::Json;
 use rocket::serde::uuid::Uuid;
 use rocket::State;
 
-#[post("/refresh/<session_id>", format = "json", data = "<rat>")]
-pub async fn handler(
-    pool: Db,
-    project: Project,
+pub async fn refresh(
+    pool: &Db,
+    project_id: Uuid,
     session_id: Uuid,
-    rat: Json<RefreshAccessToken>,
-    secrets: &State<Secrets>,
+    rat: RefreshAccessToken,
+    passphrase: &str,
 ) -> Result<SessionResponse, ApiError> {
     let session = Session::get(&pool, &session_id).await?;
 
@@ -27,7 +26,7 @@ pub async fn handler(
     }
 
     let claims = Session::validate_token(&session, &rat)?;
-    let is_valid = Session::is_valid(&pool, &claims, &session_id, &project.id).await?;
+    let is_valid = Session::is_valid(&pool, &claims, &session_id, &project_id).await?;
 
     if !is_valid {
         return Err(ApiError::Forbidden);
@@ -36,20 +35,20 @@ pub async fn handler(
     let expire_at = Utc::now() + Duration::days(30);
     Session::extend(&pool, &session.id, &expire_at).await?;
 
-    let private_key = ProjectKeys::get_private_key(&pool, &project.id, &secrets.passphrase).await?;
+    let private_key = ProjectKeys::get_private_key(&pool, &project_id, &passphrase).await?;
 
     let user_id = match session.user_id {
         None => return Err(ApiError::Forbidden),
         Some(id) => id,
     };
 
-    let user = User::get_by_id(&pool, &user_id, &project.id)
+    let user = User::get_by_id(&pool, &user_id, &project_id)
         .await?
         .ok_or_else(|| ApiError::NotFound)?;
 
     let exp = Utc::now() + Duration::minutes(15);
     let access_token = AccessToken::new(&user.id, &user.traits, exp)
-        .to_jwt_rsa(&project.id, &private_key)
+        .to_jwt_rsa(&project_id, &private_key)
         .map_err(|_| ApiError::InternalServerError)?;
 
     Ok(SessionResponse {
@@ -59,4 +58,23 @@ pub async fn handler(
         session: session.id,
         expire_at: session.expire_at,
     })
+}
+
+#[post("/refresh/<session_id>", format = "json", data = "<rat>")]
+pub async fn handler(
+    pool: Db,
+    project: Project,
+    session_id: Uuid,
+    rat: Json<RefreshAccessToken>,
+    secrets: &State<Secrets>,
+) -> Result<SessionResponse, ApiError> {
+    let session = refresh(
+        &pool,
+        project.id,
+        session_id,
+        rat.into_inner(),
+        &secrets.passphrase,
+    )
+    .await?;
+    Ok(session)
 }

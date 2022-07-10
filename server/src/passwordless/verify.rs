@@ -22,12 +22,11 @@ pub struct Veriy {
     pub device_languages: Vec<String>,
 }
 
-#[post("/verify", format = "json", data = "<body>")]
-pub async fn handler(
-    pool: Db,
-    body: Json<Veriy>,
-    secrets: &State<Secrets>,
-    project: Project,
+pub async fn verify(
+    pool: &Db,
+    body: Veriy,
+    project_id: Uuid,
+    passphrase: &str,
 ) -> Result<SessionResponse, ApiError> {
     let token = Passwordless::get(&pool, &body.id)
         .await?
@@ -51,9 +50,7 @@ pub async fn handler(
     let current_session = Session::get(&pool, &body.session).await?;
 
     let device_languages = body.device_languages.clone();
-    let rat = RefreshAccessToken {
-        value: body.into_inner().token,
-    };
+    let rat = RefreshAccessToken { value: body.token };
 
     let claims = Session::validate_token(&current_session, &rat)?;
     let is_valid =
@@ -76,12 +73,11 @@ pub async fn handler(
     let expire_at = Utc::now() + Duration::days(30);
     let session = Session::confirm(&pool, &current_session.id, &user.id, &expire_at).await?;
 
-    let private_key =
-        ProjectKeys::get_private_key(&pool, &token.project_id, &secrets.passphrase).await?;
+    let private_key = ProjectKeys::get_private_key(&pool, &token.project_id, &passphrase).await?;
 
     let exp = Utc::now() + Duration::minutes(15);
     let access_token = AccessToken::new(&user.id, &user.traits, exp)
-        .to_jwt_rsa(&project.id, &private_key)
+        .to_jwt_rsa(&project_id, &private_key)
         .map_err(|_| ApiError::InternalServerError)?;
 
     Ok(SessionResponse {
@@ -91,4 +87,14 @@ pub async fn handler(
         session: session.id,
         expire_at: session.expire_at,
     })
+}
+
+#[post("/verify", format = "json", data = "<body>")]
+pub async fn handler(
+    pool: Db,
+    body: Json<Veriy>,
+    secrets: &State<Secrets>,
+    project: Project,
+) -> Result<SessionResponse, ApiError> {
+    verify(&pool, body.into_inner(), project.id, &secrets.passphrase).await
 }

@@ -15,10 +15,15 @@ pub struct Project {
     pub id: Option<Uuid>,
 }
 
+pub async fn get_admin(pool: &Db) -> Result<Project, ApiError> {
+    let id = Admin::get_project(&pool).await?;
+    Ok(Project { id })
+}
+
 #[get("/__/project/has")]
 pub async fn has(pool: Db) -> Result<Json<Project>, ApiError> {
-    let id = Admin::get_project(&pool).await?;
-    Ok(Json(Project { id }))
+    let project = get_admin(&pool).await?;
+    Ok(Json(project))
 }
 
 #[derive(Deserialize)]
@@ -26,12 +31,11 @@ pub struct CreateAdminProject {
     pub host: String,
 }
 
-#[post("/__/project/create_admin", format = "json", data = "<body>")]
-pub async fn create_admin(
-    pool: Db,
-    secrets: &State<Secrets>,
-    body: Json<CreateAdminProject>,
-) -> Result<Json<Project>, ApiError> {
+pub async fn create_admin_project(
+    pool: &Db,
+    data: CreateAdminProject,
+    passphrase: &str,
+) -> Result<Project, ApiError> {
     let project = Admin::get_project(&pool).await?;
 
     if project.is_some() {
@@ -40,17 +44,40 @@ pub async fn create_admin(
 
     let project = NewProject {
         name: "Admin".to_string(),
-        domain: body.host.to_owned(),
+        domain: data.host.to_owned(),
     };
 
-    let keys = ProjectKeys::create_keys(true, None, &secrets.passphrase);
+    let keys = ProjectKeys::create_keys(true, None, passphrase);
 
     // todo: transaction
     let id = Admin::create_project(&pool, &project, &keys).await?;
     Admin::set_admin(&pool, &id).await?;
     Template::insert_defaults(&pool, &id).await?;
 
-    Ok(Json(Project { id: Some(id) }))
+    Ok(Project { id: Some(id) })
+}
+
+#[post("/__/project/create_admin", format = "json", data = "<body>")]
+pub async fn create_admin(
+    pool: Db,
+    secrets: &State<Secrets>,
+    body: Json<CreateAdminProject>,
+) -> Result<Json<Project>, ApiError> {
+    let project = create_admin_project(&pool, body.into_inner(), &secrets.passphrase).await?;
+    Ok(Json(project))
+}
+
+pub async fn create_project(
+    pool: &Db,
+    project: NewProject,
+    passphrase: &str,
+) -> Result<Uuid, ApiError> {
+    let keys = ProjectKeys::create_keys(true, None, passphrase);
+
+    // todo: transaction
+    let id = Admin::create_project(&pool, &project, &keys).await?;
+    Template::insert_defaults(&pool, &id).await?;
+    Ok(id)
 }
 
 #[post("/__/project/create", format = "json", data = "<body>")]
@@ -60,11 +87,7 @@ pub async fn create(
     secrets: &State<Secrets>,
     _admin: Admin,
 ) -> Result<Json<[Uuid; 1]>, ApiError> {
-    let keys = ProjectKeys::create_keys(true, None, &secrets.passphrase);
-
-    // todo: transaction
-    let id = Admin::create_project(&pool, &body.into_inner(), &keys).await?;
-    Template::insert_defaults(&pool, &id).await?;
+    let id = create_project(&pool, body.into_inner(), &secrets.passphrase).await?;
     Ok(Json([id]))
 }
 

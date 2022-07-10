@@ -5,9 +5,5 @@ mod email;
 mod project;
 
 pub fn routes() -> Vec<Route> {
-    routes![
-        email::get_handler,
-        email::create_handler,
-        project::set_settings
-    ]
+    routes![email::get_handler, email::create_handler, project::handler]
 }

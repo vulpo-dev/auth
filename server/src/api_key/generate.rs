@@ -9,6 +9,7 @@ use base64;
 use chrono::{DateTime, Utc};
 use rocket::serde::json::Json;
 use serde::{Deserialize, Serialize};
+use uuid::Uuid;
 
 #[derive(Deserialize)]
 pub struct Payload {
@@ -21,16 +22,13 @@ pub struct ApiKeyResponse {
     pub api_key: String,
 }
 
-#[post("/generate", format = "json", data = "<body>")]
-pub async fn generate(
-    pool: Db,
-    access_token: AccessToken,
-    body: Json<Payload>,
-) -> Result<Json<ApiKeyResponse>, ApiError> {
+pub async fn generate_api_key(
+    pool: &Db,
+    user_id: &Uuid,
+    config: Payload,
+) -> Result<String, ApiError> {
     let token = Token::create();
     let hashed_token = Token::hash(&token)?;
-
-    let user_id = access_token.sub();
 
     let project_id = User::project(&pool, &user_id)
         .await?
@@ -40,13 +38,24 @@ pub async fn generate(
         &pool,
         &hashed_token,
         &user_id,
-        &body.expire_at,
-        &body.name,
+        &config.expire_at,
+        &config.name,
         &project_id,
     )
     .await?;
 
     let token = format!("{}:{}", id, token);
     let api_key = base64::encode(token);
+    Ok(api_key)
+}
+
+#[post("/generate", format = "json", data = "<body>")]
+pub async fn generate(
+    pool: Db,
+    access_token: AccessToken,
+    body: Json<Payload>,
+) -> Result<Json<ApiKeyResponse>, ApiError> {
+    let user_id = access_token.sub();
+    let api_key = generate_api_key(&pool, &user_id, body.into_inner()).await?;
     Ok(Json(ApiKeyResponse { api_key }))
 }

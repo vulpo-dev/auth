@@ -1,4 +1,4 @@
-use crate::api_key::data::ApiKey;
+use crate::api_key::verify::verify_api_key;
 use crate::db::Db;
 use crate::keys::data::{NewProjectKeys, ProjectKeys};
 use crate::project::Project;
@@ -64,13 +64,11 @@ impl Admin {
         Ok(row.id)
     }
 
-    pub async fn has_admin(pool: &PgPool) -> Result<bool, ApiError> {
-        let row = sqlx::query_file!("src/admin/sql/has_admin.sql")
+    pub async fn has_admin(pool: &PgPool) -> sqlx::Result<Option<bool>> {
+        sqlx::query_file!("src/admin/sql/has_admin.sql")
             .fetch_one(pool)
             .await
-            .map_err(|_| ApiError::InternalServerError)?;
-
-        row.has_admin.ok_or(ApiError::InternalServerError)
+            .map(|row| row.has_admin)
     }
 
     pub async fn create_project(
@@ -190,7 +188,7 @@ impl<'r> FromRequest<'r> for Admin {
                 }
             }
 
-            "apikey" => match ApiKey::get_claims(&db, &token).await {
+            "apikey" => match verify_api_key(&db, &token).await {
                 Ok(claim) => claim,
                 Err(err) => match err {
                     ApiError::BadRequest

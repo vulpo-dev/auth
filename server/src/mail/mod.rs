@@ -11,6 +11,10 @@ use lettre::{
     AsyncSmtpTransport, AsyncTransport, Message, Tokio1Executor,
 };
 
+trait EmailService {
+    fn send(settings: EmailSettings) -> Result<(), ApiError>;
+}
+
 #[derive(Debug)]
 pub struct Email {
     pub content: String,
@@ -32,8 +36,7 @@ impl Email {
                         .header(header::ContentType::TEXT_HTML)
                         .body(String::from(self.content)),
                 ),
-            )
-            .unwrap();
+            )?;
 
         let creds = Credentials::new(settings.username, settings.password);
 
@@ -43,7 +46,8 @@ impl Email {
             let host = env::var("VULPO_MAIL_LOCALHOST").unwrap_or("localhost".to_string());
             AsyncSmtpTransport::<Tokio1Executor>::builder_dangerous(&host)
         } else {
-            AsyncSmtpTransport::<Tokio1Executor>::starttls_relay(&settings.host).unwrap()
+            AsyncSmtpTransport::<Tokio1Executor>::starttls_relay(&settings.host)
+                .map_err(|_| ApiError::InternalServerError)?
         };
 
         let mailer: AsyncSmtpTransport<Tokio1Executor> =

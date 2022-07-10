@@ -10,6 +10,26 @@ use rocket::http::Status;
 use rocket::serde::json::Json;
 use rocket::serde::uuid::Uuid;
 
+pub async fn update_user(
+    pool: &Db,
+    user_id: Uuid,
+    body: UpdateUser,
+    project_id: Uuid,
+) -> Result<(), ApiError> {
+    let user = User::update(&pool, &user_id, &body).await?;
+
+    if user.email_verified == false {
+        let options = SendEmailVerification {
+            user_id,
+            project_id,
+        };
+
+        send_email_verification(&pool, options).await?;
+    }
+
+    Ok(())
+}
+
 #[post("/update", format = "json", data = "<body>")]
 pub async fn handler(
     pool: Db,
@@ -18,17 +38,7 @@ pub async fn handler(
     project: Project,
 ) -> Result<Status, ApiError> {
     let user_id = token.sub();
-    let user = User::update(&pool, &user_id, &body).await?;
-
-    if user.email_verified == false {
-        let options = SendEmailVerification {
-            user_id,
-            project_id: project.id,
-        };
-
-        send_email_verification(&pool, options).await?;
-    }
-
+    update_user(&pool, user_id, body.into_inner(), project.id).await?;
     Ok(Status::Ok)
 }
 
@@ -44,16 +54,6 @@ pub async fn admin_handler(
     body: Json<UpdateUser>,
     _admin: Admin,
 ) -> Result<Status, ApiError> {
-    let user = User::update(&pool, &user_id, &body).await?;
-
-    if user.email_verified == false {
-        let options = SendEmailVerification {
-            user_id,
-            project_id,
-        };
-
-        send_email_verification(&pool, options).await?;
-    }
-
+    update_user(&pool, user_id, body.into_inner(), project_id).await?;
     Ok(Status::Ok)
 }

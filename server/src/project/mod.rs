@@ -38,5 +38,5 @@ impl<'r> FromRequest<'r> for Project {
 }
 
 pub fn routes() -> Vec<Route> {
-    routes![flags::handler, set_flags::handler, delete::delete_project]
+    routes![flags::handler, set_flags::handler, delete::handler]
 }

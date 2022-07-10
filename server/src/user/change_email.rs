@@ -23,15 +23,13 @@ pub struct EmailChangeRequestPayload {
     pub new_email: String,
 }
 
-#[post("/email/update", format = "json", data = "<body>")]
 pub async fn create_email_change_request(
-    pool: Db,
-    body: Json<EmailChangeRequestPayload>,
-    access_token: AccessToken,
-    project: Project,
-) -> Result<Status, ApiError> {
-    let user_id = access_token.sub();
-    let user = User::get_by_id(&pool, &user_id, &project.id)
+    pool: &Db,
+    new_email: &str,
+    user_id: Uuid,
+    project_id: Uuid,
+) -> Result<(), ApiError> {
+    let user = User::get_by_id(&pool, &user_id, &project_id)
         .await?
         .ok_or(ApiError::NotFound)?;
 
@@ -43,17 +41,17 @@ pub async fn create_email_change_request(
 
     let change_request = NewChangeRequest {
         user_id,
-        new_email: body.new_email.clone(),
+        new_email: new_email.clone().to_string(),
         old_email: user.email.clone(),
         token: hashed_token,
         reset_token: hashed_reset_token,
     };
 
-    let request_id = EmailChangeRequest::create(&pool, &change_request, &project.id).await?;
+    let request_id = EmailChangeRequest::create(&pool, &change_request, &project_id).await?;
 
     let (settings, reset_settings) = join(
-        ProjectEmail::from_project_template(&pool, &project.id, Templates::ConfirmEmailChange),
-        ProjectEmail::from_project_template(&pool, &project.id, Templates::ChangeEmail),
+        ProjectEmail::from_project_template(&pool, &project_id, Templates::ConfirmEmailChange),
+        ProjectEmail::from_project_template(&pool, &project_id, Templates::ChangeEmail),
     )
     .await;
 
@@ -71,7 +69,7 @@ pub async fn create_email_change_request(
         "user": Some(user.clone()),
         "expire_in": 15,
         "old_email": user.email.clone(),
-        "new_email": body.new_email.clone(),
+        "new_email": new_email.clone(),
     });
 
     let reset_link: String = format!(
@@ -85,22 +83,22 @@ pub async fn create_email_change_request(
         "user": Some(user.clone()),
         "expire_in": 15,
         "old_email": user.email.clone(),
-        "new_email": body.new_email.clone(),
+        "new_email": new_email.clone(),
     });
 
     let (confirm_email, reset_email) = join(
         Template::create_email(
             &pool,
-            &project.id,
+            &project_id,
             &user.device_languages,
-            &body.new_email,
+            &new_email,
             &confirm_ctx,
             &confirm_settings,
             Templates::ConfirmEmailChange,
         ),
         Template::create_email(
             &pool,
-            &project.id,
+            &project_id,
             &user.device_languages,
             &user.email,
             &reset_ctx,
@@ -117,6 +115,18 @@ pub async fn create_email_change_request(
     reset_email.send(reset_settings.email).await?;
     confirm_email.send(confirm_settings.email).await?;
 
+    Ok(())
+}
+
+#[post("/email/update", format = "json", data = "<body>")]
+pub async fn create_email_change_request_handler(
+    pool: Db,
+    body: Json<EmailChangeRequestPayload>,
+    access_token: AccessToken,
+    project: Project,
+) -> Result<Status, ApiError> {
+    let user_id = access_token.sub();
+    create_email_change_request(&pool, &body.new_email, user_id, project.id).await?;
     Ok(Status::Ok)
 }
 
@@ -126,12 +136,10 @@ pub struct EmailChangeTokenPayload {
     pub token: String,
 }
 
-#[post("/email/update/confirm", format = "json", data = "<body>")]
 pub async fn confirm_email_change(
-    pool: Db,
-    _access_token: AccessToken,
-    body: Json<EmailChangeTokenPayload>,
-) -> Result<Status, ApiError> {
+    pool: &Db,
+    body: EmailChangeTokenPayload,
+) -> Result<(), ApiError> {
     let token = EmailChangeRequest::get_confirm_token(&pool, &body.id).await?;
 
     match token.state {
@@ -153,15 +161,20 @@ pub async fn confirm_email_change(
 
     EmailChangeRequest::set_email(&pool, &body.id).await?;
 
-    Ok(Status::Ok)
+    Ok(())
 }
 
-#[post("/email/update/reset", format = "json", data = "<body>")]
-pub async fn reset_email_change(
+#[post("/email/update/confirm", format = "json", data = "<body>")]
+pub async fn confirm_email_change_handler(
     pool: Db,
     _access_token: AccessToken,
     body: Json<EmailChangeTokenPayload>,
 ) -> Result<Status, ApiError> {
+    confirm_email_change(&pool, body.into_inner()).await?;
+    Ok(Status::Ok)
+}
+
+pub async fn reset_email_change(pool: &Db, body: EmailChangeTokenPayload) -> Result<(), ApiError> {
     let token = EmailChangeRequest::get_reset_token(&pool, &body.id).await?;
 
     match token.state {
@@ -177,5 +190,15 @@ pub async fn reset_email_change(
 
     EmailChangeRequest::reset_email(&pool, &body.id).await?;
 
+    Ok(())
+}
+
+#[post("/email/update/reset", format = "json", data = "<body>")]
+pub async fn reset_email_change_handler(
+    pool: Db,
+    _access_token: AccessToken,
+    body: Json<EmailChangeTokenPayload>,
+) -> Result<Status, ApiError> {
+    reset_email_change(&pool, body.into_inner()).await?;
     Ok(Status::Ok)
 }

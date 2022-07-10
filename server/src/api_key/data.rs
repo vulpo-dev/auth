@@ -1,4 +1,3 @@
-use crate::crypto::Token;
 use crate::response::error::ApiError;
 
 use base64;
@@ -47,29 +46,10 @@ impl ApiKey {
             .await
     }
 
-    pub async fn get_claims(pool: &PgPool, token: &str) -> Result<Claims, ApiError> {
-        let (id, raw_token) = ApiKey::parse_token(token)?;
-
-        let api_key = ApiKey::get_token(&pool, &id)
-            .await?
-            .ok_or_else(|| ApiError::TokenNotFound)?;
-
-        if let Some(expire_at) = api_key.expire_at {
-            if Utc::now() > expire_at {
-                return Err(ApiError::TokenExpired);
-            }
-        }
-
-        let is_valid = Token::verify(&raw_token, &api_key.token)?;
-
-        if !is_valid {
-            return Err(ApiError::TokenInvalid);
-        }
-
+    pub async fn get_claims(pool: &PgPool, id: &Uuid) -> sqlx::Result<Claims> {
         sqlx::query_file_as!(Claims, "src/api_key/sql/get_claims.sql", id)
             .fetch_one(pool)
             .await
-            .map_err(|_| ApiError::InternalServerError)
     }
 
     pub fn parse_token(token: &str) -> Result<(Uuid, String), ApiError> {

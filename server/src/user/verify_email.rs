@@ -20,8 +20,7 @@ pub struct Verify {
     pub token: String,
 }
 
-#[post("/verify_email", format = "json", data = "<body>")]
-pub async fn handler(pool: Db, body: Json<Verify>, _project: Project) -> Result<Status, ApiError> {
+pub async fn verify_email(pool: &Db, body: Verify) -> Result<(), ApiError> {
     let verify = VerifyEmail::get(&pool, &body.id)
         .await?
         .ok_or_else(|| ApiError::TokenNotFound)?;
@@ -38,6 +37,12 @@ pub async fn handler(pool: Db, body: Json<Verify>, _project: Project) -> Result<
 
     VerifyEmail::verify(&pool, &verify.user_id).await?;
 
+    Ok(())
+}
+
+#[post("/verify_email", format = "json", data = "<body>")]
+pub async fn handler(pool: Db, body: Json<Verify>, _project: Project) -> Result<Status, ApiError> {
+    verify_email(&pool, body.into_inner()).await?;
     Ok(Status::Ok)
 }
 

@@ -51,7 +51,7 @@ features = [
 
 [dependencies.lettre]
 git = "https://github.com/lettre/lettre"
-version = "0.10.0-rc.3"
+version = "0.10.0"
 features = ["tokio1", "tokio1-rustls-tls", "tokio1-native-tls"]
 
 [dependencies.rocket]

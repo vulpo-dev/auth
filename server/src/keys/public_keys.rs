@@ -11,10 +11,14 @@ pub struct PublicKeys {
     pub keys: Vec<PublicKey>,
 }
 
-#[get("/")]
-pub async fn handler(pool: Db) -> Result<Json<PublicKeys>, ApiError> {
+pub async fn get_public_keys(pool: &Db) -> Result<PublicKeys, ApiError> {
     let expire_at = Utc::now() + Duration::hours(6);
     let keys = PublicKey::get_all(&pool).await?;
+    Ok(PublicKeys { keys, expire_at })
+}
 
-    Ok(Json(PublicKeys { keys, expire_at }))
+#[get("/")]
+pub async fn handler(pool: Db) -> Result<Json<PublicKeys>, ApiError> {
+    let keys = get_public_keys(&pool).await?;
+    Ok(Json(keys))
 }

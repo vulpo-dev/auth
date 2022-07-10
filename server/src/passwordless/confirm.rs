@@ -14,25 +14,29 @@ pub struct ConfirmPasswordless {
     pub token: String,
 }
 
-#[post("/confirm", format = "json", data = "<body>")]
-pub async fn handler(pool: Db, body: Json<ConfirmPasswordless>) -> Result<Status, ApiError> {
-    let token = Passwordless::get(&pool, &body.id)
+pub async fn confirm(pool: &Db, id: &Uuid, token: &str) -> Result<(), ApiError> {
+    let stored_token = Passwordless::get(&pool, id)
         .await?
         .ok_or_else(|| ApiError::NotFound)?;
 
-    if token.is_valid == false {
+    if stored_token.is_valid == false {
         return Err(ApiError::PasswordlessInvalidToken);
     }
 
-    if token.compare(&body.token) == false {
+    if stored_token.compare(token) == false {
         return Err(ApiError::PasswordlessInvalidToken);
     }
 
-    if Utc::now() > token.expire_at {
+    if Utc::now() > stored_token.expire_at {
         return Err(ApiError::PasswordlessTokenExpire);
     }
 
-    Passwordless::confirm(&pool, &token.id).await?;
+    Passwordless::confirm(&pool, &stored_token.id).await?;
+    Ok(())
+}
 
+#[post("/confirm", format = "json", data = "<body>")]
+pub async fn handler(pool: Db, body: Json<ConfirmPasswordless>) -> Result<Status, ApiError> {
+    confirm(&pool, &body.id, &body.token).await?;
     Ok(Status::Ok)
 }

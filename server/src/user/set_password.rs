@@ -12,21 +12,20 @@ use crate::user::data::{User, UserState};
 use rocket::http::Status;
 use rocket::serde::json::Json;
 use serde::Deserialize;
+use uuid::Uuid;
 
 #[derive(Deserialize)]
 pub struct Payload {
     pub password: String,
 }
 
-#[post("/set_password", format = "json", data = "<body>")]
 pub async fn set_password(
-    pool: Db,
-    project: Project,
-    token: AccessToken,
-    body: Json<Payload>,
-) -> Result<Status, ApiError> {
-    let user_id = token.sub();
-    let user = User::get_by_id(&pool, &user_id, &project.id)
+    pool: &Db,
+    user_id: Uuid,
+    project_id: Uuid,
+    body: Payload,
+) -> Result<(), ApiError> {
+    let user = User::get_by_id(&pool, &user_id, &project_id)
         .await?
         .ok_or_else(|| ApiError::NotFound)?;
 
@@ -36,16 +35,16 @@ pub async fn set_password(
 
     password::validate_password_length(&body.password)?;
 
-    let alg = ProjectData::password_alg(&pool, &project.id).await?;
-    Password::set_password(&pool, &user_id, &body.password, &alg, &project.id).await?;
+    let alg = ProjectData::password_alg(&pool, &project_id).await?;
+    Password::set_password(&pool, &user_id, &body.password, &alg, &project_id).await?;
 
     let settings =
-        ProjectEmail::from_project_template(&pool, &project.id, Templates::PasswordReset).await;
+        ProjectEmail::from_project_template(&pool, &project_id, Templates::PasswordReset).await;
 
     if let Err(err) = settings {
-        let is_admin = ProjectData::is_admin(&pool, &project.id).await?;
+        let is_admin = ProjectData::is_admin(&pool, &project_id).await?;
         if is_admin {
-            return Ok(Status::Ok);
+            return Ok(());
         } else {
             return Err(ApiError::from(err));
         }
@@ -70,7 +69,7 @@ pub async fn set_password(
 
     let email = Template::create_email(
         &pool,
-        &project.id,
+        &project_id,
         &device_languages,
         &user_email,
         &ctx,
@@ -81,5 +80,17 @@ pub async fn set_password(
 
     email.send(settings.email).await?;
 
+    Ok(())
+}
+
+#[post("/set_password", format = "json", data = "<body>")]
+pub async fn handler(
+    pool: Db,
+    project: Project,
+    token: AccessToken,
+    body: Json<Payload>,
+) -> Result<Status, ApiError> {
+    let user_id = token.sub();
+    set_password(&pool, user_id, project.id, body.into_inner()).await?;
     Ok(Status::Ok)
 }

@@ -42,15 +42,12 @@ pub struct GetAuthUrlResponse {
     pub url: String,
 }
 
-#[post("/google/authorize_url", format = "json", data = "<body>")]
-pub async fn get_auth_url(
-    db: Db,
-    body: Json<GetAuthUrlPayload>,
-    project: Project,
-) -> Result<Json<GetAuthUrlResponse>, ApiError> {
-    Flags::has_flags(&db, &project.id, &[Flags::EmailAndPassword]).await?;
-
-    let client = get_client(&db, &project.id).await?;
+pub async fn get_authorize_url(
+    pool: &Db,
+    request_id: Uuid,
+    project_id: &Uuid,
+) -> Result<String, ApiError> {
+    let client = get_client(&pool, &project_id).await?;
 
     let (pkce_code_challenge, pkce_code_verifier) = PkceCodeChallenge::new_random_sha256();
     let (authorize_url, csrf_state) = client
@@ -62,18 +59,26 @@ pub async fn get_auth_url(
         .url();
 
     OAuthRequestState::insert(
-        &db,
-        body.request_id,
+        &pool,
+        request_id,
         Some(csrf_state.secret()),
         Some(pkce_code_verifier.secret()),
-        &project.id,
+        &project_id,
     )
     .await?;
 
-    let response = Json(GetAuthUrlResponse {
-        url: authorize_url.to_string(),
-    });
+    Ok(authorize_url.to_string())
+}
 
+#[post("/google/authorize_url", format = "json", data = "<body>")]
+pub async fn get_auth_url(
+    db: Db,
+    body: Json<GetAuthUrlPayload>,
+    project: Project,
+) -> Result<Json<GetAuthUrlResponse>, ApiError> {
+    Flags::has_flags(&db, &project.id, &[Flags::OAuthGoogle]).await?;
+    let url = get_authorize_url(&db, body.request_id, &project.id).await?;
+    let response = Json(GetAuthUrlResponse { url });
     Ok(response)
 }
 
@@ -88,23 +93,22 @@ pub struct GoogleConfirmPayload {
     pub device_languages: Vec<String>,
 }
 
-#[post("/google/confirm", format = "json", data = "<body>")]
-pub async fn exchange_code(
-    db: Db,
-    body: Json<GoogleConfirmPayload>,
-    project: Project,
-    secrets: &State<Secrets>,
+pub async fn google_confirm(
+    db: &Db,
+    payload: GoogleConfirmPayload,
+    project_id: Uuid,
+    passphrase: &str,
 ) -> Result<SessionResponse, ApiError> {
-    let request_state = OAuthRequestState::get(&db, &body.request_id).await?;
+    let request_state = OAuthRequestState::get(&db, &payload.request_id).await?;
 
-    let csrf_token = CsrfToken::new(body.csrf_token.clone());
+    let csrf_token = CsrfToken::new(payload.csrf_token.clone());
     if csrf_token.secret() != &request_state.csrf_token {
         return Err(ApiError::BadRequest);
     }
 
-    let client = get_client(&db, &project.id).await?;
+    let client = get_client(&db, &project_id).await?;
 
-    let code = AuthorizationCode::new(body.code.clone());
+    let code = AuthorizationCode::new(payload.code.clone());
 
     let pkce_code_verifier = request_state
         .pkce_code_verifier
@@ -138,17 +142,17 @@ pub async fn exchange_code(
         .map_err(|_| ApiError::InternalServerError)?;
 
     let google_id = get_google_id(&res)?;
-    let user_id = OAuthData::get_user_id(&db, &google_id, GOOGLE, &project.id).await?;
+    let user_id = OAuthData::get_user_id(&db, &google_id, GOOGLE, &project_id).await?;
 
     let user = match user_id {
-        Some(uid) => User::get_by_id(&db, &uid, &project.id)
+        Some(uid) => User::get_by_id(&db, &uid, &project_id)
             .await?
             .ok_or(ApiError::InternalServerError)?,
         None => {
-            Flags::has_flags(&db, &project.id, &[Flags::SignUp]).await?;
+            Flags::has_flags(&db, &project_id, &[Flags::SignUp]).await?;
 
-            let provider_user = get_user(res, body.device_languages.clone())?;
-            let user = User::create_provider(&db, &provider_user, &project.id).await?;
+            let provider_user = get_user(res, payload.device_languages.clone())?;
+            let user = User::create_provider(&db, &provider_user, &project_id).await?;
 
             OAuthData::upsert(
                 &db,
@@ -156,7 +160,7 @@ pub async fn exchange_code(
                 GOOGLE,
                 &provider_user.email,
                 &user.id,
-                &project.id,
+                &project_id,
             )
             .await?;
 
@@ -169,20 +173,20 @@ pub async fn exchange_code(
     }
 
     let session = Session {
-        id: body.session,
-        public_key: body.public_key.to_owned(),
+        id: payload.session,
+        public_key: payload.public_key.to_owned(),
         user_id: Some(user.id),
         expire_at: Utc::now() + Duration::days(30),
-        project_id: project.id,
+        project_id,
     };
 
     let session = Session::create(&db, session).await?;
 
-    let private_key = ProjectKeys::get_private_key(&db, &project.id, &secrets.passphrase).await?;
+    let private_key = ProjectKeys::get_private_key(&db, &project_id, passphrase).await?;
 
     let exp = Utc::now() + Duration::minutes(15);
     let access_token = AccessToken::new(&user.id, &user.traits, exp)
-        .to_jwt_rsa(&project.id, &private_key)
+        .to_jwt_rsa(&project_id, &private_key)
         .map_err(|_| ApiError::InternalServerError)?;
 
     Ok(SessionResponse {
@@ -194,6 +198,31 @@ pub async fn exchange_code(
     })
 }
 
+#[post("/google/confirm", format = "json", data = "<body>")]
+pub async fn exchange_code(
+    db: Db,
+    body: Json<GoogleConfirmPayload>,
+    project: Project,
+    secrets: &State<Secrets>,
+) -> Result<SessionResponse, ApiError> {
+    let session = google_confirm(&db, body.into_inner(), project.id, &secrets.passphrase).await?;
+    Ok(session)
+}
+
+pub async fn upsert_config(
+    pool: &Db,
+    config: GoogleConfig,
+    project_id: &Uuid,
+) -> Result<(), ApiError> {
+    if RedirectUrl::new(config.redirect_uri.clone()).is_err() {
+        return Err(ApiError::BadRequest);
+    }
+
+    GoogleConfig::upsert(&pool, &project_id, &config).await?;
+
+    Ok(())
+}
+
 #[post("/google/set_config?<project>", format = "json", data = "<config>")]
 pub async fn set_config(
     _admin: Admin,
@@ -201,13 +230,16 @@ pub async fn set_config(
     config: Json<GoogleConfig>,
     project: Uuid,
 ) -> Result<Status, ApiError> {
-    if RedirectUrl::new(config.redirect_uri.clone()).is_err() {
-        return Err(ApiError::BadRequest);
-    }
+    upsert_config(&db, config.into_inner(), &project).await?;
+    Ok(Status::Ok)
+}
 
-    GoogleConfig::upsert(&db, &project, &config)
-        .await
-        .map(|_| Status::Ok)
+pub async fn get_client_config(
+    db: &Db,
+    project_id: &Uuid,
+) -> Result<Option<GoogleConfig>, ApiError> {
+    let config = GoogleConfig::get(&db, &project_id).await?;
+    Ok(config)
 }
 
 #[get("/google/get_config?<project>")]
@@ -216,7 +248,7 @@ pub async fn get_config(
     db: Db,
     project: Uuid,
 ) -> Result<Json<Option<GoogleConfig>>, ApiError> {
-    let config = GoogleConfig::get(&db, &project).await?;
+    let config = get_client_config(&db, &project).await?;
     Ok(Json(config))
 }
 

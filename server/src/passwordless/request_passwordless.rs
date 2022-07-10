@@ -28,17 +28,14 @@ pub struct PasswordlessResponse {
     pub session: Uuid,
 }
 
-#[post("/", format = "json", data = "<body>")]
 pub async fn request_passwordless(
-    pool: Db,
-    project: Project,
-    body: Json<RequestPasswordless>,
-) -> Result<Json<PasswordlessResponse>, ApiError> {
-    Flags::has_flags(&pool, &project.id, &[Flags::AuthenticationLink]).await?;
+    pool: &Db,
+    request: RequestPasswordless,
+    project_id: Uuid,
+) -> Result<PasswordlessResponse, ApiError> {
+    let body_email = request.email.trim().to_lowercase();
 
-    let body_email = body.email.trim().to_lowercase();
-
-    let user = User::get_by_email(&pool, &body_email, &project.id).await?;
+    let user = User::get_by_email(&pool, &body_email, &project_id).await?;
 
     if user
         .clone()
@@ -50,11 +47,11 @@ pub async fn request_passwordless(
     let user_id = user.clone().map(|u| u.id);
 
     let session = Session {
-        id: body.session,
-        public_key: body.public_key.to_owned(),
+        id: request.session,
+        public_key: request.public_key.to_owned(),
         user_id,
         expire_at: Utc::now() + Duration::days(30),
-        project_id: project.id,
+        project_id,
     };
 
     let session = Session::create(&pool, session).await?;
@@ -67,13 +64,13 @@ pub async fn request_passwordless(
         user_id,
         &body_email,
         &hashed_token,
-        &project.id,
-        &body.session,
+        &project_id,
+        &request.session,
     )
     .await?;
 
     let settings =
-        ProjectEmail::from_project_template(&pool, &project.id, Templates::Passwordless).await?;
+        ProjectEmail::from_project_template(&pool, &project_id, Templates::Passwordless).await?;
 
     let link: String = format!(
         "{}{}?id={}&token={}",
@@ -89,8 +86,8 @@ pub async fn request_passwordless(
 
     let translations = Translations::get_by_languages(
         &pool,
-        &project.id,
-        &body.device_languages,
+        &project_id,
+        &request.device_languages,
         &Templates::Passwordless.to_string(),
     )
     .await?;
@@ -100,15 +97,26 @@ pub async fn request_passwordless(
     let content = Template::render(&pool, &settings.body, &ctx, &translations).await?;
 
     let email = Email {
-        to_email: body.email.to_owned(),
+        to_email: request.email.to_owned(),
         subject,
         content,
     };
 
     email.send(settings.email).await?;
 
-    Ok(Json(PasswordlessResponse {
+    Ok(PasswordlessResponse {
         id,
         session: session.id,
-    }))
+    })
+}
+
+#[post("/", format = "json", data = "<body>")]
+pub async fn handler(
+    pool: Db,
+    project: Project,
+    body: Json<RequestPasswordless>,
+) -> Result<Json<PasswordlessResponse>, ApiError> {
+    Flags::has_flags(&pool, &project.id, &[Flags::AuthenticationLink]).await?;
+    let response = request_passwordless(&pool, body.into_inner(), project.id).await?;
+    Ok(Json(response))
 }

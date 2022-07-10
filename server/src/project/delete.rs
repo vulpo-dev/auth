@@ -13,12 +13,13 @@ pub struct Payload {
     pub project: Uuid,
 }
 
+pub async fn delete(pool: &Db, project_id: &Uuid) -> Result<(), ApiError> {
+    Project::delete(&pool, project_id).await?;
+    Ok(())
+}
+
 #[post("/delete", data = "<body>")]
-pub async fn delete_project(
-    pool: Db,
-    body: Json<Payload>,
-    _admin: Admin,
-) -> Result<Status, ApiError> {
-    Project::delete(&pool, &body.project).await?;
+pub async fn handler(pool: Db, body: Json<Payload>, _admin: Admin) -> Result<Status, ApiError> {
+    delete(&pool, &body.project).await?;
     Ok(Status::Ok)
 }

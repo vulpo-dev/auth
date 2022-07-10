@@ -132,6 +132,12 @@ impl From<sqlx::Error> for ApiError {
     }
 }
 
+impl From<lettre::error::Error> for ApiError {
+    fn from(_error: lettre::error::Error) -> Self {
+        ApiError::InternalServerError
+    }
+}
+
 impl ApiError {
     fn get_status(&self) -> Status {
         match self {

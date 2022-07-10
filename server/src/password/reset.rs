@@ -22,31 +22,30 @@ pub struct RequestPasswordReset {
     pub email: String,
 }
 
-#[post("/request_password_reset", format = "json", data = "<body>")]
 pub async fn request_password_reset(
-    pool: Db,
-    body: Json<RequestPasswordReset>,
-    project: Project,
-) -> Result<Status, ApiError> {
-    let to_email = body.email.trim().to_lowercase();
-    let row = User::get_by_email(&pool, &to_email, &project.id).await;
+    pool: &Db,
+    email: &str,
+    project_id: &Uuid,
+) -> Result<(), ApiError> {
+    let to_email = email.trim().to_lowercase();
+    let row = User::get_by_email(&pool, &to_email, &project_id).await;
 
     let user = match row {
-        Err(_) => return Ok(Status::Ok),
+        Err(_) => return Ok(()),
         Ok(user) => user,
     };
 
     let user = match user {
-        None => return Ok(Status::Ok),
+        None => return Ok(()),
         Some(user) => user,
     };
 
     let reset_token = Token::create();
     let hashed_token = Token::hash(&reset_token)?;
-    let token_id = PasswordReset::insert(&pool, &user.id, &project.id, hashed_token).await?;
+    let token_id = PasswordReset::insert(&pool, &user.id, &project_id, hashed_token).await?;
 
     let settings =
-        ProjectEmail::from_project_template(&pool, &project.id, Templates::PasswordReset).await?;
+        ProjectEmail::from_project_template(&pool, &project_id, Templates::PasswordReset).await?;
 
     let link: String = format!(
         "{}{}?id={}&token={}",
@@ -76,6 +75,16 @@ pub async fn request_password_reset(
 
     email.send(settings.email).await?;
 
+    Ok(())
+}
+
+#[post("/request_password_reset", format = "json", data = "<body>")]
+pub async fn request_password_reset_handler(
+    pool: Db,
+    body: Json<RequestPasswordReset>,
+    project: Project,
+) -> Result<Status, ApiError> {
+    request_password_reset(&pool, &body.email, &project.id).await?;
     Ok(Status::Ok)
 }
 
@@ -87,12 +96,11 @@ pub struct ResetPassword {
     pub password2: String,
 }
 
-#[post("/password_reset", data = "<body>")]
 pub async fn password_reset(
-    pool: Db,
-    body: Json<ResetPassword>,
-    project: Project,
-) -> Result<Status, ApiError> {
+    pool: &Db,
+    body: ResetPassword,
+    project_id: &Uuid,
+) -> Result<(), ApiError> {
     if body.password1 != body.password2 {
         return Err(ApiError::ResetPasswordMismatch);
     }
@@ -114,8 +122,18 @@ pub async fn password_reset(
     // todo: move "remove password reset token" into "set_password" query
     PasswordReset::remove(&pool, &reset.user_id).await?;
     let alg = ProjectData::password_alg_by_user(&pool, &reset.user_id).await?;
-    Password::set_password(&pool, &reset.user_id, &body.password1, &alg, &project.id).await?;
+    Password::set_password(&pool, &reset.user_id, &body.password1, &alg, &project_id).await?;
 
+    Ok(())
+}
+
+#[post("/password_reset", data = "<body>")]
+pub async fn password_reset_handler(
+    pool: Db,
+    body: Json<ResetPassword>,
+    project: Project,
+) -> Result<Status, ApiError> {
+    password_reset(&pool, body.into_inner(), &project.id).await?;
     Ok(Status::Ok)
 }
 
@@ -125,16 +143,10 @@ pub struct VerifyToken {
     pub token: String,
 }
 
-#[post("/verify_reset_token", data = "<body>")]
-pub async fn verify_token(
-    pool: Db,
-    body: Json<VerifyToken>,
-    _project: Project,
-) -> Result<Status, ApiError> {
-    let id = body.id;
+pub async fn verify_token(pool: &Db, id: &Uuid, token: &str) -> Result<(), ApiError> {
     let reset = PasswordReset::get(&pool, &id).await?;
 
-    let is_valid = Token::verify(&body.token, &reset.token)?;
+    let is_valid = Token::verify(token, &reset.token)?;
 
     if is_valid == false {
         return Err(ApiError::ResetInvalidToken);
@@ -144,5 +156,15 @@ pub async fn verify_token(
         return Err(ApiError::ResetExpired);
     }
 
+    Ok(())
+}
+
+#[post("/verify_reset_token", data = "<body>")]
+pub async fn verify_token_handler(
+    pool: Db,
+    body: Json<VerifyToken>,
+    _project: Project,
+) -> Result<Status, ApiError> {
+    verify_token(&pool, &body.id, &body.token).await?;
     Ok(Status::Ok)
 }

@@ -4,6 +4,7 @@ mod template;
 mod translations;
 
 pub use config::{DefaultRedirect, DefaultSubject};
+use rocket::http::Status;
 
 use crate::admin::data::Admin;
 use crate::db::Db;
@@ -18,13 +19,11 @@ use rocket::Route;
 
 use self::template::SetTemplateView;
 
-#[get("/?<project_id>&<template>")]
-async fn get_template(
-    pool: Db,
+pub async fn get_template(
+    pool: &Db,
     project_id: Uuid,
-    template: String,
-    _admin: Admin,
-) -> Result<Json<TemplateResponse>, ApiError> {
+    template: &str,
+) -> Result<TemplateResponse, ApiError> {
     let template = match Templates::from_string(&template) {
         Some(template) => template,
         None => return Err(ApiError::BadRequest),
@@ -46,22 +45,26 @@ async fn get_template(
         Some(t) => t,
     };
 
+    Ok(result)
+}
+
+#[get("/?<project_id>&<template>")]
+async fn get_template_handler(
+    pool: Db,
+    project_id: Uuid,
+    template: String,
+    _admin: Admin,
+) -> Result<Json<TemplateResponse>, ApiError> {
+    let result = get_template(&pool, project_id, &template).await?;
     Ok(Json(result))
 }
 
-#[post("/", format = "json", data = "<body>")]
-async fn set_template(
-    pool: Db,
-    body: Json<SetTemplateView>,
-    _admin: Admin,
-) -> Result<(), ApiError> {
-    let body = body.into_inner();
-
+pub async fn set_template(pool: &Db, payload: SetTemplateView) -> Result<(), ApiError> {
     let template = SetTemplateView {
-        from_name: body.from_name.trim().to_string(),
-        subject: body.subject.trim().to_string(),
-        redirect_to: body.redirect_to.trim().to_string(),
-        ..body
+        from_name: payload.from_name.trim().to_string(),
+        subject: payload.subject.trim().to_string(),
+        redirect_to: payload.redirect_to.trim().to_string(),
+        ..payload
     };
 
     Template::set_template(&pool, &template).await?;
@@ -69,12 +72,23 @@ async fn set_template(
     Ok(())
 }
 
+#[post("/", format = "json", data = "<body>")]
+async fn set_template_handler(
+    pool: Db,
+    body: Json<SetTemplateView>,
+    _admin: Admin,
+) -> Result<Status, ApiError> {
+    let body = body.into_inner();
+    set_template(&pool, body).await?;
+    Ok(Status::Ok)
+}
+
 pub fn routes() -> Vec<Route> {
     routes![
-        get_template,
-        set_template,
-        translations::get_translations,
-        translations::set_translation,
-        translations::delete_translation,
+        get_template_handler,
+        set_template_handler,
+        translations::get_translations_handler,
+        translations::set_translation_handler,
+        translations::delete_translation_handler,
     ]
 }

@@ -8,12 +8,11 @@ use rocket::Route;
 
 pub fn routes() -> Vec<Route> {
     routes![
-        signup::sign_up,
-        signin::sign_in,
-        // signin::cors,
-        reset::request_password_reset,
-        reset::password_reset,
-        reset::verify_token,
+        signup::sign_up_handler,
+        signin::sign_in_handler,
+        reset::request_password_reset_handler,
+        reset::password_reset_handler,
+        reset::verify_token_handler,
     ]
 }
 
