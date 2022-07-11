@@ -13,7 +13,7 @@ let Banner = (props: Props) => {
 			<style jsx>{`
 
 				.marquee {
-					--marquee-width: 100vw;
+					--marquee-width: 100%;
 					--offset: 20vw;
 					--move-initial: calc(-25% + var(--offset));
 					--move-final: calc(-50% + var(--offset));

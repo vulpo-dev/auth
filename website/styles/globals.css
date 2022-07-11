@@ -175,3 +175,30 @@ pre[class*="language-"] {
 .survey:hover {
   box-shadow: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22);
 }
+
+* {
+    --default-thumb-color: #909090;
+    --default-track-color: #e9e8f3;
+
+    scrollbar-color: var(--scrollbar-thumb, var(--default-thumb-color)) var(--scrollbar-track, var(--default-track-color));
+    scrollbar-width: thin; 
+}
+
+*::-webkit-scrollbar-track {
+  background-color: var(--scrollbar-track, var(--default-track-color));
+}
+
+*::-webkit-scrollbar {
+  width: 0.5rem;
+  height: 0.5rem;
+  background-color: var(--scrollbar-track, var(--default-track-color));
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: var(--scrollbar-thumb, var(--default-thumb-color));
+  border-radius: 0;
+}
+
+*::-webkit-scrollbar-corner {
+  background-color: var(--scrollbar-thumb, var(--default-thumb-color));
+}
