@@ -8,12 +8,12 @@
     return
   }
 
-  let plausible = document.createElement('script')
-  plausible.setAttribute('src', '/_/p/js/script.js')
-  plausible.setAttribute('data-api', '/_/p/api/event')
-  plausible.setAttribute('data-domain', 'auth.vulpo.dev')
-  plausible.setAttribute('defer', '')
-  plausible.setAttribute('type', 'text/javascript')
+  let pirsch = document.createElement('script')
+  pirsch.setAttribute('src', 'https://api.pirsch.io/pirsch.js')
+  pirsch.setAttribute('data-code', 'Sm6vcDWFZdo3UVgWd9FpRmkfh3SgLgEG')
+  pirsch.setAttribute('id', 'pirschjs')
+  pirsch.setAttribute('defer', '')
+  pirsch.setAttribute('type', 'text/javascript')
 
-  window.document.head.appendChild(plausible)
+  window.document.head.appendChild(pirsch)
 }());
