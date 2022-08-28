@@ -2,9 +2,9 @@ import React from 'react'
 import { Story, Meta } from '@storybook/react/types-6-0'
 
 import { HashRouter, Routes, Route, Navigate } from 'react-router-dom'
-import { Overview } from 'overview'
-import { Translation, DefaultTranslation } from 'context/translation'
-import { FlagsCtx } from 'context/config'
+import { Overview } from './index'
+import { Translation, DefaultTranslation } from '../context/translation'
+import { FlagsCtx } from '../context/config'
 
 import { Auth as AuthClient, Flag } from '@vulpo-dev/auth-sdk'
 import { Auth as AuthCtx } from '@vulpo-dev/auth-react'
@@ -48,7 +48,7 @@ let Template: Story<{ flags: Array<Flag> }> = ({ flags }) => {
 					<HashRouter>
 						<Routes>
 
-							<Route path='/:type' element={
+							<Route path='auth/:type' element={
 								<div className="vulpo-auth vulpo-auth-container">
 									<div className="vulpo-auth-box-shadow">
 										<Overview />
@@ -56,7 +56,7 @@ let Template: Story<{ flags: Array<Flag> }> = ({ flags }) => {
 								</div>
 							}></Route>
 
-							<Route path='signin' element={<Navigate to='/signin' />}/>
+							<Route path='/*' element={<Navigate to='auth/signin' />}/>
 						</Routes>
 					</HashRouter>
 				</Translation.Provider>

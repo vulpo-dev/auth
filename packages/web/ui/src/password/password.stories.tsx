@@ -2,9 +2,9 @@ import React from 'react'
 import { Story, Meta } from '@storybook/react/types-6-0'
 
 import { HashRouter, Routes, Route, Navigate } from 'react-router-dom'
-import { Password, Props } from 'password'
-import { Translation, DefaultTranslation } from 'context/translation'
-import { AuthConfig, DefaultConfig, FlagsCtx } from 'context/config'
+import { Password, Props } from './index'
+import { Translation, DefaultTranslation } from '../context/translation'
+import { AuthConfig, DefaultConfig, FlagsCtx } from '../context/config'
 import { ErrorCode, Flag } from '@vulpo-dev/auth-sdk'
 
 export default {
@@ -71,7 +71,7 @@ let Template: Story<Props & { flags: Array<Flag> }> = ({ flags, ...args }) => {
 				<Translation.Provider value={DefaultTranslation}>
 					<HashRouter>
 						<Routes>
-							<Route path='/signin/email' element={
+							<Route path={`email`} element={
 								<div className="vulpo-auth vulpo-auth-container">
 									<div className="vulpo-auth-box-shadow">
 										<Password {...args} />
@@ -79,7 +79,7 @@ let Template: Story<Props & { flags: Array<Flag> }> = ({ flags, ...args }) => {
 								</div>
 							}></Route>
 
-							<Route element={<Navigate to='/signin/email' />} />
+							<Route path='/*' element={<Navigate to={`email`} />} />
 						</Routes>
 					</HashRouter>
 				</Translation.Provider>
@@ -88,4 +88,8 @@ let Template: Story<Props & { flags: Array<Flag> }> = ({ flags, ...args }) => {
 	)
 }
 
-export let Default = Template.bind({})
+export let SignIn = Template.bind({})
+SignIn.args = { ctx: 'signin' }
+
+export let SignUp = Template.bind({})
+SignUp.args = { ctx: 'signup' }

@@ -72,6 +72,7 @@
 
 .vulpo-auth-card-title {
 	margin-block-end: 0;
+	margin-block-start: calc(var(--baseline) * -0.375);
 }
 
 .vulpo-auth-title {
@@ -107,8 +108,6 @@
 }
 
 .vulpo-auth-header-title {
-	line-height: 1;
-	margin-block-start: calc(var(--baseline) * -0.375);
 	margin-block-end: calc(var(--baseline) * 1.75);	
 }
 
@@ -266,11 +265,6 @@
 	margin-block-end: calc(var(--baseline) * 2.75);
 }
 
-.vulpo-auth-password-reset-check .vulpo-auth-card-title {
-	line-height: 1;
-	margin-block-start: calc(var(--baseline) * -0.375);
-}
-
 .vulpo-auth-password-reset-section {
 	margin-block-end: calc(var(--baseline) * 2);
 	display: flex;
@@ -279,11 +273,6 @@
 
 .vulpo-auth-password-reset-set-password .vulpo-card-header {
 	margin-block-end: calc(var(--baseline) * 2.75);
-}
-
-.vulpo-auth-password-reset-set-password .vulpo-auth-card-title {
-	line-height: 1;
-	margin-block-start: calc(var(--baseline) * -0.375);
 }
 
 .vulpo-auth-password-reset-set-password-overview {
@@ -308,11 +297,6 @@
 	margin-block-end: calc(var(--baseline) * 2.75);
 }
 
-.vulpo-auth-passwordless-check .vulpo-auth-card-title {
-	line-height: 1;
-	margin-block-start: calc(var(--baseline) * -0.375);
-}
-
 .vulpo-auth-verify-email-confirm,
 .vulpo-auth-passwordless-confirm-signin {
 	min-height: 80px;
@@ -320,11 +304,6 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
-}
-
-.vulpo-auth-passwordless-confirm .vulpo-auth-card-title {
-	line-height: 1;
-	margin-block-start: calc(var(--baseline) * -0.375);
 }
 
 .vulpo-auth-passwordless-confirm-loading {
@@ -348,22 +327,10 @@
 	margin-block-end: calc(var(--baseline) * 2.75);
 }
 
-.vulpo-auth-user-set-password .vulpo-auth-card-title {
-	line-height: 1;
-	margin-block-start: calc(var(--baseline) * -0.375);
-}
-
 .vulpo-auth-user-set-password-overview {
 	margin-block-start: var(--baseline);
 	text-align: center;
 	color: currentColor;
-}
-
-
-
-.vulpo-auth-verify-email .vulpo-auth-card-title {
-	line-height: 1;
-	margin-block-start: calc(var(--baseline) * -0.375);
 }
 
 .vulpo-auth-verify-email-text {

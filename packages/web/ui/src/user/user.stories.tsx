@@ -17,7 +17,7 @@ let NewPassword: Story<SetPasswordProps> = (args) => {
 				<HashRouter>
 					<Routes>
 
-						<Route path='/signin/set_password' element={
+						<Route path='user/set_password' element={
 							<div className="vulpo-auth vulpo-auth-container">
 								<div className="vulpo-auth-box-shadow">
 									<SetPassword {...args} />
@@ -25,7 +25,7 @@ let NewPassword: Story<SetPasswordProps> = (args) => {
 							</div>
 						}></Route>
 
-						<Route element={<Navigate to='/signin/set_password' />} />
+						<Route path='/*' element={<Navigate to='user/set_password' />} />
 						
 					</Routes>
 				</HashRouter>

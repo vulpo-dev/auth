@@ -21,7 +21,7 @@ let Template: Story<Props> = args => {
 				<HashRouter>
 					<Routes>
 
-						<Route path='/signin/password_reset' element={
+						<Route path='signin/password_reset' element={
 							<div className="vulpo-auth vulpo-auth-container">
 								<div className="vulpo-auth-box-shadow">
 									<PasswordReset {...args} />
@@ -29,7 +29,7 @@ let Template: Story<Props> = args => {
 							</div>
 						}></Route>
 
-						<Route element={<Navigate to='/signin/password_reset' />} />
+						<Route path='/*' element={<Navigate to='signin/password_reset' />} />
 					</Routes>
 				</HashRouter>
 			</Translation.Provider>
@@ -69,7 +69,7 @@ let CheckEmailTemplate: Story<{ email: string | null }> = (args) => {
 				<HashRouter>
 					<Routes>
 
-						<Route path='/signin/check_email' element={
+						<Route path='signin/check_email' element={
 							<div className="vulpo-auth vulpo-auth-container">
 								<div className="vulpo-auth-box-shadow">
 									<CheckReset {...args} />
@@ -77,7 +77,7 @@ let CheckEmailTemplate: Story<{ email: string | null }> = (args) => {
 							</div>
 						}></Route>
 
-						<Route element={<Navigate to='/signin/check_email' />} />
+						<Route path='/*' element={<Navigate to='signin/check_email' />} />
 					</Routes>
 				</HashRouter>
 			</Translation.Provider>
@@ -103,7 +103,7 @@ let NewPassword: Story<SetPasswordProps> = (args) => {
 				<HashRouter>
 					<Routes>
 
-						<Route path='/signin/set_password' element={
+						<Route path='signin/set_password' element={
 							<div className="vulpo-auth vulpo-auth-container">
 								<div className="vulpo-auth-box-shadow">
 									<SetPassword {...args} />
@@ -111,7 +111,7 @@ let NewPassword: Story<SetPasswordProps> = (args) => {
 							</div>
 						}></Route>
 
-						<Route element={<Navigate to='/signin/set_password' />} />
+						<Route path='/*' element={<Navigate to='signin/set_password' />} />
 					</Routes>
 				</HashRouter>
 			</Translation.Provider>
@@ -126,7 +126,7 @@ export let VerifyToken: Story<SetPasswordProps> = (args) => {
 				<HashRouter>
 					<Routes>
 
-						<Route path='/signin/set_password' element={
+						<Route path='signin/set_password' element={
 							<div className="vulpo-auth vulpo-auth-container">
 								<div className="vulpo-auth-box-shadow">
 									<SetPassword {...args} verifyToken={true} />
@@ -134,7 +134,7 @@ export let VerifyToken: Story<SetPasswordProps> = (args) => {
 							</div>
 						}></Route>
 
-						<Route element={<Navigate to='/signin/set_password' />} />
+						<Route path='/*' element={<Navigate to='signin/set_password' />} />
 					</Routes>
 				</HashRouter>
 			</Translation.Provider>
