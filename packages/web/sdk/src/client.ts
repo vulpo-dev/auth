@@ -40,7 +40,7 @@ export type ClientDep = {
 	keyStorage: IKeyStorage,
 }
 
-type RequestConfig = Partial<Request>
+export type RequestConfig = Partial<Request>
 
 export interface IAuthClient {
 	setProject(id: string): void;

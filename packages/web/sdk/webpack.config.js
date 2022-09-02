@@ -5,7 +5,14 @@ module.exports = function ({ browser }, argv) {
 
 	config.entry = {
 		main: './src/main.ts',
-		interceptor: './src/interceptor.ts',
+	}
+
+	if (!browser) {
+		config.entry = {
+			...config.entry,
+			interceptor: './src/interceptor.ts',
+			mock_client: './src/mock_client.ts',
+		}
 	}
 
 	if (browser) {

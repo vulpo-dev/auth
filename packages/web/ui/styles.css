@@ -297,6 +297,7 @@
 	margin-block-end: calc(var(--baseline) * 2.75);
 }
 
+.vulpo-auth-button-form,
 .vulpo-auth-verify-email-confirm,
 .vulpo-auth-passwordless-confirm-signin {
 	min-height: 80px;
@@ -333,6 +334,7 @@
 	color: currentColor;
 }
 
+.vulpo-auth-text-success,
 .vulpo-auth-verify-email-text {
 	margin-block-start: calc(var(--baseline) * 2);
 	margin-block-end: 0;

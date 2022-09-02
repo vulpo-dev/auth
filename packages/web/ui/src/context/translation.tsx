@@ -151,6 +151,12 @@ export let DefaultTranslation = {
 		success: 'Your email has been verified',
 		label: 'Verify Email'
 	},
+
+	update_email_reset: {
+		title: 'Reset Change Email Request',
+		label: 'Reset Email',
+		submitted: 'Your email has been reset.',
+	}
 }
 
 export type Translations = typeof DefaultTranslation

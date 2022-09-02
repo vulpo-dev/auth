@@ -28,14 +28,14 @@
     "@babel/preset-env": "^7.13.5",
     "@babel/preset-react": "^7.12.13",
     "@babel/preset-typescript": "^7.13.0",
-    "babel-jest": "^26.6.3",
+    "babel-jest": "^27.4.2",
     "babel-loader": "^8.2.2",
     "babel-plugin-styled-components": "^1.12.0",
     "rimraf": "^3.0.2",
     "source-map-loader": "^2.0.1",
     "ts-loader": "^8.0.17",
     "typescript": "^4.2.2",
-    "webpack": "5.24.2",
+    "webpack": "^5.64.4",
     "webpack-cli": "^4.5.0"
   },
   "gitHead": "dedb24c19f448626c4f88f26d784eb06d6325129"

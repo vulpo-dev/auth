@@ -6,7 +6,6 @@ import { SessionService } from './session'
 import { Tokens } from './tokens'
 import { HttpSerivce } from './utils'
 
-
 export type {
 	User,
 	TokenResponse,
@@ -34,6 +33,7 @@ export type { SessionServiceDep, FromSessionResponse } from './session'
 export type { IKeyStorage, ISessionsStorage, IStorage, Session, Key, SessionsChangeCallback, ActiveUserCallback } from './storage'
 export type { Tokens } from './tokens'
 export type { IHttpService } from './utils'
+export { uuid } from './utils'
 
 export let Auth = {
 	create(config: Config): AuthClient {

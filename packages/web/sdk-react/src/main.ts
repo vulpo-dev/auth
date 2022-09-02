@@ -1,5 +1,4 @@
 import {
-	AuthClient,
 	AuthCallback,
     ErrorCode,
     IAuthClient,
@@ -20,7 +19,7 @@ export function useAuthStateChange(fn: AuthCallback) {
 	let auth = useContext(Auth)
 	let cb = useRef(fn)
 
-	useRef(() => {
+	useEffect(() => {
 		cb.current = fn
 	})
 
