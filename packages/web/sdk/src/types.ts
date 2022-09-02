@@ -168,7 +168,11 @@ export enum Url {
 
 	TokenRefresh = '/token/refresh/:session',
 
-	Flags = '/project/flags?project=:projectId'
+	Flags = '/project/flags?project=:projectId',
+
+	UpdateEmail = '/user/email/update',
+	ConfirmUpdateEmail = '/user/email/update/confirm',
+	RejectUpdateEmail = '/user/email/update/reset',
 }
 
 export enum Flag {

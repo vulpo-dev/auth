@@ -1,5 +1,5 @@
 import { Dispatch, FormEvent, FunctionComponent, SetStateAction, useMemo, useState } from 'react'
-import { RouteProps } from 'react-router-dom'
+import { RouteProps, useLocation } from 'react-router-dom'
 import { ErrorMessage } from './context/translation'
 
 export type WithClass = {
@@ -28,11 +28,12 @@ export function checkPasswordLength(elm: HTMLInputElement, t: Messages) {
 	}
 }
 
-export function useQueryParams(queryString: string) {
+export function useQueryParams() {
+	let { search } = useLocation()
 	return useMemo(() => {
-		let searchParams = new URLSearchParams(queryString)
+		let searchParams = new URLSearchParams(search)
 		return searchParams
-	}, [queryString])
+	}, [search])
 }
 
 type FormHook<T> =

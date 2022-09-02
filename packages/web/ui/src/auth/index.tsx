@@ -13,6 +13,8 @@ import { useTranslation, useError } from '../context/translation'
 import { FlagsCtx } from '../context/config'
 import SetPassword from '../user/set_password'
 import OAuthConfirm from '../oauth'
+import RejectUpdateEmail from '../user/update_email/reject'
+import ConfirmUpdateEmail from '../user/update_email/confirm'
 
 let Auth = () => {
 	let auth = useAuth()
@@ -70,6 +72,9 @@ let Auth = () => {
 		<FlagsCtx.Provider value={flags}>
 			<Routes>
 				<Route path={`user/set_password/*`} element={<SetPassword />} />
+				<Route path={'user/change-email/reset'} element={<RejectUpdateEmail />} />
+				<Route path={'user/change-email/confirm'} element={<ConfirmUpdateEmail />} />
+				
 				<Route path={`oauth/confirm/*`} element={<OAuthConfirm />} />
 
 				{ flags.includes(Flag.VerifyEmail) &&

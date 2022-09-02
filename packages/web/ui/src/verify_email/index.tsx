@@ -1,7 +1,7 @@
 import { Fragment, useState, useCallback } from 'react'
 import { ErrorCode, Flag } from '@vulpo-dev/auth-sdk'
 import { useAuth } from '@vulpo-dev/auth-react'
-import { useLocation, Navigate } from 'react-router-dom'
+import { Navigate } from 'react-router-dom'
 
 import { useQueryParams } from '../utils'
 import { Flow } from '../component/loading'
@@ -60,8 +60,7 @@ export let VerifyEmail = ({ loading, error, onVerify, verified }: Props) => {
 
 let VerifyEmailContainer = () => {
 	let auth = useAuth()
-	let location = useLocation()
-	let query = useQueryParams(location.search)
+	let query = useQueryParams()
 	let { basename } = useConfig()
 
 	let [error, setError] = useState<ErrorCode | null>(null)

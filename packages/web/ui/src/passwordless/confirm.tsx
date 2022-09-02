@@ -1,5 +1,5 @@
 import { useCallback, FunctionComponent, Fragment, useState } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { ErrorCode } from '@vulpo-dev/auth-sdk'
 import { useAuth } from '@vulpo-dev/auth-react'
 
@@ -65,8 +65,7 @@ export let Confirm: FunctionComponent<Props> = ({ loading, error, authenticated,
 
 let ConfirmContainer = () => {
 	let auth = useAuth()
-	let location = useLocation()
-	let query = useQueryParams(location.search)
+	let query = useQueryParams()
 
 	let [error, setError] = useState<ErrorCode | null>(null)
 	let [loading, setLoading] = useState<boolean>(false)

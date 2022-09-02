@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import { useLocation } from 'react-router-dom'
 import { useAuth } from '@vulpo-dev/auth-react'
 
 import { useTranslation } from '../context/translation'
@@ -8,8 +7,7 @@ import { Flow } from '../component/loading'
 import { ErrorCode } from '@vulpo-dev/auth-sdk'
 
 let ConfirmOAuth = () => {
-	let location = useLocation()
-	let query = useQueryParams(location.search)
+	let query = useQueryParams()
 	let t = useTranslation()
 	let auth = useAuth()
 	let [error, setError] = useState<ErrorCode | null>(null)

@@ -167,7 +167,6 @@ pub async fn confirm_email_change(
 #[post("/email/update/confirm", format = "json", data = "<body>")]
 pub async fn confirm_email_change_handler(
     pool: Db,
-    _access_token: AccessToken,
     body: Json<EmailChangeTokenPayload>,
 ) -> Result<Status, ApiError> {
     confirm_email_change(&pool, body.into_inner()).await?;
@@ -196,7 +195,6 @@ pub async fn reset_email_change(pool: &Db, body: EmailChangeTokenPayload) -> Res
 #[post("/email/update/reset", format = "json", data = "<body>")]
 pub async fn reset_email_change_handler(
     pool: Db,
-    _access_token: AccessToken,
     body: Json<EmailChangeTokenPayload>,
 ) -> Result<Status, ApiError> {
     reset_email_change(&pool, body.into_inner()).await?;

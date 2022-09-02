@@ -40,6 +40,7 @@ export enum ErrorCode {
 	UserDuplicate = 'user/duplicate',
 	UserExists = 'user/exists',
 
+	InvalidArguments = 'invalid/arguments'
 }
 
 export type ErrorResponse = {
@@ -92,7 +93,8 @@ export function errorFromResponse(response: Response, data: ErrorResponse): ApiE
 				return new AuthError(data.code, response)
 
 			default:
-				return new GenericError(response, response.statusText)
+				let code = isErrorCode(response.statusText) ? response.statusText : ErrorCode.GenericError
+				return new GenericError(response, code)
 		}
 	}
 
@@ -115,10 +117,10 @@ export class GenericError extends Error {
 	code: ErrorCode;
 	response: Response;
 
-	constructor(response: Response, message?: string) {
-		super(message)
+	constructor(response: Response, code?: ErrorCode) {
+		super(code)
 		this.name = 'GenericError'
-		this.code = ErrorCode.GenericError
+		this.code = code ?? ErrorCode.GenericError
 		this.response = response
 	}
 }
@@ -143,4 +145,12 @@ export class SessionNotFoundError extends Error {
 
 export class SessionKeysNotFoundError extends Error {
 	code = ErrorCode.SessionKeysNotFound
+}
+
+export function isErrorCode(code: string): code is ErrorCode {
+	let index = Object.values(ErrorCode).findIndex(item => {
+		return item === code
+	})
+
+	return index !== -1
 }

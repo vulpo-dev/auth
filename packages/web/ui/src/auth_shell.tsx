@@ -77,7 +77,12 @@ let AuthShell: FunctionComponent<AuthShellProps> = (props) => {
 
 	let [referrer] = useState(() => {
 		let { pathname } = window.location
-		if (pathname.startsWith(`/${basename}`)) {
+
+		let useDefaultRedirect = (
+			pathname.startsWith(`/${basename}`)
+		)
+
+		if (useDefaultRedirect) {
 			return props.redirect ?? '/'
 		}
 
@@ -90,7 +95,7 @@ let AuthShell: FunctionComponent<AuthShellProps> = (props) => {
 	})
 
 	useAuthStateChange((newUser) => {
-		if (isVerifyEmail(basename)) {
+		if (isPublicRoute(basename)) {
 			return
 		}
 		
@@ -105,7 +110,11 @@ let AuthShell: FunctionComponent<AuthShellProps> = (props) => {
 		}
 	})
 
-	let redirect = (user && user?.state !== UserState.SetPassword && !isVerifyEmail(basename))
+	let redirect = (
+		user &&
+		user?.state !== UserState.SetPassword &&
+		!isPublicRoute(basename)
+	)
 
 	let authConfig: $AuthConfig = {
 		basename: props.basename ?? DefaultConfig.basename,
@@ -152,7 +161,7 @@ let AuthShell: FunctionComponent<AuthShellProps> = (props) => {
 	let isLoading = (
 		user === undefined &&
 		!location.pathname.startsWith(`/${basename}`) &&
-		!isVerifyEmail(basename)
+		!isPublicRoute(basename)
 	)
 
 	let splashscreen = props.splashscreen ?? <Splashscreen
@@ -182,8 +191,14 @@ let AuthShell: FunctionComponent<AuthShellProps> = (props) => {
 
 export default AuthShell
 
-function isVerifyEmail(basename: string) {
-	return window.location.pathname === `/${basename}/verify-email`
+function isPublicRoute(basename: string): boolean {
+	let ROUTES = [
+		`/${basename}/user/change-email/confirm`,
+		`/${basename}/user/change-email/reset`,
+		`/${basename}/verify-email`,
+	]
+
+	return ROUTES.includes(window.location.pathname)
 }
 
 type LoadingCtx = {

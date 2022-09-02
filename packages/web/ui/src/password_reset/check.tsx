@@ -1,5 +1,3 @@
-import { useLocation } from 'react-router-dom'
-
 import { useQueryParams } from '../utils'
 import { useTranslation } from '../context/translation'
 import Card from '../component/card'
@@ -24,8 +22,7 @@ export let CheckReset = ({ email }: Props) => {
 }
 
 let CheckResetContainer = () => {
-	let location = useLocation()
-	let params = useQueryParams(location.search)
+	let params = useQueryParams()
 
 	return (
 		<CheckReset email={params.get('email')} />

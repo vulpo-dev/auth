@@ -66,6 +66,9 @@ export interface IAuthClient {
 	getUser(): User | null;
 	oAuthGetAuthorizeUrl(provider: 'google', config?: RequestConfig): Promise<string>;
 	oAuthConfirm(csrf_token: string, code: string, config?: RequestConfig): Promise<[User | null, string]>;
+	updateEmail(email: string, config?: RequestConfig): Promise<void>;
+	confirmUpdateEmail(id: string, token: string, config?: RequestConfig): Promise<void>;
+	rejectUpdateEmail(id: string, token: string, config?: RequestConfig): Promise<void>;
 }
 
 export class AuthClient implements IAuthClient {
@@ -658,5 +661,33 @@ export class AuthClient implements IAuthClient {
 		OAuthState.delete()
 		
 		return [user!, oAuthState.referrer]
+	}
+
+
+	/*
+	 * start the update email flow
+	*/
+	async updateEmail(new_email: string, config?: Partial<Request> | undefined): Promise<void> {
+	    await this.withToken(token => {
+	    	let headers = new Headers(config?.headers)
+	    	headers.append('Authorization', `Bearer ${token}`)
+	    	return this.httpService.post(Url.UpdateEmail, { new_email }, { ...config, headers })
+	    })
+	}
+
+
+	/*
+	 * confirm the new email
+	*/
+	async confirmUpdateEmail(id: string, token: string, config?: Partial<Request> | undefined): Promise<void> {
+		await this.httpService.post(Url.ConfirmUpdateEmail, { id, token }, config)
+	}
+
+
+	/*
+	 * reject the new email
+	*/
+	async rejectUpdateEmail(id: string, token: string, config?: Partial<Request> | undefined): Promise<void> {
+		await this.httpService.post(Url.RejectUpdateEmail, { id, token }, config)
 	}
 }

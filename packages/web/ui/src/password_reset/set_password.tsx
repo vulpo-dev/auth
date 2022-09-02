@@ -1,7 +1,7 @@
 import { SyntheticEvent, FC, useState, useEffect } from 'react'
 import { ErrorCode, ErrorResponse } from '@vulpo-dev/auth-sdk'
 import { useAuth } from '@vulpo-dev/auth-react'
-import { useLocation, useNavigate, Link } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 
 import { Password } from '../component/input'
 import { Button } from '../component/button'
@@ -135,8 +135,7 @@ export let SetPassword: FC<Props> = ({
 let SetPasswordContainer = () => {
 	let auth = useAuth()
 	let navigate = useNavigate()
-	let location = useLocation()
-	let query = useQueryParams(location.search)
+	let query = useQueryParams()
 	let { basename } = useConfig()
 
 	let [error, setError] = useState<ErrorCode | null>(null)

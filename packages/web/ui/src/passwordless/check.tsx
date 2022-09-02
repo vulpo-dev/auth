@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useLocation, useMatch } from 'react-router-dom'
+import { useMatch } from 'react-router-dom'
 import { useAuth } from '@vulpo-dev/auth-react'
 import { ErrorCode, ApiError } from '@vulpo-dev/auth-sdk'
 
@@ -34,8 +34,7 @@ export let CheckEmail = ({ email }: Props) => {
 
 let CheckEmailContainer = () => {
 	let auth = useAuth()
-	let location = useLocation()
-	let query = useQueryParams(location.search)
+	let query = useQueryParams()
 	let { basename } = useConfig()
 	let match = useMatch(`${basename}/:type/*`)
 	let [_, setError] = useState<ErrorCode | null>(null)

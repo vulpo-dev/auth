@@ -152,10 +152,16 @@ export let DefaultTranslation = {
 		label: 'Verify Email'
 	},
 
-	update_email_reset: {
+	update_email_reject: {
 		title: 'Reset Change Email Request',
 		label: 'Reset Email',
 		submitted: 'Your email has been reset.',
+	},
+
+	update_email_confirm: {
+		title: 'Confirm Change Email Request',
+		label: 'Change Email',
+		submitted: 'Your email has been changed.',
 	}
 }
 

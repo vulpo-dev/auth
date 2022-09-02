@@ -129,6 +129,22 @@ export class MockAuthClient implements IAuthClient {
 		.mockImplementation(async (_csrf_token: string, _code: string) => {
 			return [getUser(), '']
 		})
+
+	updateEmail = jest
+		.fn<IAuthClient['updateEmail']>()
+		.mockImplementation(async () => {})
+
+	rejectUpdateEmail = jest
+		.fn<IAuthClient['rejectUpdateEmail']>()
+		.mockImplementation(async (id: string) => {
+			errors(id)
+		})
+
+	confirmUpdateEmail = jest
+		.fn<IAuthClient['confirmUpdateEmail']>()
+		.mockImplementation(async (id: string) => {
+			errors(id)
+		})
 }
 
 function getUser(email: string = faker.internet.email()): User {
@@ -154,4 +170,20 @@ function authError(code: ErrorCode) {
 
 function error(code: ErrorCode) {
 	return new GenericError({} as Response, code)
+}
+
+function errors(type: string) {
+	switch(type) {
+		case 'passwordless-invalid-token':
+			throw authError(ErrorCode.PasswordlessInvalidToken)
+
+		case 'passwordless-token-expire':
+			throw authError(ErrorCode.PasswordlessTokenExpire)
+
+		case 'internal':
+			throw error(ErrorCode.InternalServerError)
+
+		case 'not_allowed':
+			throw error(ErrorCode.NotAllowed)
+	}
 }

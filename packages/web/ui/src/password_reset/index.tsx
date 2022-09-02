@@ -1,6 +1,6 @@
 import { SyntheticEvent, useState } from 'react'
 import { ErrorCode, Flag, ErrorResponse } from '@vulpo-dev/auth-sdk'
-import { useNavigate, Routes, Route, Navigate, useLocation } from 'react-router-dom'
+import { useNavigate, Routes, Route, Navigate } from 'react-router-dom'
 import { useAuth } from '@vulpo-dev/auth-react'
 
 import { useForm, useQueryParams } from '../utils'
@@ -30,8 +30,7 @@ export let PasswordReset: React.FC<Props> = ({
 	loading = false,
 	error
 }) => {
-	let location = useLocation()
-	let params = useQueryParams(location.search)
+	let params = useQueryParams()
 	let [form, setForm] = useForm<Form>({ email: params.get('email') ?? '' })
 	
 	let t = useTranslation()
