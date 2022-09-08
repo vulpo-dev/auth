@@ -48,7 +48,7 @@ export type ErrorResponse = {
 }
 
 export function isErrorResponse(data: any): data is ErrorResponse {
-	return Boolean(data) && data.code
+	return data?.code !== undefined
 }
 
 export function errorFromResponse(response: Response, data: ErrorResponse): ApiError {

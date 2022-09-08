@@ -88,14 +88,14 @@ let EmailForm = () => {
       }
 
       { submitted && 
-        <p>Check your emails to finish the change</p>
+        <p className='update-email--submitted'>Check your emails to finish the change</p>
       }
 
       <form onSubmit={handleUpdateEmail}>
         <label>New Email</label>
         <input name='new_email' type='email' />
 
-        <button disabled={loading}>Update</button>
+        <button disabled={loading}>Update Email</button>
       </form>
     </div>
   )

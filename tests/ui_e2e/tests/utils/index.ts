@@ -1,5 +1,6 @@
 import { URL } from 'url'
 import { Browser, Page } from "@playwright/test"
+import { v4 as uuid } from 'uuid'
 
 export function getValidationMessage(input: HTMLInputElement): string {
 	return input.validationMessage
@@ -26,4 +27,17 @@ export async function followEmail(browser: Browser, email: string, label: string
 	await page.waitForLoadState();
 
 	return page
+}
+
+export let getEmail = () => `ui.e2e+${uuid()}@vulpo.dev`
+
+export async function signUp(page: Page,  password: string = 'password') {
+	let email = getEmail()
+	await page.fill('input[name="email"]', email)
+	await page.fill('input[name="password"]', password)
+	await page.click('button:has-text("Sign Up")')
+
+	await page.waitForSelector('.App')
+	
+	return email
 }

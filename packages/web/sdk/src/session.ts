@@ -196,7 +196,8 @@ export class SessionService {
 	async getUser(token: AccessToken): Promise<User> {
 		let headers = new Headers()
 		headers.set('Authorization', `Bearer ${token}`)
-		return this.http.get<User>(Url.UserGet, { headers })
+		let { data } = await this.http.get<User>(Url.UserGet, { headers })
+		return data
 	}
 
 	async remove(session: SessionId) {

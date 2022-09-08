@@ -112,7 +112,7 @@ export class AuthClient implements IAuthClient {
 			return Promise.reject(err)
 		}
 
-		let data = await this.httpService
+		let { data } = await this.httpService
 			.post<SessionResponse>(url, payload, config)
 			.catch(onError)
 		
@@ -399,7 +399,7 @@ export class AuthClient implements IAuthClient {
 			device_languages: getLanguages([...navigator.languages]),
 		}
 
-		let data = await this.httpService
+		let { data } = await this.httpService
 			.post<PasswordlessResponse>(Url.Passwordless, payload, config)
 			.catch(async err => {
 				await this.sessionService.remove(session.id)
@@ -476,7 +476,7 @@ export class AuthClient implements IAuthClient {
 					device_languages,
 				}
 
-				let data = await this.httpService
+				let { data } = await this.httpService
 					.post<SessionResponse>(Url.PasswordlessVerify, payload, config)
 
 				this.tokens.fromResponse(data)
@@ -556,6 +556,7 @@ export class AuthClient implements IAuthClient {
 		let token = await this.getToken(session)
 
 		return fn(token).then(async response => {
+			console.log({ response })
 			if (response.status === 401) {
 				let token = await this.forceToken(session)
 				return fn(token).then(async response => {
@@ -585,7 +586,7 @@ export class AuthClient implements IAuthClient {
 		let url = Url.Flags.replace(':projectId', this.projectId)
 		return this.httpService
 			.get<{ items: Array<Flag> }>(url, config)
-			.then(res => res.items)
+			.then(res => res.data.items)
 	}
 
 	/**
@@ -648,7 +649,7 @@ export class AuthClient implements IAuthClient {
 			device_languages: getLanguages([...navigator.languages]),
 		}
 
-		let data = await this.httpService
+		let { data } = await this.httpService
 			.post<SessionResponse>(`/oauth/${oAuthState.provider}/confirm`, payload, config)
 			.catch(onError)
 		

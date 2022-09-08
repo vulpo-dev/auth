@@ -26,7 +26,9 @@ export function getLanguages(arr: Array<string>): Array<string> {
 	})
 }
 
-
+export type HttpResponse<D> = Response & {
+	data: D
+}
 
 export type HttpError<T = any> = {
 	response: Response,
@@ -34,8 +36,8 @@ export type HttpError<T = any> = {
 }
 
 export interface IHttpService {
-	get<R>(url: string, config?: Partial<Request>): Promise<R>;
-	post<R>(url: string, data?: unknown, config?: Partial<Request>): Promise<R>;
+	get<R>(url: string, config?: Partial<Request>): Promise<HttpResponse<R>>;
+	post<R>(url: string, data?: unknown, config?: Partial<Request>): Promise<HttpResponse<R>>;
 }
 
 export class HttpSerivce implements IHttpService {
@@ -78,7 +80,7 @@ export class HttpSerivce implements IHttpService {
 		return parseInt(length, 10) === 0
 	}
 
-	async get<R = void>(url: string, config: Partial<Request> = {}): Promise<R> {
+	async get<R = void>(url: string, config: Partial<Request> = {}): Promise<HttpResponse<R>> {
 	    let response = await fetch(this.getUrl(url), {
 	    	...config,
 	    	mode: this.getMode(),
@@ -110,10 +112,10 @@ export class HttpSerivce implements IHttpService {
 	    	return Promise.reject(errorFromResponse(response, err))
 	    }
 
-	    return data as unknown as R
+	    return { ...response, data: data as unknown as R }
 	}
 
-	async post<R>(url: string, body: unknown, config: Partial<Request> = {}): Promise<R> {
+	async post<R>(url: string, body: unknown, config: Partial<Request> = {}): Promise<HttpResponse<R>> {
 	    let response = await fetch(this.getUrl(url), {
 	    	...config,
 	    	mode: this.getMode(),
@@ -147,7 +149,7 @@ export class HttpSerivce implements IHttpService {
 	    	return Promise.reject(errorFromResponse(response, err))
 	    }
 
-	    return data as unknown as R
+	    return { ...response, data: data as unknown as R }
 	}
 }
 
