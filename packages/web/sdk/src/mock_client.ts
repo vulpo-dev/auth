@@ -158,7 +158,7 @@ export class MockAuthClient implements IAuthClient {
 		.fn<IAuthClient['generateApiKey']>()
 		.mockImplementation(async (payload: GenerateApiKey) => {
 			errors(payload.name)
-			return uuid()
+			return { id: uuid(), api_key: uuid() }
 		})
 
 	listApiKeys = jest
@@ -200,7 +200,7 @@ function error(code: ErrorCode) {
 	return new GenericError({} as Response, code)
 }
 
-function errors(type: string) {
+function errors(type?: string) {
 	switch(type) {
 		case 'passwordless-invalid-token':
 			throw authError(ErrorCode.PasswordlessInvalidToken)

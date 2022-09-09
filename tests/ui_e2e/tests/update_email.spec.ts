@@ -6,7 +6,7 @@ import { signIn } from './utils/signin'
 test('can update email', async ({ page, browser }) => {
 	await page.goto('/auth/signup/email')
 
-	let email = await signUp(page)
+	await signUp(page)
 	let newEmail = getEmail()
 	await page.fill('input[name="new_email"]', newEmail)
 	await page.click('button:has-text("Update Email")')

@@ -20,13 +20,14 @@ pub struct Payload {
 #[derive(Serialize)]
 pub struct ApiKeyResponse {
     pub api_key: String,
+    pub id: Uuid,
 }
 
 pub async fn generate_api_key(
     pool: &Db,
     user_id: &Uuid,
     config: Payload,
-) -> Result<String, ApiError> {
+) -> Result<(Uuid, String), ApiError> {
     let token = Token::create();
     let hashed_token = Token::hash(&token)?;
 
@@ -46,7 +47,7 @@ pub async fn generate_api_key(
 
     let token = format!("{}:{}", id, token);
     let api_key = base64::encode(token);
-    Ok(api_key)
+    Ok((id, api_key))
 }
 
 #[post("/generate", format = "json", data = "<body>")]
@@ -56,6 +57,6 @@ pub async fn generate(
     body: Json<Payload>,
 ) -> Result<Json<ApiKeyResponse>, ApiError> {
     let user_id = access_token.sub();
-    let api_key = generate_api_key(&pool, &user_id, body.into_inner()).await?;
-    Ok(Json(ApiKeyResponse { api_key }))
+    let (id, api_key) = generate_api_key(&pool, &user_id, body.into_inner()).await?;
+    Ok(Json(ApiKeyResponse { id, api_key }))
 }

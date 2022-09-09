@@ -3,7 +3,7 @@ import logo from './logo.svg';
 import './App.css';
 import { useAuth } from '@vulpo-dev/auth-react'
 import { Link } from 'react-router-dom'
-import { ErrorCode, uuid, ApiKeys } from '@vulpo-dev/auth-sdk';
+import { ErrorCode, ApiKeys, GenerateApiKeyResponse } from '@vulpo-dev/auth-sdk';
 
 function App() {
   let auth = useAuth()
@@ -67,7 +67,7 @@ let EmailForm = () => {
 
   async function handleUpdateEmail(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
-    console.log(e.currentTarget)
+
     let data = new FormData(e.currentTarget)
     let email = data.get('new_email')
 
@@ -104,16 +104,25 @@ let EmailForm = () => {
 let ApiKeyForm = () => {
   let auth = useAuth()
 
-  let [apiKey, setApiKey] = useState('')
+  let [apiKey, setApiKey] = useState<GenerateApiKeyResponse>({
+    id: '',
+    api_key: '',
+  })
+
   let [loading, setLoading] = useState(false)
   let [submitted, setSubmitted] = useState(false)
   let [error, setError] = useState<ErrorCode | null>(null)
 
-  async function generateApiKey() {
+  async function generateApiKey(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+
     setLoading(true)
 
+    let data = new FormData(e.currentTarget)
+    let name = data.get('generated_api_key')
+
     auth
-      .generateApiKey({ name: uuid() })
+      .generateApiKey({ name: name?.toString() })
       .then((apiKey) => {
         setSubmitted(true)
         setApiKey(apiKey)
@@ -139,14 +148,22 @@ let ApiKeyForm = () => {
       
       <div>
         
-        <button onClick={generateApiKey} disabled={loading}>
-          Generate API Key
-        </button>
+        <form onSubmit={generateApiKey}>
+          <div>
+            <label>Key Name:</label>
+            <input name='generated_api_key' type='text' />
+          </div>
+
+          <button disabled={loading}>
+            Generate API Key
+          </button>
+        </form>
 
         { (submitted && !error) &&
           <div>
             <h3>Generated Key</h3>
-            <p className='generated_api_key'>{apiKey}</p>
+            <p>ID: <span id='generated-api-key'>{apiKey.id}</span></p>
+            <p className='generated_api_key'>{apiKey.api_key}</p>
           </div>
         }      
 
@@ -165,7 +182,7 @@ let ApiKeyForm = () => {
             <tbody>
               { keys.map(key => {
                 return (
-                  <tr key={key.id}>
+                  <tr key={key.id} id={`api-key_${key.id}`}>
                     <td><span>{ key.id }</span></td>
                     <td><span>{ key.name }</span></td>
                     <td>{ key.created_at }</td>

@@ -6,9 +6,11 @@ export let schema: JSONSchemaType<GenerateApiKeyResponse> = {
 	type: 'object',
 	properties: {
 		api_key: { type: 'string' },
+		id: { type: 'string', uuid: true }
 	},
 	required: [
 		'api_key',
+		'id',
 	],
 	additionalProperties: false,
 }

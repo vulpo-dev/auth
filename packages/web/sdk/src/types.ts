@@ -134,12 +134,13 @@ export type Config = {
 }
 
 export type GenerateApiKey = {
-	name: string;
+	name?: string;
 	expire_at?: string;
 }
 
 export type GenerateApiKeyResponse = {
 	api_key: string;
+	id: string;
 }
 
 export type ApiKey = {

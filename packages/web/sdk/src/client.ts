@@ -76,7 +76,7 @@ export interface IAuthClient {
 	updateEmail(email: string, config?: RequestConfig): Promise<void>;
 	confirmUpdateEmail(id: string, token: string, config?: RequestConfig): Promise<void>;
 	rejectUpdateEmail(id: string, token: string, config?: RequestConfig): Promise<void>;
-	generateApiKey(payload: GenerateApiKey, config?: RequestConfig): Promise<string>;
+	generateApiKey(payload: GenerateApiKey, config?: RequestConfig): Promise<GenerateApiKeyResponse>;
 	listApiKeys(config?: Partial<Request>): Promise<ApiKeys>;
 }
 
@@ -709,7 +709,7 @@ export class AuthClient implements IAuthClient {
 	/*
 	 * generate a new API key
 	*/
-	async generateApiKey(payload: GenerateApiKey, config?: RequestConfig): Promise<string> {
+	async generateApiKey(payload: GenerateApiKey, config?: RequestConfig): Promise<GenerateApiKeyResponse> {
 		let { data } = await this.withToken(token => {
 	    	let headers = new Headers(config?.headers)
 	    	headers.append('Authorization', `Bearer ${token}`)
@@ -717,7 +717,7 @@ export class AuthClient implements IAuthClient {
 	    		.post<GenerateApiKeyResponse>(Url.GenerateApiKey, payload, { ...config, headers })
 	    })
 
-		return data.api_key
+		return data
 	}
 
 
