@@ -24,6 +24,10 @@ export type SetPasswordPayload = {
 	password2: string;
 }
 
+export type UserSetPasswordPayload = {
+	password: string;
+}
+
 export type RequestPasswordlessPayload = {
 	email: string;
 	public_key: Array<number>;
@@ -99,7 +103,6 @@ export enum ApiError {
 export type Claims = {
 	sub: string;
 	exp: number,
-	iss: string,
 	traits: Array<string>,
 }
 
@@ -147,7 +150,21 @@ export type ApiKey = {
 }
 
 export type ApiKeys = {
-	keys: Array<ApiKey>
+	keys: Array<ApiKey>;
+}
+
+export type UpdateEmailPayload = {
+	new_email: string;
+}
+
+export type ConfirmUpdateEmailPayload = {
+	id: string;
+	token: string;
+}
+
+export type RejectUpdateEmailPayload = {
+	id: string;
+	token: string;
 }
 
 export type UserAuthState = User | null | undefined

@@ -4,6 +4,7 @@ import Http from '../utils/http'
 import { admin } from '@seeds/data/projects'
 import { createUser } from '../utils/user'
 import { generateApiKey } from './utils'
+import ClaimsSchema from '../utils/schema/claims'
 
 import { ErrorCode } from '@sdk-js/error'
 
@@ -29,6 +30,8 @@ describe("Verify ApiKey", () => {
 		.catch(err => err.response)
 
 		expect(res.status).toEqual(200)
+		expect(ClaimsSchema.validate(res.data)).toBeTruthy()
+
 		expect(res.data.sub).toEqual(user.id)
 		expect(res.data.traits).toEqual(TRAITS)
 	})

@@ -20,6 +20,10 @@ import {
     GenerateApiKey,
     GenerateApiKeyResponse,
     ApiKeys,
+    UpdateEmailPayload,
+    ConfirmUpdateEmailPayload,
+    RejectUpdateEmailPayload,
+    UserSetPasswordPayload,
 } from './types'
 
 import { SessionService } from './session'
@@ -354,8 +358,10 @@ export class AuthClient implements IAuthClient {
 		let headers = config?.headers ?? new Headers()
 		headers.set('Authorization', `Bearer ${accessToken}`)
 
+		let payload: UserSetPasswordPayload = { password }
+
 		await this.httpService
-			.post(Url.UserSetPassword, { password }, {
+			.post(Url.UserSetPassword, payload, {
 				...config,
 				headers,
 			})
@@ -676,7 +682,8 @@ export class AuthClient implements IAuthClient {
 	    await this.withToken(token => {
 	    	let headers = new Headers(config?.headers)
 	    	headers.append('Authorization', `Bearer ${token}`)
-	    	return this.httpService.post(Url.UpdateEmail, { new_email }, { ...config, headers })
+	    	let payload: UpdateEmailPayload = { new_email }
+	    	return this.httpService.post(Url.UpdateEmail, payload, { ...config, headers })
 	    })
 	}
 
@@ -685,7 +692,8 @@ export class AuthClient implements IAuthClient {
 	 * confirm the new email
 	*/
 	async confirmUpdateEmail(id: string, token: string, config?: Partial<Request> | undefined): Promise<void> {
-		await this.httpService.post(Url.ConfirmUpdateEmail, { id, token }, config)
+		let payload: ConfirmUpdateEmailPayload = { id, token }
+		await this.httpService.post(Url.ConfirmUpdateEmail, payload, config)
 	}
 
 
@@ -693,7 +701,8 @@ export class AuthClient implements IAuthClient {
 	 * reject the new email
 	*/
 	async rejectUpdateEmail(id: string, token: string, config?: Partial<Request> | undefined): Promise<void> {
-		await this.httpService.post(Url.RejectUpdateEmail, { id, token }, config)
+		let payload: RejectUpdateEmailPayload = { id, token }
+		await this.httpService.post(Url.RejectUpdateEmail, payload, config)
 	}
 
 

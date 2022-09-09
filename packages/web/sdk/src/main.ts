@@ -22,6 +22,10 @@ export type {
 	UserAuthState,
 	ApiKey,
 	ApiKeys,
+	UpdateEmailPayload,
+	ConfirmUpdateEmailPayload,
+	RejectUpdateEmailPayload,
+	UserSetPasswordPayload,
 } from './types'
 
 export { UserState, Flag, Url } from './types'

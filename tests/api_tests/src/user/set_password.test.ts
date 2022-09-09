@@ -8,7 +8,7 @@ import { makeCreateSession } from '../utils/passwordless'
 import { projectKeys } from '@seeds/data/projects'
 
 import { ErrorCode } from '@sdk-js/error'
-import { Url, UserState } from '@sdk-js/types'
+import { Url, UserSetPasswordPayload, UserState } from '@sdk-js/types'
 
 const USER_ID = '077a9f18-e3c9-428f-99de-49a9a6772887'
 const SESSION_ID = '4e418b87-f967-4d1c-9d40-70e352611101'
@@ -49,9 +49,10 @@ afterAll(() => Db.end())
 describe("Set Password", () => {
 	test("can set password", async () => {
 		let password = 'password'
+		let payload: UserSetPasswordPayload = { password }
 
 		let res = await Http
-			.post(Url.UserSetPassword, { password }, options())
+			.post(Url.UserSetPassword, payload, options())
 			.catch(err => err.response)
 
 		expect(res.status).toEqual(200)
@@ -70,9 +71,10 @@ describe("Set Password", () => {
 		`, [USER_ID, UserState.Active])
 
 		let password = 'password'
+		let payload: UserSetPasswordPayload = { password }
 
 		let res = await Http
-			.post(Url.UserSetPassword, { password }, options())
+			.post(Url.UserSetPassword, payload, options())
 			.catch(err => err.response)
 
 		expect(res.status).toEqual(403)
@@ -80,9 +82,10 @@ describe("Set Password", () => {
 
 	test("fails when password is too short", async () => {
 		let password = '1234567'
+		let payload: UserSetPasswordPayload = { password }
 
 		let res = await Http
-			.post(Url.UserSetPassword, {password}, options())
+			.post(Url.UserSetPassword, payload, options())
 			.catch(err => err.response)
 
 		expect(res.status).toBe(400)
@@ -95,9 +98,10 @@ describe("Set Password", () => {
 
 	test("fails when password is too long", async () => {
 		let password = 'passwordpasswordpasswordpasswordpasswordpasswordpasswordpasswordpassword'
-		
+		let payload: UserSetPasswordPayload = { password }
+
 		let res = await Http
-			.post(Url.UserSetPassword, { password }, options())
+			.post(Url.UserSetPassword, payload, options())
 			.catch(err => err.response)
 
 		expect(res.status).toBe(400)
@@ -110,9 +114,10 @@ describe("Set Password", () => {
 
 	test("fails for invalid token", async () => {
 		let password = 'password'
-		
+		let payload: UserSetPasswordPayload = { password }
+
 		let res = await Http
-			.post(Url.UserSetPassword, { password }, options(true))
+			.post(Url.UserSetPassword, payload, options(true))
 			.catch(err => err.response)
 
 		expect(res.status).toBe(401)

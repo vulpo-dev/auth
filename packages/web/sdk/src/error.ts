@@ -100,7 +100,11 @@ export function errorFromResponse(response: Response, data: ErrorResponse): ApiE
 
 export type ApiError = AuthError | GenericError
 
-export class AuthError extends Error {
+export interface Code {
+	code: ErrorCode
+}
+
+export class AuthError extends Error implements Code {
 	code: ErrorCode;
 	response: Response;
 
@@ -113,7 +117,7 @@ export class AuthError extends Error {
 }
 
 
-export class GenericError extends Error {
+export class GenericError extends Error implements Code {
 	code: ErrorCode;
 	response: Response;
 

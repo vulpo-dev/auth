@@ -7,6 +7,7 @@ import { project, projectKeys } from '@seeds/data/projects'
 
 import { v4 as uuid } from 'uuid'
 import * as bcrypt from 'bcryptjs'
+import { ConfirmUpdateEmailPayload, UpdateEmailPayload } from '@sdk-js/types'
 
 const EMAIL = 'api.test+change_email@vulpo.dev'
 const NEW_EMAIL = 'api.test+change_new_email@vulpo.dev'
@@ -41,7 +42,7 @@ describe("User change email", () => {
 			payload: tokenPayload()
 		})
 
-		let payload = { new_email: NEW_EMAIL }
+		let payload: UpdateEmailPayload = { new_email: NEW_EMAIL }
 
 		let res = await Http.post('user/email/update', payload, {
 			headers: {
@@ -56,7 +57,7 @@ describe("User change email", () => {
 	test("can confirm email", async () => {
 		let changeRequest = await insertChangeRequestToken()
 
-		let payload = {
+		let payload: ConfirmUpdateEmailPayload = {
 			id: changeRequest.id,
 			token: changeRequest.token,
 		}
@@ -82,7 +83,7 @@ describe("User change email", () => {
 	test("confirm fails when token is expired", async () => {
 		let changeRequest = await insertChangeRequestToken({ expired: true })
 
-		let payload = {
+		let payload: ConfirmUpdateEmailPayload = {
 			id: changeRequest.id,
 			token: changeRequest.token,
 		}
@@ -97,7 +98,7 @@ describe("User change email", () => {
 	test("confirm fails when token is invalid", async () => {
 		let changeRequest = await insertChangeRequestToken()
 
-		let payload = {
+		let payload: ConfirmUpdateEmailPayload = {
 			id: changeRequest.id,
 			token: changeRequest.resetToken,
 		}
@@ -125,7 +126,7 @@ describe("User reset change email", () => {
 			token: changeRequest.token,
 		})
 
-		let payload = {
+		let payload: ConfirmUpdateEmailPayload = {
 			id: changeRequest.id,
 			token: changeRequest.resetToken,
 		}
@@ -158,7 +159,7 @@ function testState(state: string) {
 		let changeRequest = await insertChangeRequestToken()
 		await setState(changeRequest.id, state)
 
-		let payload = {
+		let payload: ConfirmUpdateEmailPayload = {
 			id: changeRequest.id,
 			token: changeRequest.token,
 		}
