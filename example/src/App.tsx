@@ -143,6 +143,19 @@ let ApiKeyForm = () => {
     return () => controller.abort()
   }, [auth, apiKey])
 
+  async function deleteKey(id: string) {
+    await auth.deleteApiKey(id)
+    if (id === apiKey.id) {
+      setApiKey({ id: '', api_key: '' })
+    } else {
+      setKeys(state => {
+        return {
+          keys: state.keys.filter(key => key.id !== id)
+        }
+      })
+    }
+  }
+
   return (
     <section>
       
@@ -164,6 +177,10 @@ let ApiKeyForm = () => {
             <h3>Generated Key</h3>
             <p>ID: <span id='generated-api-key'>{apiKey.id}</span></p>
             <p className='generated_api_key'>{apiKey.api_key}</p>
+
+            <button onClick={() => deleteKey(apiKey.id)}>
+              Delete Generated Key
+            </button>
           </div>
         }      
 
@@ -176,6 +193,7 @@ let ApiKeyForm = () => {
                 <th align='left'>Name</th>
                 <th align='left'>Created At</th>
                 <th align='left'>Expire At</th>
+                <th align='left'></th>
               </tr>
             </thead>
 
@@ -187,6 +205,11 @@ let ApiKeyForm = () => {
                     <td><span>{ key.name }</span></td>
                     <td>{ key.created_at }</td>
                     <td>{ key.expire_at }</td>
+                    <td>
+                      <button onClick={() => deleteKey(key.id)}>
+                        Delete Key
+                      </button>
+                    </td>
                   </tr>
                 )
               })}

@@ -93,6 +93,24 @@ impl ApiKey {
         .fetch_all(pool)
         .await
     }
+
+    pub async fn delete(
+        pool: &PgPool,
+        id: &Uuid,
+        user_id: &Uuid,
+        project_id: &Uuid,
+    ) -> sqlx::Result<()> {
+        sqlx::query_file!(
+            "src/api_key/sql/delete_api_key.sql",
+            id,
+            project_id,
+            user_id,
+        )
+        .execute(pool)
+        .await?;
+
+        Ok(())
+    }
 }
 
 #[derive(Serialize)]

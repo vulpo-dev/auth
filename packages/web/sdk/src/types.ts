@@ -154,6 +154,10 @@ export type ApiKeys = {
 	keys: Array<ApiKey>;
 }
 
+export type DeleteApiKeyPayload = {
+	id: string;
+}
+
 export type UpdateEmailPayload = {
 	new_email: string;
 }

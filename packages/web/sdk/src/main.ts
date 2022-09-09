@@ -27,6 +27,7 @@ export type {
 	RejectUpdateEmailPayload,
 	UserSetPasswordPayload,
 	GenerateApiKeyResponse,
+	DeleteApiKeyPayload,
 } from './types'
 
 export { UserState, Flag, Url } from './types'

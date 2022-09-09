@@ -24,6 +24,7 @@ import {
     ConfirmUpdateEmailPayload,
     RejectUpdateEmailPayload,
     UserSetPasswordPayload,
+    DeleteApiKeyPayload,
 } from './types'
 
 import { SessionService } from './session'
@@ -78,6 +79,7 @@ export interface IAuthClient {
 	rejectUpdateEmail(id: string, token: string, config?: RequestConfig): Promise<void>;
 	generateApiKey(payload: GenerateApiKey, config?: RequestConfig): Promise<GenerateApiKeyResponse>;
 	listApiKeys(config?: Partial<Request>): Promise<ApiKeys>;
+	deleteApiKey(id: string, config?: Partial<Request>): Promise<void>
 }
 
 export class AuthClient implements IAuthClient {
@@ -732,5 +734,18 @@ export class AuthClient implements IAuthClient {
 	    })
 
 	    return res.data
+	}
+
+
+	/*
+	 * delete API key
+	*/
+	async deleteApiKey(id: string, config?: Partial<Request> | undefined): Promise<void> {
+	    await this.withToken(token => {
+	    	let headers = new Headers(config?.headers)
+	    	headers.append('Authorization', `Bearer ${token}`)
+	    	let payload: DeleteApiKeyPayload = { id }
+	    	return this.httpService.post(Url.DeleteApiKey, payload, { ...config, headers })
+	    })
 	}
 }

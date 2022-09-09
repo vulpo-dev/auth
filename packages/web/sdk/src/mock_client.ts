@@ -173,6 +173,12 @@ export class MockAuthClient implements IAuthClient {
 			
 			return res
 		})
+
+	deleteApiKey = jest
+		.fn<IAuthClient['deleteApiKey']>()
+		.mockImplementation(async (id: string) => {
+			errors(id)
+		})
 }
 
 function getUser(email: string = faker.internet.email()): User {
