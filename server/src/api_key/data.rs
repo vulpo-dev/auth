@@ -2,13 +2,18 @@ use crate::response::error::ApiError;
 
 use base64;
 use chrono::{DateTime, Utc};
+use serde::Serialize;
 use sqlx::PgPool;
 use std::str::{self, FromStr};
 use uuid::Uuid;
 use vulpo::Claims;
 
+#[derive(Serialize)]
 pub struct ApiKey {
-    pub api_key: String,
+    pub id: Uuid,
+    pub name: Option<String>,
+    pub expire_at: Option<DateTime<Utc>>,
+    pub created_at: DateTime<Utc>,
 }
 
 pub struct ApiKeyToken {
@@ -73,4 +78,24 @@ impl ApiKey {
 
         Ok((id, token))
     }
+
+    pub async fn list(
+        pool: &PgPool,
+        user_id: &Uuid,
+        project_id: &Uuid,
+    ) -> sqlx::Result<Vec<ApiKey>> {
+        sqlx::query_file_as!(
+            ApiKey,
+            "src/api_key/sql/list_api_keys.sql",
+            user_id,
+            project_id
+        )
+        .fetch_all(pool)
+        .await
+    }
+}
+
+#[derive(Serialize)]
+pub struct ApiKeys {
+    pub keys: Vec<ApiKey>,
 }

@@ -1,7 +1,15 @@
 declare var jest: typeof import('@jest/globals').jest
 
 import { IAuthClient } from './client'
-import { AuthCallback, SessionInfo, SetPasswordPayload, User, UserState } from './types'
+import {
+	AuthCallback,
+	SessionInfo,
+	SetPasswordPayload,
+	User,
+	UserState,
+	GenerateApiKey,
+    ApiKeys,
+} from './types'
 import { uuid } from './utils'
 import { faker } from '@faker-js/faker'
 import { AuthError, ErrorCode, GenericError } from './error'
@@ -144,6 +152,26 @@ export class MockAuthClient implements IAuthClient {
 		.fn<IAuthClient['confirmUpdateEmail']>()
 		.mockImplementation(async (id: string) => {
 			errors(id)
+		})
+
+	generateApiKey = jest
+		.fn<IAuthClient['generateApiKey']>()
+		.mockImplementation(async (payload: GenerateApiKey) => {
+			errors(payload.name)
+			return uuid()
+		})
+
+	listApiKeys = jest
+		.fn<IAuthClient['listApiKeys']>()
+		.mockImplementation(async () => {
+			let res: ApiKeys = {
+				keys: [{
+					id: uuid(),
+					created_at: faker.date.past().toISOString()
+				}]
+			}
+			
+			return res
 		})
 }
 

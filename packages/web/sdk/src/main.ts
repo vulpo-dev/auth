@@ -20,6 +20,8 @@ export type {
 	SessionResponse,
 	EmailPasswordPayload,
 	UserAuthState,
+	ApiKey,
+	ApiKeys,
 } from './types'
 
 export { UserState, Flag, Url } from './types'

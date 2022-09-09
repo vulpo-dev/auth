@@ -42,3 +42,33 @@
   top: 16px;
   right: 16px;
 }
+
+
+section {
+  padding:  50px 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.generated_api_key {
+  width: 100ch;
+  line-break: anywhere;
+  text-align: left;
+}
+
+.api_keys {
+  border-spacing: 16px 8px;
+}
+
+.api_keys tbody td {
+  text-align: left;
+}
+
+.api_keys tbody td span {
+  width: 13ch;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  display: block;
+}

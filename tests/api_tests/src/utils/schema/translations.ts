@@ -1,4 +1,3 @@
-import {JSONSchemaType} from "ajv"
 import { Languages } from '@admin/data/languages'
 import Ajv from '../ajv'
 

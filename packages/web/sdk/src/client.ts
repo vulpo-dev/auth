@@ -17,6 +17,9 @@ import {
     VerifyEmailPayload,
     OAuthAuthorizeUrlPayload,
     OAuthAuthorizeUrlResponse,
+    GenerateApiKey,
+    GenerateApiKeyResponse,
+    ApiKeys,
 } from './types'
 
 import { SessionService } from './session'
@@ -69,6 +72,8 @@ export interface IAuthClient {
 	updateEmail(email: string, config?: RequestConfig): Promise<void>;
 	confirmUpdateEmail(id: string, token: string, config?: RequestConfig): Promise<void>;
 	rejectUpdateEmail(id: string, token: string, config?: RequestConfig): Promise<void>;
+	generateApiKey(payload: GenerateApiKey, config?: RequestConfig): Promise<string>;
+	listApiKeys(config?: Partial<Request>): Promise<ApiKeys>;
 }
 
 export class AuthClient implements IAuthClient {
@@ -552,11 +557,10 @@ export class AuthClient implements IAuthClient {
 	 *  })
 	 * ```
 	*/
-	async withToken(fn: (token: string) => Promise<Response>, session?: string): Promise<Response> {
+	async withToken<T extends Response>(fn: (token: string) => Promise<T>, session?: string): Promise<T> {
 		let token = await this.getToken(session)
 
 		return fn(token).then(async response => {
-			console.log({ response })
 			if (response.status === 401) {
 				let token = await this.forceToken(session)
 				return fn(token).then(async response => {
@@ -690,5 +694,34 @@ export class AuthClient implements IAuthClient {
 	*/
 	async rejectUpdateEmail(id: string, token: string, config?: Partial<Request> | undefined): Promise<void> {
 		await this.httpService.post(Url.RejectUpdateEmail, { id, token }, config)
+	}
+
+
+	/*
+	 * generate a new API key
+	*/
+	async generateApiKey(payload: GenerateApiKey, config?: RequestConfig): Promise<string> {
+		let { data } = await this.withToken(token => {
+	    	let headers = new Headers(config?.headers)
+	    	headers.append('Authorization', `Bearer ${token}`)
+	    	return this.httpService
+	    		.post<GenerateApiKeyResponse>(Url.GenerateApiKey, payload, { ...config, headers })
+	    })
+
+		return data.api_key
+	}
+
+
+	/*
+	 * list all API keys for a user
+	*/
+	async listApiKeys(config?: Partial<Request> | undefined): Promise<ApiKeys> {
+	    let res = await this.withToken(token => {
+	    	let headers = new Headers(config?.headers)
+	    	headers.append('Authorization', `Bearer ${token}`)
+	    	return this.httpService.get<ApiKeys>(Url.ListApiKeys, { ...config, headers })
+	    })
+
+	    return res.data
 	}
 }

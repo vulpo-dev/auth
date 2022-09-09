@@ -1,9 +1,9 @@
-import { FormEvent, useState } from 'react';
+import { FormEvent, useEffect, useState } from 'react';
 import logo from './logo.svg';
 import './App.css';
 import { useAuth } from '@vulpo-dev/auth-react'
 import { Link } from 'react-router-dom'
-import { ErrorCode } from '@vulpo-dev/auth-sdk';
+import { ErrorCode, uuid, ApiKeys } from '@vulpo-dev/auth-sdk';
 
 function App() {
   let auth = useAuth()
@@ -47,6 +47,7 @@ function App() {
 
       <main>
         <EmailForm />
+        <ApiKeyForm />
       </main>
 
       <button className="signOut" onClick={signOut}>Sign Out</button>
@@ -82,7 +83,7 @@ let EmailForm = () => {
   }
 
   return (
-    <div>
+    <section>
       { error !== null &&
         <p>{ error }</p>
       }
@@ -94,9 +95,88 @@ let EmailForm = () => {
       <form onSubmit={handleUpdateEmail}>
         <label>New Email</label>
         <input name='new_email' type='email' />
-
         <button disabled={loading}>Update Email</button>
       </form>
-    </div>
+    </section>
+  )
+}
+
+let ApiKeyForm = () => {
+  let auth = useAuth()
+
+  let [apiKey, setApiKey] = useState('')
+  let [loading, setLoading] = useState(false)
+  let [submitted, setSubmitted] = useState(false)
+  let [error, setError] = useState<ErrorCode | null>(null)
+
+  async function generateApiKey() {
+    setLoading(true)
+
+    auth
+      .generateApiKey({ name: uuid() })
+      .then((apiKey) => {
+        setSubmitted(true)
+        setApiKey(apiKey)
+      })
+      .catch(err => setError(err.code))
+      .finally(() => setLoading(false))
+  }
+
+  let [{ keys }, setKeys] = useState<ApiKeys>({ keys: [] })
+  useEffect(() => {
+    let controller = new AbortController()
+
+    auth
+      .listApiKeys({ signal: controller.signal })
+      .then(res => setKeys(res))
+      .catch(() => {})
+
+    return () => controller.abort()
+  }, [auth, apiKey])
+
+  return (
+    <section>
+      
+      <div>
+        
+        <button onClick={generateApiKey} disabled={loading}>
+          Generate API Key
+        </button>
+
+        { (submitted && !error) &&
+          <div>
+            <h3>Generated Key</h3>
+            <p className='generated_api_key'>{apiKey}</p>
+          </div>
+        }      
+
+        <div>
+          <h3>Api Keys</h3>
+          <table className='api_keys'>
+            <thead>
+              <tr>
+                <th align='left'>Id</th>
+                <th align='left'>Name</th>
+                <th align='left'>Created At</th>
+                <th align='left'>Expire At</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              { keys.map(key => {
+                return (
+                  <tr key={key.id}>
+                    <td><span>{ key.id }</span></td>
+                    <td><span>{ key.name }</span></td>
+                    <td>{ key.created_at }</td>
+                    <td>{ key.expire_at }</td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
   )
 }

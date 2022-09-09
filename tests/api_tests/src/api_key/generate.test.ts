@@ -4,25 +4,26 @@ import { createUser, createAccessToken } from '../utils/user'
 
 import { v4 as uuid, validate as uuidValidate } from 'uuid'
 import * as bcrypt from 'bcryptjs'
+import { Url, GenerateApiKey } from '@sdk-js/types'
 
 afterAll(() => Db.end())
 
 describe("Generate API Key", () => {
-	test("can generate API Key", generateTokenTest(null))
+	test("can generate API Key", generateTokenTest(undefined))
 	test("can generate API Key with expiration date", generateTokenTest(new Date(Date.now() + 30 * 60 * 1000).toISOString()))
 })
 
-function generateTokenTest (expire_at: null | string) {
+function generateTokenTest (expire_at?: string) {
 	return async () => {
 		let user = await createUser()
 		let accessToken = createAccessToken({ user })
 
-		let payload = {
+		let payload: GenerateApiKey = {
 			expire_at,
 			name: uuid(),
 		}
 
-		let res = await Http.post('/api_key/generate', payload, {
+		let res = await Http.post(Url.GenerateApiKey, payload, {
 			headers: {
 				'Authorization': `Bearer ${accessToken}`,
 			}

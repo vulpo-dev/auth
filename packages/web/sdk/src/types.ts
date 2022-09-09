@@ -130,6 +130,26 @@ export type Config = {
 	http?: IHttpService;
 }
 
+export type GenerateApiKey = {
+	name: string;
+	expire_at?: string;
+}
+
+export type GenerateApiKeyResponse = {
+	api_key: string;
+}
+
+export type ApiKey = {
+	id: string;
+	name?: string;
+	expire_at?: string;
+	created_at: string;
+}
+
+export type ApiKeys = {
+	keys: Array<ApiKey>
+}
+
 export type UserAuthState = User | null | undefined
 export type AuthCallback = (u: SessionInfo | null | undefined) => void
 export type Unsubscribe = { unsubscribe: () => void }
@@ -173,6 +193,10 @@ export enum Url {
 	UpdateEmail = '/user/email/update',
 	ConfirmUpdateEmail = '/user/email/update/confirm',
 	RejectUpdateEmail = '/user/email/update/reset',
+
+	GenerateApiKey = '/api_key/generate',
+	ListApiKeys = '/api_key/list',
+	DeleteApiKey = '/api_key/delete',
 }
 
 export enum Flag {

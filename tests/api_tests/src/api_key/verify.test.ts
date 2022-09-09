@@ -7,7 +7,6 @@ import { generateApiKey } from './utils'
 
 import { ErrorCode } from '@sdk-js/error'
 
-const PROJECT_ID = admin.id
 const TRAITS = ['Fuu', 'Bar']
 
 let getUser = () => {
