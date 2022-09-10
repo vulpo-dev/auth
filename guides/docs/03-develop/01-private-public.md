@@ -27,9 +27,9 @@ Here is what happens when a user navigates to a `<PrivateRoute />` without being
 
 ## Internals
 
-Both `<PublicRoute />` and `<PrivateRoute />` are just small wrappers around the `<Route />`[^1] element from react-router-dom[^2],
+Both `<PublicRoute />` and `<PrivateRoute />` are small wrappers around the `<Route />`[^1] element from react-router-dom[^2],
 in fact, `<PublicRoute />` and `<PrivateRoute />` on it's own do
-nothing, our `<AuthShell />` is doing all the heavy lifting for us, managing the user auth state, redirects, access control etc.
+nothing, the `<AuthShell />` is doing all the heavy lifting for us, managing the users auth state, redirects, access control etc.
 
 - Source: [`<PublicRoute />` and `<PrivateRoute />`](https://github.com/vulpo-dev/auth/blob/master/packages/web/ui/src/utils.ts#L58)  
 - Source: [`<AuthShell />`](https://github.com/vulpo-dev/auth/blob/master/packages/web/ui/src/auth_shell.tsx#L122)  

@@ -71,12 +71,12 @@ export default App
 
 ### Dark mode
 
-By default, the auth shell uses a light theme to render it the auth screens. You can use the `dark` prop to change the default behavior like so:
+By default, the auth shell uses a light theme to render the auth screens. You can use the `dark` prop to change the default behavior like so:
 ```tsx
 <AuthShell dark />
 ```
 
-You and also use something like [`useMediaQuery`](https://usehooks-ts.com/react-hook/use-media-query) to adjust the theme based on the users preference:
+You can also use something like [`useMediaQuery`](https://usehooks-ts.com/react-hook/use-media-query) to adjust the theme based on the users preference:
 ```tsx
 import { useMediaQuery } from 'usehooks-ts'
 

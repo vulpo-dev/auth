@@ -711,7 +711,7 @@ export class AuthClient implements IAuthClient {
 	/*
 	 * generate a new API key
 	*/
-	async generateApiKey(payload: GenerateApiKey, config?: RequestConfig): Promise<GenerateApiKeyResponse> {
+	async generateApiKey(payload: GenerateApiKey = {}, config?: RequestConfig): Promise<GenerateApiKeyResponse> {
 		let { data } = await this.withToken(token => {
 	    	let headers = new Headers(config?.headers)
 	    	headers.append('Authorization', `Bearer ${token}`)
