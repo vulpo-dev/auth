@@ -34,15 +34,6 @@ pub fn init(config: &DbConfig) {
         }
     };
 
-    match diesel::sql_query("create schema auth;").execute(&conn) {
-        Ok(_) => println!("Schema auth created"),
-        Err(err) => {
-            if let Error::DatabaseError(_, msg) = err {
-                println!("{:?}", msg);
-            }
-        }
-    };
-
     println!("Running Migrations");
     run(&config);
 
