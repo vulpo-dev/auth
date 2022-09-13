@@ -111,6 +111,45 @@
       "nullable": []
     }
   },
+  "1b4ec078f3d8f1ffc78943a2c2ed7f9ce509b26ec39d3d59b99ad07a189b0e8b": {
+    "query": "\r\nselect id\r\n     , name\r\n     , expire_at\r\n\t , created_at\r\n  from api_keys \r\n where user_id = $1\r\n   and project_id = $2\r\n order by created_at desc \r\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "name",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 2,
+          "name": "expire_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          "Uuid"
+        ]
+      },
+      "nullable": [
+        false,
+        true,
+        true,
+        false
+      ]
+    }
+  },
   "206e748963b01c6332cc10ddc1addb99925d4418511c7a0a66673a53ca3bde8f": {
     "query": "\r\nselect password_alg as \"alg: PasswordAlg\"\r\n  from users\r\n  join project_settings on project_settings.project_id = users.project_id\r\n where users.id = $1",
     "describe": {
@@ -239,26 +278,6 @@
           "ordinal": 0,
           "name": "is_admin",
           "type_info": "Bool"
-        }
-      ],
-      "parameters": {
-        "Left": [
-          "Uuid"
-        ]
-      },
-      "nullable": [
-        false
-      ]
-    }
-  },
-  "33217f064dd0cdc645afe501b2a11d357d0f6c371c67d4cb2e223de63dc3bd55": {
-    "query": "\r\nselect email\r\n  from users\r\n where id = $1\r\n ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "email",
-          "type_info": "Text"
         }
       ],
       "parameters": {
@@ -1805,6 +1824,20 @@
       "nullable": [
         false
       ]
+    }
+  },
+  "c3c336d75f34ef5b41b46359710e2a2a07bada26225e51a5736c9e1d49aec0c0": {
+    "query": "\r\ndelete from api_keys\r\n where id = $1\r\n   and project_id = $2\r\n   and user_id = $3\r\n",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          "Uuid",
+          "Uuid"
+        ]
+      },
+      "nullable": []
     }
   },
   "c99845a1de6b2cf5107f90a24333d6e60a0b8d82ba0dab1fb702fe7eb2688406": {
