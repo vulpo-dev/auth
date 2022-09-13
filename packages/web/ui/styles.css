@@ -104,7 +104,7 @@
 
 /* HEADER */
 .vulpo-auth-header {
-	.margin-block-end: calc(var(--baseline) * 4.125);	
+	margin-block-end: calc(var(--baseline) * 4.125);	
 }
 
 .vulpo-auth-header-title {
