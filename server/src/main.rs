@@ -4,7 +4,6 @@ mod cli;
 mod config;
 mod cors;
 mod crypto;
-mod db;
 mod file;
 mod keys;
 mod mail;
@@ -26,15 +25,13 @@ extern crate openssl_probe;
 #[macro_use]
 extern crate rocket;
 
-#[macro_use]
-extern crate diesel_migrations;
-
 use figment::{
-    providers::{Env, Format, Toml},
+    providers::{Format, Toml},
     Figment,
 };
 use include_dir::{include_dir, Dir};
-use std::env;
+use werkbank::clap::{get_config_dir, run_migration, run_server};
+use werkbank::otel;
 
 const ADMIN_CLIENT: Dir = include_dir!("$CARGO_MANIFEST_DIR/../admin/build");
 const TEMPLATE: Dir = include_dir!("$CARGO_MANIFEST_DIR/template");
@@ -45,32 +42,22 @@ async fn main() {
 
     openssl_probe::init_ssl_cert_env_vars();
 
-    let matches = cli::get_matches(version);
-    let file = config::get_dir(matches.value_of("config"));
+    let matches = cli::get_matches();
+    let file = get_config_dir(matches.get_one::<String>("config"));
     let figment = Figment::new().merge(Toml::file(file).nested());
-    let db_config = config::db(&figment);
     let secret_config = config::secrets(&figment);
 
-    if env::var("VULPO_RUN_MIGRATIONS").is_ok() || matches.subcommand_matches("init").is_some() {
-        migration::init(&db_config);
+    if matches.get_flag("version") {
+        version.map(|v| println!("Version: {:?}", v));
     }
 
-    if matches.subcommand_matches("migrations").is_some() {
-        migration::run(&db_config);
+    if run_migration(&matches) {
+        migration::run(&figment).await;
     }
 
-    if let Some(matches) = matches.subcommand_matches("server") {
-        let port = server::get_port(matches.value_of("port"));
-
-        let rocket_config = Figment::from(rocket::Config::default())
-            .merge(figment.clone().select("server"))
-            .merge(Env::prefixed("VULPO_SERVER_").global());
-
-        let config = match port {
-            None => rocket_config,
-            Some(port) => rocket_config.merge(("port", port)),
-        };
-
-        server::start(config, &db_config, secret_config).await;
+    if let Some(matches) = run_server(&matches) {
+        otel::init("vulpo_auth_server", &figment);
+        let port = server::get_port(matches.get_one::<String>("port"));
+        server::start(&figment, port, secret_config).await;
     }
 }

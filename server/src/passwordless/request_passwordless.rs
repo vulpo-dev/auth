@@ -1,5 +1,4 @@
 use crate::crypto::Token;
-use crate::db::Db;
 use crate::mail::Email;
 use crate::passwordless::data::Passwordless;
 use crate::project::data::Flags;
@@ -13,6 +12,7 @@ use crate::user::data::{User, UserState};
 use chrono::{Duration, Utc};
 use rocket::serde::{json::Json, Deserialize, Serialize};
 use uuid::Uuid;
+use werkbank::rocket::Db;
 
 #[derive(Deserialize)]
 pub struct RequestPasswordless {

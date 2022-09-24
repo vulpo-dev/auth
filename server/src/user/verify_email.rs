@@ -1,6 +1,5 @@
 use crate::admin::data::Admin;
 use crate::crypto::Token;
-use crate::db::Db;
 use crate::mail::data::VerifyEmail;
 use crate::mail::Email;
 use crate::project::Project;
@@ -13,6 +12,7 @@ use rocket::http::Status;
 use rocket::serde::json::Json;
 use serde::Deserialize;
 use uuid::Uuid;
+use werkbank::rocket::Db;
 
 #[derive(Deserialize)]
 pub struct Verify {

@@ -1,5 +1,4 @@
 use crate::config::Secrets;
-use crate::db::Db;
 use crate::keys::data::ProjectKeys;
 use crate::password::validate_password_length;
 use crate::project::data::Flags;
@@ -15,6 +14,7 @@ use rocket::serde::json::Json;
 use rocket::State;
 use serde::Deserialize;
 use uuid::Uuid;
+use werkbank::rocket::Db;
 
 #[derive(Deserialize)]
 pub struct SignUp {

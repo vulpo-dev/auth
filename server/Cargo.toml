@@ -13,13 +13,11 @@ serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 uuid = { version = "1.0", features = ["serde", "v4"] }
 include_dir = "0.7"
-clap = "3.0.0-beta.2"
+clap = "4.0.0-rc.2"
 rand = "0.8.5"
 bcrypt = "0.13.0"
 handlebars = "4.3"
 reqwest = { version = "0.11", features = ["json"] }
-diesel_migrations = "1.4"
-diesel = { version = "1.4", features = ["postgres"] }
 jsonwebtoken = "8.1"
 chrono = { version = "0.4.19", features = ["serde"] }
 openssl-sys = "0.9"
@@ -35,6 +33,13 @@ rand_core = { version = "0.6", features = ["std"] }
 oauth2 = "4.2.0"
 futures = "0.3.21"
 thiserror = "1.0.31"
+werkbank = { path = "../../werkbank" }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
+tracing-opentelemetry = "0.17.3"
+opentelemetry = { version = "0.17", features = ["rt-tokio"] }
+opentelemetry-otlp = "0.10"
+url = "2.3.1"
 
 [dependencies.sqlx]
 version = "0.6"
@@ -46,12 +51,13 @@ features = [
 	"uuid",
 	"chrono",
 	"json",
-	"offline"
+	"offline",
+	"migrate",
 ]
 
 [dependencies.lettre]
 git = "https://github.com/lettre/lettre"
-version = "0.10.0"
+version = "0.10"
 features = ["tokio1", "tokio1-rustls-tls", "tokio1-native-tls"]
 
 [dependencies.rocket]

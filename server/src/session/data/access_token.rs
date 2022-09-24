@@ -1,4 +1,3 @@
-use crate::db::Db;
 use crate::keys::data::ProjectKeys;
 use crate::project::Project;
 use crate::response::error::ApiError;
@@ -8,6 +7,7 @@ use jsonwebtoken::{decode, encode, Algorithm, DecodingKey, EncodingKey, Header, 
 use rocket::http::Status;
 use rocket::request::Outcome;
 use rocket::request::{FromRequest, Request};
+use werkbank::rocket::Db;
 
 use uuid::Uuid;
 pub use vulpo::Claims;

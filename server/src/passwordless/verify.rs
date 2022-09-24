@@ -1,5 +1,4 @@
 use crate::config::Secrets;
-use crate::db::Db;
 use crate::keys::data::ProjectKeys;
 use crate::passwordless::data::Passwordless;
 use crate::project::Project;
@@ -13,6 +12,7 @@ use rocket::serde::json::Json;
 use rocket::State;
 use serde::Deserialize;
 use uuid::Uuid;
+use werkbank::rocket::Db;
 
 #[derive(Deserialize)]
 pub struct Veriy {

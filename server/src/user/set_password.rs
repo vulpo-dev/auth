@@ -1,4 +1,3 @@
-use crate::db::Db;
 use crate::password;
 use crate::password::data::Password;
 use crate::project::data::Project as ProjectData;
@@ -13,6 +12,7 @@ use rocket::http::Status;
 use rocket::serde::json::Json;
 use serde::Deserialize;
 use uuid::Uuid;
+use werkbank::rocket::Db;
 
 #[derive(Deserialize)]
 pub struct Payload {

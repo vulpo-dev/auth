@@ -1,5 +1,4 @@
 use crate::admin::data::Admin;
-use crate::db::Db;
 use crate::project::data::Project;
 use crate::response::error::ApiError;
 
@@ -7,6 +6,7 @@ use rocket::http::Status;
 use rocket::serde::json::Json;
 use serde::Deserialize;
 use uuid::Uuid;
+use werkbank::rocket::Db;
 
 #[derive(Deserialize)]
 pub struct SetProjectSettings {

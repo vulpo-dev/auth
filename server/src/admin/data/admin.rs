@@ -1,5 +1,4 @@
 use crate::api_key::verify::verify_api_key;
-use crate::db::Db;
 use crate::keys::data::{NewProjectKeys, ProjectKeys};
 use crate::project::Project;
 use crate::response::error::ApiError;
@@ -9,10 +8,10 @@ use futures::join;
 use rocket::http::Status;
 use rocket::request::Outcome;
 use rocket::request::{self, FromRequest, Request};
-
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use serde_json::value::Value;
+use werkbank::rocket::Db;
 
 use sqlx::{self, PgPool};
 use uuid::Uuid;

@@ -1,6 +1,5 @@
 use crate::admin::data::Admin;
 use crate::config::Secrets;
-use crate::db::Db;
 use crate::keys::data::ProjectKeys;
 use crate::oauth::data::google::GoogleMeResponse;
 use crate::oauth::data::OAuthData;
@@ -26,6 +25,7 @@ use rocket::State;
 use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
 use uuid::Uuid;
+use werkbank::rocket::Db;
 
 const GOOGLE_ME_ENDPOINT: &'static str =
     "https://people.googleapis.com/v1/people/me?personFields=emailAddresses,metadata,names,photos";

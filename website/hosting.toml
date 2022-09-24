@@ -1,0 +1,4 @@
+[default]
+public = "out"
+server = "https://vulpo.ink"
+spa = false

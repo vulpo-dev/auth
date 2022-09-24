@@ -1,12 +1,12 @@
 use crate::api_key::data::ApiKey;
 use crate::crypto::Token;
-use crate::db::Db;
 use crate::response::error::ApiError;
 
 use chrono::Utc;
 use rocket::serde::json::Json;
 use serde::Deserialize;
 use vulpo::Claims;
+use werkbank::rocket::Db;
 
 #[derive(Deserialize)]
 pub struct VerifyPayload {

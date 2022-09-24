@@ -1,11 +1,11 @@
 use crate::api_key::data::{ApiKey, ApiKeys};
-use crate::db::Db;
 use crate::project::Project;
 use crate::response::error::ApiError;
 use crate::session::data::AccessToken;
 
 use rocket::serde::json::Json;
 use uuid::Uuid;
+use werkbank::rocket::Db;
 
 pub async fn list_api_keys(
     pool: &Db,

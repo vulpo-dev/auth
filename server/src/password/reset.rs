@@ -1,5 +1,4 @@
 use crate::crypto::Token;
-use crate::db::Db;
 use crate::mail::Email;
 use crate::password::data::PasswordReset;
 use crate::password::validate_password_length;
@@ -14,6 +13,7 @@ use chrono::Utc;
 use rocket::http::Status;
 use rocket::serde::{json::Json, Deserialize};
 use uuid::Uuid;
+use werkbank::rocket::Db;
 
 use super::data::Password;
 

@@ -1,4 +1,3 @@
-use crate::db::Db;
 use crate::project::data::Project;
 
 use rocket::fairing::{Fairing, Info, Kind};
@@ -8,8 +7,9 @@ use rocket::request::FromRequest;
 use rocket::{Request, Response};
 use std::io::Cursor;
 use uuid::Uuid;
+use werkbank::rocket::Db;
 
-pub struct CORS();
+pub struct CORS;
 
 #[rocket::async_trait]
 impl Fairing for CORS {

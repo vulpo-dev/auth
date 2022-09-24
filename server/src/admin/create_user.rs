@@ -1,5 +1,4 @@
 use crate::admin::data::{Admin, NewUser};
-use crate::db::Db;
 use crate::password;
 use crate::password::data::Password;
 use crate::project::data::Project as ProjectData;
@@ -8,6 +7,7 @@ use crate::response::error::ApiError;
 use rocket;
 use rocket::serde::json::Json;
 use uuid::Uuid;
+use werkbank::rocket::Db;
 
 pub async fn create_user(pool: &Db, user: NewUser) -> Result<Uuid, ApiError> {
     if user.provider_id == "password" {

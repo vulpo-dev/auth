@@ -1,5 +1,4 @@
 use crate::admin::data::Admin;
-use crate::db::Db;
 use crate::response::error::ApiError;
 use crate::user::data::{PartialUser, SortDirection, TotalUsers, User, UserOrder};
 use rocket::serde::uuid::Uuid;
@@ -7,6 +6,7 @@ use rocket::serde::uuid::Uuid;
 use rocket::serde::json::Json;
 use serde::Serialize;
 use std::str::FromStr;
+use werkbank::rocket::Db;
 
 pub async fn get_users(
     pool: &Db,

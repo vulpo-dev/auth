@@ -1,9 +1,9 @@
 use crate::admin::data::Admin;
-use crate::db::Db;
 use crate::response::error::ApiError;
 
 use rocket::serde::json::Json;
 use serde::Serialize;
+use werkbank::rocket::Db;
 
 pub async fn server_has_admin(pool: &Db) -> Result<bool, ApiError> {
     let result = Admin::has_admin(&pool).await?;

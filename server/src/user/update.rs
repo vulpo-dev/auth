@@ -1,5 +1,4 @@
 use crate::admin::data::Admin;
-use crate::db::Db;
 use crate::project::Project;
 use crate::response::error::ApiError;
 use crate::session::data::AccessToken;
@@ -9,6 +8,7 @@ use crate::user::verify_email::{send_email_verification, SendEmailVerification};
 use rocket::http::Status;
 use rocket::serde::json::Json;
 use rocket::serde::uuid::Uuid;
+use werkbank::rocket::Db;
 
 pub async fn update_user(
     pool: &Db,

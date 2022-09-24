@@ -1,11 +1,11 @@
 use crate::admin::data::Admin;
-use crate::db::Db;
 use crate::response::error::ApiError;
 use crate::settings::data::{EmailSettings, ProjectEmail};
 
 use rocket::http::Status;
 use rocket::serde::json::Json;
 use rocket::serde::uuid::Uuid;
+use werkbank::rocket::Db;
 
 pub async fn get_email_settings(
     pool: &Db,

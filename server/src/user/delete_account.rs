@@ -1,5 +1,4 @@
 use crate::admin::data::Admin;
-use crate::db::Db;
 use crate::response::error::ApiError;
 
 use crate::session::data::{RefreshAccessToken, Session};
@@ -9,6 +8,7 @@ use rocket;
 use rocket::http::Status;
 use rocket::serde::json::Json;
 use rocket::serde::uuid::Uuid;
+use werkbank::rocket::Db;
 
 pub async fn delete_account(pool: &Db, user_id: Uuid) -> Result<(), ApiError> {
     User::remove(&pool, &user_id).await?;

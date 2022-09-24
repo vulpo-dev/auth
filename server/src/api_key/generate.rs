@@ -1,15 +1,16 @@
 use crate::api_key::data::ApiKey;
 
+use crate::crypto::Token;
 use crate::response::error::ApiError;
 use crate::session::data::AccessToken;
 use crate::user::data::User;
-use crate::{crypto::Token, db::Db};
 
 use base64;
 use chrono::{DateTime, Utc};
 use rocket::serde::json::Json;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
+use werkbank::rocket::db::Db;
 
 #[derive(Deserialize)]
 pub struct Payload {

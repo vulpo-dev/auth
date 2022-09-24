@@ -1,9 +1,9 @@
-use crate::db::Db;
 use crate::keys::data::PublicKey;
 use crate::response::error::ApiError;
 
 use chrono::{DateTime, Duration, Utc};
 use rocket::serde::{json::Json, Serialize};
+use werkbank::rocket::Db;
 
 #[derive(Serialize)]
 pub struct PublicKeys {

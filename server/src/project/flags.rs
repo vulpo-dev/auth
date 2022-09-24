@@ -1,9 +1,9 @@
-use crate::db::Db;
 use crate::project::data::Flags;
 use crate::response::error::ApiError;
 use rocket::serde::uuid::Uuid;
 
 use rocket::serde::{json::Json, Serialize};
+use werkbank::rocket::Db;
 
 pub async fn get_flags(pool: &Db, project: &Uuid) -> Result<Vec<Flags>, ApiError> {
     let items = Flags::from_project(&pool, &project).await?;

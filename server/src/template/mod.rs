@@ -7,7 +7,6 @@ pub use config::{DefaultRedirect, DefaultSubject};
 use rocket::http::Status;
 
 use crate::admin::data::Admin;
-use crate::db::Db;
 use crate::response::error::ApiError;
 pub use config::Templates;
 pub use data::Translations;
@@ -16,6 +15,7 @@ pub use template::{Template, TemplateCtx, TemplateResponse};
 use rocket::serde::json::Json;
 use rocket::serde::uuid::Uuid;
 use rocket::Route;
+use werkbank::rocket::Db;
 
 use self::template::SetTemplateView;
 

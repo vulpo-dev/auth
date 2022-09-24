@@ -1,4 +1,3 @@
-use crate::db::Db;
 use crate::passwordless::data::Passwordless;
 use crate::response::error::ApiError;
 
@@ -7,6 +6,7 @@ use rocket::http::Status;
 use rocket::serde::json::Json;
 use serde::Deserialize;
 use uuid::Uuid;
+use werkbank::rocket::Db;
 
 #[derive(Deserialize)]
 pub struct ConfirmPasswordless {

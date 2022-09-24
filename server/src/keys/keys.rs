@@ -1,9 +1,9 @@
-use crate::db::Db;
 use crate::keys::data::PublicKey;
 use crate::response::error::ApiError;
 
 use rocket::serde::{json::Json, uuid::Uuid, Serialize};
 use std::str;
+use werkbank::rocket::Db;
 
 #[derive(Serialize)]
 pub struct Key {

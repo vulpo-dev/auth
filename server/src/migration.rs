@@ -1,41 +1,30 @@
-use crate::config::DbConfig;
+use figment::Figment;
+use sqlx::postgres::{PgConnectOptions, PgPoolOptions};
+use std::str::FromStr;
+use werkbank::migration::create_db;
+use werkbank::rocket::db::get_db_config;
 
-use diesel::pg::PgConnection;
-use diesel::prelude::*;
-use diesel::result::Error;
+pub async fn run(config: &Figment) {
+    let config = get_db_config(&config);
+    let url = config.database_url.expect("database url");
 
-embed_migrations!();
+    create_db(&url).await;
 
-pub fn run(config: &DbConfig) {
-    let url = config.to_string();
-    let conn = PgConnection::establish(&url).expect(&format!("Error connecting to {}", url));
-    match embedded_migrations::run(&conn) {
+    let options = PgConnectOptions::from_str(&url)
+        .expect("valid db connection string")
+        .to_owned();
+
+    let pool = PgPoolOptions::new()
+        .max_connections(1)
+        .connect_with(options)
+        .await
+        .expect("Failed to connect");
+
+    match sqlx::migrate!().run(&pool).await {
         Ok(_) => println!("Migrations done"),
         Err(err) => {
             println!("Failed to run migrations");
             panic!("{:?}", err);
         }
     };
-}
-
-pub fn init(config: &DbConfig) {
-    println!("Create Database if not exists");
-    let url = config.to_postgres_string();
-    let conn = PgConnection::establish(&url).expect(&format!("Error connecting to {}", url));
-    let db_name = config.database_name.clone().unwrap_or(String::from("auth"));
-    let query = format!("create database {}", &db_name);
-
-    match diesel::sql_query(query).execute(&conn) {
-        Ok(_) => println!("Database {} created", db_name),
-        Err(err) => {
-            if let Error::DatabaseError(_, msg) = err {
-                println!("{:?}", msg);
-            }
-        }
-    };
-
-    println!("Running Migrations");
-    run(&config);
-
-    println!("Your database is set up, type 'vulpo server' to continue the setup process");
 }

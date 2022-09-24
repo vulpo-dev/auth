@@ -5,7 +5,5 @@ workers = 1
 passphrase = "password"
 
 [database]
-username = "postgres"
-password = "postgres"
-port = 5432
+database_url="postgres://postgres:postgres@localhost:5432/auth"
 log_level = "Off"

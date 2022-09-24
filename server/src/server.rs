@@ -1,8 +1,7 @@
 use crate::admin;
 use crate::api_key;
-use crate::config::{DbConfig, Secrets};
+use crate::config::Secrets;
 use crate::cors::CORS;
-use crate::db;
 use crate::keys;
 use crate::oauth;
 use crate::password;
@@ -13,16 +12,28 @@ use crate::settings;
 use crate::template;
 use crate::user;
 
+use figment::providers::Env;
 use figment::Figment;
 use rocket::fairing::AdHoc;
+use werkbank::rocket::{db, TracingFairing};
 
-pub async fn start(config: Figment, db_config: &DbConfig, secrets: Secrets) {
+pub async fn start(figment: &Figment, port: Option<u16>, secrets: Secrets) {
+    let rocket_config = Figment::from(rocket::Config::default())
+        .merge(figment.clone().select("server"))
+        .merge(Env::prefixed("VULPO_SERVER_").global());
+
+    let config = match port {
+        None => rocket_config,
+        Some(port) => rocket_config.merge(("port", port)),
+    };
+
     let _ = rocket::custom(config)
-        .attach(CORS())
+        .attach(TracingFairing)
+        .attach(CORS)
         .attach(AdHoc::on_ignite("Add Secrets", |rocket| async move {
             rocket.manage(secrets)
         }))
-        .attach(db::create_pool(&db_config))
+        .attach(db::create_pool(&figment))
         .mount("/", admin::redirect())
         .mount("/dashboard", admin::dashboard())
         .mount("/admin", admin::routes())
@@ -40,6 +51,6 @@ pub async fn start(config: Figment, db_config: &DbConfig, secrets: Secrets) {
         .await;
 }
 
-pub fn get_port(port: Option<&str>) -> Option<u16> {
+pub fn get_port(port: Option<&String>) -> Option<u16> {
     port.and_then(|value| value.parse::<u16>().ok())
 }

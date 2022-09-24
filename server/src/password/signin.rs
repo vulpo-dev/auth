@@ -1,5 +1,4 @@
 use crate::config::Secrets;
-use crate::db::Db;
 use crate::keys::data::ProjectKeys;
 use crate::project::data::Flags;
 use crate::project::data::Project as ProjectData;
@@ -15,6 +14,7 @@ use rocket::serde::json::Json;
 use rocket::State;
 use serde::Deserialize;
 use uuid::Uuid;
+use werkbank::rocket::Db;
 
 use super::data::Password;
 
