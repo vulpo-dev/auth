@@ -101,8 +101,8 @@ const Home: NextPage = () => {
             <Feature title='Email Internationalization' status='complete' />
             <Feature title='Pre-built React UI' status='complete' />
             <Feature title='Admin Dashboard' status='complete' />
-            <Feature title='API Keys' status='in_progress' />
-            <Feature title='Update Users Email' status='in_progress' />
+            <Feature title='API Keys' status='complete' />
+            <Feature title='Update Users Email' status='complete' />
             <Feature title='Attribute Based Access Control' status='in_progress' />
             <Feature title='Pre-built Vue and Angular UI' status='planned' />
             <Feature title='Two Factor Authentication' status='planned' />
