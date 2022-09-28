@@ -1,6 +1,5 @@
 use crate::crypto::Token;
 use crate::project::Project;
-use crate::response::error::ApiError;
 use crate::session::data::AccessToken;
 use crate::settings::data::ProjectEmail;
 use crate::template::{Template, Templates};
@@ -14,6 +13,7 @@ use rocket::serde::json::Json;
 use serde::Deserialize;
 use serde_json::json;
 use uuid::Uuid;
+use vulpo_auth_types::error::ApiError;
 use werkbank::rocket::Db;
 
 use super::data::EmailChangeState;

@@ -1,0 +1,24 @@
+[package]
+name = "vulpo_auth_client"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+uuid = { version = "1.0", features = ["serde", "v4"] }
+dirs = "4.0.0"
+ecdsa = "0.14.7"
+p384 = "0.11.2"
+rand_core = "0.6.4"
+pkcs8 = { version = "0.9.0", features = ["encryption", "pem"] }
+reqwest = { version = "0.11.12", features = ["json"] }
+vulpo_auth_types = { path = "../types" }
+thiserror = "1.0.36"
+chrono = { version = "0.4.19", features = ["serde"] }
+jsonwebtoken = "8"
+
+[dev-dependencies]
+tokio = { version="1.10.1", features=["macros"] }

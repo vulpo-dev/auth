@@ -1,8 +1,8 @@
 use crate::api_key::verify::verify_api_key;
 use crate::keys::data::{NewProjectKeys, ProjectKeys};
 use crate::project::Project;
-use crate::response::error::ApiError;
 use crate::session::data::{AccessToken, Claims};
+use vulpo_auth_types::error::ApiError;
 
 use futures::join;
 use rocket::http::Status;

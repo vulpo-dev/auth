@@ -1,11 +1,11 @@
 use crate::api_key::data::ApiKey;
 use crate::crypto::Token;
-use crate::response::error::ApiError;
 
 use chrono::Utc;
 use rocket::serde::json::Json;
 use serde::Deserialize;
 use vulpo::Claims;
+use vulpo_auth_types::error::ApiError;
 use werkbank::rocket::Db;
 
 #[derive(Deserialize)]

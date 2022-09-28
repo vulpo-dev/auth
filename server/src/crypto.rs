@@ -1,6 +1,6 @@
-use crate::response::error::ApiError;
 use rand::distributions::Alphanumeric;
 use rand::{thread_rng, Rng};
+use vulpo_auth_types::error::ApiError;
 
 #[derive(Debug)]
 pub struct Token;

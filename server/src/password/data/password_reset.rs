@@ -1,8 +1,7 @@
-use crate::response::error::ApiError;
-
 use chrono::{DateTime, Utc};
 use sqlx::PgPool;
 use uuid::Uuid;
+use vulpo_auth_types::error::ApiError;
 
 pub struct PasswordReset {
     pub token: String,

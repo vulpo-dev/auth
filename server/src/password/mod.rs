@@ -3,8 +3,8 @@ mod reset;
 mod signin;
 mod signup;
 
-use crate::response::error::ApiError;
 use rocket::Route;
+use vulpo_auth_types::error::ApiError;
 
 pub fn routes() -> Vec<Route> {
     routes![

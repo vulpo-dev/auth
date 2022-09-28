@@ -6,8 +6,6 @@ use crate::oauth::data::OAuthData;
 use crate::oauth::data::{google::GoogleConfig, OAuthRequestState};
 use crate::project::data::Flags;
 use crate::project::Project;
-use crate::response::error::ApiError;
-use crate::response::SessionResponse;
 use crate::session::data::{AccessToken, Session};
 use crate::user::data::{User, UserProvider, UserState};
 
@@ -25,6 +23,8 @@ use rocket::State;
 use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
 use uuid::Uuid;
+use vulpo_auth_types::error::ApiError;
+use vulpo_auth_types::session::SessionResponse;
 use werkbank::rocket::Db;
 
 const GOOGLE_ME_ENDPOINT: &'static str =

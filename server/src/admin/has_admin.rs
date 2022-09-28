@@ -1,8 +1,8 @@
 use crate::admin::data::Admin;
-use crate::response::error::ApiError;
 
 use rocket::serde::json::Json;
 use serde::Serialize;
+use vulpo_auth_types::error::ApiError;
 use werkbank::rocket::Db;
 
 pub async fn server_has_admin(pool: &Db) -> Result<bool, ApiError> {

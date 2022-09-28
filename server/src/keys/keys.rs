@@ -1,8 +1,8 @@
 use crate::keys::data::PublicKey;
-use crate::response::error::ApiError;
 
 use rocket::serde::{json::Json, uuid::Uuid, Serialize};
 use std::str;
+use vulpo_auth_types::error::ApiError;
 use werkbank::rocket::Db;
 
 #[derive(Serialize)]

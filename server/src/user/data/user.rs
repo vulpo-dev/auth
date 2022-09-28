@@ -1,5 +1,3 @@
-use crate::response::error::ApiError;
-
 use bcrypt::{hash, DEFAULT_COST};
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
@@ -8,6 +6,7 @@ use serde_json::value::Value;
 use sqlx::{postgres::PgDatabaseError, Error, PgPool};
 use std::str::FromStr;
 use uuid::Uuid;
+use vulpo_auth_types::error::ApiError;
 
 #[derive(sqlx::Type, PartialEq, Debug, Clone, Deserialize, Serialize)]
 #[sqlx(type_name = "user_state")]

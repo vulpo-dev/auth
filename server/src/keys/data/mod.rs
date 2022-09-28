@@ -1,5 +1,3 @@
-use crate::response::error::ApiError;
-
 use chrono::{DateTime, Utc};
 use openssl::pkey::PKey;
 use openssl::rsa::Rsa;
@@ -7,6 +5,7 @@ use openssl::symm::Cipher;
 use serde::Serialize;
 use sqlx::PgPool;
 use uuid::Uuid;
+use vulpo_auth_types::error::ApiError;
 
 pub struct ProjectKeys {
     pub id: Uuid,
@@ -34,15 +33,14 @@ impl ProjectKeys {
     ) -> Result<String, ApiError> {
         let row = sqlx::query_file!("src/keys/sql/get_private_key.sql", project_id)
             .fetch_one(pool)
-            .await
-            .map_err(|_| ApiError::InternalServerError)?;
+            .await?;
 
         let key = PKey::private_key_from_pem_passphrase(&row.private_key, passphrase.as_bytes())
             .map_err(|_| ApiError::InternalServerError)?;
 
         let private_key = key
             .private_key_to_pem_pkcs8()
-            .map(|bytes| String::from_utf8(bytes))
+            .map(String::from_utf8)
             .map_err(|_| ApiError::InternalServerError)?;
 
         private_key.map_err(|_| ApiError::InternalServerError)

@@ -3,7 +3,6 @@ use crate::crypto::Token;
 use crate::mail::data::VerifyEmail;
 use crate::mail::Email;
 use crate::project::Project;
-use crate::response::error::ApiError;
 use crate::settings::data::ProjectEmail;
 use crate::template::{Template, TemplateCtx, Templates, Translations};
 
@@ -12,6 +11,7 @@ use rocket::http::Status;
 use rocket::serde::json::Json;
 use serde::Deserialize;
 use uuid::Uuid;
+use vulpo_auth_types::error::ApiError;
 use werkbank::rocket::Db;
 
 #[derive(Deserialize)]

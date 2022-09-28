@@ -2,11 +2,11 @@ use crate::admin::data::{Admin, NewAdmin};
 use crate::admin::has_admin::server_has_admin;
 use crate::password::data::{Password, PasswordAlg};
 use crate::project::Project;
-use crate::response::error::ApiError;
 
 use rocket;
 use rocket::serde::json::Json;
 use uuid::Uuid;
+use vulpo_auth_types::error::ApiError;
 use werkbank::rocket::Db;
 
 pub async fn create_admin(pool: &Db, body: NewAdmin, project: &Project) -> Result<Uuid, ApiError> {

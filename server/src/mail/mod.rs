@@ -1,15 +1,14 @@
 pub mod data;
 
-use crate::response::error::ApiError;
 use crate::settings::data::EmailSettings;
-
-use std::env;
 
 use lettre::{
     message::{header, MultiPart, SinglePart},
     transport::smtp::authentication::Credentials,
     AsyncSmtpTransport, AsyncTransport, Message, Tokio1Executor,
 };
+use std::env;
+use vulpo_auth_types::error::ApiError;
 
 trait EmailService {
     fn send(settings: EmailSettings) -> Result<(), ApiError>;

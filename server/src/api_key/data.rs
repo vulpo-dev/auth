@@ -1,5 +1,3 @@
-use crate::response::error::ApiError;
-
 use base64;
 use chrono::{DateTime, Utc};
 use serde::Serialize;
@@ -7,6 +5,7 @@ use sqlx::PgPool;
 use std::str::{self, FromStr};
 use uuid::Uuid;
 use vulpo::Claims;
+use vulpo_auth_types::error::ApiError;
 
 #[derive(Serialize)]
 pub struct ApiKey {

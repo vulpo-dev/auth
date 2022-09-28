@@ -3,18 +3,18 @@ mod data;
 mod template;
 mod translations;
 
-pub use config::{DefaultRedirect, DefaultSubject};
-use rocket::http::Status;
-
-use crate::admin::data::Admin;
-use crate::response::error::ApiError;
 pub use config::Templates;
+pub use config::{DefaultRedirect, DefaultSubject};
 pub use data::Translations;
 pub use template::{Template, TemplateCtx, TemplateResponse};
 
+use crate::admin::data::Admin;
+
+use rocket::http::Status;
 use rocket::serde::json::Json;
 use rocket::serde::uuid::Uuid;
 use rocket::Route;
+use vulpo_auth_types::error::ApiError;
 use werkbank::rocket::Db;
 
 use self::template::SetTemplateView;

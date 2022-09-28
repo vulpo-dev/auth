@@ -1,12 +1,12 @@
-use crate::response::error::ApiError;
 use crate::session::data::SessionClaims;
 
 use chrono::{DateTime, TimeZone, Utc};
 use jsonwebtoken as jwt;
 use jsonwebtoken::{Algorithm, DecodingKey, Validation};
-use serde::Deserialize;
 use sqlx::PgPool;
 use uuid::Uuid;
+use vulpo_auth_types::error::ApiError;
+use vulpo_auth_types::session::{RefreshAccessToken, RefreshAccessTokenClaims};
 
 pub struct Session {
     pub id: Uuid,
@@ -118,19 +118,11 @@ impl Session {
     }
 }
 
-#[derive(Deserialize)]
-pub struct RefreshAccessToken {
-    pub value: String,
-}
-
-#[derive(Deserialize)]
-pub struct Claims {
-    pub exp: i32,
-    pub jti: Uuid,
-}
-
 impl Session {
-    pub fn validate_token(session: &Session, rat: &RefreshAccessToken) -> Result<Claims, ApiError> {
+    pub fn validate_token(
+        session: &Session,
+        rat: &RefreshAccessToken,
+    ) -> Result<RefreshAccessTokenClaims, ApiError> {
         let header = match jwt::decode_header(&rat.value) {
             Err(_) => return Err(ApiError::InternalServerError),
             Ok(h) => h,
@@ -142,7 +134,7 @@ impl Session {
             _ => return Err(ApiError::BadRequest),
         };
 
-        let claims = match jwt::decode::<Claims>(
+        let claims = match jwt::decode::<RefreshAccessTokenClaims>(
             &rat.value,
             &public_key.unwrap(),
             &Validation::new(header.alg),
@@ -151,7 +143,7 @@ impl Session {
             Ok(body) => body,
         };
 
-        let expire = claims.claims.exp as i64;
+        let expire = claims.claims.exp;
         let now = Utc::now().timestamp();
         let delta = expire - now;
 

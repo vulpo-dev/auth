@@ -1,8 +1,6 @@
 use crate::config::Secrets;
 use crate::keys::data::ProjectKeys;
 use crate::project::Project;
-use crate::response::error::ApiError;
-use crate::response::SessionResponse;
 use crate::session::data::{AccessToken, RefreshAccessToken, Session};
 use crate::user::data::User;
 
@@ -10,6 +8,8 @@ use chrono::{Duration, Utc};
 use rocket::serde::json::Json;
 use rocket::serde::uuid::Uuid;
 use rocket::State;
+use vulpo_auth_types::error::ApiError;
+use vulpo_auth_types::session::SessionResponse;
 use werkbank::rocket::Db;
 
 pub async fn refresh(

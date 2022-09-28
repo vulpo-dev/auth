@@ -1,9 +1,8 @@
-use crate::response::error::ApiError;
-
 use serde::Deserialize;
 use sqlx::PgPool;
 use std::collections::HashMap;
 use uuid::Uuid;
+use vulpo_auth_types::error::ApiError;
 
 #[derive(Deserialize)]
 pub struct SetTranslation {

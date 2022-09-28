@@ -1,6 +1,5 @@
 use crate::admin::data::Admin;
 use crate::project::Project;
-use crate::response::error::ApiError;
 use crate::session::data::AccessToken;
 use crate::user::data::{UpdateUser, User};
 use crate::user::verify_email::{send_email_verification, SendEmailVerification};
@@ -8,6 +7,7 @@ use crate::user::verify_email::{send_email_verification, SendEmailVerification};
 use rocket::http::Status;
 use rocket::serde::json::Json;
 use rocket::serde::uuid::Uuid;
+use vulpo_auth_types::error::ApiError;
 use werkbank::rocket::Db;
 
 pub async fn update_user(

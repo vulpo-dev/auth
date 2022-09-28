@@ -1,5 +1,3 @@
-use crate::response::error::ApiError;
-
 use argon2::{
     password_hash::{rand_core::OsRng, PasswordHash, PasswordHasher, PasswordVerifier, SaltString},
     Argon2,
@@ -8,6 +6,7 @@ use bcrypt::{self, DEFAULT_COST};
 use pbkdf2::Pbkdf2;
 use sqlx::PgPool;
 use uuid::Uuid;
+use vulpo_auth_types::error::ApiError;
 
 #[derive(sqlx::Type, PartialEq, Debug)]
 #[sqlx(type_name = "password_alg")]

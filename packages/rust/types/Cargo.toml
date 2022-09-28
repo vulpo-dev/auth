@@ -1,0 +1,30 @@
+[package]
+name = "vulpo_auth_types"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+uuid = { version = "1.0", features = ["serde", "v4"] }
+thiserror = "1.0.31"
+chrono = { version = "0.4.19", features = ["serde"] }
+lettre = { version = "0.10.1", features = ["tokio1", "tokio1-rustls-tls", "tokio1-native-tls"] }
+rocket = { version = "0.5.0-rc.2", features = ["uuid", "json"] }
+jsonwebtoken = "8"
+
+[dependencies.sqlx]
+version = "0.6"
+default-features = false
+features = [
+	"runtime-tokio-rustls",
+	"macros",
+	"postgres",
+	"uuid",
+	"chrono",
+	"json",
+	"offline",
+	"migrate",
+]

@@ -3,8 +3,6 @@ use crate::keys::data::ProjectKeys;
 use crate::password::validate_password_length;
 use crate::project::data::Flags;
 use crate::project::Project;
-use crate::response::error::ApiError;
-use crate::response::SessionResponse;
 use crate::session::data::{AccessToken, Session};
 use crate::user::data::User;
 use crate::user::verify_email::send as send_email_verification;
@@ -14,6 +12,8 @@ use rocket::serde::json::Json;
 use rocket::State;
 use serde::Deserialize;
 use uuid::Uuid;
+use vulpo_auth_types::error::ApiError;
+use vulpo_auth_types::session::SessionResponse;
 use werkbank::rocket::Db;
 
 #[derive(Deserialize)]

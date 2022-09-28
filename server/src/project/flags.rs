@@ -1,8 +1,8 @@
 use crate::project::data::Flags;
-use crate::response::error::ApiError;
 use rocket::serde::uuid::Uuid;
 
 use rocket::serde::{json::Json, Serialize};
+use vulpo_auth_types::error::ApiError;
 use werkbank::rocket::Db;
 
 pub async fn get_flags(pool: &Db, project: &Uuid) -> Result<Vec<Flags>, ApiError> {

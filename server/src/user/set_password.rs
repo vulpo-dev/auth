@@ -2,7 +2,6 @@ use crate::password;
 use crate::password::data::Password;
 use crate::project::data::Project as ProjectData;
 use crate::project::Project;
-use crate::response::error::ApiError;
 use crate::session::data::AccessToken;
 use crate::settings::data::ProjectEmail;
 use crate::template::{Template, TemplateCtx, Templates};
@@ -12,6 +11,7 @@ use rocket::http::Status;
 use rocket::serde::json::Json;
 use serde::Deserialize;
 use uuid::Uuid;
+use vulpo_auth_types::error::ApiError;
 use werkbank::rocket::Db;
 
 #[derive(Deserialize)]

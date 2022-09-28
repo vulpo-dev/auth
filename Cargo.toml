@@ -4,4 +4,7 @@ members = [
     "server",
     "packages/rust/sdk",
     "packages/rust/sdk-rocket",
+    "packages/rust/types",
+    "packages/rust/client",
+    "packages/rust/client-clap",
 ]

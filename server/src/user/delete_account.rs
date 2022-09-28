@@ -1,5 +1,4 @@
 use crate::admin::data::Admin;
-use crate::response::error::ApiError;
 
 use crate::session::data::{RefreshAccessToken, Session};
 use crate::user::data::User;
@@ -8,6 +7,7 @@ use rocket;
 use rocket::http::Status;
 use rocket::serde::json::Json;
 use rocket::serde::uuid::Uuid;
+use vulpo_auth_types::error::ApiError;
 use werkbank::rocket::Db;
 
 pub async fn delete_account(pool: &Db, user_id: Uuid) -> Result<(), ApiError> {

@@ -2,8 +2,6 @@ use crate::config::Secrets;
 use crate::keys::data::ProjectKeys;
 use crate::passwordless::data::Passwordless;
 use crate::project::Project;
-use crate::response::error::ApiError;
-use crate::response::SessionResponse;
 use crate::session::data::{AccessToken, RefreshAccessToken, Session};
 use crate::user::data::User;
 
@@ -12,6 +10,8 @@ use rocket::serde::json::Json;
 use rocket::State;
 use serde::Deserialize;
 use uuid::Uuid;
+use vulpo_auth_types::error::ApiError;
+use vulpo_auth_types::session::SessionResponse;
 use werkbank::rocket::Db;
 
 #[derive(Deserialize)]

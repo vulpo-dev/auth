@@ -12,7 +12,6 @@ mod oauth;
 mod password;
 mod passwordless;
 mod project;
-mod response;
 mod server;
 mod session;
 mod settings;

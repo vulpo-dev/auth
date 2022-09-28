@@ -1,12 +1,12 @@
 use crate::keys::data::ProjectKeys;
 use crate::project::Project;
-use crate::response::error::ApiError;
 
 use chrono::{DateTime, Utc};
 use jsonwebtoken::{decode, encode, Algorithm, DecodingKey, EncodingKey, Header, Validation};
 use rocket::http::Status;
 use rocket::request::Outcome;
 use rocket::request::{FromRequest, Request};
+use vulpo_auth_types::error::ApiError;
 use werkbank::rocket::Db;
 
 use uuid::Uuid;

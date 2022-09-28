@@ -1,11 +1,11 @@
 use crate::passwordless::data::Passwordless;
-use crate::response::error::ApiError;
 
 use chrono::Utc;
 use rocket::http::Status;
 use rocket::serde::json::Json;
 use serde::Deserialize;
 use uuid::Uuid;
+use vulpo_auth_types::error::ApiError;
 use werkbank::rocket::Db;
 
 #[derive(Deserialize)]

@@ -1,5 +1,4 @@
 use crate::admin::data::Admin;
-use crate::response::error::ApiError;
 use crate::template::data::{DeleteTranslation, SetTranslation, Translations};
 
 use rocket::http::Status;
@@ -7,6 +6,7 @@ use rocket::serde::json::Json;
 use serde_json;
 use std::collections::HashMap;
 use uuid::Uuid;
+use vulpo_auth_types::error::ApiError;
 use werkbank::rocket::Db;
 
 type TranslationsResponse = HashMap<String, serde_json::Value>;

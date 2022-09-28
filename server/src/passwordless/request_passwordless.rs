@@ -3,7 +3,6 @@ use crate::mail::Email;
 use crate::passwordless::data::Passwordless;
 use crate::project::data::Flags;
 use crate::project::Project;
-use crate::response::error::ApiError;
 use crate::session::data::Session;
 use crate::settings::data::ProjectEmail;
 use crate::template::{Template, TemplateCtx, Templates, Translations};
@@ -12,6 +11,7 @@ use crate::user::data::{User, UserState};
 use chrono::{Duration, Utc};
 use rocket::serde::{json::Json, Deserialize, Serialize};
 use uuid::Uuid;
+use vulpo_auth_types::error::ApiError;
 use werkbank::rocket::Db;
 
 #[derive(Deserialize)]

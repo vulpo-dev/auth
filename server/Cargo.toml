@@ -24,6 +24,7 @@ openssl-sys = "0.9"
 openssl = { version = "0.10" }
 figment = { version = "0.10", features= ["env"] }
 vulpo = { path = "../packages/rust/sdk" }
+vulpo_auth_types = { path = "../packages/rust/types" }
 log = { version = "0.4.17", features = ["serde"] }
 openssl-probe = "0.1.4"
 base64 = "0.13.0"
@@ -40,6 +41,7 @@ tracing-opentelemetry = "0.17.3"
 opentelemetry = { version = "0.17", features = ["rt-tokio"] }
 opentelemetry-otlp = "0.10"
 url = "2.3.1"
+lettre = { version = "0.10.1", features = ["tokio1", "tokio1-rustls-tls", "tokio1-native-tls"] }
 
 [dependencies.sqlx]
 version = "0.6"
@@ -54,11 +56,6 @@ features = [
 	"offline",
 	"migrate",
 ]
-
-[dependencies.lettre]
-git = "https://github.com/lettre/lettre"
-version = "0.10"
-features = ["tokio1", "tokio1-rustls-tls", "tokio1-native-tls"]
 
 [dependencies.rocket]
 version = "0.5.0-rc.2"

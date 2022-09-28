@@ -1,0 +1,23 @@
+{
+  "name": "vulpo-mock-auth-server",
+  "private": true,
+  "version": "0.0.4",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "ts-node ./src/main.ts"
+  },
+  "author": "Michael Riezler <michael@riezler.co> (https://riezler.co)",
+  "license": "MPL-2.0",
+  "dependencies": {
+    "@types/express": "^4.17.13",
+    "@types/uuid": "^8.3.1",
+    "body-parser": "^1.19.0",
+    "express": "^4.17.1",
+    "uuid": "^8.3.2"
+  },
+  "devDependencies": {
+    "ts-node": "^10.2.0",
+    "typescript": "^4.3.5"
+  }
+}

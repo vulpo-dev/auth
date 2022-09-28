@@ -4,7 +4,6 @@ use crate::password::data::PasswordReset;
 use crate::password::validate_password_length;
 use crate::project::data::Project as ProjectData;
 use crate::project::Project;
-use crate::response::error::ApiError;
 use crate::settings::data::ProjectEmail;
 use crate::template::{Template, TemplateCtx, Templates, Translations};
 use crate::user::data::User;
@@ -13,6 +12,7 @@ use chrono::Utc;
 use rocket::http::Status;
 use rocket::serde::{json::Json, Deserialize};
 use uuid::Uuid;
+use vulpo_auth_types::error::ApiError;
 use werkbank::rocket::Db;
 
 use super::data::Password;

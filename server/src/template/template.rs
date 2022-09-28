@@ -1,19 +1,18 @@
-use std::collections::HashMap;
-
-use crate::response::error::ApiError;
+use crate::mail::Email;
+use crate::settings::data::TemplateEmail;
 use crate::template::config::{DefaultRedirect, Templates};
 use crate::template::data::Translation;
+use crate::template::Translations;
 use crate::user::data::User;
 use crate::TEMPLATE;
-use crate::settings::data::TemplateEmail;
-use crate::mail::Email;
-use crate::template::Translations;
 
 use handlebars::Handlebars;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use sqlx::PgPool;
+use std::collections::HashMap;
 use uuid::Uuid;
+use vulpo_auth_types::error::ApiError;
 
 #[derive(Deserialize, Serialize)]
 pub struct TemplateResponse {
@@ -229,7 +228,10 @@ impl Template {
         Ok(())
     }
 
-    pub fn translate<Ctx: Serialize>(translations: &Translation, ctx: &Ctx) -> HashMap<String, String> {
+    pub fn translate<Ctx: Serialize>(
+        translations: &Translation,
+        ctx: &Ctx,
+    ) -> HashMap<String, String> {
         let handlebars = Handlebars::new();
         translations
             .iter()

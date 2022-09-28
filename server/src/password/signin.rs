@@ -1,10 +1,9 @@
 use crate::config::Secrets;
 use crate::keys::data::ProjectKeys;
+use crate::password::data::Password;
 use crate::project::data::Flags;
 use crate::project::data::Project as ProjectData;
 use crate::project::Project;
-use crate::response::error::ApiError;
-use crate::response::SessionResponse;
 use crate::session::data::{AccessToken, Session};
 use crate::user::data::User;
 use crate::user::data::UserState;
@@ -12,23 +11,13 @@ use crate::user::data::UserState;
 use chrono::{Duration, Utc};
 use rocket::serde::json::Json;
 use rocket::State;
-use serde::Deserialize;
 use uuid::Uuid;
+use vulpo_auth_types::{error::ApiError, session::SessionResponse, SignInPayload};
 use werkbank::rocket::Db;
-
-use super::data::Password;
-
-#[derive(Deserialize)]
-pub struct SignIn {
-    pub email: String,
-    pub password: String,
-    pub session: Uuid,
-    pub public_key: Vec<u8>,
-}
 
 pub async fn sign_in(
     pool: &Db,
-    payload: SignIn,
+    payload: SignInPayload,
     project_id: Uuid,
     passphrase: &str,
 ) -> Result<SessionResponse, ApiError> {
@@ -90,7 +79,7 @@ pub async fn sign_in(
 #[post("/sign_in", format = "json", data = "<body>")]
 pub async fn sign_in_handler(
     pool: Db,
-    body: Json<SignIn>,
+    body: Json<SignInPayload>,
     project: Project,
     secrets: &State<Secrets>,
 ) -> Result<SessionResponse, ApiError> {

@@ -1,0 +1,17 @@
+[package]
+name = "vulpo_auth_client_clap"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+clap = "4.0.0-rc.2"
+vulpo_auth_client = { path = "../client" }
+text_io = "0.1.12"
+rpassword = "7.0.0"
+spinners = "4.1.0"
+
+[dev-dependencies]
+tokio = { version="1.10.1", features=["macros"] }
+uuid = { version = "1.0", features = ["serde", "v4"] }

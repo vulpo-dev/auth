@@ -1,9 +1,8 @@
-use crate::response::error::ApiError;
-
 use serde::{Deserialize, Serialize};
 use serde_json;
 use sqlx::PgPool;
 use uuid::Uuid;
+use vulpo_auth_types::error::ApiError;
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct GoogleConfig {

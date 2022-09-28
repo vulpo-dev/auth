@@ -1,8 +1,7 @@
-use crate::response::error::ApiError;
-
 use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
 use uuid::Uuid;
+use vulpo_auth_types::error::ApiError;
 
 #[derive(Debug, Copy, Clone, Deserialize, Serialize, PartialEq)]
 pub enum Flags {

@@ -1,11 +1,11 @@
 use crate::admin::data::Admin;
 use crate::project::data::Project;
-use crate::response::error::ApiError;
 
 use rocket::http::Status;
 use rocket::serde::json::Json;
 use serde::Deserialize;
 use uuid::Uuid;
+use vulpo_auth_types::error::ApiError;
 use werkbank::rocket::Db;
 
 #[derive(Deserialize)]

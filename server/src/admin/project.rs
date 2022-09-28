@@ -1,13 +1,13 @@
 use crate::admin::data::{Admin, NewProject, PartialProject};
 use crate::config::Secrets;
 use crate::keys::data::ProjectKeys;
-use crate::response::error::ApiError;
 use crate::template::Template;
 
 use rocket::serde::json::Json;
 use rocket::State;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
+use vulpo_auth_types::error::ApiError;
 use werkbank::rocket::Db;
 
 #[derive(Debug, Serialize)]

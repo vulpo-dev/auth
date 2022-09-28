@@ -1,12 +1,12 @@
 use crate::api_key::data::ApiKey;
 use crate::project::Project;
-use crate::response::error::ApiError;
 use crate::session::data::AccessToken;
 
 use rocket::http::Status;
 use rocket::serde::json::Json;
 use serde::Deserialize;
 use uuid::Uuid;
+use vulpo_auth_types::error::ApiError;
 use werkbank::rocket::Db;
 
 pub async fn delete_api_key(
