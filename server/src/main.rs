@@ -18,9 +18,6 @@ mod settings;
 mod template;
 mod user;
 
-extern crate openssl;
-extern crate openssl_probe;
-
 #[macro_use]
 extern crate rocket;
 
@@ -38,8 +35,6 @@ const TEMPLATE: Dir = include_dir!("$CARGO_MANIFEST_DIR/template");
 #[rocket::main]
 async fn main() {
     let version = option_env!("VulpoAuthVersion");
-
-    openssl_probe::init_ssl_cert_env_vars();
 
     let matches = cli::get_matches();
     let file = get_config_dir(matches.get_one::<String>("config"));

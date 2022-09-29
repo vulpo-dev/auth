@@ -48,7 +48,7 @@ pub async fn refresh(
 
     let exp = Utc::now() + Duration::minutes(15);
     let access_token = AccessToken::new(&user.id, &user.traits, exp)
-        .to_jwt_rsa(&project_id, &private_key)
+        .to_jwt(&project_id, &private_key)
         .map_err(|_| ApiError::InternalServerError)?;
 
     Ok(SessionResponse {

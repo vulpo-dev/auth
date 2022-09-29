@@ -23,7 +23,7 @@ type PrivateKey = {
 export function makeGenerateAccessToken(key: string | PrivateKey) {
 	return function generateAccessToken({
 		payload = {},
-		algorithm = 'RS256',
+		algorithm = 'ES384',
 	}: GenerateAccessToken = {}) {
 		return jwt.sign(
 			JSON.stringify(payload),
@@ -42,7 +42,7 @@ export function makeGenerateAccessToken(key: string | PrivateKey) {
 export function makeGenerateInvalidAccessToken(key: string) {
 	return function generateInvalidAccessToken({
 		payload = {},
-		algorithm = 'RS256',
+		algorithm = 'ES384',
 	}: GenerateAccessToken = {}) {
 		return jwt.sign(
 			JSON.stringify(payload),
@@ -150,7 +150,7 @@ export function createAccessToken({
 	key = defaultKey,
 	project = PROJECT_ID,
 }: CreateAccessToken) {
-	let algorithm = 'RS256' as Algorithm
+	let algorithm = 'ES384' as Algorithm
 	let payload = createTokenPayload(user.id, project)
 
 	return jwt.sign(

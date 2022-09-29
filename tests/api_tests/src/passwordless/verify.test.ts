@@ -214,7 +214,7 @@ type GenerateAccessToken = {
 function generateAccessToken({
 	session,
 	minutes,
-	algorithm = 'RS256',
+	algorithm = 'ES384',
 }: GenerateAccessToken) {
 	let payload = ratPayload(minutes)
 

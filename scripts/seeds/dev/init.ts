@@ -44,10 +44,14 @@ exports.seed = async function(knex: Knex) {
   await knex('email_settings').insert([email])
 
   console.log('Insert Keys')
-  await knex('project_keys').insert([
-    adminKeys,
-    projectKeys
-  ])
+  let keys = [adminKeys, projectKeys].map(({ encrypted_private_key, ...key}) => {
+    return {
+      ...key,
+      private_key: encrypted_private_key
+    }
+  })
+  
+  await knex('project_keys').insert(keys)
 
 
   let users = getUsers(1000).concat([adminUser])

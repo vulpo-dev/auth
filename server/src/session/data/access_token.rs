@@ -31,25 +31,22 @@ impl AccessToken {
         AccessToken(claims)
     }
 
-    pub fn to_jwt_rsa(&self, project: &Uuid, key: &String) -> Result<String, ApiError> {
-        let key = key.as_bytes();
-        let encoding_key = match EncodingKey::from_rsa_pem(key) {
-            Ok(key) => key,
-            Err(_) => {
-                return Err(ApiError::InternalServerError);
-            }
-        };
-
-        let mut header = Header::new(Algorithm::RS256);
+    pub fn to_jwt(&self, project: &Uuid, key: &[u8]) -> Result<String, ApiError> {
+        println!("BBBB:: {:?}", String::from_utf8(key.to_vec()));
+        let encoding_key = EncodingKey::from_ec_pem(key).map_err(|err| {
+            println!("DEFUG: {:#?}", err);
+            ApiError::InternalServerError
+        })?;
+        let mut header = Header::new(Algorithm::ES384);
         header.kid = Some(project.to_string());
         encode(&header, &self.0, &encoding_key).map_err(|_| ApiError::InternalServerError)
     }
 
-    pub fn from_rsa(token: String, key: &[u8]) -> Result<Claims, ApiError> {
+    pub fn decode(token: &str, key: &[u8]) -> Result<Claims, ApiError> {
         let decoding_key =
-            DecodingKey::from_rsa_pem(key).map_err(|_| ApiError::InternalServerError)?;
+            DecodingKey::from_ec_pem(key).map_err(|_| ApiError::InternalServerError)?;
 
-        match decode::<Claims>(&token, &decoding_key, &Validation::new(Algorithm::RS256)) {
+        match decode::<Claims>(&token, &decoding_key, &Validation::new(Algorithm::ES384)) {
             Ok(token_data) => Ok(token_data.claims),
             Err(err) => {
                 println!("{:?}", err);
@@ -91,7 +88,7 @@ impl<'r> FromRequest<'r> for AccessToken {
         let end = token_string.len();
         let start = "Bearer ".len();
         let token = &token_string[start..end];
-        let claims = match AccessToken::from_rsa(token.to_string(), &key) {
+        let claims = match AccessToken::decode(token, &key) {
             Ok(token) => token,
             Err(_) => {
                 return Outcome::Failure((Status::Unauthorized, ApiError::BadRequest));

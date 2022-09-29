@@ -2,8 +2,8 @@ import { generateKeyPairSync } from 'crypto';
 
 
 export function generateKeyPair() {
-  return generateKeyPairSync('rsa', {
-    modulusLength: 2048,
+  return generateKeyPairSync('ec', {
+    namedCurve: 'secp384r1',
     publicKeyEncoding: {
       type: 'spki',
       format: 'pem'

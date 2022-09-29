@@ -16,8 +16,9 @@ export let adminSettings = {
 }
 
 export let adminKeys = {
-	public_key: fs.readFileSync(`${keyPath}/admin.pub`),
-	private_key: fs.readFileSync(`${keyPath}/admin`),
+	public_key: fs.readFileSync(`${keyPath}/admin.public`),
+	private_key: fs.readFileSync(`${keyPath}/admin.private`),
+	encrypted_private_key: fs.readFileSync(`${keyPath}/admin.encrypted`),
 	is_active: true,
 	project_id: admin.id,
 }
@@ -43,8 +44,9 @@ export let projectSettings = {
 }
 
 export let projectKeys = {
-	public_key: fs.readFileSync(`${keyPath}/project.pub`),
-	private_key: fs.readFileSync(`${keyPath}/project`),
+	public_key: fs.readFileSync(`${keyPath}/project.public`),
+	private_key: fs.readFileSync(`${keyPath}/project.private`),
+	encrypted_private_key: fs.readFileSync(`${keyPath}/project.encrypted`),
 	is_active: true,
 	project_id: project.id
 }

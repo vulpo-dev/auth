@@ -19,7 +19,7 @@ export type GenerateAccessToken = {
 export function generateAccessToken({
 	key,
 	minutes,
-	algorithm = 'RS256',
+	algorithm = 'ES384',
 	payload = {},
 }: GenerateAccessToken) {
 	return jwt.sign(

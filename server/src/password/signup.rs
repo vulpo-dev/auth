@@ -47,7 +47,7 @@ pub async fn sign_up(
 
     let exp = Utc::now() + Duration::minutes(15);
     let access_token = AccessToken::new(&user_id, &vec![], exp)
-        .to_jwt_rsa(&project_id, &private_key)
+        .to_jwt(&project_id, &private_key)
         .map_err(|_| ApiError::InternalServerError)?;
 
     let session = Session {

@@ -179,7 +179,7 @@ impl<'r> FromRequest<'r> for Admin {
                     }
                 };
 
-                match AccessToken::from_rsa(token.to_string(), &key) {
+                match AccessToken::decode(token, &key) {
                     Ok(token) => token,
                     Err(_) => {
                         return Outcome::Failure((Status::Unauthorized, ApiError::BadRequest));

@@ -295,7 +295,7 @@ type GenerateAccessToken = {
 
 function generateAccessToken({
 	payload,
-	algorithm = 'RS256',
+	algorithm = 'ES384',
 	privateKey = KEYS.privateKey,
 }: GenerateAccessToken) {
 	return jwt.sign(

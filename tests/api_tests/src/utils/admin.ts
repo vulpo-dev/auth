@@ -14,12 +14,9 @@ export function generateAdminToken(invalid = false) {
 
 	return jwt.sign(
 		JSON.stringify(payload),
+		adminKeys.private_key,
 		{
-			key: adminKeys.private_key,
-			passphrase: 'password',
-		},
-		{
-			algorithm: 'RS256'
+			algorithm: 'ES384'
 		}
 	)
 }

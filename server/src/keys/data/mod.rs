@@ -1,11 +1,13 @@
 use chrono::{DateTime, Utc};
-use openssl::pkey::PKey;
-use openssl::rsa::Rsa;
-use openssl::symm::Cipher;
 use serde::Serialize;
 use sqlx::PgPool;
 use uuid::Uuid;
 use vulpo_auth_types::error::ApiError;
+
+use ecdsa::SigningKey;
+use p384::NistP384;
+use pkcs8::{DecodePrivateKey, EncodePrivateKey, EncodePublicKey, LineEnding};
+use rand_core::OsRng;
 
 pub struct ProjectKeys {
     pub id: Uuid,
@@ -30,20 +32,22 @@ impl ProjectKeys {
         pool: &PgPool,
         project_id: &Uuid,
         passphrase: &str,
-    ) -> Result<String, ApiError> {
+    ) -> Result<Vec<u8>, ApiError> {
         let row = sqlx::query_file!("src/keys/sql/get_private_key.sql", project_id)
             .fetch_one(pool)
             .await?;
 
-        let key = PKey::private_key_from_pem_passphrase(&row.private_key, passphrase.as_bytes())
-            .map_err(|_| ApiError::InternalServerError)?;
+        let key = String::from_utf8(row.private_key).map_err(|_| ApiError::InternalServerError)?;
 
-        let private_key = key
-            .private_key_to_pem_pkcs8()
-            .map(String::from_utf8)
-            .map_err(|_| ApiError::InternalServerError)?;
+        let private_key: SigningKey<NistP384> =
+            SigningKey::from_pkcs8_encrypted_pem(&key, passphrase)
+                .map_err(|_| ApiError::InternalServerError)?;
 
-        private_key.map_err(|_| ApiError::InternalServerError)
+        Ok(private_key
+            .to_pkcs8_pem(LineEnding::LF)
+            .unwrap()
+            .as_bytes()
+            .to_vec())
     }
 
     pub async fn get_public_key(pool: &PgPool, project_id: &Uuid) -> sqlx::Result<Vec<u8>> {
@@ -58,13 +62,20 @@ impl ProjectKeys {
         expire_at: Option<DateTime<Utc>>,
         passphrase: &str,
     ) -> NewProjectKeys {
-        let rsa = Rsa::generate(2048).unwrap();
-        let pkey = PKey::from_rsa(rsa).unwrap();
-        let public_key: Vec<u8> = pkey.public_key_to_pem().unwrap();
+        let signing_key: SigningKey<NistP384> = SigningKey::random(&mut OsRng);
+        let verifying_key = signing_key.verifying_key();
 
-        let private_key = pkey
-            .private_key_to_pem_pkcs8_passphrase(Cipher::des_ede3_cbc(), passphrase.as_bytes())
-            .unwrap();
+        let public_key = verifying_key
+            .to_public_key_pem(LineEnding::LF)
+            .unwrap()
+            .as_bytes()
+            .to_vec();
+
+        let private_key = signing_key
+            .to_pkcs8_encrypted_der(&mut OsRng, passphrase)
+            .unwrap()
+            .as_bytes()
+            .to_vec();
 
         NewProjectKeys {
             is_active,

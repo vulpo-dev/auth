@@ -20,13 +20,10 @@ handlebars = "4.3"
 reqwest = { version = "0.11", features = ["json"] }
 jsonwebtoken = "8.1"
 chrono = { version = "0.4.19", features = ["serde"] }
-openssl-sys = "0.9"
-openssl = { version = "0.10" }
 figment = { version = "0.10", features= ["env"] }
 vulpo = { path = "../packages/rust/sdk" }
 vulpo_auth_types = { path = "../packages/rust/types" }
 log = { version = "0.4.17", features = ["serde"] }
-openssl-probe = "0.1.4"
 base64 = "0.13.0"
 argon2 = "0.4"
 pbkdf2 = "0.11.0"
@@ -42,6 +39,10 @@ opentelemetry = { version = "0.17", features = ["rt-tokio"] }
 opentelemetry-otlp = "0.10"
 url = "2.3.1"
 lettre = { version = "0.10.1", features = ["tokio1", "tokio1-rustls-tls", "tokio1-native-tls"] }
+ecdsa = "0.14"
+p384 = "0.11"
+pkcs8 = { version = "0.9", features = ["encryption", "pem"] }
+rocket = { version = "0.5.0-rc.2", features = ["uuid", "json"] }
 
 [dependencies.sqlx]
 version = "0.6"
@@ -57,6 +58,3 @@ features = [
 	"migrate",
 ]
 
-[dependencies.rocket]
-version = "0.5.0-rc.2"
-features = ["uuid", "json"]

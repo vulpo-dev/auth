@@ -8,10 +8,7 @@ import { projectKeys } from '@seeds/data/projects'
 
 import { v4 as uuid } from 'uuid'
 
-let key = {
-	key: projectKeys.private_key,
-	passphrase: 'password',
-}
+let key = projectKeys.private_key
 
 afterAll(() =>  Db.end())
 

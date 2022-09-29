@@ -170,7 +170,7 @@ type GenerateAccessToken = {
 
 function generateAccessToken({
 	payload = {},
-	algorithm = 'RS256',
+	algorithm = 'ES384',
 }: GenerateAccessToken = {}) {
 	return jwt.sign(
 		JSON.stringify(payload),
@@ -190,7 +190,7 @@ function generateAccessToken({
 
 function generateInvalidAccessToken({
 	payload = {},
-	algorithm = 'RS256',
+	algorithm = 'ES384',
 }: GenerateAccessToken = {}) {
 	return jwt.sign(
 		JSON.stringify(payload),
