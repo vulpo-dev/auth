@@ -21,7 +21,7 @@ pub async fn refresh(
     rat: RefreshAccessToken,
     passphrase: &str,
 ) -> Result<SessionResponse, ApiError> {
-    let session = Session::get(&cache, &pool, &session_id).await?;
+    let session = Session::get(&pool, &session_id).await?;
 
     if Utc::now() > session.expire_at {
         return Err(ApiError::SessionExpired);
@@ -37,7 +37,7 @@ pub async fn refresh(
     let expire_at = Utc::now() + Duration::days(30);
     Session::extend(&pool, &session.id, &expire_at).await?;
 
-    let private_key = ProjectKeys::get_private_key(&pool, &project_id, &passphrase).await?;
+    let private_key = ProjectKeys::get_private_key(&cache, &pool, &project_id, &passphrase).await?;
 
     let user_id = match session.user_id {
         None => return Err(ApiError::Forbidden),

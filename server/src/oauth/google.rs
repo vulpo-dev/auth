@@ -1,4 +1,5 @@
 use crate::admin::data::Admin;
+use crate::cache::Cache;
 use crate::config::Secrets;
 use crate::keys::data::ProjectKeys;
 use crate::oauth::data::google::GoogleMeResponse;
@@ -94,6 +95,7 @@ pub struct GoogleConfirmPayload {
 }
 
 pub async fn google_confirm(
+    cache: &Cache,
     db: &Db,
     payload: GoogleConfirmPayload,
     project_id: Uuid,
@@ -182,7 +184,7 @@ pub async fn google_confirm(
 
     let session = Session::create(&db, session).await?;
 
-    let private_key = ProjectKeys::get_private_key(&db, &project_id, passphrase).await?;
+    let private_key = ProjectKeys::get_private_key(&cache, &db, &project_id, passphrase).await?;
 
     let exp = Utc::now() + Duration::minutes(15);
     let access_token = AccessToken::new(&user.id, &user.traits, exp)
@@ -204,8 +206,16 @@ pub async fn exchange_code(
     body: Json<GoogleConfirmPayload>,
     project: Project,
     secrets: &State<Secrets>,
+    cache: Cache,
 ) -> Result<SessionResponse, ApiError> {
-    let session = google_confirm(&db, body.into_inner(), project.id, &secrets.passphrase).await?;
+    let session = google_confirm(
+        &cache,
+        &db,
+        body.into_inner(),
+        project.id,
+        &secrets.passphrase,
+    )
+    .await?;
     Ok(session)
 }
 

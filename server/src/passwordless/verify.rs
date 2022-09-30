@@ -49,7 +49,7 @@ pub async fn verify(
 
     Passwordless::remove_all(&pool, &token.email, &token.project_id).await?;
 
-    let current_session = Session::get(&cache, &pool, &body.session).await?;
+    let current_session = Session::get(&pool, &body.session).await?;
 
     let device_languages = body.device_languages.clone();
     let rat = RefreshAccessToken { value: body.token };
@@ -75,7 +75,8 @@ pub async fn verify(
     let expire_at = Utc::now() + Duration::days(30);
     let session = Session::confirm(&pool, &current_session.id, &user.id, &expire_at).await?;
 
-    let private_key = ProjectKeys::get_private_key(&pool, &token.project_id, &passphrase).await?;
+    let private_key =
+        ProjectKeys::get_private_key(&cache, &pool, &token.project_id, &passphrase).await?;
 
     let exp = Utc::now() + Duration::minutes(15);
     let access_token = AccessToken::new(&user.id, &user.traits, exp)

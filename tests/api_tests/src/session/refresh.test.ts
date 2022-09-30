@@ -18,7 +18,6 @@ import { differenceInDays } from 'date-fns'
 
 const EMAIL = 'api.test+session_refresh@vulpo.dev'
 const USER_ID = '7fc30b8f-8647-4d4b-9ce3-28ae53cbd2e3'
-const SESSION_ID = 'cfebb19b-2107-43d4-8da3-c7fc2ed153a7'
 const KEYS = generateKeyPair()
 
 let createSession = makeCreateSession(
@@ -55,7 +54,7 @@ describe("Session Refresh", () => {
 			value: token
 		}
 
-		let url = Url.TokenRefresh.replace(':session', SESSION_ID)
+		let url = Url.TokenRefresh.replace(':session', sessionId)
 
 		let res = await Http
 			.post(url, payload)

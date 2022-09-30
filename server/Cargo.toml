@@ -43,8 +43,10 @@ ecdsa = "0.14"
 p384 = "0.11"
 pkcs8 = { version = "0.9", features = ["encryption", "pem"] }
 rocket = { version = "0.5.0-rc.2", features = ["uuid", "json"] }
+
 async-trait = "0.1.57"
 redis = { version = "0.21.5", features = ["r2d2", "tokio-comp"] }
+lru = "0.8.0"
 
 [dependencies.sqlx]
 version = "0.6"

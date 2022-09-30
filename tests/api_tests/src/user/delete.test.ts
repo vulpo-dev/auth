@@ -19,29 +19,29 @@ import { v4 as uuid } from 'uuid'
 
 const EMAIL = 'api.test+user_delete_account@vulpo.dev'
 const USER_ID = '90896fe0-d3c2-4f2d-8cce-e6dd628ca584'
-const SESSION_ID = 'd18477d0-206c-4611-b248-1a25b4378562'
 const KEYS = generateKeyPair()
 const INVALID_KEYS = generateKeyPair()
 
-let createSession = makeCreateSession(SESSION_ID, PROJECT_ID, USER_ID, KEYS.publicKey)
+let createSession = makeCreateSession(PROJECT_ID, USER_ID, KEYS.publicKey)
 let createUser = makeCreateUser(USER_ID, EMAIL, PROJECT_ID)
 let generateAccessToken = makeGenerateAccessToken(KEYS.privateKey)
 let generateInvalidAccessToken = makeGenerateInvalidAccessToken(INVALID_KEYS.privateKey)
 
 beforeEach(async () => {
 	await createUser()
-	await createSession()
 })
 afterAll(makeCleanUp(USER_ID))
 afterAll(() => Db.end())
 
 describe("Delete Account", () => {
 	test("Remove from DB", async () => {
+		let sessionId = await createSession()
+
 		let token = generateAccessToken({
 			payload: ratPayload()
 		})
 
-		let url = Url.UserDeleteAccount.replace(':session', SESSION_ID)
+		let url = Url.UserDeleteAccount.replace(':session', sessionId)
 		let res = await Http.post(url, {
 			value: token
 		})
@@ -59,11 +59,12 @@ describe("Delete Account", () => {
 	})
 
 	test("Fails for invalid token", async () => {
+		let sessionId = await createSession()
 		let token = generateInvalidAccessToken({
 			payload: ratPayload()
 		})
 
-		let url = Url.UserDeleteAccount.replace(':session', SESSION_ID)
+		let url = Url.UserDeleteAccount.replace(':session', sessionId)
 		let res = await Http.post(url, {
 			value: token
 		})
@@ -74,6 +75,7 @@ describe("Delete Account", () => {
 	})
 
 	test("Fails for duplicate jti", async () => {
+		let sessionId = await createSession()
 		let jti = uuid()
 		let token = generateInvalidAccessToken({
 			payload: ratPayload(5, jti)
@@ -82,9 +84,9 @@ describe("Delete Account", () => {
 		await Db.query(`
 			insert into refresh_access_tokens(id, session_id, expire_at, project_id)
 			values($1, $2, now() + '5 minutes', $3)
-		`, [jti, SESSION_ID, PROJECT_ID])
+		`, [jti, sessionId, PROJECT_ID])
 
-		let url = Url.UserDeleteAccount.replace(':session', SESSION_ID)
+		let url = Url.UserDeleteAccount.replace(':session', sessionId)
 		let res = await Http.post(url, {
 			value: token
 		})

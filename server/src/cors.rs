@@ -1,9 +1,11 @@
+use crate::cache::Cache;
 use crate::project::data::Project;
 
 use rocket::fairing::{Fairing, Info, Kind};
 use rocket::http::Status;
 use rocket::http::{ContentType, Header, Method};
 use rocket::request::FromRequest;
+use rocket::tokio::join;
 use rocket::{Request, Response};
 use std::io::Cursor;
 use uuid::Uuid;
@@ -31,10 +33,14 @@ impl Fairing for CORS {
                 response.set_header(Header::new("Access-Control-Allow-Origin", "*"));
             }
             Some(id) => {
-                if let Some(db) = Db::from_request(request).await.succeeded() {
-                    let row = Project::domain(&db, &id).await;
-                    if let Ok(domain) = row {
-                        response.set_header(Header::new("Access-Control-Allow-Origin", domain));
+                let (db, cache) = join!(Db::from_request(request), Cache::from_request(request));
+
+                if let Some(db) = db.succeeded() {
+                    if let Some(cache) = cache.succeeded() {
+                        let row = Project::domain(&cache, &db, &id).await;
+                        if let Ok(domain) = row {
+                            response.set_header(Header::new("Access-Control-Allow-Origin", domain));
+                        }
                     }
                 }
             }

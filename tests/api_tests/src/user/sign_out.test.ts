@@ -19,11 +19,10 @@ import { v4 as uuid } from 'uuid'
 
 const EMAIL = 'api.test+user_sign_out@vulpo.dev'
 const USER_ID = 'df26e3cf-a5a0-4469-966a-a5dc9b273489'
-const SESSION_ID = '3dd6d873-fb95-46ae-acbd-aa7e5e3d61c8'
 const KEYS = generateKeyPair()
 const INVALID_KEYS = generateKeyPair()
 
-let createSession = makeCreateSession(SESSION_ID, PROJECT_ID, USER_ID, KEYS.publicKey)
+let createSession = makeCreateSession(PROJECT_ID, USER_ID, KEYS.publicKey)
 let createUser = makeCreateUser(USER_ID, EMAIL, PROJECT_ID)
 let generateAccessToken = makeGenerateAccessToken(KEYS.privateKey)
 let generateInvalidAccessToken = makeGenerateInvalidAccessToken(INVALID_KEYS.privateKey)
@@ -43,11 +42,12 @@ afterAll(() => Db.end())
 describe("User Sign Out", () => {
 	describe("current session", () => {
 		test("Removes Session from DB", async () => {
+			let sessionId = await createSession()
 			let token = generateAccessToken({
 				payload: ratPayload()
 			})
 
-			let url = Url.SignOut.replace(':session', SESSION_ID)
+			let url = Url.SignOut.replace(':session', sessionId)
 			let res = await Http.post(url, {
 				value: token
 			})
@@ -58,17 +58,18 @@ describe("User Sign Out", () => {
 				select count(*)
 				  from sessions
 				 where id = $1
-			`, [SESSION_ID])
+			`, [sessionId])
 
 			expect(rows[0].count).toBe("0")
 		})
 
 		test("Fails for invalid token", async () => {
+			let sessionId = await createSession()
 			let token = generateInvalidAccessToken({
 				payload: ratPayload()
 			})
 
-			let url = Url.SignOut.replace(':session', SESSION_ID)
+			let url = Url.SignOut.replace(':session', sessionId)
 			let res = await Http.post(url, {
 				value: token
 			})
@@ -79,6 +80,7 @@ describe("User Sign Out", () => {
 		})
 
 		test("Fails for duplicate jti", async () => {
+			let sessionId = await createSession()
 			let jti = uuid()
 			let token = generateInvalidAccessToken({
 				payload: ratPayload(5, jti)
@@ -87,9 +89,9 @@ describe("User Sign Out", () => {
 			await Db.query(`
 				insert into refresh_access_tokens(id, session_id, expire_at, project_id)
 				values($1, $2, now() + '5 minutes', $3)
-			`, [jti, SESSION_ID, PROJECT_ID])
+			`, [jti, sessionId, PROJECT_ID])
 
-			let url = Url.SignOut.replace(':session', SESSION_ID)
+			let url = Url.SignOut.replace(':session', sessionId)
 			let res = await Http.post(url, {
 				value: token
 			})
@@ -103,11 +105,11 @@ describe("User Sign Out", () => {
 
 	describe("all sessions", () => {
 		test("Removes Sessions from DB", async () => {
+			let sessionId = await createSession()
 
 			let sink = Array
-				.from({length: 10}, () => uuid())
-				.map(sessionId => makeCreateSession(sessionId, PROJECT_ID, USER_ID, KEYS.publicKey))
-				.map(fn => fn())
+				.from({length: 10})
+				.map(() => makeCreateSession(PROJECT_ID, USER_ID, KEYS.publicKey))
 
 			await Promise.all(sink)
 
@@ -115,7 +117,7 @@ describe("User Sign Out", () => {
 				payload: ratPayload()
 			})
 
-			let url = Url.SignOutAll.replace(':session', SESSION_ID)
+			let url = Url.SignOutAll.replace(':session', sessionId)
 			let res = await Http.post(url, {
 				value: token
 			})
@@ -132,11 +134,12 @@ describe("User Sign Out", () => {
 		})
 
 		test("Fails for invalid token", async () => {
+			let sessionId = await createSession()
 			let token = generateInvalidAccessToken({
 				payload: ratPayload()
 			})
 
-			let url = Url.SignOutAll.replace(':session', SESSION_ID)
+			let url = Url.SignOutAll.replace(':session', sessionId)
 			let res = await Http.post(url, {
 				value: token
 			})
@@ -147,6 +150,7 @@ describe("User Sign Out", () => {
 		})
 
 		test("Fails for duplicate jti", async () => {
+			let sessionId = await createSession()
 			let jti = uuid()
 			let token = generateInvalidAccessToken({
 				payload: ratPayload(5, jti)
@@ -155,9 +159,9 @@ describe("User Sign Out", () => {
 			await Db.query(`
 				insert into refresh_access_tokens(id, session_id, expire_at, project_id)
 				values($1, $2, now() + '5 minutes', $3)
-			`, [jti, SESSION_ID, PROJECT_ID])
+			`, [jti, sessionId, PROJECT_ID])
 
-			let url = Url.SignOutAll.replace(':session', SESSION_ID)
+			let url = Url.SignOutAll.replace(':session', sessionId)
 			let res = await Http.post(url, {
 				value: token
 			})

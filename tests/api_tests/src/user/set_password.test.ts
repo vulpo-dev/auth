@@ -11,12 +11,11 @@ import { ErrorCode } from '@sdk-js/error'
 import { Url, UserSetPasswordPayload, UserState } from '@sdk-js/types'
 
 const USER_ID = '077a9f18-e3c9-428f-99de-49a9a6772887'
-const SESSION_ID = '4e418b87-f967-4d1c-9d40-70e352611101'
 const EMAIL = 'api.test+set_password@vulpo.dev'
 const KEYS = generateKeyPair()
 const INVALID_KEYS = generateKeyPair()
 
-let createSession = makeCreateSession(SESSION_ID, PROJECT_ID, USER_ID, KEYS.publicKey)
+let createSession = makeCreateSession(PROJECT_ID, USER_ID, KEYS.publicKey)
 let getAccessToken = makeGenerateAccessToken({
 	key: projectKeys.private_key,
 	passphrase: 'password',

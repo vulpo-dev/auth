@@ -2,8 +2,9 @@ use std::sync::Arc;
 
 use crate::admin;
 use crate::api_key;
+use crate::cache::MemoryProvider;
 use crate::cache::RedisProvider;
-use crate::config::Secrets;
+use crate::config::{cache, Secrets};
 use crate::cors::CORS;
 use crate::keys;
 use crate::oauth;
@@ -30,6 +31,8 @@ pub async fn start(figment: &Figment, port: Option<u16>, secrets: Secrets) {
         Some(port) => rocket_config.merge(("port", port)),
     };
 
+    let cache_config = cache(&figment);
+
     let _ = rocket::custom(config)
         .attach(TracingFairing)
         .attach(CORS)
@@ -37,8 +40,19 @@ pub async fn start(figment: &Figment, port: Option<u16>, secrets: Secrets) {
             rocket.manage(secrets)
         }))
         .attach(AdHoc::on_ignite("Add Cache", |rocket| async move {
-            let cache = RedisProvider::new("redis://127.0.0.1:6379");
-            rocket.manage(Arc::new(cache))
+            if let Some(off) = cache_config.off {
+                if off {
+                    return rocket;
+                }
+            }
+
+            if let Some(url) = cache_config.url {
+                let cache = RedisProvider::new(&url);
+                return rocket.manage(Arc::new(cache));
+            }
+
+            let cache = MemoryProvider::new(cache_config.cache_size);
+            return rocket.manage(Arc::new(cache));
         }))
         .attach(db::create_pool(&figment))
         .mount("/", admin::redirect())

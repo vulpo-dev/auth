@@ -1,3 +1,6 @@
+use std::path::PathBuf;
+
+use crate::cache::Cache;
 use chrono::{DateTime, Utc};
 use serde::Serialize;
 use sqlx::PgPool;
@@ -8,6 +11,7 @@ use ecdsa::SigningKey;
 use p384::NistP384;
 use pkcs8::{DecodePrivateKey, EncodePrivateKey, EncodePublicKey, LineEnding};
 use rand_core::OsRng;
+use tracing::{error, info};
 
 pub struct ProjectKeys {
     pub id: Uuid,
@@ -29,10 +33,18 @@ pub struct NewProjectKeys {
 
 impl ProjectKeys {
     pub async fn get_private_key(
+        cache: &Cache,
         pool: &PgPool,
         project_id: &Uuid,
         passphrase: &str,
     ) -> Result<Vec<u8>, ApiError> {
+        let mut cache_key = PathBuf::from("vulpo_private_key");
+        cache_key.push(project_id.to_string());
+
+        if let Some(value) = cache.get(&cache_key).await {
+            return Ok(value.as_bytes().to_vec());
+        }
+
         let row = sqlx::query_file!("src/keys/sql/get_private_key.sql", project_id)
             .fetch_one(pool)
             .await?;
@@ -43,11 +55,16 @@ impl ProjectKeys {
             SigningKey::from_pkcs8_encrypted_pem(&key, passphrase)
                 .map_err(|_| ApiError::InternalServerError)?;
 
-        Ok(private_key
+        let key = private_key
             .to_pkcs8_pem(LineEnding::LF)
-            .unwrap()
-            .as_bytes()
-            .to_vec())
+            .map_err(|_| ApiError::InternalServerError)?;
+
+        match cache.set(&cache_key, &key).await {
+            Some(_) => info!("CACHE set vulpo_private_key/{}", project_id),
+            None => error!("CACHE failed to set vulpo_private_key/{}", project_id),
+        }
+
+        Ok(key.as_bytes().to_vec())
     }
 
     pub async fn get_public_key(pool: &PgPool, project_id: &Uuid) -> sqlx::Result<Vec<u8>> {

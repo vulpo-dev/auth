@@ -1,4 +1,5 @@
 use crate::admin::data::Admin;
+use crate::cache::Cache;
 use crate::project::data::Project;
 
 use rocket::http::Status;
@@ -15,8 +16,19 @@ pub struct SetProjectSettings {
     pub domain: String,
 }
 
-pub async fn set_project_settings(pool: &Db, settings: SetProjectSettings) -> Result<(), ApiError> {
-    Project::set_settings(&pool, &settings.project, &settings.name, &settings.domain).await?;
+pub async fn set_project_settings(
+    cache: &Cache,
+    pool: &Db,
+    settings: SetProjectSettings,
+) -> Result<(), ApiError> {
+    Project::set_settings(
+        &cache,
+        &pool,
+        &settings.project,
+        &settings.name,
+        &settings.domain,
+    )
+    .await?;
     Ok(())
 }
 
@@ -24,8 +36,9 @@ pub async fn set_project_settings(pool: &Db, settings: SetProjectSettings) -> Re
 pub async fn handler(
     pool: Db,
     body: Json<SetProjectSettings>,
+    cache: Cache,
     _admin: Admin,
 ) -> Result<Status, ApiError> {
-    set_project_settings(&pool, body.into_inner()).await?;
+    set_project_settings(&cache, &pool, body.into_inner()).await?;
     Ok(Status::Ok)
 }

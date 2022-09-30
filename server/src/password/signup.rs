@@ -1,3 +1,4 @@
+use crate::cache::Cache;
 use crate::config::Secrets;
 use crate::keys::data::ProjectKeys;
 use crate::password::validate_password_length;
@@ -26,6 +27,7 @@ pub struct SignUp {
 }
 
 pub async fn sign_up(
+    cache: &Cache,
     pool: &Db,
     body: SignUp,
     project_id: Uuid,
@@ -43,7 +45,7 @@ pub async fn sign_up(
     )
     .await?;
 
-    let private_key = ProjectKeys::get_private_key(&pool, &project_id, &passphrase).await?;
+    let private_key = ProjectKeys::get_private_key(&cache, &pool, &project_id, &passphrase).await?;
 
     let exp = Utc::now() + Duration::minutes(15);
     let access_token = AccessToken::new(&user_id, &vec![], exp)
@@ -81,6 +83,7 @@ pub async fn sign_up_handler(
     body: Json<SignUp>,
     project: Project,
     secrets: &State<Secrets>,
+    cache: Cache,
 ) -> Result<SessionResponse, ApiError> {
     Flags::has_flags(
         &pool,
@@ -89,6 +92,13 @@ pub async fn sign_up_handler(
     )
     .await?;
 
-    let session = sign_up(&pool, body.into_inner(), project.id, &secrets.passphrase).await?;
+    let session = sign_up(
+        &cache,
+        &pool,
+        body.into_inner(),
+        project.id,
+        &secrets.passphrase,
+    )
+    .await?;
     Ok(session)
 }

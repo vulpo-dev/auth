@@ -1,6 +1,4 @@
 use crate::admin::data::Admin;
-use crate::cache::Cache;
-
 use crate::session::data::{RefreshAccessToken, Session};
 use crate::user::data::User;
 
@@ -27,12 +25,11 @@ pub async fn admin_delete_account_handler(
 }
 
 pub async fn delete_account_by_session(
-    cache: &Cache,
     pool: &Db,
     session_id: Uuid,
     rat: RefreshAccessToken,
 ) -> Result<(), ApiError> {
-    let session = Session::get(&cache, &pool, &session_id).await?;
+    let session = Session::get(&pool, &session_id).await?;
     let claims = Session::validate_token(&session, &rat)?;
 
     let is_valid = Session::is_valid(&pool, &claims, &session_id, &session.project_id).await?;
@@ -52,8 +49,7 @@ pub async fn delete_account_handler(
     pool: Db,
     session_id: Uuid,
     rat: Json<RefreshAccessToken>,
-    cache: Cache,
 ) -> Result<Status, ApiError> {
-    delete_account_by_session(&cache, &pool, session_id, rat.into_inner()).await?;
+    delete_account_by_session(&pool, session_id, rat.into_inner()).await?;
     Ok(Status::Ok)
 }

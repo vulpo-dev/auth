@@ -20,7 +20,6 @@ import { admin } from '@seeds/data/projects'
 
 const EMAIL = 'api.test_user_update@vulpo.dev'
 const USER_ID = '1d71bf90-45b8-4409-bc8e-a66639597fac'
-const SESSION_ID = '2aa1cf08-d0a1-45ac-853b-9718c043a1c9'
 const KEYS = generateKeyPair()
 const INVALID_KEYS = generateKeyPair()
 
@@ -28,7 +27,7 @@ const DUPLICATE_ID = 'dd4a1cfe-d21f-45aa-8a92-108ce7a93334'
 const DUPLICATE_EMAIL = `api.${DUPLICATE_ID}@vulpo.dev`
 
 
-let createSession = makeCreateSession(SESSION_ID, PROJECT_ID, USER_ID, KEYS.publicKey)
+let createSession = makeCreateSession(PROJECT_ID, USER_ID, KEYS.publicKey)
 let createUser = makeCreateUser(USER_ID, EMAIL, PROJECT_ID)
 let generateAccessToken = makeGenerateAccessToken({
 	key: projectKeys.private_key,
@@ -57,6 +56,7 @@ afterAll(() => Db.end())
 
 describe("Update user", () => {
 	test("should update values", async () => {
+		let session = await createSession()
 
 		await Db.query(`
 			update users

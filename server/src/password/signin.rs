@@ -1,3 +1,4 @@
+use crate::cache::Cache;
 use crate::config::Secrets;
 use crate::keys::data::ProjectKeys;
 use crate::password::data::Password;
@@ -16,6 +17,7 @@ use vulpo_auth_types::{error::ApiError, session::SessionResponse, SignInPayload}
 use werkbank::rocket::Db;
 
 pub async fn sign_in(
+    cache: &Cache,
     pool: &Db,
     payload: SignInPayload,
     project_id: Uuid,
@@ -60,13 +62,11 @@ pub async fn sign_in(
 
     let session = Session::create(&pool, session).await?;
 
-    let private_key = ProjectKeys::get_private_key(&pool, &project_id, passphrase).await?;
+    let private_key = ProjectKeys::get_private_key(&cache, &pool, &project_id, passphrase).await?;
     let exp = Utc::now() + Duration::minutes(15);
     let access_token = AccessToken::new(&user.id, &user.traits, exp)
         .to_jwt(&project_id, &private_key)
         .map_err(|_| ApiError::InternalServerError)?;
-
-    println!("CCCC");
 
     Ok(SessionResponse {
         access_token,
@@ -83,6 +83,7 @@ pub async fn sign_in_handler(
     body: Json<SignInPayload>,
     project: Project,
     secrets: &State<Secrets>,
+    cache: Cache,
 ) -> Result<SessionResponse, ApiError> {
     Flags::has_flags(
         &pool,
@@ -91,6 +92,13 @@ pub async fn sign_in_handler(
     )
     .await?;
 
-    let session = sign_in(&pool, body.into_inner(), project.id, &secrets.passphrase).await?;
+    let session = sign_in(
+        &cache,
+        &pool,
+        body.into_inner(),
+        project.id,
+        &secrets.passphrase,
+    )
+    .await?;
     Ok(session)
 }
