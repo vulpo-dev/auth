@@ -1,13 +1,18 @@
+use std::path::PathBuf;
+
+use crate::cache::Cache;
 use crate::session::data::SessionClaims;
 
 use chrono::{DateTime, TimeZone, Utc};
 use jsonwebtoken as jwt;
 use jsonwebtoken::{Algorithm, DecodingKey, Validation};
+use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
 use uuid::Uuid;
 use vulpo_auth_types::error::ApiError;
 use vulpo_auth_types::session::{RefreshAccessToken, RefreshAccessTokenClaims};
 
+#[derive(Serialize, Deserialize)]
 pub struct Session {
     pub id: Uuid,
     pub project_id: Uuid,
@@ -31,11 +36,43 @@ impl Session {
         .await
     }
 
-    pub async fn get(pool: &PgPool, session: &Uuid) -> Result<Session, ApiError> {
+    pub async fn get(cache: &Cache, pool: &PgPool, session: &Uuid) -> Result<Session, ApiError> {
+        let mut key = PathBuf::from("get_session");
+        key.push(session.to_string());
+
+        if let Some(value) = cache.get(&key).await {
+            match serde_json::from_str(&value) {
+                Ok(session) => {
+                    println!("Cache Hit");
+                    return Ok(session);
+                }
+                Err(err) => {
+                    println!("Serde Error {:?}", err);
+                }
+            };
+        }
+
         let row = sqlx::query_file_as!(Session, "src/session/sql/get_session.sql", session)
             .fetch_optional(pool)
             .await
             .map_err(|_| ApiError::InternalServerError)?;
+
+        if let Some(ref row) = row {
+            let value = match serde_json::to_string(&row) {
+                Ok(value) => Some(value),
+                Err(err) => {
+                    println!("Serde Error: {:?}", err);
+                    None
+                }
+            };
+
+            if let Some(val) = value {
+                match cache.set(&key, &val).await {
+                    Some(_) => println!("Cache Set"),
+                    None => println!("Failed to set Cache"),
+                };
+            }
+        }
 
         row.ok_or_else(|| ApiError::TokenInvalid)
     }

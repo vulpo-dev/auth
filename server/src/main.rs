@@ -1,5 +1,6 @@
 mod admin;
 mod api_key;
+mod cache;
 mod cli;
 mod config;
 mod cors;

@@ -85,13 +85,13 @@ export function makeResetPasswordless(
 }
 
 export function makeCreateSession(
-	sessionId: string,
 	projectId: string,
 	userId: string,
 	publicKey: string,
 ) {
-	return function() {
-		return Db.query(`
+	return async function(): Promise<string> {
+		let sessionId = uuid()
+		await Db.query(`
 			insert into sessions
 				( id
 				, project_id
@@ -101,6 +101,8 @@ export function makeCreateSession(
 			values($1, $2, $3, $4)
 			on conflict do nothing
 		`, [sessionId, projectId, userId, publicKey])
+
+		return sessionId
 	}
 }
 

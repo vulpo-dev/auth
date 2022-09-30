@@ -1,5 +1,8 @@
+use std::sync::Arc;
+
 use crate::admin;
 use crate::api_key;
+use crate::cache::RedisProvider;
 use crate::config::Secrets;
 use crate::cors::CORS;
 use crate::keys;
@@ -32,6 +35,10 @@ pub async fn start(figment: &Figment, port: Option<u16>, secrets: Secrets) {
         .attach(CORS)
         .attach(AdHoc::on_ignite("Add Secrets", |rocket| async move {
             rocket.manage(secrets)
+        }))
+        .attach(AdHoc::on_ignite("Add Cache", |rocket| async move {
+            let cache = RedisProvider::new("redis://127.0.0.1:6379");
+            rocket.manage(Arc::new(cache))
         }))
         .attach(db::create_pool(&figment))
         .mount("/", admin::redirect())

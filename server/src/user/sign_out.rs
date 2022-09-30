@@ -1,4 +1,5 @@
 use crate::admin::data::Admin;
+use crate::cache::Cache;
 use crate::project::Project;
 use crate::session::data::{RefreshAccessToken, Session};
 
@@ -10,12 +11,13 @@ use vulpo_auth_types::error::ApiError;
 use werkbank::rocket::Db;
 
 pub async fn validate_session(
+    cache: &Cache,
     pool: &Db,
     session_id: &Uuid,
     rat: RefreshAccessToken,
     project_id: Uuid,
 ) -> Result<(), ApiError> {
-    let session = Session::get(&pool, &session_id).await?;
+    let session = Session::get(&cache, &pool, &session_id).await?;
     let claims = Session::validate_token(&session, &rat)?;
     let is_valid = Session::is_valid(&pool, &claims, &session_id, &project_id).await?;
 
@@ -27,12 +29,13 @@ pub async fn validate_session(
 }
 
 pub async fn sign_out(
+    cache: &Cache,
     pool: &Db,
     session_id: Uuid,
     rat: RefreshAccessToken,
     project_id: Uuid,
 ) -> Result<(), ApiError> {
-    validate_session(&pool, &session_id, rat, project_id).await?;
+    validate_session(&cache, &pool, &session_id, rat, project_id).await?;
     Session::delete(&pool, &session_id).await?;
     Ok(())
 }
@@ -43,8 +46,9 @@ pub async fn sign_out_handler(
     session_id: Uuid,
     rat: Json<RefreshAccessToken>,
     project: Project,
+    cache: Cache,
 ) -> Result<Status, ApiError> {
-    sign_out(&pool, session_id, rat.into_inner(), project.id).await?;
+    sign_out(&cache, &pool, session_id, rat.into_inner(), project.id).await?;
     Ok(Status::Ok)
 }
 
@@ -64,12 +68,13 @@ pub async fn admin_sign_out_handler(
 }
 
 pub async fn sign_out_all(
+    cache: &Cache,
     pool: &Db,
     session_id: Uuid,
     rat: RefreshAccessToken,
     project_id: Uuid,
 ) -> Result<(), ApiError> {
-    validate_session(&pool, &session_id, rat, project_id).await?;
+    validate_session(&cache, &pool, &session_id, rat, project_id).await?;
     Session::delete_all(&pool, &session_id).await?;
     Ok(())
 }
@@ -80,7 +85,8 @@ pub async fn sign_out_all_handler(
     session_id: Uuid,
     rat: Json<RefreshAccessToken>,
     project: Project,
+    cache: Cache,
 ) -> Result<Status, ApiError> {
-    sign_out_all(&pool, session_id, rat.into_inner(), project.id).await?;
+    sign_out_all(&cache, &pool, session_id, rat.into_inner(), project.id).await?;
     Ok(Status::Ok)
 }

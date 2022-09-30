@@ -1,3 +1,4 @@
+use crate::cache::Cache;
 use crate::config::Secrets;
 use crate::keys::data::ProjectKeys;
 use crate::passwordless::data::Passwordless;
@@ -23,6 +24,7 @@ pub struct Veriy {
 }
 
 pub async fn verify(
+    cache: &Cache,
     pool: &Db,
     body: Veriy,
     project_id: Uuid,
@@ -47,7 +49,7 @@ pub async fn verify(
 
     Passwordless::remove_all(&pool, &token.email, &token.project_id).await?;
 
-    let current_session = Session::get(&pool, &body.session).await?;
+    let current_session = Session::get(&cache, &pool, &body.session).await?;
 
     let device_languages = body.device_languages.clone();
     let rat = RefreshAccessToken { value: body.token };
@@ -95,6 +97,14 @@ pub async fn handler(
     body: Json<Veriy>,
     secrets: &State<Secrets>,
     project: Project,
+    cache: Cache,
 ) -> Result<SessionResponse, ApiError> {
-    verify(&pool, body.into_inner(), project.id, &secrets.passphrase).await
+    verify(
+        &cache,
+        &pool,
+        body.into_inner(),
+        project.id,
+        &secrets.passphrase,
+    )
+    .await
 }

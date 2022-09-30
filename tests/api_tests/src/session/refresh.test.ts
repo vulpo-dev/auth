@@ -22,7 +22,6 @@ const SESSION_ID = 'cfebb19b-2107-43d4-8da3-c7fc2ed153a7'
 const KEYS = generateKeyPair()
 
 let createSession = makeCreateSession(
-	SESSION_ID,
 	PROJECT_ID,
 	USER_ID,
 	KEYS.publicKey,
@@ -35,25 +34,18 @@ let createUser = makeCreateUser(
 )
 
 beforeAll(createUser)
-beforeEach(async () => {
-	await Db.query(`
-		delete from sessions
-		 where id = $1
-	`, [SESSION_ID])
-
-	return createSession()
-})
 afterAll(makeCleanUp(USER_ID))
 afterAll(() => Db.end())
 
 describe("Session Refresh", () => {
 	test("returns session data for valid token", async () => {
+		let sessionId = await createSession();
 
 		await Db.query(`
 			update sessions
 			   set expire_at = $2
 			 where id = $1 
-		`, [SESSION_ID, new Date(Date.now() + 30 * 60 * 1000)])
+		`, [sessionId, new Date(Date.now() + 30 * 60 * 1000)])
 
 		let token = generateAccessToken({
 			payload: ratPayload()
@@ -75,7 +67,7 @@ describe("Session Refresh", () => {
 		let body = SessionResponseSchema.validate(res.data)
 		expect(body).toBeTruthy()
 
-		let newSession = await getSession()
+		let newSession = await getSession(sessionId)
 		let expireIn = differenceInDays(
 			new Date(newSession.expire_at),
 			new Date(),
@@ -85,6 +77,7 @@ describe("Session Refresh", () => {
 	})
 
 	test("returns forbidden for invalid token", async () => {
+		let sessionId = await createSession();
 		let invalidKeys = generateKeyPair()
 
 		let token = generateAccessToken({
@@ -96,7 +89,7 @@ describe("Session Refresh", () => {
 			value: token
 		}
 
-		let url = Url.TokenRefresh.replace(':session', SESSION_ID)
+		let url = Url.TokenRefresh.replace(':session', sessionId)
 
 		let res = await Http
 			.post(url, payload)
@@ -107,11 +100,13 @@ describe("Session Refresh", () => {
 	})
 
 	test("returns session/expired", async () => {
+		let sessionId = await createSession();
+
 		await Db.query(`
 			update sessions
 			   set expire_at = $2
 			 where id = $1 
-		`, [SESSION_ID, new Date(Date.now() - 30 * 60 * 1000)])
+		`, [sessionId, new Date(Date.now() - 30 * 60 * 1000)])
 
 		let token = generateAccessToken({
 			payload: ratPayload(),
@@ -121,7 +116,7 @@ describe("Session Refresh", () => {
 			value: token
 		}
 
-		let url = Url.TokenRefresh.replace(':session', SESSION_ID)
+		let url = Url.TokenRefresh.replace(':session', sessionId)
 
 		let res = await Http
 			.post(url, payload)
@@ -132,7 +127,7 @@ describe("Session Refresh", () => {
 	})
 
 	test("returns forbidden when token is reused", async () => {
-
+		let sessionId = await createSession();
 		let accessToken = ratPayload()
 
 		let token = generateAccessToken({
@@ -143,7 +138,7 @@ describe("Session Refresh", () => {
 			value: token
 		}
 
-		let url = Url.TokenRefresh.replace(':session', SESSION_ID)
+		let url = Url.TokenRefresh.replace(':session', sessionId)
 
 		await Http
 			.post(url, payload)
@@ -158,7 +153,7 @@ describe("Session Refresh", () => {
 
 
 	test("returns forbidden for missing jti claim", async () => {
-
+		let sessionId = await createSession();
 		let accessToken = ratPayload()
 
 		let token = generateAccessToken({
@@ -171,7 +166,7 @@ describe("Session Refresh", () => {
 			value: token
 		}
 
-		let url = Url.TokenRefresh.replace(':session', SESSION_ID)
+		let url = Url.TokenRefresh.replace(':session', sessionId)
 
 		let res = await Http
 			.post(url, payload)
@@ -183,7 +178,7 @@ describe("Session Refresh", () => {
 
 
 	test("returns forbidden for missing exp claim", async () => {
-
+		let sessionId = await createSession();
 		let accessToken = ratPayload()
 
 		let token = generateAccessToken({
@@ -196,7 +191,7 @@ describe("Session Refresh", () => {
 			value: token
 		}
 
-		let url = Url.TokenRefresh.replace(':session', SESSION_ID)
+		let url = Url.TokenRefresh.replace(':session', sessionId)
 
 		let res = await Http
 			.post(url, payload)
@@ -208,7 +203,7 @@ describe("Session Refresh", () => {
 
 
 	test("returns bad_request for invalid algorithm", async () => {
-
+		let sessionId = await createSession();
 		let accessToken = ratPayload()
 
 		let token = generateAccessToken({
@@ -221,7 +216,7 @@ describe("Session Refresh", () => {
 			value: token
 		}
 
-		let url = Url.TokenRefresh.replace(':session', SESSION_ID)
+		let url = Url.TokenRefresh.replace(':session', sessionId)
 
 		let res = await Http
 			.post(url, payload)
@@ -233,7 +228,7 @@ describe("Session Refresh", () => {
 
 
 	test("returns forbidden for expired token", async () => {
-
+		let sessionId = await createSession();
 		let accessToken = ratPayload()
 
 		let token = generateAccessToken({
@@ -247,7 +242,7 @@ describe("Session Refresh", () => {
 			value: token
 		}
 
-		let url = Url.TokenRefresh.replace(':session', SESSION_ID)
+		let url = Url.TokenRefresh.replace(':session', sessionId)
 
 		let res = await Http
 			.post(url, payload)
@@ -259,12 +254,12 @@ describe("Session Refresh", () => {
 
 
 	test("returns forbidden for session without user", async () => {
-
+		let sessionId = await createSession();
 		await Db.query(`
 			update sessions
 			   set user_id = null
 			 where id = $1
-		`, [SESSION_ID])
+		`, [sessionId])
 
 		let accessToken = ratPayload()
 
@@ -276,7 +271,7 @@ describe("Session Refresh", () => {
 			value: token
 		}
 
-		let url = Url.TokenRefresh.replace(':session', SESSION_ID)
+		let url = Url.TokenRefresh.replace(':session', sessionId)
 
 		let res = await Http
 			.post(url, payload)
@@ -324,12 +319,12 @@ type Session = {
 	expire_at: string;
 }
 
-async function getSession(): Promise<Session> {
+async function getSession(sessionId: string): Promise<Session> {
 	let { rows } = await Db.query(`
 		select expire_at
 		  from sessions
 		 where id = $1
-	`, [SESSION_ID])
+	`, [sessionId])
 
 	return rows[0]
 }

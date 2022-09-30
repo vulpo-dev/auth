@@ -1,3 +1,4 @@
+use crate::cache::Cache;
 use crate::config::Secrets;
 use crate::keys::data::ProjectKeys;
 use crate::project::Project;
@@ -13,13 +14,14 @@ use vulpo_auth_types::session::SessionResponse;
 use werkbank::rocket::Db;
 
 pub async fn refresh(
+    cache: &Cache,
     pool: &Db,
     project_id: Uuid,
     session_id: Uuid,
     rat: RefreshAccessToken,
     passphrase: &str,
 ) -> Result<SessionResponse, ApiError> {
-    let session = Session::get(&pool, &session_id).await?;
+    let session = Session::get(&cache, &pool, &session_id).await?;
 
     if Utc::now() > session.expire_at {
         return Err(ApiError::SessionExpired);
@@ -67,8 +69,10 @@ pub async fn handler(
     session_id: Uuid,
     rat: Json<RefreshAccessToken>,
     secrets: &State<Secrets>,
+    cache: Cache,
 ) -> Result<SessionResponse, ApiError> {
     let session = refresh(
+        &cache,
         &pool,
         project.id,
         session_id,
