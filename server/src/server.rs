@@ -1,10 +1,6 @@
-use std::sync::Arc;
-
 use crate::admin;
 use crate::api_key;
-use crate::cache::MemoryProvider;
-use crate::cache::RedisProvider;
-use crate::config::{cache, Secrets};
+use crate::config::Secrets;
 use crate::cors::CORS;
 use crate::keys;
 use crate::oauth;
@@ -19,7 +15,7 @@ use crate::user;
 use figment::providers::Env;
 use figment::Figment;
 use rocket::fairing::AdHoc;
-use werkbank::rocket::{db, TracingFairing};
+use werkbank::rocket::{db, Cache, TracingFairing};
 
 pub async fn start(figment: &Figment, port: Option<u16>, secrets: Secrets) {
     let rocket_config = Figment::from(rocket::Config::default())
@@ -31,29 +27,13 @@ pub async fn start(figment: &Figment, port: Option<u16>, secrets: Secrets) {
         Some(port) => rocket_config.merge(("port", port)),
     };
 
-    let cache_config = cache(&figment);
-
     let _ = rocket::custom(config)
         .attach(TracingFairing)
         .attach(CORS)
         .attach(AdHoc::on_ignite("Add Secrets", |rocket| async move {
             rocket.manage(secrets)
         }))
-        .attach(AdHoc::on_ignite("Add Cache", |rocket| async move {
-            if let Some(off) = cache_config.off {
-                if off {
-                    return rocket;
-                }
-            }
-
-            if let Some(url) = cache_config.url {
-                let cache = RedisProvider::new(&url);
-                return rocket.manage(Arc::new(cache));
-            }
-
-            let cache = MemoryProvider::new(cache_config.cache_size);
-            return rocket.manage(Arc::new(cache));
-        }))
+        .attach(Cache::fairing(&figment))
         .attach(db::create_pool(&figment))
         .mount("/", admin::redirect())
         .mount("/dashboard", admin::dashboard())

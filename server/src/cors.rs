@@ -1,4 +1,3 @@
-use crate::cache::Cache;
 use crate::project::data::Project;
 
 use rocket::fairing::{Fairing, Info, Kind};
@@ -9,7 +8,7 @@ use rocket::tokio::join;
 use rocket::{Request, Response};
 use std::io::Cursor;
 use uuid::Uuid;
-use werkbank::rocket::Db;
+use werkbank::rocket::{Cache, Db};
 
 pub struct CORS;
 

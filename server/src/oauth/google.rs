@@ -1,5 +1,4 @@
 use crate::admin::data::Admin;
-use crate::cache::Cache;
 use crate::config::Secrets;
 use crate::keys::data::ProjectKeys;
 use crate::oauth::data::google::GoogleMeResponse;
@@ -26,7 +25,7 @@ use sqlx::PgPool;
 use uuid::Uuid;
 use vulpo_auth_types::error::ApiError;
 use vulpo_auth_types::session::SessionResponse;
-use werkbank::rocket::Db;
+use werkbank::rocket::{Cache, Db};
 
 const GOOGLE_ME_ENDPOINT: &'static str =
     "https://people.googleapis.com/v1/people/me?personFields=emailAddresses,metadata,names,photos";

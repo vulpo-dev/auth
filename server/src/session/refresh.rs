@@ -1,4 +1,3 @@
-use crate::cache::Cache;
 use crate::config::Secrets;
 use crate::keys::data::ProjectKeys;
 use crate::project::Project;
@@ -11,7 +10,7 @@ use rocket::serde::uuid::Uuid;
 use rocket::State;
 use vulpo_auth_types::error::ApiError;
 use vulpo_auth_types::session::SessionResponse;
-use werkbank::rocket::Db;
+use werkbank::rocket::{Cache, Db};
 
 pub async fn refresh(
     cache: &Cache,

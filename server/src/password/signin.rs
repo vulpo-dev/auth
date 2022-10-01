@@ -1,4 +1,3 @@
-use crate::cache::Cache;
 use crate::config::Secrets;
 use crate::keys::data::ProjectKeys;
 use crate::password::data::Password;
@@ -14,7 +13,7 @@ use rocket::serde::json::Json;
 use rocket::State;
 use uuid::Uuid;
 use vulpo_auth_types::{error::ApiError, session::SessionResponse, SignInPayload};
-use werkbank::rocket::Db;
+use werkbank::rocket::{Cache, Db};
 
 pub async fn sign_in(
     cache: &Cache,

@@ -1,6 +1,5 @@
 use std::path::PathBuf;
 
-use crate::cache::Cache;
 use chrono::{DateTime, Utc};
 use serde::Serialize;
 use sqlx::PgPool;
@@ -12,6 +11,7 @@ use p384::NistP384;
 use pkcs8::{DecodePrivateKey, EncodePrivateKey, EncodePublicKey, LineEnding};
 use rand_core::OsRng;
 use tracing::{error, info};
+use werkbank::rocket::Cache;
 
 pub struct ProjectKeys {
     pub id: Uuid,

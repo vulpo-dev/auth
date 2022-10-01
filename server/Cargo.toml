@@ -29,9 +29,9 @@ argon2 = "0.4"
 pbkdf2 = "0.11.0"
 rand_core = { version = "0.6", features = ["std"] }
 oauth2 = "4.2.0"
-futures = "0.3.21"
+futures = "0.3"
 thiserror = "1.0.31"
-werkbank = { version = "0.1.0" }
+werkbank = "0.2.0"
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
 tracing-opentelemetry = "0.17.3"
@@ -43,10 +43,6 @@ ecdsa = "0.14"
 p384 = "0.11"
 pkcs8 = { version = "0.9", features = ["encryption", "pem"] }
 rocket = { version = "0.5.0-rc.2", features = ["uuid", "json"] }
-
-async-trait = "0.1.57"
-redis = { version = "0.21.5", features = ["r2d2", "tokio-comp"] }
-lru = "0.8.0"
 
 [dependencies.sqlx]
 version = "0.6"
@@ -61,6 +57,3 @@ features = [
 	"offline",
 	"migrate",
 ]
-
-[patch.crates-io]
-werkbank = { path = "../../werkbank" }

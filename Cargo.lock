@@ -95,6 +95,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "async-lock"
+version = "2.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e97a171d191782fba31bb902b14ad94e24a68145032b7eedf871ab0bc0d077b6"
+dependencies = [
+ "event-listener",
+]
+
+[[package]]
 name = "async-stream"
 version = "0.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -113,6 +122,17 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn",
+]
+
+[[package]]
+name = "async-timer"
+version = "0.7.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ba5fa6ed76cb2aa820707b4eb9ec46f42da9ce70b0eafab5e5e34942b38a44d5"
+dependencies = [
+ "libc",
+ "wasm-bindgen",
+ "winapi",
 ]
 
 [[package]]
@@ -2165,6 +2185,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "retainer"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "df8c01a8276c14d0f8d51ebcf8a48f0748f9f73f5f6b29e688126e6a52bcb145"
+dependencies = [
+ "async-lock",
+ "async-timer",
+ "log",
+ "rand",
+]
+
+[[package]]
 name = "rfc6979"
 version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3399,7 +3431,6 @@ name = "vulpo_server"
 version = "0.1.0"
 dependencies = [
  "argon2",
- "async-trait",
  "base64",
  "bcrypt",
  "chrono",
@@ -3412,7 +3443,6 @@ dependencies = [
  "jsonwebtoken",
  "lettre",
  "log",
- "lru",
  "oauth2",
  "opentelemetry",
  "opentelemetry-otlp",
@@ -3421,7 +3451,6 @@ dependencies = [
  "pkcs8",
  "rand",
  "rand_core",
- "redis",
  "reqwest",
  "rocket",
  "serde",
@@ -3557,18 +3586,24 @@ dependencies = [
 
 [[package]]
 name = "werkbank"
-version = "0.1.0"
+version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "aadd0e4c91002a6ad13e6444d4e87ffe0ad5886a4a2b98c89226a86a30a22e30"
+checksum = "76306de339daf5349ba1414b5013e4f89e5d5e776f5155b3a9e2f62017662a69"
 dependencies = [
+ "async-trait",
  "clap",
  "figment",
+ "futures",
  "log",
+ "lru",
  "opentelemetry",
  "opentelemetry-otlp",
+ "redis",
+ "retainer",
  "rocket",
  "serde",
  "sqlx",
+ "tokio",
  "tracing",
  "tracing-opentelemetry",
  "tracing-subscriber",
