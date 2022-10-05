@@ -50,7 +50,7 @@ pub struct NewUser {
 pub struct Admin(Claims);
 
 impl Admin {
-    pub async fn create(pool: &PgPool, body: NewAdmin, project: Uuid) -> sqlx::Result<Uuid> {
+    pub async fn create(pool: &PgPool, body: NewAdmin, project: &Uuid) -> sqlx::Result<Uuid> {
         let row = sqlx::query_file!(
             "src/admin/sql/create_admin.sql",
             &body.email,

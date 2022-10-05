@@ -11,6 +11,9 @@ pub mod data;
 mod has_admin;
 mod project;
 
+pub use create::create_admin;
+pub use project::create_admin_project;
+
 #[get("/<path..>")]
 fn files(path: Option<PathBuf>) -> Option<File> {
     let file = match path {
@@ -54,12 +57,9 @@ pub fn dashboard() -> Vec<Route> {
 
 pub fn routes() -> Vec<Route> {
     routes![
-        create::handler,
-        create::create_once,
         create_user::handler,
         has_admin::handler,
         project::has,
-        project::create_admin,
         project::create,
         project::list,
     ]

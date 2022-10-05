@@ -2,10 +2,11 @@ use crate::admin::data::Admin;
 
 use rocket::serde::json::Json;
 use serde::Serialize;
+use sqlx::PgPool;
 use vulpo_auth_types::error::ApiError;
 use werkbank::rocket::Db;
 
-pub async fn server_has_admin(pool: &Db) -> Result<bool, ApiError> {
+pub async fn server_has_admin(pool: &PgPool) -> Result<bool, ApiError> {
     let result = Admin::has_admin(&pool).await?;
     result.ok_or(ApiError::InternalServerError)
 }

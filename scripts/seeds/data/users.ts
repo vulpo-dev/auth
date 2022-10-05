@@ -28,7 +28,8 @@ export function getUsers(total: number) {
 			project_id: project.id,
 			traits: [],
 			data: {},
-			provider_id: 'email'
+			provider_id: 'email',
+			created_at: faker.date.past(),
 		}
 	})
 }

@@ -6,6 +6,7 @@ use crate::template::Template;
 use rocket::serde::json::Json;
 use rocket::State;
 use serde::{Deserialize, Serialize};
+use sqlx::PgPool;
 use uuid::Uuid;
 use vulpo_auth_types::error::ApiError;
 use werkbank::rocket::Db;
@@ -32,10 +33,10 @@ pub struct CreateAdminProject {
 }
 
 pub async fn create_admin_project(
-    pool: &Db,
-    data: CreateAdminProject,
+    pool: &PgPool,
+    host: &str,
     passphrase: &str,
-) -> Result<Project, ApiError> {
+) -> Result<Uuid, ApiError> {
     let project = Admin::get_project(&pool).await?;
 
     if project.is_some() {
@@ -44,7 +45,7 @@ pub async fn create_admin_project(
 
     let project = NewProject {
         name: "Admin".to_string(),
-        domain: data.host.to_owned(),
+        domain: host.to_string(),
     };
 
     let keys = ProjectKeys::create_keys(true, None, passphrase);
@@ -54,17 +55,7 @@ pub async fn create_admin_project(
     Admin::set_admin(&pool, &id).await?;
     Template::insert_defaults(&pool, &id).await?;
 
-    Ok(Project { id: Some(id) })
-}
-
-#[post("/__/project/create_admin", format = "json", data = "<body>")]
-pub async fn create_admin(
-    pool: Db,
-    secrets: &State<Secrets>,
-    body: Json<CreateAdminProject>,
-) -> Result<Json<Project>, ApiError> {
-    let project = create_admin_project(&pool, body.into_inner(), &secrets.passphrase).await?;
-    Ok(Json(project))
+    Ok(id)
 }
 
 pub async fn create_project(

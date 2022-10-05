@@ -5,6 +5,7 @@ mod config;
 mod cors;
 mod crypto;
 mod file;
+mod init;
 mod keys;
 mod mail;
 mod migration;
@@ -47,6 +48,13 @@ async fn main() {
 
     if run_migration(&matches) {
         migration::run(&figment).await;
+    }
+
+    if matches.subcommand_matches("init").is_some() {
+        match init::init(&figment).await {
+            Ok(_) => println!("Init done"),
+            Err(err) => panic!("Failed to init admin: {:?}", err),
+        };
     }
 
     if let Some(matches) = run_server(&matches) {
