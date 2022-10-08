@@ -5,3 +5,4 @@
 **.env
 target
 out
+**/.parcel-cache

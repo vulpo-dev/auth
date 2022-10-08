@@ -4,7 +4,7 @@ module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'jsdom',
   transform: {
-    '^.+\\.tsx?$': 'babel-jest',
+    "^.+\\.(t|j)sx?$": ["@swc/jest"],
   },
   setupFilesAfterEnv: ['./jest-setup.js']
 };

@@ -2,22 +2,34 @@
   "name": "@vulpo-dev/auth-sdk",
   "version": "0.0.12",
   "description": "",
-  "main": "./lib/main.js",
-  "types": "./lib/main.d.ts",
+  "source": "src/main.ts",
+  "module": "lib/module.js",
+  "main": "lib/main.js",
+  "types": "lib/main.d.ts",
+  "targets": {
+    "main": {
+      "isLibrary": true,
+      "context": "node"
+    },
+    "interceptor": {
+      "isLibrary": true,
+      "context": "node",
+      "source": "/src/interceptor.ts",
+      "distDir": "lib"
+    },
+    "mock_client": {
+      "isLibrary": true,
+      "context": "node",
+      "source": "/src/mock_client.ts",
+      "distDir": "lib"
+    }
+  },
   "scripts": {
-    "dev": "tsc --noEmit --watch",
+    "watch": "parcel watch",
+    "build": "parcel build && npm run types",
     "types": "tsc --emitDeclarationOnly --declarationDir ./lib",
-    "build": "webpack --config ./webpack.config.js --mode production",
-    "build:dev": "webpack --config ./webpack.config.js --mode development",
-    "build:browser": "webpack --config ./webpack.config.js --mode production --env browser",
-    "bundle": "npm run build && npm run types ",
-    "clean": "node ./scripts/cleanup.js",
-    "clean:all": "npm run clean && npm run rimraf",
-    "rimraf": "rimraf ./node_modules/**/*.*",
-    "server": "node ./scripts/server.js",
-    "prepublish": "npm run bundle",
-    "watch": "npm run build:dev -- --watch",
-    "test": "jest"
+    "test": "jest",
+    "prepublish": "npm run build"
   },
   "keywords": [],
   "author": "Michael Riezler <michael@riezler.co> (https://riezler.co)",
@@ -29,9 +41,8 @@
     "@babel/preset-env": "^7.13.5",
     "@babel/preset-react": "^7.12.13",
     "@babel/preset-typescript": "^7.13.0",
-    "@faker-js/faker": "^7.5.0",
     "@types/jest": "^28.1.1",
-    "axios": "^0.27.2",
+    "@types/shallowequal": "1.1.1",
     "babel-jest": "^28.0.0",
     "babel-loader": "^8.2.2",
     "babel-plugin-styled-components": "^1.12.0",
@@ -47,9 +58,11 @@
     "webpack-cli": "^4.5.0"
   },
   "dependencies": {
+    "@faker-js/faker": "^7.5.0",
+    "axios": "^0.27.2",
     "idb-keyval": "^5.0.4",
     "jwt-decode": "^3.1.2",
-    "shallow-equal": "^1.2.1"
+    "shallowequal": "^1.1.0"
   },
   "gitHead": "dedb24c19f448626c4f88f26d784eb06d6325129"
 }

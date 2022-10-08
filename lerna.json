@@ -1,13 +1,5 @@
 {
-  "packages": [
-    "packages/test-helper",
-    "packages/web/*",
-    "admin",
-    "example",
-    "scripts/*",
-    "tests/*",
-    "website"
-  ],
   "version": "independent",
-  "npmClient": "npm"
+  "npmClient": "npm",
+  "useWorkspaces": true
 }

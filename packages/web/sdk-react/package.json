@@ -2,15 +2,15 @@
   "name": "@vulpo-dev/auth-react",
   "version": "0.0.12",
   "description": "",
+  "source": "src/main.ts",
+  "module": "lib/module.js",
   "main": "lib/main.js",
-  "types": "./lib/main.d.ts",
+  "types": "lib/types.d.ts",
   "scripts": {
-    "dev": "tsc --noEmit --watch",
-    "types": "tsc --emitDeclarationOnly --declarationDir ./lib",
-    "build": "webpack --config ./webpack.config.js --mode production",
-    "build:dev": "webpack --config ./webpack.config.js --mode development",
-    "bundle": "npm run build && npm run types",
-    "prepublish": "npm run bundle"
+    "watch": "parcel watch",
+    "build": "parcel build",
+    "test": "jest",
+    "prepublish": "npm run build"
   },
   "keywords": [],
   "author": "Michael Riezler <michael@riezler.co> (https://riezler.co)",
