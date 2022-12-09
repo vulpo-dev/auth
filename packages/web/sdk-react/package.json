@@ -8,35 +8,24 @@
   "types": "lib/types.d.ts",
   "scripts": {
     "watch": "parcel watch",
-    "build": "parcel build",
+    "build": "parcel build && npm run types",
     "test": "jest",
-    "prepublish": "npm run build"
+    "prepublish": "npm run build",
+    "types": "tsc --emitDeclarationOnly --declarationDir ./lib"
   },
   "keywords": [],
   "author": "Michael Riezler <michael@riezler.co> (https://riezler.co)",
   "license": "MPL-2.0",
-  "dependencies": {
-    "@types/react": "^18.0.9",
-    "@vulpo-dev/auth-sdk": "^0.0.12"
-  },
   "peerDependencies": {
+    "@vulpo-dev/auth-sdk": "^0.0.12",
     "react": "16.8 - 18.x"
   },
   "devDependencies": {
-    "@babel/core": "^7.13.1",
-    "@babel/plugin-proposal-class-properties": "^7.13.0",
-    "@babel/preset-env": "^7.13.5",
-    "@babel/preset-react": "^7.12.13",
-    "@babel/preset-typescript": "^7.13.0",
-    "babel-jest": "^27.4.2",
-    "babel-loader": "^8.2.2",
-    "babel-plugin-styled-components": "^1.12.0",
-    "rimraf": "^3.0.2",
-    "source-map-loader": "^2.0.1",
-    "ts-loader": "^8.0.17",
-    "typescript": "^4.2.2",
-    "webpack": "^5.64.4",
-    "webpack-cli": "^4.5.0"
+    "@types/react": "^18.0.9",
+    "@parcel/packager-ts": "2.8.0",
+    "@parcel/transformer-typescript-types": "2.8.0",
+    "parcel": "2.8.0",
+    "typescript": "4.7.4"
   },
   "gitHead": "dedb24c19f448626c4f88f26d784eb06d6325129"
 }

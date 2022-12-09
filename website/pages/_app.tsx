@@ -31,7 +31,7 @@ function MyApp({ Component, pageProps }: AppProps) {
       params.has('doNotTrack')
     )
     
-    if (doNotTrack) {
+    if (doNotTrack && !params.has('track')) {
       return
     }
 
@@ -49,6 +49,15 @@ function MyApp({ Component, pageProps }: AppProps) {
     pirsch.setAttribute('type', 'text/javascript')
 
     window.document.head.appendChild(pirsch)
+
+    let volument = document.createElement('script')
+    volument.setAttribute('src', 'https://cdn.volument.com/beta/volument.js')
+    volument.setAttribute('token', 'c7059e8868')
+    volument.setAttribute('id', 'volument')
+    volument.setAttribute('defer', '')
+    volument.setAttribute('type', 'text/javascript')
+
+    window.document.head.appendChild(volument)
 
     if (params.has('heatmap') || use.includes('h')) {
       // @ts-ignore
