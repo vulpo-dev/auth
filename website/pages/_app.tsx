@@ -37,9 +37,11 @@ function MyApp({ Component, pageProps }: AppProps) {
 
     let use = (params.get('use') ?? '').split(',')
 
-    import('@sentry/browser')
-      .then(Sentry => { Sentry.init({ dsn: process.env.NEXT_SENTRY_DSN }) })
-      .catch(() => {})
+    if (process.env.NEXT_SENTRY_DSN) {
+      import('@sentry/browser')
+        .then(Sentry => { Sentry.init({ dsn: process.env.NEXT_SENTRY_DSN }) })
+        .catch(() => {})
+    }
 
     let pirsch = document.createElement('script')
     pirsch.setAttribute('src', 'https://api.pirsch.io/pirsch.js')
