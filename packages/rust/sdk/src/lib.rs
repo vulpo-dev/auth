@@ -133,7 +133,7 @@ impl AuthKeys {
             let new_keys = AuthKeys::get_keys(&keys_url).await.unwrap();
 
             let mut exp = self.expire_at.lock().unwrap();
-            let _ = mem::replace(&mut exp, new_keys.expire_at.lock().unwrap());
+            let _unused = mem::replace(&mut exp, new_keys.expire_at.lock().unwrap());
 
             let mut keys = self.keys.lock().unwrap();
             keys.clear();
