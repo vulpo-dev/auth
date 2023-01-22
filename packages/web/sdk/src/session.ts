@@ -12,8 +12,6 @@ import { IStorage, ISessionsStorage, IKeyStorage, Session } from './storage'
 import { makeId, IHttpService, uuid } from './utils'
 import { ab2str, base64url, generateKeys, isRsa } from './keys'
 
-import shallowEqual from 'shallowequal'
-
 type Listener = {
 	id: number;
 	cb: AuthCallback;
@@ -218,12 +216,6 @@ export class SessionService {
 	}
 
 	setCurrent(session: SessionInfo | null) {
-		let sameUser = shallowEqual(this.active?.user, session?.user)
-
-		if (sameUser) {
-			return
-		}
-
 		if (this.active === null && session) {
 			this.storage.setActive(session.id)
 		}
