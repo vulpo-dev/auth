@@ -72,7 +72,7 @@ export let Auth = {
 			keyStorage
 		})
 
-		if (config.preload) {
+		if (config.preload ?? true) {
 			client.forceToken().catch(() => {})
 		}
 

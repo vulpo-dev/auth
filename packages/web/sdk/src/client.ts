@@ -271,20 +271,32 @@ export class AuthClient implements IAuthClient {
 		try {
 			let info = this.sessionService.current(sessionId)
 			if (!info) {
-				return Promise.reject(new SessionNotFoundError())
+				throw new SessionNotFoundError();
 			}
 
 			let keys = await this.keyStorage.get(info.id)
 			if (!keys) {
-				this.sessionService.setCurrent(null)
-				return Promise.reject(new SessionKeysNotFoundError())
+				throw new SessionKeysNotFoundError();
 			}
 
 			let session = { ...info, ...keys }
 			return await fn(session)
 		} catch (err) {
-			if (this.sessionService.active) {
-				await this.sessionService.remove(this.sessionService.active.id)
+			if (this.sessionService.active && this.sessionService.active?.id === sessionId) {
+				await this.sessionService.remove(this.sessionService.active?.id)
+			}
+
+			if (err instanceof SessionNotFoundError || err instanceof SessionKeysNotFoundError) {
+				this.sessionService.setCurrent(null);
+			}
+
+			if (err instanceof AuthError && err.code === "session/expired") {
+				this.sessionService.setCurrent(null);
+
+				let activeSession = this.sessionService.current(sessionId);
+				if (activeSession) {
+					await this.sessionService.remove(activeSession.id);
+				}
 			}
 
 			throw err

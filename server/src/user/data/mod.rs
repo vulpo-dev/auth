@@ -3,6 +3,6 @@ mod user;
 
 pub use email::{EmailChangeRequest, EmailChangeState, NewChangeRequest};
 pub use user::{
-    ParamError, PartialUser, SortDirection, TotalUsers, UpdateUser, User, UserOrder, UserProvider,
-    UserState,
+    Cursor, ParamError, PartialUser, SortDirection, TotalUsers, UpdateUser, User, UserOrder,
+    UserProvider, UserState,
 };

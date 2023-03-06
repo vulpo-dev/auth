@@ -16,7 +16,7 @@ pub struct HasAdmin {
     has_admin: bool,
 }
 
-#[get("/__/has_admin")]
+#[get("/has_admin")]
 pub async fn handler(pool: Db) -> Result<Json<HasAdmin>, ApiError> {
     let has_admin = server_has_admin(&pool).await?;
     Ok(Json(HasAdmin { has_admin }))

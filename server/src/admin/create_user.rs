@@ -28,7 +28,7 @@ pub async fn create_user(pool: &Db, user: NewUser) -> Result<Uuid, ApiError> {
     Ok(user_id)
 }
 
-#[post("/__/create_user", format = "json", data = "<body>")]
+#[post("/create_user", format = "json", data = "<body>")]
 pub async fn handler(
     pool: Db,
     body: Json<NewUser>,

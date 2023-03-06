@@ -30,7 +30,7 @@ use include_dir::{include_dir, Dir};
 use werkbank::clap::{get_config_dir, run_migration, run_server};
 use werkbank::otel;
 
-const ADMIN_CLIENT: Dir = include_dir!("$CARGO_MANIFEST_DIR/../admin/build");
+const ADMIN_CLIENT: Dir = include_dir!("$CARGO_MANIFEST_DIR/../admin/dist");
 const TEMPLATE: Dir = include_dir!("$CARGO_MANIFEST_DIR/template");
 
 #[rocket::main]

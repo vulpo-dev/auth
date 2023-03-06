@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <title>Auth - Vulpo</title>
+    <script type="module">
+      window.VULPO_AUTH_PROJECT = process.env.NODE_ENV === "development"
+        ? "f4db2736-ce01-40d7-9a3b-94e5d2a648c8"
+        : "{{ vulpo_auth_project }}";
+        
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="main.tsx"></script>
+  </body>
+</html>

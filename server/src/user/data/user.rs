@@ -1,3 +1,4 @@
+use base64_url;
 use bcrypt::{hash, DEFAULT_COST};
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
@@ -167,17 +168,18 @@ impl User {
     pub async fn list(
         pool: &PgPool,
         project: &Uuid,
-        order_by: &UserOrder,
-        _direction: SortDirection,
-        offset: i64,
+        direction: SortDirection,
+        cursor: Option<Cursor>,
         limit: i64,
     ) -> sqlx::Result<Vec<PartialUser>> {
+        let created_at = cursor.map(|c| c.created_at);
+
         sqlx::query_file_as!(
             PartialUser,
             "src/user/sql/get_users.sql",
             project,
-            order_by.to_string(),
-            offset,
+            direction.to_string(),
+            created_at,
             limit,
         )
         .fetch_all(pool)
@@ -282,12 +284,12 @@ impl FromStr for UserOrder {
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct PartialUser {
-    id: Uuid,
-    email: String,
-    email_verified: bool,
-    provider_id: String,
-    created_at: DateTime<Utc>,
-    state: UserState,
+    pub id: Uuid,
+    pub email: String,
+    pub email_verified: bool,
+    pub provider_id: String,
+    pub created_at: DateTime<Utc>,
+    pub state: UserState,
 }
 
 pub enum ParamError {
@@ -297,4 +299,35 @@ pub enum ParamError {
 #[derive(Serialize)]
 pub struct TotalUsers {
     pub total_users: i64,
+}
+
+#[derive(Clone)]
+pub struct Cursor {
+    pub created_at: DateTime<Utc>,
+}
+
+impl Cursor {
+    pub fn from_partial_user(user: &PartialUser) -> Cursor {
+        Cursor {
+            created_at: user.created_at,
+        }
+    }
+}
+
+impl FromStr for Cursor {
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let created_at: DateTime<Utc> = DateTime::parse_from_rfc3339(s).unwrap().into();
+
+        let cursor = Cursor { created_at };
+
+        Ok(cursor)
+    }
+    type Err = ();
+}
+
+impl ToString for Cursor {
+    fn to_string(&self) -> String {
+        let created_at = self.created_at.to_rfc3339();
+        base64_url::encode(&created_at)
+    }
 }

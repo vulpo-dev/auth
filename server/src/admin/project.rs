@@ -21,7 +21,7 @@ pub async fn get_admin(pool: &Db) -> Result<Project, ApiError> {
     Ok(Project { id })
 }
 
-#[get("/__/project/has")]
+#[get("/project/has")]
 pub async fn has(pool: Db) -> Result<Json<Project>, ApiError> {
     let project = get_admin(&pool).await?;
     Ok(Json(project))
@@ -71,7 +71,7 @@ pub async fn create_project(
     Ok(id)
 }
 
-#[post("/__/project/create", format = "json", data = "<body>")]
+#[post("/project/create", format = "json", data = "<body>")]
 pub async fn create(
     pool: Db,
     body: Json<NewProject>,
@@ -82,7 +82,7 @@ pub async fn create(
     Ok(Json([id]))
 }
 
-#[get("/__/project/list")]
+#[get("/project/list")]
 pub async fn list(pool: Db, _admin: Admin) -> Result<Json<Vec<PartialProject>>, ApiError> {
     let projects = Admin::project_list(&pool).await?;
     Ok(Json(projects))
