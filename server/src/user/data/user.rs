@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 use serde_json;
 use serde_json::value::Value;
 use sqlx::{postgres::PgDatabaseError, Error, PgPool};
-use std::str::FromStr;
+use std::{str::FromStr, string::FromUtf8Error};
 use uuid::Uuid;
 use vulpo_auth_types::error::ApiError;
 
@@ -301,7 +301,7 @@ pub struct TotalUsers {
     pub total_users: i64,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Cursor {
     pub created_at: DateTime<Utc>,
 }
@@ -316,13 +316,14 @@ impl Cursor {
 
 impl FromStr for Cursor {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let created_at: DateTime<Utc> = DateTime::parse_from_rfc3339(s).unwrap().into();
-
+        let value = base64_url::decode(s)?;
+        let value = String::from_utf8(value)?;
+        let created_at: DateTime<Utc> = DateTime::parse_from_rfc3339(&value)?.into();
         let cursor = Cursor { created_at };
 
         Ok(cursor)
     }
-    type Err = ();
+    type Err = CursorError;
 }
 
 impl ToString for Cursor {
@@ -330,4 +331,16 @@ impl ToString for Cursor {
         let created_at = self.created_at.to_rfc3339();
         base64_url::encode(&created_at)
     }
+}
+
+#[derive(thiserror::Error, Debug)]
+pub enum CursorError {
+    #[error("invalid url base64")]
+    InvalidFormat(#[from] base64::DecodeError),
+
+    #[error("invalid utf8 string")]
+    InvalidString(#[from] FromUtf8Error),
+
+    #[error("invalid date format")]
+    InvalidDate(#[from] chrono::ParseError),
 }

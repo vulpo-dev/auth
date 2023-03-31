@@ -31,22 +31,26 @@ pub async fn handler(
 ) -> Result<Json<Response>, ApiError> {
     let limit = limit.parse::<i64>().map_err(|_| ApiError::BadRequest)?;
     let cursor = cursor.and_then(|value| Cursor::from_str(&value).ok());
+    println!("{:?}", cursor);
     let items = get_users(&pool, project, &sort, limit, cursor).await?;
 
     // If less items then the limit are returned then we
     // can skip generating a new cursor
     let last_user = if items.len() == limit as usize {
-        items.last().map(|user| Cursor {
-            created_at: user.created_at,
-        })
+        items.last()
     } else {
         None
     };
 
-    let next_cursor = if let Some(cursor) = last_user {
-        let users = get_users(&pool, project, &sort, 1, Some(cursor)).await?;
-        users
-            .first()
+    let next_cursor = if let Some(last_user) = last_user {
+        let cursor = Cursor {
+            created_at: last_user.created_at,
+        };
+
+        get_users(&pool, project, &sort, 2, Some(cursor))
+            .await?
+            .iter()
+            .find(|user| user.id != last_user.id)
             .map(Cursor::from_partial_user)
             .map(|cursor| cursor.to_string())
     } else {

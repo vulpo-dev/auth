@@ -1,10 +1,10 @@
 import "open-props/open-props.min.css";
-import "@biotic-ui/leptons/style/base.css";
+import "werkbank/style/base.css";
 import "./style.css";
 
 import { createRoot } from "react-dom/client";
 import { RouterProvider } from "react-router-dom";
-import { Auth } from "@vulpo-dev/auth-react"
+import { Auth } from "@vulpo-dev/auth-react";
 import { Provider } from "react-redux";
 
 import { Router } from "./app/router";
@@ -25,7 +25,7 @@ function main() {
 			<Auth.Provider value={AuthClient}>
 				<RouterProvider router={Router} />
 			</Auth.Provider>
-		</Provider>
+		</Provider>,
 	);
 }
 

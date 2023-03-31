@@ -9,30 +9,29 @@ let ProjectRedirect = () => {
 	let projectId = useCurrentProject();
 	let { data: projects } = useGetProjectsQuery([]);
 	let navigate = useNavigate();
-	
+
 	let mounted = useRef(true);
 	useEffect(() => {
 		mounted.current = true;
 		return () => {
 			mounted.current = false;
-		}
+		};
 	});
 
 	let validUuid = isUuid.test(projectId ?? "");
 	let project = projects?.at(0);
 
 	useAuthStateChange((session) => {
-		console.log("ProjectRedirect: ", { session })
 		if (mounted.current && session === null) {
-			navigate('auth/')
+			navigate("auth/");
 		}
 	});
-	 
+
 	if (!validUuid && project) {
-		return <Navigate to={`/${project.id}`} />
+		return <Navigate to={`/${project.id}`} />;
 	}
 
 	return null;
-}
+};
 
 export default ProjectRedirect;

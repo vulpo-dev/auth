@@ -11,5 +11,5 @@ export function useUser(): User {
 		throw Error("useUser is was used outside authenticated route");
 	}
 
-	return user
+	return user;
 }

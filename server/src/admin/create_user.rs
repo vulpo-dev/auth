@@ -2,6 +2,7 @@ use crate::admin::data::{Admin, NewUser};
 use crate::password;
 use crate::password::data::Password;
 use crate::project::data::Project as ProjectData;
+use crate::user::data::User;
 
 use rocket;
 use rocket::serde::json::Json;
@@ -9,7 +10,7 @@ use uuid::Uuid;
 use vulpo_auth_types::error::ApiError;
 use werkbank::rocket::Db;
 
-pub async fn create_user(pool: &Db, user: NewUser) -> Result<Uuid, ApiError> {
+pub async fn create_user(pool: &Db, user: &NewUser) -> Result<Uuid, ApiError> {
     if user.provider_id == "password" {
         if let Some(password) = &user.password {
             password::validate_password_length(&password)?
@@ -29,11 +30,11 @@ pub async fn create_user(pool: &Db, user: NewUser) -> Result<Uuid, ApiError> {
 }
 
 #[post("/create_user", format = "json", data = "<body>")]
-pub async fn handler(
-    pool: Db,
-    body: Json<NewUser>,
-    _admin: Admin,
-) -> Result<Json<[Uuid; 1]>, ApiError> {
-    let user_id = create_user(&pool, body.into_inner()).await?;
-    Ok(Json([user_id]))
+pub async fn handler(pool: Db, body: Json<NewUser>, _admin: Admin) -> Result<Json<User>, ApiError> {
+    let user_id = create_user(&pool, &body).await?;
+    let user = User::get_by_id(&pool, &user_id, &body.project_id)
+        .await?
+        .ok_or(ApiError::NotFound)?;
+
+    Ok(Json(user))
 }

@@ -1,3 +1,6 @@
+use std::str::FromStr;
+
+use crate::admin::data::Admin;
 use crate::crypto::Token;
 use crate::mail::Email;
 use crate::password::data::PasswordReset;
@@ -85,6 +88,22 @@ pub async fn request_password_reset_handler(
     project: Project,
 ) -> Result<Status, ApiError> {
     request_password_reset(&pool, &body.email, &project.id).await?;
+    Ok(Status::Ok)
+}
+
+#[post(
+    "/admin/request_password_reset/<project_id>",
+    format = "json",
+    data = "<body>"
+)]
+pub async fn admin_request_password_reset_handler(
+    pool: Db,
+    body: Json<RequestPasswordReset>,
+    project_id: String,
+    _admin: Admin,
+) -> Result<Status, ApiError> {
+    let project_id = Uuid::from_str(&project_id).map_err(|_err| ApiError::BadRequest)?;
+    request_password_reset(&pool, &body.email, &project_id).await?;
     Ok(Status::Ok)
 }
 

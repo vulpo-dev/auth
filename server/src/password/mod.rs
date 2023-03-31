@@ -13,6 +13,7 @@ pub fn routes() -> Vec<Route> {
         reset::request_password_reset_handler,
         reset::password_reset_handler,
         reset::verify_token_handler,
+        reset::admin_request_password_reset_handler,
     ]
 }
 

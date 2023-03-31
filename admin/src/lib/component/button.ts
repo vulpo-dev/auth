@@ -1,5 +1,1 @@
-import "@biotic-ui/button/style.css";
-
-export {
-	Button
-} from "@biotic-ui/button";
+export { Button } from "werkbank/component/button";

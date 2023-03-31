@@ -1,63 +1,204 @@
 import Ky, { HTTPError } from "ky-universal";
-import { BooleanLiteral } from "typescript";
 
 import { AuthClient } from "../app/auth";
+
+type GetUsers = {
+	project: string;
+	sort?: "desc" | "asc";
+	limit?: number;
+	cursor?: string;
+};
+
+enum UserState {
+	Active = "active",
+	Disabled = "disabled",
+	SetPassword = "set_password",
+}
+
+type Uuid = string;
+type Option<T> = T | null | undefined;
+type DateTime = string;
+
+export type User = {
+	id: Uuid;
+	display_name: Option<string>;
+	email: string;
+	email_verified: boolean;
+	photo_url: Option<string>;
+	traits: Array<string>;
+	data: Record<string, unknown>;
+	provider_id: string;
+	created_at: DateTime;
+	updated_at: DateTime;
+	state: UserState;
+	device_languages: Array<string>;
+};
+
+export type UpdateUser = {
+	display_name: Option<string>;
+	email: string;
+	traits: Array<string>;
+	data: Record<string, unknown>;
+};
+
+export type NewUser = {
+	email: string;
+	project_id: Uuid;
+	password?: Option<string>;
+	display_name?: Option<string>;
+	data?: Option<{ [key: string]: unknown }>;
+	provider_id: string;
+};
+
+export type EmailSettings = {
+	host: string;
+	from_email: string;
+	from_name: string;
+	api_key: string;
+	username: string;
+	password: string;
+	port: number | string;
+};
+
+export let DefaultEmailSettings: EmailSettings = {
+	host: "",
+	from_email: "",
+	from_name: "",
+	api_key: "",
+	username: "",
+	password: "",
+	port: 465,
+};
 
 type Deps = {
 	accessToken: () => Promise<string>;
 	refreshToken: () => Promise<string>;
 	baseURL: string;
 	projectId: string;
-}
+};
 
 class AdminSDK {
 	private http: typeof Ky;
 
 	constructor(deps: Deps) {
-		
 		this.http = Ky.create({
 			prefixUrl: deps.baseURL,
+			retry: {
+				limit: 3,
+				statusCodes: [401],
+				methods: ["get", "post", "option"],
+			},
 			hooks: {
 				beforeRequest: [
 					async (request) => {
 						let at = await deps.accessToken();
-						request.headers.set("Authorization", `bearer ${at}`);		
-						request.headers.set("Vulpo-Project", deps.projectId);		
-					}
+						request.headers.set("Authorization", `bearer ${at}`);
+						request.headers.set("Vulpo-Project", deps.projectId);
+					},
 				],
 				beforeRetry: [
 					async ({ request, error }) => {
 						if (error instanceof HTTPError && error.response.status === 401) {
 							const token = await deps.refreshToken();
-							request.headers.set('Authorization', `bearer ${token}`);
+							request.headers.set("Authorization", `bearer ${token}`);
 						}
-					}
-				]
-			}
+					},
+				],
+			},
 		});
 	}
 
 	getProjects = () => {
-		let url = 'admin/project/list';
-		return this.http.get(url).json<Projects>()
-	}
+		let url = "admin/project/list";
+		return this.http.get(url).json<Projects>();
+	};
 
-	getUsers = () => {
+	getUsers = ({ project, sort = "desc", limit = 50, cursor }: GetUsers) => {
 		let params = new URLSearchParams({
-			project: "ae16cc4a-33be-4b4e-a408-e67018fe453b",
-			sort: "desc",
-			limit: "50",
-		})
+			project,
+			sort,
+			limit: limit.toString(),
+		});
+
+		if (cursor) {
+			params.append("cursor", cursor);
+		}
 
 		let url = `user/list?${params.toString()}`;
 
-		return this.http.get(url).json<{ items: Array<PartialUser>, cursor: string | null }>()
-	}
+		return this.http
+			.get(url)
+			.json<{ items: Array<PartialUser>; cursor: string | null }>();
+	};
 
-	getUser = () => {
-		let url = 'user/get';
-		return this.http.get(url).json<{ email: string }>()
-	}
+	getUser = (userId: string, project: string) => {
+		let params = new URLSearchParams([
+			["user", userId],
+			["project", project],
+		]);
+
+		let url = `user/get_by_id?${params}`;
+		return this.http.get(url).json<User>();
+	};
+
+	updateUser = async (userId: Uuid, projectId: Uuid, user: UpdateUser) => {
+		let params = new URLSearchParams([
+			["user_id", userId],
+			["project_id", projectId],
+		]);
+
+		let url = `user/admin/update?${params}`;
+		await this.http.post(url, {
+			json: user,
+		});
+
+		return null;
+	};
+
+	createUser = (user: NewUser) => {
+		return this.http.post("admin/create_user", { json: user }).json<User>();
+	};
+
+	deleteUser = async (userId: Uuid, projectId: Uuid) => {
+		let url = `user/admin/delete_account/${userId}`;
+		await this.http.post(url);
+		return { userId, projectId };
+	};
+
+	disableUser = (userId: Uuid, projectId: Uuid, disabled: boolean) => {
+		let url = "user/disable";
+		let json = {
+			user: userId,
+			project: projectId,
+			disabled,
+		};
+
+		return this.http.post(url, { json });
+	};
+
+	verifyUserEmail = (userId: Uuid, projectId: Uuid) => {
+		let url = "user/send_email_verification";
+		let json = {
+			user_id: userId,
+			project_id: projectId,
+		};
+
+		return this.http.post(url, { json });
+	};
+
+	requestPasswordReset = (email: string, projectId: Uuid) => {
+		let url = `admin/request_password_reset/${projectId}`;
+		let json = { email };
+		return this.http.post(url, { json });
+	};
+
+	getEmailSettings = (projectId: Uuid) => {
+		let params = new URLSearchParams([["project_id", projectId]]);
+
+		let url = `settings/email?${params}`;
+
+		return this.http.get(url).json<EmailSettings | null>();
+	};
 }
 
 export let adminApi = new AdminSDK({
@@ -74,12 +215,12 @@ type Project = {
 	domain: string;
 	is_admin: boolean;
 	name: string;
-}
+};
 
 type Projects = Array<Project>;
 
-type PartialUser = {
+export type PartialUser = {
 	id: string;
 	email: string;
 	created_at: string;
-}
+};
