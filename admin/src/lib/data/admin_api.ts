@@ -214,6 +214,48 @@ export let adminApi = createApi({
 		getEmailSettings: builder.query({
 			queryFn: toQueryFn<typeof api.getEmailSettings>(api.getEmailSettings),
 		}),
+
+		getFlags: builder.query({
+			queryFn: toQueryFn<typeof api.getFlags>(api.getFlags),
+		}),
+
+		setFlags: builder.mutation({
+			queryFn: toQueryFn<typeof api.setFlags>(api.setFlags),
+			async onQueryStarted([projectId, items], { dispatch, queryFulfilled }) {
+				try {
+					await queryFulfilled;
+					dispatch(
+						adminApi.util.updateQueryData("getFlags", [projectId], () => ({
+							items,
+						})),
+					);
+				} catch (err) {
+					console.error("setFlags: ", err);
+				}
+			},
+		}),
+
+		getGoogleSettings: builder.query({
+			queryFn: toQueryFn<typeof api.getGoogleSettings>(api.getGoogleSettings),
+		}),
+
+		saveGoogleSettings: builder.mutation({
+			queryFn: toQueryFn<typeof api.saveGoogleSettings>(api.saveGoogleSettings),
+			async onQueryStarted([projectId, config], { dispatch, queryFulfilled }) {
+				try {
+					await queryFulfilled;
+					dispatch(
+						adminApi.util.updateQueryData(
+							"getGoogleSettings",
+							[projectId],
+							() => config,
+						),
+					);
+				} catch (err) {
+					console.error("saveGoogleSettings: ", err);
+				}
+			},
+		}),
 	}),
 });
 
@@ -230,4 +272,8 @@ export let {
 	useRequestPasswordResetMutation,
 
 	useGetEmailSettingsQuery,
+	useGetFlagsQuery,
+	useSetFlagsMutation,
+	useGetGoogleSettingsQuery,
+	useSaveGoogleSettingsMutation,
 } = adminApi;

@@ -26,6 +26,8 @@ html {
 
   --button-color: var(--color-foreground);
   --button-bg--hover: #292f39;
+
+  --container-width: 800px;
 }
 
 

@@ -8,6 +8,7 @@ import SettingsPage from "../lib/pages/settings";
 import UsersPage from "../lib/pages/users";
 import User, { EmptyUser } from "../lib/pages/user";
 import CreateUser from "../lib/pages/user/create";
+import AuthMethods from "../lib/pages/methods";
 
 let routes: Array<RouteObject> = [
 	{
@@ -42,6 +43,10 @@ let routes: Array<RouteObject> = [
 			{
 				path: "settings",
 				element: <SettingsPage />,
+			},
+			{
+				path: "auth-methods",
+				element: <AuthMethods />,
 			},
 			{
 				path: "*",

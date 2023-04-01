@@ -4,7 +4,7 @@ export let Container = styled.div`
 	border-radius: var(--size-2);
 	background: var(--color-background--dark);
 	padding: var(--size-5);
-	max-width: 800px;
+	max-width: var(--container-width);
 	margin-bottom: var(--size-5);
 `;
 

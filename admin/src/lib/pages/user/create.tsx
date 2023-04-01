@@ -31,7 +31,7 @@ let CreateUser = () => {
 
 		let newUser: NewUser = {
 			project_id: projectId,
-			email: data.get("email")?.toString() ?? "", 
+			email: data.get("email")?.toString() ?? "",
 			provider_id: data.get("provider_id")?.toString() ?? "",
 			password: data.get("password")?.toString() ?? "",
 		};

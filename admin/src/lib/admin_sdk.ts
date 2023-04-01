@@ -2,6 +2,7 @@ import Ky, { HTTPError } from "ky-universal";
 
 import { AuthClient } from "../app/auth";
 
+/* USER */
 type GetUsers = {
 	project: string;
 	sort?: "desc" | "asc";
@@ -50,6 +51,7 @@ export type NewUser = {
 	provider_id: string;
 };
 
+/* EMAIL */
 export type EmailSettings = {
 	host: string;
 	from_email: string;
@@ -69,6 +71,48 @@ export let DefaultEmailSettings: EmailSettings = {
 	password: "",
 	port: 465,
 };
+
+/* GOOGLE */
+export type GoogleConfig = {
+	client_id: string;
+	client_secret: string;
+	redirect_uri: string;
+};
+
+let defaultGoolgeConfig: GoogleConfig = {
+	client_id: "",
+	client_secret: "",
+	redirect_uri: "",
+};
+
+/* FLAGS */
+export enum Flags {
+	SignIn = "auth::signin",
+	SignUp = "auth::signup",
+	PasswordReset = "action::password_reset",
+	VerifyEmail = "action::verify_email",
+
+	EmailAndPassword = "method::email_password",
+	AuthenticationLink = "method::authentication_link",
+
+	OAuthGoogle = "oauth::google",
+}
+
+export function isFlag(flag: string | Flags): boolean {
+	let index = Object.values(Flags).findIndex((value) => {
+		return value === flag;
+	});
+
+	return index !== -1;
+}
+
+export function getFlagsFromRequest(flags: Array<string>): Array<Flags> {
+	let items = flags.filter((flag) => isFlag(flag));
+
+	return items as Array<Flags>;
+}
+
+export type ProjectFlags = Array<Flags>;
 
 type Deps = {
 	accessToken: () => Promise<string>;
@@ -198,6 +242,40 @@ class AdminSDK {
 		let url = `settings/email?${params}`;
 
 		return this.http.get(url).json<EmailSettings | null>();
+	};
+
+	getFlags = (projectId: Uuid) => {
+		let params = new URLSearchParams([["project", projectId]]);
+		let url = `project/flags?${params}`;
+		return this.http.get(url).json<{ items: ProjectFlags }>();
+	};
+
+	setFlags = (projectId: Uuid, flags: ProjectFlags) => {
+		type UpdateFlags = {
+			project: string;
+			flags: Array<Flags>;
+		};
+
+		let json: UpdateFlags = {
+			project: projectId,
+			flags,
+		};
+
+		let url = "project/set_flags";
+		return this.http.post(url, { json });
+	};
+
+	getGoogleSettings = async (projectId: Uuid): Promise<GoogleConfig> => {
+		let params = new URLSearchParams([["project", projectId]]);
+		let url = `oauth/google/get_config?${params}`;
+		let config = await this.http.get(url).json<GoogleConfig | null>();
+		return config ?? defaultGoolgeConfig;
+	};
+
+	saveGoogleSettings = async (projectId: Uuid, config: GoogleConfig) => {
+		let params = new URLSearchParams([["project", projectId]]);
+		let url = `oauth/google/set_config?${params}`;
+		return this.http.post(url, { json: config });
 	};
 }
 
