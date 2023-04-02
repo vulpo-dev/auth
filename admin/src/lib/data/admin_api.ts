@@ -2,7 +2,7 @@ import { BaseQueryFn, createApi } from "@reduxjs/toolkit/query/react";
 import { UserState } from "@vulpo-dev/auth-sdk";
 import { HTTPError } from "ky";
 
-import { adminApi as api, UnauthenticatedError } from "../admin_sdk";
+import { adminApi as api, Project, UnauthenticatedError } from "../admin_sdk";
 
 type ApiResponse<Fn extends (...args: Array<any>) => Promise<any>> = Awaited<
 	ReturnType<Fn>
@@ -48,6 +48,39 @@ export let adminApi = createApi({
 	endpoints: (builder) => ({
 		getProjects: builder.query({
 			queryFn: toQueryFn<typeof api.getProjects>(api.getProjects),
+		}),
+
+		setProject: builder.mutation({
+			queryFn: toQueryFn<typeof api.setProject>(api.setProject),
+			async onQueryStarted([patch], { dispatch, queryFulfilled }) {
+				try {
+					await queryFulfilled;
+					dispatch(
+						adminApi.util.updateQueryData("getProjects", [], (projects) => {
+							let index = projects.findIndex((p) => p.id === patch.project);
+							let project = projects.at(index);
+
+							if (index === -1 || !project) {
+								return projects;
+							}
+
+							let newProject: Project = {
+								...project,
+								domain: patch.domain,
+								name: patch.name,
+							};
+
+							return [
+								...projects.slice(0, index),
+								newProject,
+								...projects.slice(index + 1),
+							];
+						}),
+					);
+				} catch (err) {
+					console.error("updateUser: ", err);
+				}
+			},
 		}),
 
 		getUsers: builder.query({
@@ -215,6 +248,30 @@ export let adminApi = createApi({
 			queryFn: toQueryFn<typeof api.getEmailSettings>(api.getEmailSettings),
 		}),
 
+		setEmailSettings: builder.mutation({
+			queryFn: toQueryFn<typeof api.setEmailSettings>(api.setEmailSettings),
+			async onQueryStarted([projectId, patch], { dispatch, queryFulfilled }) {
+				try {
+					await queryFulfilled;
+					dispatch(
+						adminApi.util.updateQueryData(
+							"getEmailSettings",
+							[projectId],
+							(settings) => {
+								if (settings === null) {
+									return patch;
+								}
+
+								Object.assign(settings, patch);
+							},
+						),
+					);
+				} catch (err) {
+					console.error("setFlags: ", err);
+				}
+			},
+		}),
+
 		getFlags: builder.query({
 			queryFn: toQueryFn<typeof api.getFlags>(api.getFlags),
 		}),
@@ -256,11 +313,16 @@ export let adminApi = createApi({
 				}
 			},
 		}),
+
+		getPublicKeys: builder.query({
+			queryFn: toQueryFn<typeof api.getPublicKeys>(api.getPublicKeys),
+		}),
 	}),
 });
 
 export let {
 	useGetProjectsQuery,
+	useSetProjectMutation,
 
 	useGetUsersQuery,
 	useGetUserQuery,
@@ -272,8 +334,11 @@ export let {
 	useRequestPasswordResetMutation,
 
 	useGetEmailSettingsQuery,
+	useSetEmailSettingsMutation,
+
 	useGetFlagsQuery,
 	useSetFlagsMutation,
 	useGetGoogleSettingsQuery,
 	useSaveGoogleSettingsMutation,
+	useGetPublicKeysQuery,
 } = adminApi;

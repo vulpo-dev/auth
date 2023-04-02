@@ -92,7 +92,6 @@ let UserProfile = ({ userId }: UserDetailsProps) => {
 						Reset
 					</LinkButton>
 					<Button
-						raised
 						form={FORM_ID}
 						type="submit"
 						loading={updateUserResult.isLoading}

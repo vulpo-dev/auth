@@ -114,6 +114,19 @@ export function getFlagsFromRequest(flags: Array<string>): Array<Flags> {
 
 export type ProjectFlags = Array<Flags>;
 
+export type ProjectSettings = {
+	project: string;
+	name: string;
+	domain: string;
+};
+
+/* Keys */
+type PublicKey = {
+	id: string;
+	key: string;
+};
+
+/* SDK */
 type Deps = {
 	accessToken: () => Promise<string>;
 	refreshToken: () => Promise<string>;
@@ -155,6 +168,11 @@ class AdminSDK {
 	getProjects = () => {
 		let url = "admin/project/list";
 		return this.http.get(url).json<Projects>();
+	};
+
+	setProject = (project: ProjectSettings) => {
+		let url = "settings/project";
+		return this.http.post(url, { json: project });
 	};
 
 	getUsers = ({ project, sort = "desc", limit = 50, cursor }: GetUsers) => {
@@ -244,6 +262,12 @@ class AdminSDK {
 		return this.http.get(url).json<EmailSettings | null>();
 	};
 
+	setEmailSettings = (projectId: Uuid, settings: EmailSettings) => {
+		let params = new URLSearchParams([["project_id", projectId]]);
+		let url = `settings/email?${params}`;
+		return this.http.post(url, { json: settings });
+	};
+
 	getFlags = (projectId: Uuid) => {
 		let params = new URLSearchParams([["project", projectId]]);
 		let url = `project/flags?${params}`;
@@ -277,6 +301,12 @@ class AdminSDK {
 		let url = `oauth/google/set_config?${params}`;
 		return this.http.post(url, { json: config });
 	};
+
+	getPublicKeys = (projectId: Uuid) => {
+		let params = new URLSearchParams([["project", projectId]]);
+		let url = `keys/public?${params}`;
+		return this.http.get(url).json<Array<PublicKey>>();
+	};
 }
 
 export let adminApi = new AdminSDK({
@@ -288,7 +318,7 @@ export let adminApi = new AdminSDK({
 
 export class UnauthenticatedError extends Error {}
 
-type Project = {
+export type Project = {
 	id: string;
 	domain: string;
 	is_admin: boolean;

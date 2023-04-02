@@ -45,7 +45,7 @@ export let UsersPage = () => {
 				<PageTitle>Users {userId && <UserEmail userId={userId} />}</PageTitle>
 
 				<Link to="new">
-					<Button raised>Create User</Button>
+					<Button>Create User</Button>
 				</Link>
 			</StyledPageHeader>
 			<Layout>
@@ -67,7 +67,7 @@ export let UsersPage = () => {
 
 						{cursor && (
 							<ListItem>
-								<Button loading={state.isFetching} onClick={loadMore} raised>
+								<Button loading={state.isFetching} onClick={loadMore}>
 									Load More
 								</Button>
 							</ListItem>

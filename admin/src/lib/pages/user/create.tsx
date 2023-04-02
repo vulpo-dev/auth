@@ -111,7 +111,7 @@ let CreateUser = () => {
 					<LinkButton disabled={disabled} type="reset">
 						Reset
 					</LinkButton>
-					<Button disabled={disabled} raised type="submit">
+					<Button disabled={disabled} type="submit">
 						Create User
 					</Button>
 				</ButtonSection>

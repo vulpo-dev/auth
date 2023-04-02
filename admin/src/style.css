@@ -25,9 +25,12 @@ html {
   --surface-2: var(--color-background--dark);
 
   --button-color: var(--color-foreground);
-  --button-bg--hover: #292f39;
+  --button-bg--hover: #1a1a1a;
 
   --container-width: 800px;
+
+  --button-bg: #000;
+  --button-border: #1a1a1a;
 }
 
 

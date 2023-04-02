@@ -2,6 +2,7 @@ import React, { FormEvent, useState } from "react";
 import styled from "@emotion/styled";
 import { Button } from "werkbank/component/button";
 import { Input, Label, Section } from "werkbank/component/form";
+
 import {
 	useGetEmailSettingsQuery,
 	useGetFlagsQuery,
@@ -11,6 +12,12 @@ import {
 } from "../../data/admin_api";
 import { useActiveProject } from "../../data/project";
 import { Flags, GoogleConfig, ProjectFlags } from "../../admin_sdk";
+import {
+	PageContent,
+	PageHeader,
+	PageTitle,
+	PageWrapper,
+} from "../../component/page";
 
 let MAIN = "main-form";
 let GOOGLE = "google-form";
@@ -19,9 +26,10 @@ export let AuthMethods = () => {
 	let project = useActiveProject();
 	let flags = useGetFlagsQuery([project]);
 	let { data: emailSettings } = useGetEmailSettingsQuery([project]);
-	let [updateFlags] = useSetFlagsMutation();
+	let [updateFlags, updateFlagsResult] = useSetFlagsMutation();
 	let googleConfig = useGetGoogleSettingsQuery([project]);
-	let [saveGoogleConfig] = useSaveGoogleSettingsMutation();
+	let [saveGoogleConfig, saveGoogleConfigResult] =
+		useSaveGoogleSettingsMutation();
 
 	if (flags.isLoading || googleConfig.data === undefined) {
 		// TODO: Loading screen
@@ -75,70 +83,78 @@ export let AuthMethods = () => {
 	};
 
 	return (
-		<Container key={project}>
-			<form id={MAIN} onSubmit={handleMainForm} />
-			<form id={GOOGLE} onSubmit={handleGoogleForm} />
+		<PageWrapper>
+			<PageHeader>
+				<PageTitle>Authentication Methods</PageTitle>
+			</PageHeader>
 
-			<FlagList>
-				<Flag>
-					<FlagHeader>
-						<FlagTitle htmlFor='signin'>Sign In</FlagTitle>
-						<input
-							form={MAIN}
-							id='signin'
-							name="signin"
-							type='checkbox'
-							defaultChecked={items.includes(Flags.SignIn)}
+			<StyledPageContent>
+				<Container key={project}>
+					<form id={MAIN} onSubmit={handleMainForm} />
+					<form id={GOOGLE} onSubmit={handleGoogleForm} />
+
+					<FlagList>
+						<Flag>
+							<FlagHeader>
+								<FlagTitle htmlFor='signin'>Sign In</FlagTitle>
+								<input
+									form={MAIN}
+									id='signin'
+									name="signin"
+									type='checkbox'
+									defaultChecked={items.includes(Flags.SignIn)}
+								/>
+							</FlagHeader>
+						</Flag>
+
+						<Flag>
+							<FlagHeader>
+								<FlagTitle htmlFor='signup'>Sign Up</FlagTitle>
+								<input
+									form={MAIN}
+									id='signup'
+									name='signup'
+									type='checkbox'
+									defaultChecked={items.includes(Flags.SignUp)}
+								/>
+							</FlagHeader>
+						</Flag>
+
+						<Flag disabled={!hasEmail}>
+							<FlagHeader
+								title={
+									hasEmail
+										? "Authentication Link"
+										: "Disabled: Add email settings"
+								}
+							>
+								<FlagTitle htmlFor='auth_link'>Authentication Link</FlagTitle>
+								<input
+									form={MAIN}
+									id='auth_link'
+									name='auth_link'
+									type='checkbox'
+									disabled={!hasEmail}
+									defaultChecked={items.includes(Flags.AuthenticationLink)}
+								/>
+							</FlagHeader>
+						</Flag>
+
+						<EmailAndPassword items={items} hasEmail={hasEmail} />
+						<GoogleForm
+							items={items}
+							config={googleConfig.data}
+							loading={saveGoogleConfigResult.isLoading}
 						/>
-					</FlagHeader>
-				</Flag>
-
-				<Flag>
-					<FlagHeader>
-						<FlagTitle htmlFor='signup'>Sign Up</FlagTitle>
-						<input
-							form={MAIN}
-							id='signup'
-							name='signup'
-							type='checkbox'
-							defaultChecked={items.includes(Flags.SignUp)}
-						/>
-					</FlagHeader>
-				</Flag>
-
-				<Flag disabled={!hasEmail}>
-					<FlagHeader
-						title={
-							hasEmail ? "Authentication Link" : "Disabled: Add email settings"
-						}
-					>
-						<FlagTitle htmlFor='auth_link'>Authentication Link</FlagTitle>
-						<input
-							form={MAIN}
-							id='auth_link'
-							name='auth_link'
-							type='checkbox'
-							disabled={!hasEmail}
-							defaultChecked={items.includes(Flags.AuthenticationLink)}
-						/>
-					</FlagHeader>
-				</Flag>
-
-				<EmailAndPassword items={items} hasEmail={hasEmail} />
-				<GoogleForm items={items} config={googleConfig.data} />
-			</FlagList>
-			<ButtonWrapper>
-				<Button
-					form={MAIN}
-					raised
-					// onClick={() => updateFlags(data ?? [])}
-					// disabled={state !== 'loaded'}
-					// loading={updateFlags.loading}
-				>
-					Save
-				</Button>
-			</ButtonWrapper>
-		</Container>
+					</FlagList>
+					<ButtonWrapper>
+						<Button form={MAIN} loading={updateFlagsResult.isLoading}>
+							Save
+						</Button>
+					</ButtonWrapper>
+				</Container>
+			</StyledPageContent>
+		</PageWrapper>
 	);
 };
 
@@ -203,9 +219,10 @@ let EmailAndPassword = ({ items, hasEmail }: EmailAndPasswordProps) => {
 type GoogleFormProps = {
 	items: ProjectFlags;
 	config: GoogleConfig;
+	loading: boolean;
 };
 
-let GoogleForm = ({ items, config }: GoogleFormProps) => {
+let GoogleForm = ({ items, config, loading }: GoogleFormProps) => {
 	let [showGoogleForm, setShowGoogleForm] = useState<boolean>(() => {
 		return items.includes(Flags.OAuthGoogle);
 	});
@@ -226,12 +243,7 @@ let GoogleForm = ({ items, config }: GoogleFormProps) => {
 			{showGoogleForm && (
 				<NestedContainer>
 					<Header>
-						<Button
-							form={GOOGLE}
-							raised
-							/*loading={saveGoogleConfig.loading}
-							disabled={data === undefined}*/
-						>
+						<Button form={GOOGLE} loading={loading}>
 							Save Config
 						</Button>
 					</Header>
@@ -271,10 +283,13 @@ let GoogleForm = ({ items, config }: GoogleFormProps) => {
 	);
 };
 
+let StyledPageContent = styled(PageContent)`
+	padding: var(--size-8);
+`;
+
 let Container = styled.div`
 	max-width: var(--container-width);
 	margin: 0 auto;
-	padding: var(--size-8);
 `;
 
 let FlagList = styled.ul`
