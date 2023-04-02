@@ -18,15 +18,18 @@ let ProjectRedirect = () => {
 		};
 	});
 
-	let validUuid = isUuid.test(projectId ?? "");
-	let project = projects?.at(0);
-
 	useAuthStateChange((session) => {
 		if (mounted.current && session === null) {
 			navigate("auth/", { replace: true });
 		}
 	});
 
+	if (projectId === "project") {
+		return null;
+	}
+
+	let validUuid = isUuid.test(projectId ?? "");
+	let project = projects?.at(0);
 	if (!validUuid && project) {
 		return <Navigate to={`/${project.id}`} replace />;
 	}

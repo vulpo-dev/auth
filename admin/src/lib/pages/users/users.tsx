@@ -18,6 +18,7 @@ import { Button } from "../../component/button";
 import { AppDispatch } from "../../../app/store";
 import { useMatchedUserId } from "../../utils";
 import { DateTime } from "../../component/date";
+import { Users } from "@phosphor-icons/react";
 
 export let UsersPage = () => {
 	let dispatch = useDispatch<AppDispatch>();
@@ -42,7 +43,11 @@ export let UsersPage = () => {
 	return (
 		<PageWrapper>
 			<StyledPageHeader>
-				<PageTitle>Users {userId && <UserEmail userId={userId} />}</PageTitle>
+				<PageTitle>
+					<Users size="1.2em" />
+					<span>Users</span>
+					{userId && <UserEmail userId={userId} />}
+				</PageTitle>
 
 				<Link to="new">
 					<Button>Create User</Button>

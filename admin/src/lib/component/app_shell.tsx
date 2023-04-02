@@ -1,14 +1,21 @@
-import { Outlet, Navigate, NavLink } from "react-router-dom";
-import { useAuthStateChange } from "@vulpo-dev/auth-react";
 import { useState } from "react";
+import { Outlet, Navigate } from "react-router-dom";
+import { useAuthStateChange } from "@vulpo-dev/auth-react";
 import { UserAuthState } from "@vulpo-dev/auth-sdk";
 import { UserCtx } from "../context";
 import ProjectRedirect from "./project_redirect";
 import { SidebarLayout, Aside, Main } from "werkbank/component/layout";
-import styled from "@emotion/styled";
+
+import Sidebar from "./sidebar";
+
+let SIDEBAR_BREAKPOINT = "(max-width: 768px)";
 
 export let AppShell = () => {
 	let [user, setUser] = useState<UserAuthState>(undefined);
+	let [sidebar, setSidebar] = useState<boolean>(() => {
+		return window.matchMedia(SIDEBAR_BREAKPOINT).matches === false;
+	})
+
 	useAuthStateChange((session) => {
 		if (session === null) {
 			setUser(null);
@@ -29,8 +36,8 @@ export let AppShell = () => {
 		<UserCtx.Provider value={user}>
 			<ProjectRedirect />
 			<SidebarLayout>
-				<Aside open onClose={() => {}}>
-					<AsideContent />
+				<Aside open={sidebar} onClose={() => setSidebar(false)}>
+					<Sidebar />
 				</Aside>
 				<Main>
 					<Outlet />
@@ -39,23 +46,3 @@ export let AppShell = () => {
 		</UserCtx.Provider>
 	);
 };
-
-let AsideContent = () => {
-	return (
-		<Ul>
-			<li>
-				<NavLink to="users">Users</NavLink>
-			</li>
-			<li>
-				<NavLink to="auth-methods">Auth Methods</NavLink>
-			</li>
-			<li>
-				<NavLink to="settings">Settings</NavLink>
-			</li>
-		</Ul>
-	);
-};
-
-let Ul = styled.ul`
-	color: #000;
-`;

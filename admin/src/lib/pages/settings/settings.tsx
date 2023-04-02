@@ -12,6 +12,7 @@ import ProjectSettings from "./component/project";
 import EmailSettings from "./component/email";
 import PublicKeysSettings from "./component/public_keys";
 import DeleteProject from "./component/delete";
+import { Gear } from "@phosphor-icons/react";
 
 export let SettingsPage = () => {
 	let activeProject = useActiveProject();
@@ -30,7 +31,10 @@ export let SettingsPage = () => {
 	return (
 		<PageWrapper>
 			<PageHeader>
-				<PageTitle>Settings</PageTitle>
+				<PageTitle>
+					<Gear size="1.2em" />
+					<span>Settings</span>
+				</PageTitle>
 			</PageHeader>
 			<StyledPageContent>
 				<ProjectSettings project={project} />

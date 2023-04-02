@@ -3,13 +3,8 @@
 	"version": "22.7.2-alpha",
 	"main": "lib/lib.js",
 	"types": "lib/lib.d.ts",
-	"targets": {
-		"dashboard": {
-			"source": "src/index.html"
-		}
-	},
 	"scripts": {
-		"start": "parcel serve",
+		"start": "parcel serve src/index.html --public-url /dashboard --dist-dir ./dist --hmr-port 2345",
 		"clean": "rimraf ./dist ./lib",
 		"build:lib": "tsc src/lib.ts --outDir ./lib --declaration",
 		"build:dashboard": "parcel build --public-url /dashboard",
@@ -33,6 +28,7 @@
 		"open-props": "^1.5.5",
 		"parcel": "^2.8.3",
 		"react": "^18.2.0",
+		"react-content-loader": "^6.2.1",
 		"react-dom": "^18.2.0",
 		"react-redux": "^8.0.5",
 		"react-router-dom": "^6.7.0",

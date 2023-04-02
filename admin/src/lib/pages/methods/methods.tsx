@@ -18,6 +18,7 @@ import {
 	PageTitle,
 	PageWrapper,
 } from "../../component/page";
+import { Key } from "@phosphor-icons/react";
 
 let MAIN = "main-form";
 let GOOGLE = "google-form";
@@ -85,7 +86,10 @@ export let AuthMethods = () => {
 	return (
 		<PageWrapper>
 			<PageHeader>
-				<PageTitle>Authentication Methods</PageTitle>
+				<PageTitle>
+					<Key size="1.2em" />
+					<span>Authentication Methods</span>
+				</PageTitle>
 			</PageHeader>
 
 			<StyledPageContent>

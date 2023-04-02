@@ -13,4 +13,7 @@ export let PageHeader = styled(TopBar.Header)`
 export let PageTitle = styled.h1`
 	margin: 0;
 	font-size: var(--size-4);
+	display: flex;
+	gap: var(--size-2);
+	align-items: center;
 `;

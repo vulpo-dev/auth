@@ -1,0 +1,5 @@
+{
+  "/__/auth": {
+    "target": "http://localhost:8000/"
+  }
+}
