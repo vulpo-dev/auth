@@ -11,6 +11,7 @@ import { useActiveProject } from "../../data/project";
 import ProjectSettings from "./component/project";
 import EmailSettings from "./component/email";
 import PublicKeysSettings from "./component/public_keys";
+import DeleteProject from "./component/delete";
 
 export let SettingsPage = () => {
 	let activeProject = useActiveProject();
@@ -35,6 +36,8 @@ export let SettingsPage = () => {
 				<ProjectSettings project={project} />
 				<EmailSettings project={project.id} />
 				<PublicKeysSettings project={project.id} />
+
+				{project.is_admin === false && <DeleteProject project={project} />}
 			</StyledPageContent>
 		</PageWrapper>
 	);

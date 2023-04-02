@@ -23,12 +23,12 @@ let ProjectRedirect = () => {
 
 	useAuthStateChange((session) => {
 		if (mounted.current && session === null) {
-			navigate("auth/");
+			navigate("auth/", { replace: true });
 		}
 	});
 
 	if (!validUuid && project) {
-		return <Navigate to={`/${project.id}`} />;
+		return <Navigate to={`/${project.id}`} replace />;
 	}
 
 	return null;

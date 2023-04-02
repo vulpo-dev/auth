@@ -50,6 +50,22 @@ export let adminApi = createApi({
 			queryFn: toQueryFn<typeof api.getProjects>(api.getProjects),
 		}),
 
+		deleteProject: builder.mutation({
+			queryFn: toQueryFn<typeof api.deleteProject>(api.deleteProject),
+			async onQueryStarted([projectId], { dispatch, queryFulfilled }) {
+				try {
+					await queryFulfilled;
+					dispatch(
+						adminApi.util.updateQueryData("getProjects", [], (projects) => {
+							return projects.filter((project) => project.id !== projectId);
+						}),
+					);
+				} catch (err) {
+					console.error("deleteProject: ", err);
+				}
+			},
+		}),
+
 		setProject: builder.mutation({
 			queryFn: toQueryFn<typeof api.setProject>(api.setProject),
 			async onQueryStarted([patch], { dispatch, queryFulfilled }) {
@@ -78,7 +94,7 @@ export let adminApi = createApi({
 						}),
 					);
 				} catch (err) {
-					console.error("updateUser: ", err);
+					console.error("setProject: ", err);
 				}
 			},
 		}),
@@ -267,7 +283,7 @@ export let adminApi = createApi({
 						),
 					);
 				} catch (err) {
-					console.error("setFlags: ", err);
+					console.error("setEmailSettings: ", err);
 				}
 			},
 		}),
@@ -323,6 +339,7 @@ export let adminApi = createApi({
 export let {
 	useGetProjectsQuery,
 	useSetProjectMutation,
+	useDeleteProjectMutation,
 
 	useGetUsersQuery,
 	useGetUserQuery,

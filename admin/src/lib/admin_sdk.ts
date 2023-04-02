@@ -175,6 +175,11 @@ class AdminSDK {
 		return this.http.post(url, { json: project });
 	};
 
+	deleteProject = (project: Uuid) => {
+		let url = "project/delete";
+		return this.http.post(url, { json: { project } });
+	};
+
 	getUsers = ({ project, sort = "desc", limit = 50, cursor }: GetUsers) => {
 		let params = new URLSearchParams({
 			project,
