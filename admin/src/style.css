@@ -12,7 +12,12 @@ html {
   --color-background: var(--brand);
   --color-background--dark: var(--brand--dark);
   --color-foreground: #fff;
+
   --color-error: var(--red-7);
+  --color-error--light: var(--red-6);
+
+  --color-warn: var(--orange-10);
+  --color-warn--light: var(--orange-9);
 
   --text-color: #fff;
   --border: 1px solid #000;
