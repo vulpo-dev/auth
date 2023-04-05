@@ -1,9 +1,10 @@
-import React, { FormEvent, useState } from "react";
+import React, { FormEvent, useCallback, useState } from "react";
 import styled from "@emotion/styled";
 import { Button } from "werkbank/component/button";
 import { Input, Label, Section } from "werkbank/component/form";
+import { Flow } from "werkbank/component/loading";
 
-import {
+import adminApi, {
 	useGetEmailSettingsQuery,
 	useGetFlagsQuery,
 	useGetGoogleSettingsQuery,
@@ -23,6 +24,18 @@ import { Key } from "@phosphor-icons/react";
 let MAIN = "main-form";
 let GOOGLE = "google-form";
 
+export function usePrefetchAuthMethods() {
+	let prefetchEmailSettings = adminApi.usePrefetch("getEmailSettings");
+	let prefetchGoogleSettings = adminApi.usePrefetch("getGoogleSettings");
+	let prefetchFlags = adminApi.usePrefetch("getFlags");
+
+	return useCallback((project: string) => {
+		prefetchFlags([project]);
+		prefetchEmailSettings([project]);
+		prefetchGoogleSettings([project]);
+	}, [])
+}
+
 export let AuthMethods = () => {
 	let project = useActiveProject();
 	let flags = useGetFlagsQuery([project]);
@@ -33,8 +46,20 @@ export let AuthMethods = () => {
 		useSaveGoogleSettingsMutation();
 
 	if (flags.isLoading || googleConfig.data === undefined) {
-		// TODO: Loading screen
-		return null;
+		return (
+			<PageWrapper>
+				<PageHeader>
+					<PageTitle>
+						<Key size="1.2em" />
+						<span>Authentication Methods</span>
+					</PageTitle>
+				</PageHeader>
+
+				<StyledPageContent style={{ display: "flex", justifyContent: "center" }}>
+					<Flow size="var(--size-8)" />
+				</StyledPageContent>
+			</PageWrapper>
+		);
 	}
 
 	let hasEmail = emailSettings !== null || emailSettings !== undefined;
@@ -157,6 +182,8 @@ export let AuthMethods = () => {
 						</Button>
 					</ButtonWrapper>
 				</Container>
+
+				<div style={{ height: "var(--size-10)", flexShrink: 0 }} />
 			</StyledPageContent>
 		</PageWrapper>
 	);
@@ -293,6 +320,7 @@ let StyledPageContent = styled(PageContent)`
 
 let Container = styled.div`
 	max-width: var(--container-width);
+	width: 100%;
 	margin: 0 auto;
 `;
 

@@ -16,6 +16,8 @@ import { Dialog } from "werkbank/component/dialog";
 import adminApi, { useGetProjectsQuery } from "../data/admin_api";
 import { useActiveProject } from "../data/project";
 import CreateProject from "./create_project";
+import { usePrefetchSettings } from "../pages/settings/settings";
+import { usePrefetchAuthMethods } from "../pages/methods/methods";
 
 let Sidebar = () => {
 	let currentProject = useActiveProject();
@@ -143,23 +145,8 @@ let Title = styled.button`
 let Nav = () => {
 	let project = useActiveProject();
 	let prefetchUsers = adminApi.usePrefetch("getUsers");
-
-	let prefetchEmailSettings = adminApi.usePrefetch("getEmailSettings");
-	let prefetchGoogleSettings = adminApi.usePrefetch("getGoogleSettings");
-	let prefetchFlags = adminApi.usePrefetch("getFlags");
-
-	let prefetchAuthMethods = () => {
-		prefetchFlags([project]);
-		prefetchEmailSettings([project]);
-		prefetchGoogleSettings([project]);
-	};
-
-	let prefetchKeys = adminApi.usePrefetch("getPublicKeys");
-
-	let prefetchSettings = () => {
-		prefetchEmailSettings([project]);
-		prefetchKeys([project]);
-	};
+	let prefetchAuthMethods = usePrefetchAuthMethods();
+	let prefetchSettings = usePrefetchSettings()
 
 	return (
 		<Ul>
@@ -169,13 +156,13 @@ let Nav = () => {
 					<span>Users</span>
 				</NavItem>
 			</li>
-			<li onMouseEnter={() => prefetchAuthMethods()}>
+			<li onMouseEnter={() => prefetchAuthMethods(project)}>
 				<NavItem to="auth-methods">
 					<Key size="1.2em" />
 					<span>Auth Methods</span>
 				</NavItem>
 			</li>
-			<li onMouseEnter={() => prefetchSettings()}>
+			<li onMouseEnter={() => prefetchSettings(project)}>
 				<NavItem to="settings">
 					<Gear size="1.2em" />
 					<span>Settings</span>

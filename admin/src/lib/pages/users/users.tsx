@@ -23,6 +23,9 @@ import { ArrowClockwise, MagnifyingGlass, Users } from "@phosphor-icons/react";
 import { IconButton } from "werkbank/component/button";
 import { useRef } from "react";
 import { PartialUser } from "../../admin_sdk";
+import ContentLoader from "react-content-loader";
+
+let LOADING_ITEMS = Array(7).fill(null);
 
 export let UsersPage = () => {
 	let dispatch = useDispatch<AppDispatch>();
@@ -33,7 +36,7 @@ export let UsersPage = () => {
 	let userListRef = useRef<HTMLSelectElement | null>(null);
 	let [reloadUsers, reloadResult] = useReloadUsersMutation();
 
-	let users = data?.items ?? [];
+	let users = data?.items;
 	let cursor = data?.cursor;
 
 	async function loadMore() {
@@ -90,21 +93,40 @@ export let UsersPage = () => {
 						</IconButton>
 					</UsersActionsSection>
 					<UserList>
-						{users.map((user) => {
-							return (
-								<ListItem key={user.id}>
-									<UserItem user={user} />
-								</ListItem>
-							);
-						})}
 
-						{cursor && (
-							<ListItem>
-								<LoadMoreButton loading={state.isFetching} onClick={loadMore}>
-									Load More
-								</LoadMoreButton>
-							</ListItem>
-						)}
+						{
+							users ? (
+								<>
+									{users.map((user) => {
+										return (
+											<ListItem key={user.id}>
+												<UserItem user={user} />
+											</ListItem>
+										);
+									})}
+
+									{cursor && (
+										<ListItem>
+											<LoadMoreButton loading={state.isFetching} onClick={loadMore}>
+												Load More
+											</LoadMoreButton>
+										</ListItem>
+									)}
+								</>
+							) : (
+								<>
+									{ LOADING_ITEMS.map((_, index) => {
+										return (
+											<ListItem key={index}>
+												<LoadingUserItem />
+											</ListItem>
+										)
+									})}
+								</>
+							)
+						}
+
+						
 					</UserList>
 				</ListSection>
 				<UserSection>
@@ -158,6 +180,7 @@ let UsersActionsSection = styled.div`
 	height: var(--size-8);
 	display: flex;
 	align-items: center;
+	z-index: 1;
 `;
 
 let UserList = styled.ul`
@@ -239,6 +262,23 @@ let UserId = styled.small`
 	overflow: hidden;
 	white-space: nowrap;
 `;
+
+let LoadingUserItem = () => {
+	return (
+		<ContentLoader
+			viewBox="0 0 300 96"
+			width="100%"
+			backgroundColor="var(--gray-5)"
+			foregroundColor="var(--gray-4)"
+			style={{ opacity: 0.5 }}
+		>
+			<rect x="24" y="16" rx="5" ry="5" width="250" height="24" />
+			<rect x="24" y="45" rx="5" ry="5" width="230" height="16" />
+			<rect x="24" y="66" rx="5" ry="5" width="180" height="16" />
+		</ContentLoader>
+	)
+}
+
 
 let LoadMoreButton = styled(Button)`
 	width: 100%;
