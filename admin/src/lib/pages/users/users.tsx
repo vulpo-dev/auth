@@ -13,18 +13,25 @@ import {
 	useGetUsersQuery,
 	adminApi,
 	useGetUserQuery,
+	useReloadUsersMutation,
 } from "../../data/admin_api";
 import { Button } from "../../component/button";
 import { AppDispatch } from "../../../app/store";
 import { useMatchedUserId } from "../../utils";
 import { DateTime } from "../../component/date";
-import { Users } from "@phosphor-icons/react";
+import { ArrowClockwise, MagnifyingGlass, Users } from "@phosphor-icons/react";
+import { IconButton } from "werkbank/component/button";
+import { useRef } from "react";
+import { PartialUser } from "../../admin_sdk";
 
 export let UsersPage = () => {
 	let dispatch = useDispatch<AppDispatch>();
 
 	let project = useActiveProject();
 	let { data, ...state } = useGetUsersQuery([{ project }]);
+
+	let userListRef = useRef<HTMLSelectElement | null>(null);
+	let [reloadUsers, reloadResult] = useReloadUsersMutation();
 
 	let users = data?.items ?? [];
 	let cursor = data?.cursor;
@@ -40,6 +47,21 @@ export let UsersPage = () => {
 
 	let userId = useMatchedUserId();
 
+	async function reload() {
+		let res = await reloadUsers([{ project }]);
+
+		if ("error" in res) {
+			return;
+		}
+
+		if (userListRef.current) {
+			userListRef.current.scroll({
+				top: 0,
+				behavior: "smooth",
+			});
+		}
+	}
+
 	return (
 		<PageWrapper>
 			<StyledPageHeader>
@@ -54,27 +76,33 @@ export let UsersPage = () => {
 				</Link>
 			</StyledPageHeader>
 			<Layout>
-				<ListSection>
+				<ListSection ref={userListRef}>
+					<UsersActionsSection>
+						<IconButton
+							title="Reload Users"
+							onClick={reload}
+							loading={reloadResult.isLoading}
+						>
+							<ArrowClockwise size="var(--font-size-3)" />
+						</IconButton>
+						<IconButton style={{ marginLeft: "auto" }}>
+							<MagnifyingGlass size="var(--font-size-3)" />
+						</IconButton>
+					</UsersActionsSection>
 					<UserList>
 						{users.map((user) => {
 							return (
 								<ListItem key={user.id}>
-									<StyledNavLink to={user.id} state={user}>
-										<Email title={user.email}>{user.email}</Email>
-										<small>{user.id}</small>
-										<CreatedAt>
-											<DateTime value={user.created_at} />
-										</CreatedAt>
-									</StyledNavLink>
+									<UserItem user={user} />
 								</ListItem>
 							);
 						})}
 
 						{cursor && (
 							<ListItem>
-								<Button loading={state.isFetching} onClick={loadMore}>
+								<LoadMoreButton loading={state.isFetching} onClick={loadMore}>
 									Load More
-								</Button>
+								</LoadMoreButton>
 							</ListItem>
 						)}
 					</UserList>
@@ -121,6 +149,17 @@ let ListSection = styled.section`
 	border-right: var(--border);
 `;
 
+let UsersActionsSection = styled.div`
+	position: sticky;
+	top: 0;
+	background: var(--color-background--dark);
+	padding: var(--size-2) var(--size-5);
+	border-bottom: var(--border);
+	height: var(--size-8);
+	display: flex;
+	align-items: center;
+`;
+
 let UserList = styled.ul`
 	margin: 0;
 	padding: 0;
@@ -129,6 +168,42 @@ let UserList = styled.ul`
 let ListItem = styled.li`
 	border-bottom: var(--border);
 `;
+
+type UserItemProps = {
+	user: PartialUser;
+};
+
+let UserItem = ({ user }: UserItemProps) => {
+	let project = useActiveProject();
+	let prefetchUser = adminApi.usePrefetch("getUser");
+	let cancel = useRef<number | undefined>(undefined);
+
+	let onEnter = () => {
+		cancel.current = window.setTimeout(() => {
+			prefetchUser([user.id, project]);
+		}, 500);
+	};
+
+	let onLeave = () => {
+		window.clearTimeout(cancel.current);
+		cancel.current = undefined;
+	};
+
+	return (
+		<StyledNavLink
+			onMouseEnter={onEnter}
+			onMouseLeave={onLeave}
+			to={user.id}
+			state={user}
+		>
+			<Email title={user.email}>{user.email}</Email>
+			<UserId title={user.id}>{user.id}</UserId>
+			<CreatedAt title={user.created_at}>
+				<DateTime value={user.created_at} />
+			</CreatedAt>
+		</StyledNavLink>
+	);
+};
 
 let StyledNavLink = styled(NavLink)`
 	display: block;
@@ -159,9 +234,22 @@ let CreatedAt = styled.small`
 	text-align: left;
 `;
 
+let UserId = styled.small`
+	text-overflow: ellipsis;
+	overflow: hidden;
+	white-space: nowrap;
+`;
+
+let LoadMoreButton = styled(Button)`
+	width: 100%;
+`;
+
 let UserSection = styled.section`
 	height: 100%;
 	overflow-y: auto;
 	overflow-x: hidden;
 	padding: var(--size-8);
+	display: flex;
+	align-items: center;
+	flex-direction: column;
 `;

@@ -2,50 +2,78 @@ import styled from "@emotion/styled";
 import ContentLoader from "react-content-loader";
 import { NavLink, useNavigate } from "react-router-dom";
 import { Gear, CaretDown, Users, Key, Plus } from "@phosphor-icons/react";
+import { useState } from "react";
 
-import { useMenu, Menu, MenuDivider, MenuItem, MenuItemTitle } from "werkbank/component/menu";
+import {
+	useMenu,
+	Menu,
+	MenuDivider,
+	MenuItem,
+	MenuItemTitle,
+} from "werkbank/component/menu";
+import { Dialog } from "werkbank/component/dialog";
 
-import { useGetProjectsQuery } from "../data/admin_api";
+import adminApi, { useGetProjectsQuery } from "../data/admin_api";
 import { useActiveProject } from "../data/project";
+import CreateProject from "./create_project";
 
 let Sidebar = () => {
 	let currentProject = useActiveProject();
 	let { data: projects } = useGetProjectsQuery([]);
-	let project = projects?.find(p => p.id === currentProject);
+	let project = projects?.find((p) => p.id === currentProject);
 	let { MenuContainer, ref, ...props } = useMenu();
 	let navigate = useNavigate();
 
+	let [createDialog, setCreateDialog] = useState(false);
+
+	let handleCreateProject = (projectId: string) => {
+		navigate(`/${projectId}/users`);
+		setCreateDialog(false);
+	};
+
 	return (
-		<Wrapper>
-			<Header>
-				{ project ? (
-					<>
-						<Title title={project.name} ref={ref} {...props}>
-							<span>{ project.name }</span>
-							<CaretDown size="0.9em" weight="fill" />
-						</Title>
-						<MenuContainer>
-							<Menu icon>
-								<MenuItem icon={<Plus />} onClick={() => {}}>
-									<MenuItemTitle>Create Project</MenuItemTitle>
-								</MenuItem>
-								<MenuDivider />
-								{ projects?.map(project => {
-									return (
-										<MenuItem onClick={() => navigate(`/${project.id}`)}>
-											<MenuItemTitle>
-													{project.name}
-											</MenuItemTitle>
-										</MenuItem>
-									)
-								})}
-							</Menu>
-						</MenuContainer>
-					</>
-				) : <LoadingTitle /> }
-			</Header>
-			<Nav />
-		</Wrapper>
+		<>
+			<Wrapper>
+				<Header>
+					{project ? (
+						<>
+							<Title title={project.name} ref={ref} {...props}>
+								<span>{project.name}</span>
+								<CaretDown size="0.9em" weight="fill" />
+							</Title>
+							<MenuContainer>
+								<Menu icon>
+									<MenuItem
+										icon={<Plus />}
+										onClick={() => setCreateDialog(true)}
+									>
+										<MenuItemTitle>Create Project</MenuItemTitle>
+									</MenuItem>
+									<MenuDivider />
+									{projects?.map((project) => {
+										return (
+											<MenuItem
+												key={project.id}
+												onClick={() => navigate(`/${project.id}`)}
+											>
+												<MenuItemTitle>{project.name}</MenuItemTitle>
+											</MenuItem>
+										);
+									})}
+								</Menu>
+							</MenuContainer>
+						</>
+					) : (
+						<LoadingTitle />
+					)}
+				</Header>
+				<Nav />
+			</Wrapper>
+
+			<Dialog open={createDialog} onClose={() => setCreateDialog(false)}>
+				<CreateProject onCreate={handleCreateProject} />
+			</Dialog>
+		</>
 	);
 };
 
@@ -61,8 +89,8 @@ let LoadingTitle = () => {
 		>
 			<rect width="148" height="28" />
 		</ContentLoader>
-	)
-}
+	);
+};
 
 let Wrapper = styled.div`
 	color-scheme: light;
@@ -77,12 +105,12 @@ let Wrapper = styled.div`
 	--button-bg--hover: #1a1a1a;
 
 	color: var(--text-color);
-`
+`;
 
 let Header = styled.header`
 	padding: var(--_spacing-block) var(--_spacing-inline);
 	border-bottom: var(--border);
-`
+`;
 
 let Title = styled.button`
 	padding: 0;
@@ -110,24 +138,44 @@ let Title = styled.button`
 	svg {
 		flex-shrink: 0;
 	}
-`
+`;
 
 let Nav = () => {
+	let project = useActiveProject();
+	let prefetchUsers = adminApi.usePrefetch("getUsers");
+
+	let prefetchEmailSettings = adminApi.usePrefetch("getEmailSettings");
+	let prefetchGoogleSettings = adminApi.usePrefetch("getGoogleSettings");
+	let prefetchFlags = adminApi.usePrefetch("getFlags");
+
+	let prefetchAuthMethods = () => {
+		prefetchFlags([project]);
+		prefetchEmailSettings([project]);
+		prefetchGoogleSettings([project]);
+	};
+
+	let prefetchKeys = adminApi.usePrefetch("getPublicKeys");
+
+	let prefetchSettings = () => {
+		prefetchEmailSettings([project]);
+		prefetchKeys([project]);
+	};
+
 	return (
 		<Ul>
-			<li>
+			<li onMouseEnter={() => prefetchUsers([{ project }])}>
 				<NavItem to="users">
 					<Users size="1.2em" />
 					<span>Users</span>
 				</NavItem>
 			</li>
-			<li>
+			<li onMouseEnter={() => prefetchAuthMethods()}>
 				<NavItem to="auth-methods">
 					<Key size="1.2em" />
 					<span>Auth Methods</span>
 				</NavItem>
 			</li>
-			<li>
+			<li onMouseEnter={() => prefetchSettings()}>
 				<NavItem to="settings">
 					<Gear size="1.2em" />
 					<span>Settings</span>
@@ -135,7 +183,7 @@ let Nav = () => {
 			</li>
 		</Ul>
 	);
-}
+};
 
 let Ul = styled.ul`
 	margin: 0;
@@ -162,4 +210,4 @@ let NavItem = styled(NavLink)`
 		background: #000;
 	}
 
-`
+`;

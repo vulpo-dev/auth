@@ -180,6 +180,11 @@ class AdminSDK {
 		return this.http.post(url, { json: { project } });
 	};
 
+	createProject = (project: NewProject) => {
+		let url = "admin/project/create";
+		return this.http.post(url, { json: project }).json<[string]>();
+	};
+
 	getUsers = ({ project, sort = "desc", limit = 50, cursor }: GetUsers) => {
 		let params = new URLSearchParams({
 			project,
@@ -328,6 +333,11 @@ export type Project = {
 	domain: string;
 	is_admin: boolean;
 	name: string;
+};
+
+export type NewProject = {
+	name: string;
+	domain: string;
 };
 
 type Projects = Array<Project>;

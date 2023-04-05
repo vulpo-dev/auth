@@ -1,4 +1,15 @@
 import styled from "@emotion/styled";
+import { useNavigate } from "react-router-dom";
+import {
+	ArchiveBox,
+	ClockClockwise,
+	IdentificationCard,
+	Trash,
+} from "@phosphor-icons/react";
+
+import { Section, Label } from "werkbank/component/form";
+import { Button, LinkButton } from "werkbank/component/button";
+import { Flow } from "werkbank/component/loading";
 
 import {
 	useDeleteUserMutation,
@@ -12,20 +23,11 @@ import {
 import { useActiveProject } from "../../data/project";
 import { useMatchedUserId } from "../../utils";
 
-import { Section, Label } from "werkbank/component/form";
 import { UserForm } from "./component/user_form";
-import { Button, LinkButton } from "werkbank/component/button";
 import { FormEvent, useRef } from "react";
 import { UpdateUser } from "../../admin_sdk";
 import { Actions, Container, Header } from "./component/layout";
-import {
-	ArchiveBox,
-	ClockClockwise,
-	IdentificationCard,
-	Trash,
-} from "@phosphor-icons/react";
 import { UserState } from "@vulpo-dev/auth-sdk";
-import { useNavigate } from "react-router-dom";
 import { DateTime } from "../../component/date";
 
 type UserDetailsProps = {
@@ -38,8 +40,12 @@ let UserDetails = ({ userId }: UserDetailsProps) => {
 	let project = useActiveProject();
 	let user = useGetUserQuery([userId, project]);
 
-	if (!user.data) {
-		return null;
+	if (user.data === undefined) {
+		return (
+			<div>
+				<Flow size="var(--size-8)" />
+			</div>
+		);
 	}
 
 	return (

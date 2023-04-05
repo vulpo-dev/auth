@@ -44,7 +44,7 @@ let adminApiQuery: BaseQueryFn = (_args) => {
 export let adminApi = createApi({
 	reducerPath: "admin_api",
 	baseQuery: adminApiQuery,
-	tagTypes: ["User"],
+	tagTypes: ["User", "Users"],
 	endpoints: (builder) => ({
 		getProjects: builder.query({
 			queryFn: toQueryFn<typeof api.getProjects>(api.getProjects),
@@ -99,7 +99,32 @@ export let adminApi = createApi({
 			},
 		}),
 
+		createProject: builder.mutation({
+			queryFn: toQueryFn<typeof api.createProject>(api.createProject),
+			async onQueryStarted([newProject], { dispatch, queryFulfilled }) {
+				try {
+					let { data } = await queryFulfilled;
+					let projectId = data[0];
+
+					dispatch(
+						adminApi.util.updateQueryData("getProjects", [], (projects) => {
+							let project: Project = {
+								id: projectId,
+								is_admin: false,
+								...newProject,
+							};
+
+							return [project, ...projects];
+						}),
+					);
+				} catch (err) {
+					console.error("setProject: ", err);
+				}
+			},
+		}),
+
 		getUsers: builder.query({
+			providesTags: ["Users"],
 			queryFn: toQueryFn<typeof api.getUsers>(api.getUsers),
 			serializeQueryArgs: ({ endpointName, queryArgs }) => {
 				let [{ project }] = queryArgs;
@@ -137,6 +162,26 @@ export let adminApi = createApi({
 				let project = currentArg?.[0].project !== previousArg[0].project;
 				let cursor = currentArg?.[0].cursor !== previousArg[0].cursor;
 				return project || cursor;
+			},
+		}),
+
+		reloadUsers: builder.mutation({
+			queryFn: toQueryFn<typeof api.getUsers>(api.getUsers),
+			async onQueryStarted([{ project }], { dispatch, queryFulfilled }) {
+				try {
+					let res = await queryFulfilled;
+					dispatch(
+						adminApi.util.updateQueryData(
+							"getUsers",
+							[{ project }],
+							(_user) => {
+								return res.data;
+							},
+						),
+					);
+				} catch (err) {
+					console.error("updateUser: ", err);
+				}
 			},
 		}),
 
@@ -340,7 +385,9 @@ export let {
 	useGetProjectsQuery,
 	useSetProjectMutation,
 	useDeleteProjectMutation,
+	useCreateProjectMutation,
 
+	useReloadUsersMutation,
 	useGetUsersQuery,
 	useGetUserQuery,
 	useUpdateUserMutation,
@@ -359,3 +406,5 @@ export let {
 	useSaveGoogleSettingsMutation,
 	useGetPublicKeysQuery,
 } = adminApi;
+
+export default adminApi;

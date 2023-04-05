@@ -14,7 +14,7 @@ export let AppShell = () => {
 	let [user, setUser] = useState<UserAuthState>(undefined);
 	let [sidebar, setSidebar] = useState<boolean>(() => {
 		return window.matchMedia(SIDEBAR_BREAKPOINT).matches === false;
-	})
+	});
 
 	useAuthStateChange((session) => {
 		if (session === null) {
