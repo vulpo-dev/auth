@@ -16,6 +16,6 @@
     "parcel": "^2.8.3"
   },
   "scripts": {
-    "start": "parcel --port 3000 --hmr-port 3001"
+    "start": "parcel --port 5000 --hmr-port 5001"
   }
 }

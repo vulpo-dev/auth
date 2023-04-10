@@ -14,7 +14,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@playwright/test": "^1.14.1"
+    "@playwright/test": "^1.32.2"
   },
   "dependencies": {
     "@types/bcryptjs": "^2.4.2",

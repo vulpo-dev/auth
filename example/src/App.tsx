@@ -83,7 +83,7 @@ let EmailForm = () => {
   }
 
   return (
-    <section>
+    <section className='section'>
       { error !== null &&
         <p>{ error }</p>
       }
@@ -157,7 +157,7 @@ let ApiKeyForm = () => {
   }
 
   return (
-    <section>
+    <section className='section'>
       
       <div>
         
@@ -200,7 +200,7 @@ let ApiKeyForm = () => {
             <tbody>
               { keys.map(key => {
                 return (
-                  <tr key={key.id} id={`api-key_${key.id}`}>
+                  <tr key={key.id} id={`api-key_${key.id}`} title={`api-key_${key.id}`}>
                     <td><span>{ key.id }</span></td>
                     <td><span>{ key.name }</span></td>
                     <td>{ key.created_at }</td>

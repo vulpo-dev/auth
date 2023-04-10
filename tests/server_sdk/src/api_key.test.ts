@@ -50,7 +50,7 @@ describe("ApiKey", () => {
 	})
 })
 
-function generateApiKey(id, payload = '') {
+function generateApiKey(id: string, payload = '') {
 	return Buffer
 		.from(`${id}:${payload}`)
 		.toString('base64')

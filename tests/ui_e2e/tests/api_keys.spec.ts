@@ -16,6 +16,6 @@ test("can generate API key", async ({ page }) => {
 	await page.click('button:has-text("Delete Generated Key")')
 	await page.waitForLoadState('networkidle')
 
-	let row = await page.$(selector)
-	expect(row).toBeNull()
+	let row = await page.getByTitle(selector).isHidden();
+	expect(row).toBeTruthy()
 })
