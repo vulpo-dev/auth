@@ -1,10 +1,10 @@
+import { admin } from '@vulpo-dev/auth-seeds/data/projects'
+
 import Http from '../utils/http'
 import Db from '../utils/db'
 import { generateAdminToken } from '../utils/admin'
 import { PROJECT_ID } from '../utils/env'
-import TranslationSchema from '../utils/schema/translations'
-import { Languages } from '@admin/data/languages'
-import { admin } from '@seeds/data/projects'
+import TranslationSchema, { Languages } from '../utils/schema/translations'
 
 const TEMPLATE_ID = '88cb6976-9acd-4c8a-9f0f-4083f1925b9a'
 const codes = Object.keys(Languages).slice(0, 5)

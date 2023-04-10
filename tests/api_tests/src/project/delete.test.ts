@@ -3,8 +3,8 @@ import Db from '../utils/db'
 import { generateAdminToken } from '../utils/admin'
 import { createUser, createTokenPayload } from '../utils/user'
 import { generateAccessToken } from '../utils/auth'
-import { admin } from '@seeds/data/projects'
-import { projectKeys } from '@seeds/data/projects'
+import { admin } from '@vulpo-dev/auth-seeds/data/projects'
+import { projectKeys } from '@vulpo-dev/auth-seeds/data/projects'
 
 import { v4 as uuid } from 'uuid'
 

@@ -1,12 +1,12 @@
+import { admin } from '@vulpo-dev/auth-seeds/data/projects'
+import { ErrorCode } from '@vulpo-dev/auth-sdk'
 
 import Db from '../utils/db'
 import Http from '../utils/http'
-import { admin } from '@seeds/data/projects'
 import { createUser } from '../utils/user'
 import { generateApiKey } from './utils'
 import ClaimsSchema from '../utils/schema/claims'
 
-import { ErrorCode } from '@sdk-js/error'
 
 const TRAITS = ['Fuu', 'Bar']
 

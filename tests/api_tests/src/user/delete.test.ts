@@ -1,8 +1,9 @@
+import { v4 as uuid } from 'uuid'
+import { Url, ErrorCode } from '@vulpo-dev/auth-sdk'
+
 import Db from '../utils/db'
 import Http from '../utils/http'
 import { generateKeyPair } from '../utils/crypto'
-import { Url } from '@sdk-js/types'
-import { ErrorCode } from '@sdk-js/error'
 import { PROJECT_ID } from '../utils/env'
 import {
 	makeCreateSession,
@@ -14,8 +15,6 @@ import {
 	makeGenerateInvalidAccessToken,
 	ratPayload
 } from '../utils/user'
-
-import { v4 as uuid } from 'uuid'
 
 const EMAIL = 'api.test+user_delete_account@vulpo.dev'
 const USER_ID = '90896fe0-d3c2-4f2d-8cce-e6dd628ca584'

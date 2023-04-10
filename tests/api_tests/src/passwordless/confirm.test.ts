@@ -1,12 +1,10 @@
+import { v4 as uuid } from 'uuid'
+import { Url, ConfirmPasswordlessPayload, ErrorCode } from '@vulpo-dev/auth-sdk'
+
 import Db from '../utils/db'
 import Http from '../utils/http'
-import { Url, ConfirmPasswordlessPayload } from '@sdk-js/types'
-import { ErrorCode } from '@sdk-js/error'
 import { createToken, createSession } from '../utils/passwordless'
-
 import { createUser } from '../utils/user'
-
-import { v4 as uuid } from 'uuid'
 
 afterAll(() => Db.end())
 

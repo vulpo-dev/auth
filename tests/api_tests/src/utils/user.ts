@@ -1,12 +1,13 @@
-import Db from './db'
-import { PROJECT_ID } from '../utils/env'
-import { projectKeys } from '@seeds/data/projects'
-
+import { projectKeys } from '@vulpo-dev/auth-seeds/data/projects'
 import * as jwt from 'jsonwebtoken'
 import { Algorithm } from 'jsonwebtoken'
 import { v4 as uuid } from 'uuid'
 import * as argon2 from 'argon2'
-import { UserState } from '@sdk-js/types'
+import { UserState } from '@vulpo-dev/auth-sdk'
+
+import Db from './db'
+import { PROJECT_ID } from '../utils/env'
+
 
 export let getEmail = () => `api.test+${uuid()}@vulpo.dev`
 

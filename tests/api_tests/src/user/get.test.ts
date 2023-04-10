@@ -1,19 +1,18 @@
+import { Url, UserState, ErrorCode } from '@vulpo-dev/auth-sdk'
+import { projectKeys } from '@vulpo-dev/auth-seeds/data/projects'
+import { v4 as uuid } from 'uuid'
+import * as jwt from 'jsonwebtoken'
+import { Algorithm } from 'jsonwebtoken'
+
 import Db from '../utils/db'
 import Http from '../utils/http'
 import { generateKeyPair } from '../utils/crypto'
-import { Url, UserState } from '@sdk-js/types'
-import { ErrorCode } from '@sdk-js/error'
 import { PROJECT_ID } from '../utils/env'
 import {
 	makeCleanUp,
 	makeCreateUser,
 } from '../utils/passwordless'
 import UserResponseSchema from '../utils/schema/user'
-import { projectKeys } from '@seeds/data/projects'
-
-import { v4 as uuid } from 'uuid'
-import * as jwt from 'jsonwebtoken'
-import { Algorithm } from 'jsonwebtoken'
 
 const EMAIL = 'api.test+user_get@vulpo.dev'
 const USER_ID = 'a9ad9dd7-c599-4128-8f92-65f14ac87102'

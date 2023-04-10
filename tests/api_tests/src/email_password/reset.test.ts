@@ -1,18 +1,17 @@
-import Db from '../utils/db'
-import Http from '../utils/http'
-import { createUser, getEmail } from '../utils/user'
-
 import { v4 as uuid } from 'uuid'
 import * as bcrypt from 'bcryptjs'
 import * as argon2 from 'argon2'
-
 import {
 	Url,
 	PasswordResetPayload,
 	VerifyResetTokenPayload,
 	SetPasswordPayload,
-} from '@sdk-js/types'
-import { ErrorCode } from '@sdk-js/error'
+	ErrorCode,
+} from '@vulpo-dev/auth-sdk'
+
+import Db from '../utils/db'
+import Http from '../utils/http'
+import { createUser, getEmail } from '../utils/user'
 import { PROJECT_ID } from '../utils/env'
 
 const SALT = bcrypt.genSaltSync(10);

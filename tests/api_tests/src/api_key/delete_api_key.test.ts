@@ -1,9 +1,10 @@
+import { DeleteApiKeyPayload, Url } from '@vulpo-dev/auth-sdk'
+
 import { createAccessToken, createUser } from "../utils/user"
 import { generateApiKeyRequest } from "./utils"
 import Db from '../utils/db'
 import Http from '../utils/http'
 
-import { DeleteApiKeyPayload, Url } from '@sdk-js/types'
 
 afterAll(() => Db.end())
 

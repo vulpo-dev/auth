@@ -1,5 +1,6 @@
-import { Claims } from "@sdk-js/types"
+import { Claims } from "@vulpo-dev/auth-sdk"
 import { JSONSchemaType } from "ajv"
+
 import Ajv from '../ajv'
 
 export let schema: JSONSchemaType<Claims> = {

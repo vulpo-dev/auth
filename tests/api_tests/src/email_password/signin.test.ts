@@ -1,15 +1,14 @@
+import { v4 as uuid } from 'uuid'
+import * as bcrypt from 'bcryptjs'
+import * as argon2 from 'argon2'
+import { ErrorCode, Url, EmailPasswordPayload, UserState } from '@vulpo-dev/auth-sdk'
+
 import Db from '../utils/db'
 import Http from '../utils/http'
 import { generateKeyPair } from '../utils/crypto'
 import SessionResponseSchema from '../utils/schema/session-response'
 import { CreatedUser, createUser } from '../utils/user'
 
-import { v4 as uuid } from 'uuid'
-import * as bcrypt from 'bcryptjs'
-import * as argon2 from 'argon2'
-
-import { Url, EmailPasswordPayload, UserState } from '@sdk-js/types'
-import { ErrorCode } from '@sdk-js/error'
 
 const SALT = bcrypt.genSaltSync(10);
 const PASSWORD = 'password'

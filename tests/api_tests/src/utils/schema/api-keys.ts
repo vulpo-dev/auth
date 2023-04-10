@@ -1,5 +1,6 @@
-import { ApiKeys } from "@sdk-js/types"
+import { ApiKeys } from "@vulpo-dev/auth-sdk"
 import { JSONSchemaType } from "ajv"
+
 import Ajv from '../ajv'
 import ApiKey from './api-key'
 

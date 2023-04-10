@@ -1,13 +1,11 @@
+import { v4 as uuid } from 'uuid'
+import { ErrorCode, Url, EmailPasswordPayload, UserState } from '@vulpo-dev/auth-sdk'
+
 import Db from '../utils/db'
 import Http from '../utils/http'
 import { generateKeyPair } from '../utils/crypto'
 import SessionResponseSchema from '../utils/schema/session-response'
 import { getEmail } from '../utils/user'
-
-import { v4 as uuid } from 'uuid'
-
-import { Url, EmailPasswordPayload, UserState } from '@sdk-js/types'
-import { ErrorCode } from '@sdk-js/error'
 import { PROJECT_ID } from '../utils/env'
 
 afterAll(() => Db.end())

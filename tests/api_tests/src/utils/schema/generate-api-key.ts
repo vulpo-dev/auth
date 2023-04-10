@@ -1,4 +1,4 @@
-import { GenerateApiKeyResponse } from "@sdk-js/types"
+import { GenerateApiKeyResponse } from "@vulpo-dev/auth-sdk"
 import { JSONSchemaType } from "ajv"
 import Ajv from '../ajv'
 

@@ -1,6 +1,5 @@
-import { adminKeys } from '@seeds/data/projects'
-import { Claims } from '@sdk-js/types'
-
+import { adminKeys } from '@vulpo-dev/auth-seeds/data/projects'
+import { Claims } from '@vulpo-dev/auth-sdk'
 import * as jwt from 'jsonwebtoken'
 import { v4 as uuid } from 'uuid'
 

@@ -2,7 +2,7 @@
 import Db from '../utils/db'
 import Http from '../utils/http'
 import { createUser } from '../utils/user'
-import { admin } from '@seeds/data/projects'
+import { admin } from '@vulpo-dev/auth-seeds/data/projects'
 import { generateApiKey } from './utils'
 
 afterAll(() => Db.end())
@@ -16,7 +16,7 @@ describe("ApiKey Admin guard", () => {
 
 		let apiKey = await generateApiKey(user.id, null)
 
-		let res = await Http.get('/admin/__/project/list', {
+		let res = await Http.get('/admin/project/list', {
 			headers: {
 				'Authorization': `ApiKey ${apiKey.value}`
 			}

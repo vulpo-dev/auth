@@ -1,13 +1,13 @@
+import { project, projectKeys } from '@vulpo-dev/auth-seeds/data/projects'
+import { v4 as uuid } from 'uuid'
+import * as bcrypt from 'bcryptjs'
+import { ConfirmUpdateEmailPayload, UpdateEmailPayload } from '@vulpo-dev/auth-sdk'
+
 import Db from '../utils/db'
 import Http from '../utils/http'
 import { PROJECT_ID } from '../utils/env'
 import { makeCreateUser } from '../utils/passwordless'
 import { makeGenerateAccessToken, makeTokenPayload } from '../utils/user'
-import { project, projectKeys } from '@seeds/data/projects'
-
-import { v4 as uuid } from 'uuid'
-import * as bcrypt from 'bcryptjs'
-import { ConfirmUpdateEmailPayload, UpdateEmailPayload } from '@sdk-js/types'
 
 const EMAIL = 'api.test+change_email@vulpo.dev'
 const NEW_EMAIL = 'api.test+change_new_email@vulpo.dev'

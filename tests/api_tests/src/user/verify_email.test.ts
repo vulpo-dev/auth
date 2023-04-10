@@ -1,14 +1,13 @@
+import { Url, VerifyEmailPayload, ErrorCode } from '@vulpo-dev/auth-sdk'
+import * as bcrypt from 'bcryptjs'
+
 import Db from '../utils/db'
 import Http from '../utils/http'
-import { Url, VerifyEmailPayload } from '@sdk-js/types'
-import { ErrorCode } from '@sdk-js/error'
 import { PROJECT_ID } from '../utils/env'
 import {
 	makeCreateUser,
 	makeCleanUp,
 } from '../utils/passwordless'
-
-import * as bcrypt from 'bcryptjs'
 
 const EMAIL = 'vulpo.test+user_verify_email@vulpo.dev'
 const USER_ID = '39334431-3523-4469-8e66-d1a5cde6b181'

@@ -1,3 +1,6 @@
+import { projectKeys } from '@vulpo-dev/auth-seeds/data/projects'
+import { Url, UserSetPasswordPayload, UserState, ErrorCode } from '@vulpo-dev/auth-sdk'
+
 import Http from '../utils/http'
 import Db from '../utils/db'
 import { PROJECT_ID } from '../utils/env'
@@ -5,10 +8,6 @@ import * as bcrypt from 'bcryptjs'
 import { makeGenerateAccessToken, makeTokenPayload } from '../utils/user'
 import { generateKeyPair } from '../utils/crypto'
 import { makeCreateSession } from '../utils/passwordless'
-import { projectKeys } from '@seeds/data/projects'
-
-import { ErrorCode } from '@sdk-js/error'
-import { Url, UserSetPasswordPayload, UserState } from '@sdk-js/types'
 
 const USER_ID = '077a9f18-e3c9-428f-99de-49a9a6772887'
 const EMAIL = 'api.test+set_password@vulpo.dev'

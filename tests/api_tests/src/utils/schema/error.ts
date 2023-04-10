@@ -1,4 +1,4 @@
-import { ErrorCode, Code } from "@sdk-js/error"
+import { ErrorCode, Code } from "@vulpo-dev/auth-sdk"
 import { JSONSchemaType } from "ajv"
 import Ajv from '../ajv'
 

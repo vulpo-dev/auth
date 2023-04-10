@@ -1,14 +1,14 @@
+import { Url, VerifyPasswordlessPayload, ErrorCode } from '@vulpo-dev/auth-sdk'
+import { v4 as uuid } from 'uuid'
+import * as jwt from 'jsonwebtoken'
+import { Algorithm } from 'jsonwebtoken'
+
 import Db from '../utils/db'
 import Http from '../utils/http'
 import { createToken, createSession, CreatedSession } from '../utils/passwordless'
 import { createUser } from '../utils/user'
 import SessionResponseSchema from '../utils/schema/session-response'
-import { ErrorCode } from '@sdk-js/error'
-import { Url, VerifyPasswordlessPayload } from '@sdk-js/types'
 
-import { v4 as uuid } from 'uuid'
-import * as jwt from 'jsonwebtoken'
-import { Algorithm } from 'jsonwebtoken'
 
 afterAll(() => Db.end())
 

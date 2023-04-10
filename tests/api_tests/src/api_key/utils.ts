@@ -1,10 +1,11 @@
+import { v4 as uuid } from 'uuid'
+import * as bcrypt from 'bcryptjs'
+import { project } from '@vulpo-dev/auth-seeds/data/projects'
+import { GenerateApiKey, GenerateApiKeyResponse, Url } from '@vulpo-dev/auth-sdk'
+
 import Db from '../utils/db'
 import Http from '../utils/http'
 
-import { v4 as uuid } from 'uuid'
-import * as bcrypt from 'bcryptjs'
-import { project } from '@seeds/data/projects'
-import { GenerateApiKey, GenerateApiKeyResponse, Url } from '@sdk-js/types'
 
 export async function generateApiKey(userId: string, expire_at: null | string) {
 	let id = uuid()

@@ -1,8 +1,9 @@
+import { admin, projectKeys } from '@vulpo-dev/auth-seeds/data/projects'
+import { Url, UpdateUserPayload, ErrorCode } from '@vulpo-dev/auth-sdk'
+
 import Db from '../utils/db'
 import Http from '../utils/http'
 import { generateKeyPair } from '../utils/crypto'
-import { Url, UpdateUserPayload } from '@sdk-js/types'
-import { ErrorCode } from '@sdk-js/error'
 import { PROJECT_ID } from '../utils/env'
 import {
 	makeCreateSession,
@@ -14,9 +15,7 @@ import {
 	makeGenerateInvalidAccessToken,
 	makeTokenPayload,
 } from '../utils/user'
-import { projectKeys } from '@seeds/data/projects'
 import { generateAdminToken } from '../utils/admin'
-import { admin } from '@seeds/data/projects'
 
 const EMAIL = 'api.test_user_update@vulpo.dev'
 const USER_ID = '1d71bf90-45b8-4409-bc8e-a66639597fac'

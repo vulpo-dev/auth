@@ -1,11 +1,12 @@
+import { v4 as uuid, validate as uuidValidate } from 'uuid'
+import * as bcrypt from 'bcryptjs'
+import { Url, GenerateApiKey } from '@vulpo-dev/auth-sdk'
+
 import Db from '../utils/db'
 import Http from '../utils/http'
 import { createUser, createAccessToken } from '../utils/user'
 import GenerateApiKeySchema from '../utils/schema/generate-api-key'
 
-import { v4 as uuid, validate as uuidValidate } from 'uuid'
-import * as bcrypt from 'bcryptjs'
-import { Url, GenerateApiKey } from '@sdk-js/types'
 
 afterAll(() => Db.end())
 

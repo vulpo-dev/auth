@@ -1,5 +1,6 @@
-import { ApiKey } from "@sdk-js/types"
+import { ApiKey } from "@vulpo-dev/auth-sdk"
 import { JSONSchemaType } from "ajv"
+
 import Ajv from '../ajv'
 
 export let schema: JSONSchemaType<ApiKey> = {

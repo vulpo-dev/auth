@@ -1,4 +1,4 @@
-import { ApiKeys, GenerateApiKey, Url } from '@sdk-js/types'
+import { ApiKeys, GenerateApiKey, Url } from '@vulpo-dev/auth-sdk'
 import { v4 as uuid } from 'uuid'
 
 import Db from '../utils/db'

@@ -1,5 +1,5 @@
 {
-  "name": "vulpo-seeds",
+  "name": "@vulpo-dev/auth-seeds",
   "private": true,
   "version": "0.0.5",
   "description": "",

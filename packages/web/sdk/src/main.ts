@@ -28,6 +28,17 @@ export type {
 	UserSetPasswordPayload,
 	GenerateApiKeyResponse,
 	DeleteApiKeyPayload,
+	GenerateApiKey,
+	PasswordResetPayload,
+	VerifyResetTokenPayload,
+	VerifyPasswordlessPayload,
+	RequestPasswordlessPayload,
+	ConfirmPasswordlessPayload,
+	RefreshAccessTokenPayload,
+	VerifyEmailPayload,
+	UpdateUserPayload,
+	Claims,
+	PasswordlessResponse,
 } from './types'
 
 export { UserState, Flag, Url } from './types'
@@ -35,7 +46,7 @@ export type { SessionId } from './types'
 export { AuthClient } from './client'
 export type { ClientDep, IAuthClient } from './client'
 export { ErrorCode, AuthError, isErrorCode } from './error'
-export type { ApiError, ErrorResponse, GenericError } from './error'
+export type { ApiError, ErrorResponse, GenericError, Code } from './error'
 export { SessionService } from './session'
 export type { SessionServiceDep, FromSessionResponse } from './session'
 export type { IKeyStorage, ISessionsStorage, IStorage, Session, Key, SessionsChangeCallback, ActiveUserCallback } from './storage'

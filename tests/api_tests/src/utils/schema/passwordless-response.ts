@@ -1,5 +1,6 @@
 import {JSONSchemaType} from "ajv"
-import { PasswordlessResponse } from '@sdk-js/types'
+import { PasswordlessResponse } from '@vulpo-dev/auth-sdk'
+
 import Ajv from '../ajv'
 
 export let schema: JSONSchemaType<PasswordlessResponse> = {

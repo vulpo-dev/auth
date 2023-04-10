@@ -1,8 +1,12 @@
+import { Url, RefreshAccessTokenPayload, ErrorCode } from '@vulpo-dev/auth-sdk'
+import { v4 as uuid } from 'uuid'
+import * as jwt from 'jsonwebtoken'
+import { Algorithm } from 'jsonwebtoken'
+import { differenceInDays } from 'date-fns'
+
 import Db from '../utils/db'
 import Http from '../utils/http'
 import { generateKeyPair } from '../utils/crypto'
-import { Url, RefreshAccessTokenPayload } from '@sdk-js/types'
-import { ErrorCode } from '@sdk-js/error'
 import { PROJECT_ID } from '../utils/env'
 import {
 	makeCreateSession,
@@ -11,10 +15,6 @@ import {
 } from '../utils/passwordless'
 import SessionResponseSchema from '../utils/schema/session-response'
 
-import { v4 as uuid } from 'uuid'
-import * as jwt from 'jsonwebtoken'
-import { Algorithm } from 'jsonwebtoken'
-import { differenceInDays } from 'date-fns'
 
 const EMAIL = 'api.test+session_refresh@vulpo.dev'
 const USER_ID = '7fc30b8f-8647-4d4b-9ce3-28ae53cbd2e3'

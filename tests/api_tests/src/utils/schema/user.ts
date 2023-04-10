@@ -1,5 +1,6 @@
 import {JSONSchemaType} from "ajv"
-import { User, UserState } from '@sdk-js/types'
+import { User, UserState } from '@vulpo-dev/auth-sdk'
+
 import Ajv from '../ajv'
 
 let schema: JSONSchemaType<User> = {

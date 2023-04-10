@@ -1,5 +1,6 @@
 import {JSONSchemaType} from "ajv"
-import { SessionResponse } from '@sdk-js/types'
+import { SessionResponse } from '@vulpo-dev/auth-sdk'
+
 import Ajv from '../ajv'
 
 export let schema: JSONSchemaType<SessionResponse> = {
