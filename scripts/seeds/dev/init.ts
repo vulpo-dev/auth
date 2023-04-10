@@ -54,13 +54,13 @@ exports.seed = async function(knex: Knex) {
   await knex('project_keys').insert(keys)
 
 
-  let users = getUsers(1000).concat([adminUser])
+  let users = getUsers(1_000_000).concat([adminUser])
   console.log('Insert users')
-  await knex('users').insert(users)
+  await knex.batchInsert("users", users, 1000);
 
   console.log('Insert Passwords')
   let password = await hash('password')
-  await knex('passwords').insert(
+  await knex.batchInsert('passwords',
     users.map(u => {
       return {
         user_id: u.id,
@@ -68,7 +68,8 @@ exports.seed = async function(knex: Knex) {
         hash: password,
         project_id: u.project_id,
       }
-    })
+    }),
+    1000
   )
 
   console.log('Insert Templates')

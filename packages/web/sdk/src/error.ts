@@ -80,7 +80,6 @@ export function errorFromResponse(response: Response, data: ErrorResponse): ApiE
 			case ErrorCode.AuthRefreshTokenMissing:
 			case ErrorCode.AuthRefreshTokenNotFound:
 			case ErrorCode.AuthRefreshTokenInvalidFormat:
-			case ErrorCode.TokenGenerate:
 			case ErrorCode.InvalidEmailPassword:
 			case ErrorCode.ResetInvalidToken:
 			case ErrorCode.ResetTokenNotFound:
@@ -90,6 +89,10 @@ export function errorFromResponse(response: Response, data: ErrorResponse): ApiE
 			case ErrorCode.PasswordlessTokenExpire:
 			case ErrorCode.PasswordlessInvalidToken:
 			case ErrorCode.SessionExpired:
+			case ErrorCode.TokenGenerate:
+			case ErrorCode.TokenInvalid:
+			case ErrorCode.TokenExpired:
+			case ErrorCode.TokenNotFound:
 				return new AuthError(data.code, response)
 
 			default:

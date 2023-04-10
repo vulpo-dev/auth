@@ -33,7 +33,7 @@ export function usePrefetchAuthMethods() {
 		prefetchFlags([project]);
 		prefetchEmailSettings([project]);
 		prefetchGoogleSettings([project]);
-	}, [])
+	}, []);
 }
 
 export let AuthMethods = () => {
@@ -55,7 +55,9 @@ export let AuthMethods = () => {
 					</PageTitle>
 				</PageHeader>
 
-				<StyledPageContent style={{ display: "flex", justifyContent: "center" }}>
+				<StyledPageContent
+					style={{ display: "flex", justifyContent: "center" }}
+				>
 					<Flow size="var(--size-8)" />
 				</StyledPageContent>
 			</PageWrapper>

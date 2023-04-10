@@ -29,7 +29,7 @@ export let AppShell = () => {
 	}
 
 	if (user === null) {
-		return <Navigate to="auth" />;
+		return <Navigate to="/auth" />;
 	}
 
 	return (

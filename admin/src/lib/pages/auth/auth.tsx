@@ -9,10 +9,12 @@ import {
 	SetPassword,
 } from "@vulpo-dev/auth-ui";
 import { Flag } from "@vulpo-dev/auth-sdk";
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes, useNavigate } from "react-router-dom";
 import "@vulpo-dev/auth-ui/styles.css";
 
 export let AuthPage = () => {
+	let navigate = useNavigate();
+
 	return (
 		<PageWrapper>
 			<FlagsCtx.Provider value={[Flag.EmailAndPassword]}>
@@ -23,7 +25,12 @@ export let AuthPage = () => {
 								<Route path='set_password' element={<SetPassword />} />
 								<Route
 									path='signin'
-									element={<Password redirectTo='/auth/set_password' />}
+									element={
+										<Password
+											redirectTo='/auth/set_password'
+											onAuth={() => navigate("/")}
+										/>
+									}
 								/>
 								<Route path='/' element={<Navigate to='/auth/signin' />} />
 							</Routes>

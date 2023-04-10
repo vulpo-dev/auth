@@ -36,6 +36,7 @@ import {
 	SessionNotFoundError,
 	SessionKeysNotFoundError,
     AuthError,
+    GenericError,
 } from './error'
 import { getPublicKey, ratPayload } from './keys'
 import { getLanguages, IHttpService, uuid } from './utils'
@@ -290,12 +291,17 @@ export class AuthClient implements IAuthClient {
 				this.sessionService.setCurrent(null);
 			}
 
-			if (err instanceof AuthError && err.code === "session/expired") {
-				this.sessionService.setCurrent(null);
+			if (err instanceof AuthError || err instanceof GenericError) {
+				if (
+					err.code.startsWith("session/") ||
+					err.code.startsWith("token/")
+				) {
+					this.sessionService.setCurrent(null);
 
-				let activeSession = this.sessionService.current(sessionId);
-				if (activeSession) {
-					await this.sessionService.remove(activeSession.id);
+					let activeSession = this.sessionService.current(sessionId);
+					if (activeSession) {
+						await this.sessionService.remove(activeSession.id);
+					}
 				}
 			}
 

@@ -4,7 +4,7 @@
 	"main": "lib/lib.js",
 	"types": "lib/lib.d.ts",
 	"scripts": {
-		"start": "parcel serve src/index.html --public-url /dashboard --dist-dir ./dist --hmr-port 2345",
+		"start": "parcel serve src/index.html --port 9000 --public-url /dashboard --dist-dir ./dist --hmr-port 2345",
 		"clean": "rimraf ./dist ./lib",
 		"build:lib": "tsc src/lib.ts --outDir ./lib --declaration",
 		"build:dashboard": "parcel build --public-url /dashboard",

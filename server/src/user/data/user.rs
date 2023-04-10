@@ -9,6 +9,39 @@ use std::{str::FromStr, string::FromUtf8Error};
 use uuid::Uuid;
 use vulpo_auth_types::error::ApiError;
 
+pub struct SearchUser {
+    pub email: Option<String>,
+    pub id: Option<Uuid>,
+}
+
+impl Default for SearchUser {
+    fn default() -> Self {
+        SearchUser {
+            email: None,
+            id: None,
+        }
+    }
+}
+
+impl FromStr for SearchUser {
+    type Err = ();
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let search = match Uuid::parse_str(s) {
+            Ok(id) => SearchUser {
+                id: Some(id),
+                email: None,
+            },
+            Err(_) => SearchUser {
+                email: Some(s.to_string()),
+                id: None,
+            },
+        };
+
+        Ok(search)
+    }
+}
+
 #[derive(sqlx::Type, PartialEq, Debug, Clone, Deserialize, Serialize)]
 #[sqlx(type_name = "user_state")]
 #[sqlx(rename_all = "snake_case")]
@@ -171,6 +204,7 @@ impl User {
         direction: SortDirection,
         cursor: Option<Cursor>,
         limit: i64,
+        search: &SearchUser,
     ) -> sqlx::Result<Vec<PartialUser>> {
         let created_at = cursor.map(|c| c.created_at);
 
@@ -181,6 +215,8 @@ impl User {
             direction.to_string(),
             created_at,
             limit,
+            search.email,
+            search.id,
         )
         .fetch_all(pool)
         .await

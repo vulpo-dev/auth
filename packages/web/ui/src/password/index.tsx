@@ -1,6 +1,6 @@
 import { ChangeEvent, SyntheticEvent, useState } from 'react'
 import { useNavigate, useMatch, Link, Navigate } from 'react-router-dom'
-import { ErrorCode, Flag, UserState } from '@vulpo-dev/auth-sdk'
+import { ErrorCode, Flag, User, UserState } from '@vulpo-dev/auth-sdk'
 import { useAuth } from '@vulpo-dev/auth-react'
 
 import { Input, Password as PasswordInput } from '../component/input'
@@ -164,9 +164,10 @@ export let Password = ({ onSubmit, onBack, ctx, loading, error }: Props) => {
 type ContainerProps = {
 	redirect?: boolean;
 	redirectTo?: string;
+	onAuth?: (user: User) => void;
 }
 
-let PasswordContainer = ({ redirect = true, redirectTo }: ContainerProps) => {
+let PasswordContainer = ({ redirect = true, redirectTo , onAuth }: ContainerProps) => {
 	let navigate = useNavigate()
 	let { basename } = useConfig()
 	let [error, setError] = useState<ErrorCode | null>(null)
@@ -197,6 +198,8 @@ let PasswordContainer = ({ redirect = true, redirectTo }: ContainerProps) => {
 
 			if (redirect && user.state === UserState.SetPassword) {
 				navigate(redirectTo ?? `/${basename}/user/set_password`, { replace: true })
+			} else if (onAuth) {
+				onAuth(user);
 			}
 		} catch (err: any) {
 			setLoading(false)

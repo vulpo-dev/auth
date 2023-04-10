@@ -127,8 +127,14 @@ export let adminApi = createApi({
 			providesTags: ["Users"],
 			queryFn: toQueryFn<typeof api.getUsers>(api.getUsers),
 			serializeQueryArgs: ({ endpointName, queryArgs }) => {
-				let [{ project }] = queryArgs;
-				return `${endpointName}::${project}`;
+				let [{ project, search }] = queryArgs;
+				let base = `${endpointName}::${project}`;
+
+				if (!search) {
+					return base;
+				}
+
+				return `${base}::search(${search})`
 			},
 			merge: (
 				currentCache: NonNullable<ApiResponse<typeof api.getUsers>>,

@@ -146,7 +146,7 @@ let Nav = () => {
 	let project = useActiveProject();
 	let prefetchUsers = adminApi.usePrefetch("getUsers");
 	let prefetchAuthMethods = usePrefetchAuthMethods();
-	let prefetchSettings = usePrefetchSettings()
+	let prefetchSettings = usePrefetchSettings();
 
 	return (
 		<Ul>

@@ -61,6 +61,7 @@ let CreateUser = () => {
 				<Section>
 					<Label htmlFor="email">Email</Label>
 					<Input
+						autoFocus
 						id="email"
 						type="email"
 						name="email"

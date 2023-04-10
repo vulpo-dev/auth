@@ -9,7 +9,8 @@ export let adminUser = {
 	project_id: admin.id,
 	traits: ['Admin'],
 	data: {},
-	provider_id: 'email'
+	provider_id: 'email',
+	created_at: faker.date.past(),
 }
 
 
@@ -18,7 +19,7 @@ export function getUsers(total: number) {
 	let emails = new Set()
 
 	while(emails.size < total) {
-		emails.add(faker.internet.email().toLowerCase())
+		emails.add(`${Math.random()}${faker.internet.email().toLowerCase()}`)
 	}
 
 	return Array.from(emails.values()).map(email => {

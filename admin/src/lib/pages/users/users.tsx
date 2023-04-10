@@ -1,6 +1,8 @@
 import styled from "@emotion/styled";
 import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
 import { useDispatch } from "react-redux";
+import ContentLoader from "react-content-loader";
+import { ArrowClockwise, MagnifyingGlass, Users } from "@phosphor-icons/react";
 
 import { useActiveProject } from "../../data/project";
 import {
@@ -19,19 +21,51 @@ import { Button } from "../../component/button";
 import { AppDispatch } from "../../../app/store";
 import { useMatchedUserId } from "../../utils";
 import { DateTime } from "../../component/date";
-import { ArrowClockwise, MagnifyingGlass, Users } from "@phosphor-icons/react";
 import { IconButton } from "werkbank/component/button";
-import { useRef } from "react";
+import { useReducer, useRef } from "react";
 import { PartialUser } from "../../admin_sdk";
-import ContentLoader from "react-content-loader";
+import Search from "../../component/search";
 
 let LOADING_ITEMS = Array(7).fill(null);
 
+type SearchAction =
+	| { type: 'open' }
+	| { type: 'search', query: string }
+	| { type: 'close' }
+
+type SearchReducerState =
+	| { state: 'closed'; query: undefined }
+	| { state: 'open'; query: undefined }
+	| { state: 'search'; query: string }
+;
+
+
+let searchReducer = (state: SearchReducerState, action: SearchAction): SearchReducerState => {
+	switch (action.type) {
+		case 'open':
+			return { state: 'open', query: undefined }
+		case 'close':
+			return { state: 'closed', query: undefined }
+		case 'search':
+			return { state: 'search', query: action.query }
+		default:
+			return state;
+	}
+}
+
 export let UsersPage = () => {
 	let dispatch = useDispatch<AppDispatch>();
-
 	let project = useActiveProject();
-	let { data, ...state } = useGetUsersQuery([{ project }]);
+
+	let [search, dispatchSearch] = useReducer(searchReducer, {
+		state: 'closed',
+		query: undefined,
+	});
+
+	let { data, ...state } = useGetUsersQuery([{
+		project,
+		search: search.query,
+	}]);
 
 	let userListRef = useRef<HTMLSelectElement | null>(null);
 	let [reloadUsers, reloadResult] = useReloadUsersMutation();
@@ -39,12 +73,26 @@ export let UsersPage = () => {
 	let users = data?.items;
 	let cursor = data?.cursor;
 
+	function scrollTop() {
+		if (userListRef.current) {
+			userListRef.current.scroll({
+				top: 0,
+				behavior: "smooth",
+			});
+		}
+	}
+
 	async function loadMore() {
 		if (!cursor) {
 			return;
 		}
 
-		let action = adminApi.endpoints.getUsers.initiate([{ project, cursor }]);
+		let action = adminApi.endpoints.getUsers.initiate([{
+			project,
+			cursor,
+			search: search.query,
+		}]);
+
 		dispatch(action);
 	}
 
@@ -57,11 +105,13 @@ export let UsersPage = () => {
 			return;
 		}
 
-		if (userListRef.current) {
-			userListRef.current.scroll({
-				top: 0,
-				behavior: "smooth",
-			});
+		scrollTop();
+	}
+
+	function toggleSearch(type: "close" | "open") {
+		return () => {
+			dispatchSearch({ type });
+			scrollTop();
 		}
 	}
 
@@ -81,52 +131,62 @@ export let UsersPage = () => {
 			<Layout>
 				<ListSection ref={userListRef}>
 					<UsersActionsSection>
-						<IconButton
-							title="Reload Users"
-							onClick={reload}
-							loading={reloadResult.isLoading}
-						>
-							<ArrowClockwise size="var(--font-size-3)" />
-						</IconButton>
-						<IconButton style={{ marginLeft: "auto" }}>
-							<MagnifyingGlass size="var(--font-size-3)" />
-						</IconButton>
+						{search.state === "closed" ? (
+							<>
+								<IconButton
+									title="Reload Users"
+									onClick={reload}
+									loading={reloadResult.isLoading}
+								>
+									<ArrowClockwise size="var(--font-size-3)" />
+								</IconButton>
+								<IconButton
+									onClick={toggleSearch("open")}
+									style={{ marginLeft: "auto" }}
+								>
+									<MagnifyingGlass size="var(--font-size-3)" />
+								</IconButton>
+							</>
+						) : (
+							<Search
+								onCancel={toggleSearch("close")}
+								onSearch={query => dispatchSearch({ type: "search", query })}
+							/>
+						)}
 					</UsersActionsSection>
 					<UserList>
-
-						{
-							users ? (
-								<>
-									{users.map((user) => {
-										return (
-											<ListItem key={user.id}>
-												<UserItem user={user} />
-											</ListItem>
-										);
-									})}
-
-									{cursor && (
-										<ListItem>
-											<LoadMoreButton loading={state.isFetching} onClick={loadMore}>
-												Load More
-											</LoadMoreButton>
+						{users ? (
+							<>
+								{users.map((user) => {
+									return (
+										<ListItem key={user.id}>
+											<UserItem user={user} />
 										</ListItem>
-									)}
-								</>
-							) : (
-								<>
-									{ LOADING_ITEMS.map((_, index) => {
-										return (
-											<ListItem key={index}>
-												<LoadingUserItem />
-											</ListItem>
-										)
-									})}
-								</>
-							)
-						}
+									);
+								})}
 
-						
+								{cursor && (
+									<ListItem>
+										<LoadMoreButton
+											loading={state.isFetching}
+											onClick={loadMore}
+										>
+											Load More
+										</LoadMoreButton>
+									</ListItem>
+								)}
+							</>
+						) : (
+							<>
+								{LOADING_ITEMS.map((_, index) => {
+									return (
+										<ListItem key={index}>
+											<LoadingUserItem />
+										</ListItem>
+									);
+								})}
+							</>
+						)}
 					</UserList>
 				</ListSection>
 				<UserSection>
@@ -276,9 +336,8 @@ let LoadingUserItem = () => {
 			<rect x="24" y="45" rx="5" ry="5" width="230" height="16" />
 			<rect x="24" y="66" rx="5" ry="5" width="180" height="16" />
 		</ContentLoader>
-	)
-}
-
+	);
+};
 
 let LoadMoreButton = styled(Button)`
 	width: 100%;

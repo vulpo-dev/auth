@@ -24,7 +24,7 @@ export function usePrefetchSettings() {
 	return useCallback((project: string) => {
 		prefetchEmailSettings([project]);
 		prefetchKeys([project]);
-	}, [])
+	}, []);
 }
 
 export let SettingsPage = () => {
@@ -34,7 +34,7 @@ export let SettingsPage = () => {
 
 	useEffect(() => {
 		prefetch(activeProject);
-	}, [prefetch])
+	}, [prefetch]);
 
 	if (projects.data === undefined) {
 		return (
@@ -46,7 +46,9 @@ export let SettingsPage = () => {
 					</PageTitle>
 				</PageHeader>
 
-				<StyledPageContent style={{ display: "flex", justifyContent: "flex-start" }}>
+				<StyledPageContent
+					style={{ display: "flex", justifyContent: "flex-start" }}
+				>
 					<Flow size="var(--size-8)" />
 				</StyledPageContent>
 			</PageWrapper>

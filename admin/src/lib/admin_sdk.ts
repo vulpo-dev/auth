@@ -8,6 +8,7 @@ type GetUsers = {
 	sort?: "desc" | "asc";
 	limit?: number;
 	cursor?: string;
+	search?: string;
 };
 
 enum UserState {
@@ -185,7 +186,7 @@ class AdminSDK {
 		return this.http.post(url, { json: project }).json<[string]>();
 	};
 
-	getUsers = ({ project, sort = "desc", limit = 50, cursor }: GetUsers) => {
+	getUsers = ({ project, sort = "desc", limit = 50, cursor, search }: GetUsers) => {
 		let params = new URLSearchParams({
 			project,
 			sort,
@@ -194,6 +195,10 @@ class AdminSDK {
 
 		if (cursor) {
 			params.append("cursor", cursor);
+		}
+
+		if (search) {
+			params.append("search", search);
 		}
 
 		let url = `user/list?${params.toString()}`;

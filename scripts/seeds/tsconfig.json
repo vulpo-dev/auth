@@ -6,6 +6,8 @@
     }
   },
   "compilerOptions": {
+    "target": "es2022",
+    "moduleResolution": "node",
     "paths": {
       "@sdk-js*": ["../../packages/sdk-js/src/*"]
     }
