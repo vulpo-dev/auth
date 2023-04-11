@@ -4,7 +4,7 @@ import { X } from "@phosphor-icons/react";
 
 import { IconButton } from "werkbank/component/button/button";
 import { Section, Input, Label, ChipsInput } from "werkbank/component/form";
-import { User } from "../../../admin_sdk";
+import { User } from "@vulpo-dev/auth-sdk-admin";
 
 let StyledLabel = styled(Label)`
 	margin-block-end: var(--size-1);

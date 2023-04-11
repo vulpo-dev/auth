@@ -1,8 +1,19 @@
 import { BaseQueryFn, createApi } from "@reduxjs/toolkit/query/react";
 import { UserState } from "@vulpo-dev/auth-sdk";
 import { HTTPError } from "ky";
+import AdminSDK, {
+	Project,
+	UnauthenticatedError,
+} from "@vulpo-dev/auth-sdk-admin";
 
-import { adminApi as api, Project, UnauthenticatedError } from "../admin_sdk";
+import { AuthClient } from "../../app/auth";
+
+let api = new AdminSDK({
+	accessToken: () => AuthClient.getToken(),
+	refreshToken: () => AuthClient.forceToken(),
+	baseURL: "/api",
+	projectId: window.VULPO_ADMIN_ID,
+});
 
 type ApiResponse<Fn extends (...args: Array<any>) => Promise<any>> = Awaited<
 	ReturnType<Fn>
@@ -134,7 +145,7 @@ export let adminApi = createApi({
 					return base;
 				}
 
-				return `${base}::search(${search})`
+				return `${base}::search(${search})`;
 			},
 			merge: (
 				currentCache: NonNullable<ApiResponse<typeof api.getUsers>>,

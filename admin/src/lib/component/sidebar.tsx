@@ -112,6 +112,9 @@ let Wrapper = styled.div`
 let Header = styled.header`
 	padding: var(--_spacing-block) var(--_spacing-inline);
 	border-bottom: var(--border);
+	height: var(--size-8, 40px);
+	display: flex;
+	align-items: center;
 `;
 
 let Title = styled.button`

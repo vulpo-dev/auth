@@ -4,7 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Input, Section as FormSection, Label } from "werkbank/component/form";
 import { Header, Section } from "./layout";
 import { WarnButton } from "../../../component/button";
-import { Project } from "../../../admin_sdk";
+import { Project } from "@vulpo-dev/auth-sdk-admin";
 import { useDeleteProjectMutation } from "../../../data/admin_api";
 
 type Props = {

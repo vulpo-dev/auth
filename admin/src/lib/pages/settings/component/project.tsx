@@ -1,11 +1,11 @@
 import React from "react";
 import { FormEvent } from "react";
+import { Project, ProjectSettings } from "@vulpo-dev/auth-sdk-admin";
 
 import { Input, Label, Section as InputSection } from "werkbank/component/form";
 import { Button } from "werkbank/component/button";
 
 import { Header, Section } from "./layout";
-import { Project, ProjectSettings } from "../../../admin_sdk";
 import { useSetProjectMutation } from "../../../data/admin_api";
 
 type ProjectSettingsProps = {

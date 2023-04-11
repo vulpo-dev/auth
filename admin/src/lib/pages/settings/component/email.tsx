@@ -1,6 +1,6 @@
 import { FormEvent } from "react";
 import styled from "@emotion/styled";
-
+import { DefaultEmailSettings, EmailSettings } from "@vulpo-dev/auth-sdk-admin";
 import { Button } from "werkbank/component/button";
 import { Input, Section as FormSection, Label } from "werkbank/component/form";
 
@@ -9,7 +9,6 @@ import {
 	useGetEmailSettingsQuery,
 	useSetEmailSettingsMutation,
 } from "../../../data/admin_api";
-import { DefaultEmailSettings, EmailSettings } from "../../../admin_sdk";
 
 type Props = {
 	project: string;

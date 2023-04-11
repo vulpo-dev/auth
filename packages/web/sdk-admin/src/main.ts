@@ -1,7 +1,5 @@
 import Ky, { HTTPError } from "ky-universal";
 
-import { AuthClient } from "../app/auth";
-
 /* USER */
 type GetUsers = {
 	project: string;
@@ -135,7 +133,30 @@ type Deps = {
 	projectId: string;
 };
 
-class AdminSDK {
+export class UnauthenticatedError extends Error {}
+
+export type Project = {
+	id: string;
+	domain: string;
+	is_admin: boolean;
+	name: string;
+};
+
+export type NewProject = {
+	name: string;
+	domain: string;
+};
+
+type Projects = Array<Project>;
+
+export type PartialUser = {
+	id: string;
+	email: string;
+	created_at: string;
+};
+
+
+export default class AdminSDK {
 	private http: typeof Ky;
 
 	constructor(deps: Deps) {
@@ -324,31 +345,3 @@ class AdminSDK {
 	};
 }
 
-export let adminApi = new AdminSDK({
-	accessToken: () => AuthClient.getToken(),
-	refreshToken: () => AuthClient.forceToken(),
-	baseURL: "http://localhost:8000/api",
-	projectId: "f4db2736-ce01-40d7-9a3b-94e5d2a648c8",
-});
-
-export class UnauthenticatedError extends Error {}
-
-export type Project = {
-	id: string;
-	domain: string;
-	is_admin: boolean;
-	name: string;
-};
-
-export type NewProject = {
-	name: string;
-	domain: string;
-};
-
-type Projects = Array<Project>;
-
-export type PartialUser = {
-	id: string;
-	email: string;
-	created_at: string;
-};

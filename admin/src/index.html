@@ -5,9 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>Auth - Vulpo</title>
+    <link rel="shortcut icon" type="image/jpg" href="./favicon.ico"/>
   </head>
   <body>
     <div id="root"></div>
+    <script type="module">
+      window.VULPO_ADMIN_ID = process.env.NODE_ENV === "development"
+        ? "f4db2736-ce01-40d7-9a3b-94e5d2a648c8"
+        : "{{VULPO_ADMIN_ID}}";
+    </script>
     <script type="module" src="main.tsx"></script>
   </body>
 </html>

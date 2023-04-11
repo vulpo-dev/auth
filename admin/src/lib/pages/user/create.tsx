@@ -4,13 +4,13 @@ import { Container, Header } from "./component/layout";
 import { checkPasswordLength } from "@vulpo-dev/auth-ui";
 import { FormEvent, useState } from "react";
 import styled from "@emotion/styled";
+import { NewUser } from "@vulpo-dev/auth-sdk-admin";
 
 import {
 	useCreateUserMutation,
 	useGetEmailSettingsQuery,
 } from "../../data/admin_api";
 import { useActiveProject } from "../../data/project";
-import { NewUser } from "../../admin_sdk";
 import { useNavigate } from "react-router-dom";
 import { ErrorText } from "../../component/text";
 

@@ -3,6 +3,8 @@ import styled from "@emotion/styled";
 import { Button } from "werkbank/component/button";
 import { Input, Label, Section } from "werkbank/component/form";
 import { Flow } from "werkbank/component/loading";
+import { Flags, GoogleConfig, ProjectFlags } from "@vulpo-dev/auth-sdk-admin";
+import { Key } from "@phosphor-icons/react";
 
 import adminApi, {
 	useGetEmailSettingsQuery,
@@ -12,14 +14,12 @@ import adminApi, {
 	useSetFlagsMutation,
 } from "../../data/admin_api";
 import { useActiveProject } from "../../data/project";
-import { Flags, GoogleConfig, ProjectFlags } from "../../admin_sdk";
 import {
 	PageContent,
 	PageHeader,
 	PageTitle,
 	PageWrapper,
 } from "../../component/page";
-import { Key } from "@phosphor-icons/react";
 
 let MAIN = "main-form";
 let GOOGLE = "google-form";

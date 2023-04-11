@@ -3,6 +3,9 @@ import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import ContentLoader from "react-content-loader";
 import { ArrowClockwise, MagnifyingGlass, Users } from "@phosphor-icons/react";
+import { IconButton } from "werkbank/component/button";
+import { useReducer, useRef } from "react";
+import { PartialUser } from "@vulpo-dev/auth-sdk-admin";
 
 import { useActiveProject } from "../../data/project";
 import {
@@ -18,54 +21,53 @@ import {
 	useReloadUsersMutation,
 } from "../../data/admin_api";
 import { Button } from "../../component/button";
-import { AppDispatch } from "../../../app/store";
 import { useMatchedUserId } from "../../utils";
 import { DateTime } from "../../component/date";
-import { IconButton } from "werkbank/component/button";
-import { useReducer, useRef } from "react";
-import { PartialUser } from "../../admin_sdk";
 import Search from "../../component/search";
 
 let LOADING_ITEMS = Array(7).fill(null);
 
 type SearchAction =
-	| { type: 'open' }
-	| { type: 'search', query: string }
-	| { type: 'close' }
+	| { type: "open" }
+	| { type: "search"; query: string }
+	| { type: "close" };
 
 type SearchReducerState =
-	| { state: 'closed'; query: undefined }
-	| { state: 'open'; query: undefined }
-	| { state: 'search'; query: string }
-;
+	| { state: "closed"; query: undefined }
+	| { state: "open"; query: undefined }
+	| { state: "search"; query: string };
 
-
-let searchReducer = (state: SearchReducerState, action: SearchAction): SearchReducerState => {
+let searchReducer = (
+	state: SearchReducerState,
+	action: SearchAction,
+): SearchReducerState => {
 	switch (action.type) {
-		case 'open':
-			return { state: 'open', query: undefined }
-		case 'close':
-			return { state: 'closed', query: undefined }
-		case 'search':
-			return { state: 'search', query: action.query }
+		case "open":
+			return { state: "open", query: undefined };
+		case "close":
+			return { state: "closed", query: undefined };
+		case "search":
+			return { state: "search", query: action.query };
 		default:
 			return state;
 	}
-}
+};
 
 export let UsersPage = () => {
-	let dispatch = useDispatch<AppDispatch>();
+	let dispatch = useDispatch();
 	let project = useActiveProject();
 
 	let [search, dispatchSearch] = useReducer(searchReducer, {
-		state: 'closed',
+		state: "closed",
 		query: undefined,
 	});
 
-	let { data, ...state } = useGetUsersQuery([{
-		project,
-		search: search.query,
-	}]);
+	let { data, ...state } = useGetUsersQuery([
+		{
+			project,
+			search: search.query,
+		},
+	]);
 
 	let userListRef = useRef<HTMLSelectElement | null>(null);
 	let [reloadUsers, reloadResult] = useReloadUsersMutation();
@@ -87,11 +89,13 @@ export let UsersPage = () => {
 			return;
 		}
 
-		let action = adminApi.endpoints.getUsers.initiate([{
-			project,
-			cursor,
-			search: search.query,
-		}]);
+		let action = adminApi.endpoints.getUsers.initiate([
+			{
+				project,
+				cursor,
+				search: search.query,
+			},
+		]);
 
 		dispatch(action);
 	}
@@ -112,7 +116,7 @@ export let UsersPage = () => {
 		return () => {
 			dispatchSearch({ type });
 			scrollTop();
-		}
+		};
 	}
 
 	return (
@@ -150,7 +154,7 @@ export let UsersPage = () => {
 						) : (
 							<Search
 								onCancel={toggleSearch("close")}
-								onSearch={query => dispatchSearch({ type: "search", query })}
+								onSearch={(query) => dispatchSearch({ type: "search", query })}
 							/>
 						)}
 					</UsersActionsSection>

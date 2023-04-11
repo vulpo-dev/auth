@@ -8,7 +8,7 @@ import { IconButton } from "werkbank/component/button";
 type SearchProps = {
 	onCancel: () => void;
 	onSearch: (search: string) => void;
-}
+};
 
 let Search = ({ onCancel, onSearch }: SearchProps) => {
 	useOnEscape(() => {
@@ -25,7 +25,7 @@ let Search = ({ onCancel, onSearch }: SearchProps) => {
 		}
 
 		onSearch(search.toString());
-	}
+	};
 
 	return (
 		<Form onSubmit={handleSearch}>
@@ -44,13 +44,13 @@ let Form = styled.form`
 	position: relative;
 	display: flex;
 	align-items: center;
-`
+`;
 
 let StyledInput = styled(Input)`
 	padding-right: var(--size-4);
-`
+`;
 
 let StyledIconButton = styled(IconButton)`
 	position: absolute;
 	right: var(--size-1);
-`
+`;

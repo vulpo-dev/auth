@@ -6,7 +6,9 @@ import {
 	IdentificationCard,
 	Trash,
 } from "@phosphor-icons/react";
-
+import { FormEvent, useRef } from "react";
+import { UpdateUser } from "@vulpo-dev/auth-sdk-admin";
+import { UserState } from "@vulpo-dev/auth-sdk";
 import { Section, Label } from "werkbank/component/form";
 import { Button, LinkButton } from "werkbank/component/button";
 import { Flow } from "werkbank/component/loading";
@@ -22,12 +24,8 @@ import {
 } from "../../data/admin_api";
 import { useActiveProject } from "../../data/project";
 import { useMatchedUserId } from "../../utils";
-
 import { UserForm } from "./component/user_form";
-import { FormEvent, useRef } from "react";
-import { UpdateUser } from "../../admin_sdk";
 import { Actions, Container, Header } from "./component/layout";
-import { UserState } from "@vulpo-dev/auth-sdk";
 import { DateTime } from "../../component/date";
 
 type UserDetailsProps = {
