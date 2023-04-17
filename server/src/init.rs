@@ -1,6 +1,6 @@
 use crate::{
     admin::{create_admin, create_admin_project, data::NewAdmin},
-    config::{secrets, Secrets},
+    config::{admin, secrets, Secrets},
 };
 
 use figment::Figment;
@@ -28,10 +28,25 @@ pub async fn init(figment: &Figment) -> Result<(), ApiError> {
         .await
         .expect("Failed to connect");
 
+    let admin_user = admin(&figment);
+
+    if let Some(project) = admin_user {
+        let project_id = create_admin_project(&pool, &project.host, &passphrase).await?;
+
+        let admin_user = NewAdmin {
+            email: project.email.to_lowercase().trim().to_string(),
+            password: project.password,
+        };
+
+        create_admin(&pool, admin_user, &project_id).await?;
+        return Ok(());
+    }
+
     println!("Create Admin Project");
-    println!("Add the host where the admin dashboard will run.");
+    println!("Add the host where the admin dashboard will run. e.g. http://admin.example.com");
     print!("Host: ");
     let host: String = read!("{}\n");
+    let host = host.to_lowercase().trim().to_string();
     let mut sp = Spinner::new(Spinners::SimpleDots, "".into());
     let project_id = create_admin_project(&pool, &host, &passphrase).await?;
     sp.stop_with_newline();
@@ -39,6 +54,7 @@ pub async fn init(figment: &Figment) -> Result<(), ApiError> {
     println!("Create Admin User");
     print!("Email: ");
     let email: String = read!("{}\n");
+    let email = email.to_lowercase().trim().to_string();
     let password = rpassword::prompt_password("Password: ").expect("Failed to get password");
     let admin_user = NewAdmin { email, password };
     let mut sp = Spinner::new(Spinners::SimpleDots, "".into());

@@ -44,18 +44,16 @@ services:
     restart: always
     environment:
       - VULPO_SECRETS_PASSPHRASE=password
-      - VULPO_DB_PORT=5432
-      - VULPO_DB_USERNAME=postgres
-      - VULPO_DB_PASSWORD=postgres
+      - VULPO_DATABASE_URL=postgres://postgres:postgres@vulpo_pg:5432/auth
       - VULPO_DB_LOG_LEVEL=Off
-      - VULPO_DB_HOST=vulpo_pg
-      - VULPO_DB_DATABASE_NAME=auth
-      
       
       # this should only be used for local development
       # in production you should run migrations separatly
       # before you run your container
       - VULPO_RUN_MIGRATIONS=true
+      - VULPO_ADMIN_EMAIL=admin@vulpo.dev
+      - VULPO_ADMIN_PASSWORD=password
+      - VULPO_ADMIN_HOST=http://localhost:8000
       
       # this will use an insecure smtp connection and should
       # only be used for local development
@@ -71,7 +69,8 @@ volumes:
   mailhog-data:
 ```
 
-3. Go to <a href="http://localhost:8000" target="_blank" rel="noreferrer">localhost:8000</a> and finish the set up process
+3. Go to <a href="http://localhost:8000" target="_blank" rel="noreferrer">localhost:8000</a> to sign in to your dashboard. Email: `admin@vulpo.dev`, Password: `password`.
+4. Create your first project.
 
 
 ## Client Set-up
@@ -254,8 +253,9 @@ app.listen(8001, () => {
 })
 ```
 
-<!-- TODO: Add next steps: Email Config -->
-<!-- TODO: Link to Public/Private Route page -->
+## Next Steps
+- Setup [Passwordless, Verify Email and Password Reset](/develop/passwordless-verify-reset)
+- [Public and Private Routes](/develop/private-public)
 <!-- TODO: Link to In depth enpoints/jwt page -->
 
 ## Footnotes

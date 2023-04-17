@@ -89,7 +89,7 @@ impl ProjectKeys {
             .to_vec();
 
         let private_key = signing_key
-            .to_pkcs8_encrypted_der(&mut OsRng, passphrase)
+            .to_pkcs8_encrypted_pem(&mut OsRng, passphrase, LineEnding::LF)
             .unwrap()
             .as_bytes()
             .to_vec();

@@ -22,11 +22,15 @@ mod user;
 #[macro_use]
 extern crate rocket;
 
+use crate::config::{secrets, Secrets};
+
 use figment::{
     providers::{Format, Toml},
     Figment,
 };
 use include_dir::{include_dir, Dir};
+use keys::data::ProjectKeys;
+use vulpo_auth_types::error::ApiError;
 use werkbank::clap::{get_config_dir, run_migration, run_server};
 use werkbank::otel;
 
@@ -50,11 +54,27 @@ async fn main() {
         migration::run(&figment).await;
     }
 
-    if matches.subcommand_matches("init").is_some() {
+    if matches.subcommand_matches("init").is_some() || std::env::var("VULPO_RUN_MIGRATIONS").is_ok()
+    {
         match init::init(&figment).await {
-            Ok(_) => println!("Init done"),
-            Err(err) => panic!("Failed to init admin: {:?}", err),
+            Ok(_) => println!("Initialization done"),
+            Err(ApiError::AdminHasAdmin) => println!("Admin User already exists"),
+            Err(ApiError::AdminProjectExists) => println!("Admin Project already exists"),
+            Err(err) => panic!("Failed to initialize admin: {:?}", err),
         };
+    }
+
+    if matches.subcommand_matches("key-gen").is_some() {
+        let Secrets { passphrase } = secrets(&figment);
+        let keys = ProjectKeys::create_keys(true, None, &passphrase);
+        println!(
+            "Public Key:\n{}",
+            String::from_utf8(keys.public_key).unwrap()
+        );
+        println!(
+            "Private Key:\n{}",
+            String::from_utf8(keys.private_key).unwrap()
+        );
     }
 
     if let Some(matches) = run_server(&matches) {

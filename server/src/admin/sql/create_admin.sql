@@ -18,7 +18,7 @@ with insert_admin as (
 )
 insert into passwords(user_id, alg, hash, project_id)
 select insert_admin.id as "user_id"
-     , 'bcrypt' as "alg"
+     , 'argon2id' as "alg"
      , $2 as "hash"
      , $3 as "project_id"
   from insert_admin 

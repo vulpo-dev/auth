@@ -23,7 +23,7 @@ let Sidebar = () => {
 	let currentProject = useActiveProject();
 	let { data: projects } = useGetProjectsQuery([]);
 	let project = projects?.find((p) => p.id === currentProject);
-	let { MenuContainer, ref, ...props } = useMenu();
+	let { MenuContainer, ref, ...props } = useMenu({ placement: "bottom-end" });
 	let navigate = useNavigate();
 
 	let [createDialog, setCreateDialog] = useState(false);

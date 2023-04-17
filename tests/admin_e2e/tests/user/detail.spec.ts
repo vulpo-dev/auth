@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { addSessions } from '@vulpo/test-helper'
+import { addSessions } from '@vulpo-dev/test-helper'
 
 test.beforeEach(async ({ page }) => {
 	await page.goto('http://localhost:9000/')

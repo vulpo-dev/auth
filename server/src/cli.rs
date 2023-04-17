@@ -9,5 +9,6 @@ pub fn get_matches() -> ArgMatches {
         .subcommand(server())
         .subcommand(migrations())
         .subcommand(init())
+        .subcommand(Command::new("key-gen").about("generate a public and private key pair"))
         .get_matches()
 }

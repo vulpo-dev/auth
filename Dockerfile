@@ -16,7 +16,7 @@ RUN npm run build
 
 
 # SERVER
-FROM clux/muslrust:1.60.0 AS build
+FROM clux/muslrust:1.68.2 AS build
 
 ARG version
 ENV VulpoAuthVersion=$version
@@ -24,7 +24,7 @@ ENV VulpoAuthVersion=$version
 WORKDIR /usr/src
 
 COPY . ./
-COPY --from=build_admin /usr/src/admin/build /usr/src/admin/build
+COPY --from=build_admin /usr/src/admin/dist /usr/src/admin/dist
 
 RUN cargo build -p vulpo_server --release
 

@@ -54,7 +54,7 @@ exports.seed = async function(knex: Knex) {
   await knex('project_keys').insert(keys)
 
 
-  let users = getUsers(1_000_000).concat([adminUser])
+  let users = getUsers(1_000).concat([adminUser])
   console.log('Insert users')
   await knex.batchInsert("users", users, 1000);
 
