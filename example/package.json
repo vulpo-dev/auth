@@ -1,19 +1,19 @@
 {
   "name": "example",
-  "version": "0.1.13",
+  "version": "0.1.14",
   "private": true,
   "source": "src/index.html",
   "dependencies": {
     "@biotic-ui/leptons": "^0.5.3",
     "@types/react": "^18.0.9",
     "@types/react-dom": "^18.0.3",
-    "@vulpo-dev/auth-react": "^0.0.12",
-    "@vulpo-dev/auth-sdk": "^0.0.12",
-    "@vulpo-dev/auth-ui": "^0.0.18",
+    "@vulpo-dev/auth-react": "^0.0.13",
+    "@vulpo-dev/auth-sdk": "^0.0.13",
+    "@vulpo-dev/auth-ui": "^0.0.19",
+    "parcel": "^2.8.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-router-dom": "^6.7.0",
-    "parcel": "^2.8.3"
+    "react-router-dom": "^6.7.0"
   },
   "scripts": {
     "start": "parcel --port 5000 --hmr-port 5001"

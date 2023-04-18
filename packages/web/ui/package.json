@@ -1,6 +1,6 @@
 {
   "name": "@vulpo-dev/auth-ui",
-  "version": "0.0.18",
+  "version": "0.0.19",
   "description": "",
   "source": "src/main.ts",
   "module": "lib/module.js",
@@ -56,5 +56,5 @@
     "react": "16.8 - 18.x",
     "react-router-dom": "6.x"
   },
-  "gitHead": "dedb24c19f448626c4f88f26d784eb06d6325129"
+  "gitHead": "665c05a3e189973d103e5019864bbabfb57fedc4"
 }

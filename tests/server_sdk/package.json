@@ -1,7 +1,7 @@
 {
   "name": "vulpo-sdk-tests",
   "private": true,
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -14,8 +14,8 @@
     "@types/jest": "^28.1.1",
     "@types/pg": "^8.6.1",
     "jest": "^28.0.0",
-    "ts-jest": "^28.0.4",
     "pg": "^8.7.1",
+    "ts-jest": "^28.0.4",
     "typescript": "4.7.4"
   },
   "dependencies": {

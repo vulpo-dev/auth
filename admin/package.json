@@ -1,6 +1,6 @@
 {
 	"name": "@vulpo-dev/auth-admin-dashboard",
-	"version": "22.7.2-alpha",
+	"version": "22.7.2",
 	"source": "src/index.html",
 	"scripts": {
 		"start": "parcel serve --port 9000 --public-url /dashboard --dist-dir ./dist --hmr-port 2345",
@@ -18,10 +18,10 @@
 		"@types/react": "^18.0.27",
 		"@types/react-dom": "^18.0.10",
 		"@types/uuid": "^9.0.1",
-		"@vulpo-dev/auth-react": "0.0.12",
-		"@vulpo-dev/auth-sdk": "0.0.12",
-		"@vulpo-dev/auth-sdk-admin": "0.0.12",
-		"@vulpo-dev/auth-ui": "0.0.18",
+		"@vulpo-dev/auth-react": "^0.0.13",
+		"@vulpo-dev/auth-sdk": "^0.0.13",
+		"@vulpo-dev/auth-sdk-admin": "^0.0.13",
+		"@vulpo-dev/auth-ui": "^0.0.19",
 		"ky": "^0.33.2",
 		"ky-universal": "^0.11.0",
 		"open-props": "^1.5.5",
@@ -39,5 +39,6 @@
 	},
 	"devDependencies": {
 		"rimraf": "^4.1.2"
-	}
+	},
+	"gitHead": "665c05a3e189973d103e5019864bbabfb57fedc4"
 }

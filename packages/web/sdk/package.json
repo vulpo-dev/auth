@@ -1,6 +1,6 @@
 {
   "name": "@vulpo-dev/auth-sdk",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "description": "",
   "source": "src/main.ts",
   "module": "lib/module.js",
@@ -35,13 +35,13 @@
   "author": "Michael Riezler <michael@riezler.co> (https://riezler.co)",
   "license": "MPL-2.0",
   "devDependencies": {
+    "@parcel/packager-ts": "^2.8.3",
+    "@parcel/transformer-typescript-types": "^2.8.3",
     "@types/jest": "^28.1.1",
     "@types/shallowequal": "1.1.1",
     "jest": "^28.0.0",
-    "ts-jest": "^28.0.4",
-    "@parcel/packager-ts": "^2.8.3",
-    "@parcel/transformer-typescript-types": "^2.8.3",
     "parcel": "^2.8.3",
+    "ts-jest": "^28.0.4",
     "typescript": "4.7.4"
   },
   "dependencies": {
@@ -51,5 +51,5 @@
     "jwt-decode": "^3.1.2",
     "shallowequal": "^1.1.0"
   },
-  "gitHead": "dedb24c19f448626c4f88f26d784eb06d6325129"
+  "gitHead": "665c05a3e189973d103e5019864bbabfb57fedc4"
 }

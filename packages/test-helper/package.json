@@ -1,14 +1,14 @@
 {
   "name": "@vulpo-dev/test-helper",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "description": "",
   "source": "src/main.ts",
-  "module": "lib/module.js",
+  "module": "lib/main.js",
   "main": "lib/main.js",
   "types": "lib/types.d.ts",
   "scripts": {
     "watch": "parcel watch",
-    "build": "parcel build",
+    "build": "tsc --outDir lib",
     "test": "jest",
     "prepublish": "npm run build"
   },
@@ -26,9 +26,9 @@
   "dependencies": {
     "@playwright/test": "^1.14.1",
     "@types/uuid": "^8.3.1",
-    "@vulpo-dev/auth-sdk": "^0.0.12",
+    "@vulpo-dev/auth-sdk": "^0.0.13",
     "axios": "^0.22.0",
     "uuid": "^8.3.2"
   },
-  "gitHead": "dedb24c19f448626c4f88f26d784eb06d6325129"
+  "gitHead": "665c05a3e189973d103e5019864bbabfb57fedc4"
 }

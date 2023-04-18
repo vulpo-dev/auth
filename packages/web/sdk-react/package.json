@@ -1,6 +1,6 @@
 {
   "name": "@vulpo-dev/auth-react",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "description": "",
   "source": "src/main.ts",
   "module": "lib/module.js",
@@ -21,11 +21,11 @@
     "react": "16.8 - 18.x"
   },
   "devDependencies": {
-    "@types/react": "^18.0.9",
     "@parcel/packager-ts": "^2.8.3",
     "@parcel/transformer-typescript-types": "^2.8.3",
+    "@types/react": "^18.0.9",
     "parcel": "^2.8.3",
     "typescript": "4.7.4"
   },
-  "gitHead": "dedb24c19f448626c4f88f26d784eb06d6325129"
+  "gitHead": "665c05a3e189973d103e5019864bbabfb57fedc4"
 }

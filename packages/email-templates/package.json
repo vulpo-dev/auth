@@ -1,7 +1,7 @@
 {
   "name": "@vulpo-dev/auth-email-templates",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.0.1",
   "scripts": {
     "start": "postler serve",
     "build": "postler build"
