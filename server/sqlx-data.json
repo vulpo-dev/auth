@@ -290,6 +290,23 @@
     },
     "query": "\r\nselect is_admin\r\n  from projects\r\n where id = $1"
   },
+  "36c82826ee1074b9c6f2fbd87eed50ceb173424c8af8376d3ba56a7d09994f4c": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Text",
+          "Text",
+          "Uuid",
+          "Text",
+          "Text",
+          "Text"
+        ]
+      }
+    },
+    "query": "with insert_template as (\r\n    insert into templates(body, name, project_id)\r\n    values ($1, $2, $3)\r\n    on conflict (project_id, name) do update set body = $1\r\n    returning id\r\n)\r\ninsert into template_data(\r\n    from_name\r\n  , subject\r\n  , template_id\r\n  , redirect_to\r\n  , project_id\r\n)\r\nselect $4 as from_name\r\n     , $5 as subject\r\n     , insert_template.id as template_id\r\n     , $6 as redirect_to\r\n     , $3 as \"project_id\"\r\n  from insert_template \r\non conflict (template_id)\r\n  do update set from_name = $4\r\n              , subject = $5\r\n              , redirect_to = $6"
+  },
   "3756c8e7d7b76cd6b12ad1cc5fa76443cafdff8c39c894b03265cadf229dc741": {
     "describe": {
       "columns": [],
@@ -389,18 +406,6 @@
       }
     },
     "query": "delete from template_translations\r\n where template_translations.language = $1\r\n   and template_translations.template_id in (\r\n    select id\r\n      from templates\r\n     where project_id = $2\r\n       and name = $3\r\n   )"
-  },
-  "4460703e91a3cb158015326be2a05e87bf1364ee8aed8afe8b89e2430285da23": {
-    "describe": {
-      "columns": [],
-      "nullable": [],
-      "parameters": {
-        "Left": [
-          "Jsonb"
-        ]
-      }
-    },
-    "query": "with raw_template_data as (\r\n    select *\r\n      from jsonb_to_recordset($1)\r\n        as x(\r\n           id uuid\r\n         , from_name text\r\n         , subject text\r\n         , redirect_to text\r\n         , of_type text\r\n         , template_type text\r\n         , project_id uuid\r\n         )\r\n)\r\ninsert into template_data\r\nselect raw_template_data.project_id\r\n     , raw_template_data.from_name\r\n     , '{{t.subject}}' as subject\r\n     , raw_template_data.id as template_id\r\n     , raw_template_data.redirect_to\r\n     , raw_template_data.of_type\r\n  from raw_template_data\r\n where raw_template_data.template_type = 'view'"
   },
   "4af88c85db71db29320531dde8e69c63e7e4cfa34e88272cd2ca1af9088b164f": {
     "describe": {
@@ -593,18 +598,6 @@
       }
     },
     "query": "select id\r\n     , public_key\r\n     , expire_at\r\n     , user_id\r\n     , project_id\r\n  from sessions\r\n where id = $1"
-  },
-  "5c26ece35126112e67f3a78599ce39a0ee35112257f3c3dc13298a4234cf25bd": {
-    "describe": {
-      "columns": [],
-      "nullable": [],
-      "parameters": {
-        "Left": [
-          "Jsonb"
-        ]
-      }
-    },
-    "query": "with raw_template_data as (\r\n    select *\r\n      from jsonb_to_recordset($1)\r\n        as x(\r\n           id uuid\r\n         , translation jsonb\r\n         , template_type text\r\n         , project_id uuid\r\n         )\r\n)\r\ninsert into template_translations\r\nselect raw_template_data.project_id \r\n     , raw_template_data.id as template_id\r\n     , 'en' as language\r\n     , raw_template_data.translation\r\n  from raw_template_data\r\n where raw_template_data.template_type = 'view'"
   },
   "5ce52abf02c9c80245ce76c5cfc9912d64902d54ca53d387703ab38e7dc4a007": {
     "describe": {
@@ -1363,75 +1356,6 @@
     },
     "query": "\r\nwith insert_user as (\r\n        insert into users(email, project_id, provider_id, device_languages)\r\n        values($1, $3, 'password', $4)\r\n        returning id\r\n)\r\ninsert into passwords(user_id, alg, hash, project_id)\r\nselect insert_user.id as \"user_id\"\r\n     , 'bcrypt' as \"alg\"\r\n     , $2 as \"hash\"\r\n     , $3 as \"project_id\"\r\n  from insert_user \r\nreturning user_id as \"id\""
   },
-  "950a688987b96583dddec23083020816b69cc6b6b8bb759e7b37276229dcfdc6": {
-    "describe": {
-      "columns": [
-        {
-          "name": "from_name",
-          "ordinal": 0,
-          "type_info": "Text"
-        },
-        {
-          "name": "subject",
-          "ordinal": 1,
-          "type_info": "Text"
-        },
-        {
-          "name": "body",
-          "ordinal": 2,
-          "type_info": "Text"
-        },
-        {
-          "name": "redirect_to",
-          "ordinal": 3,
-          "type_info": "Text"
-        },
-        {
-          "name": "of_type",
-          "ordinal": 4,
-          "type_info": "Text"
-        },
-        {
-          "name": "project_id",
-          "ordinal": 5,
-          "type_info": "Uuid"
-        }
-      ],
-      "nullable": [
-        false,
-        false,
-        false,
-        false,
-        false,
-        false
-      ],
-      "parameters": {
-        "Left": [
-          "Uuid",
-          "Text"
-        ]
-      }
-    },
-    "query": "select template_data.from_name\r\n     , template_data.subject\r\n     , templates.body\r\n     , template_data.redirect_to\r\n     , template_data.of_type\r\n     , templates.project_id\r\n  from templates\r\n  join template_data on template_data.template_id = templates.id\r\n where templates.project_id = $1\r\n   and templates.name = $2"
-  },
-  "9671f0797a1713fae7f5749b86102c9427862707ca2265f79b187bda12d0b9b5": {
-    "describe": {
-      "columns": [],
-      "nullable": [],
-      "parameters": {
-        "Left": [
-          "Text",
-          "Text",
-          "Uuid",
-          "Text",
-          "Text",
-          "Text",
-          "Text"
-        ]
-      }
-    },
-    "query": "with insert_template as (\r\n    insert into templates(body, name, project_id, of_type)\r\n    values ($1, $2, $3, 'view')\r\n    on conflict (project_id, name) do update set body = $1\r\n    returning id\r\n)\r\ninsert into template_data(from_name, subject, template_id, redirect_to, of_type, project_id)\r\nselect $4 as from_name\r\n     , $5 as subject\r\n     , insert_template.id as template_id\r\n     , $6 as redirect_to\r\n     , $7 as of_type\r\n     , $3 as \"project_id\"\r\n  from insert_template \r\non conflict (template_id, of_type)\r\n  do update set from_name = $4\r\n              , subject = $5\r\n              , redirect_to = $6"
-  },
   "9b8764aafecaf838cda3e6706b35bf72d0893d426918b654435bc47e279a6c7f": {
     "describe": {
       "columns": [],
@@ -1499,30 +1423,6 @@
     },
     "query": "\r\nselect users.id as \"sub\"\r\n     , users.traits as \"traits\"\r\n     , extract(epoch from now() + interval '15 minutes')::numeric::bigint as \"exp!\"\r\n  from api_keys\r\n  join users on users.id = api_keys.user_id\r\n where api_keys.id = $1"
   },
-  "a34b6dece676dae560a64665c0ed7498254d360162fe7902076f366c9f735bc6": {
-    "describe": {
-      "columns": [
-        {
-          "name": "body",
-          "ordinal": 0,
-          "type_info": "Text"
-        },
-        {
-          "name": "name",
-          "ordinal": 1,
-          "type_info": "Text"
-        }
-      ],
-      "nullable": [
-        false,
-        false
-      ],
-      "parameters": {
-        "Left": []
-      }
-    },
-    "query": "select body\r\n     , name\r\n  from templates\r\n where of_type = 'index'\r\n    or of_type = 'component'"
-  },
   "a66a8b419e00097a011163435afed4b18704f2e785d56bf6852f0ecaa2605d42": {
     "describe": {
       "columns": [],
@@ -1535,6 +1435,51 @@
       }
     },
     "query": "update projects\r\n   set flags = $2\r\n where id = $1 "
+  },
+  "a68e6f7d3ed169b90e35ba09896e02b71359ebffb3abdd4480204853c3e073ba": {
+    "describe": {
+      "columns": [
+        {
+          "name": "from_name",
+          "ordinal": 0,
+          "type_info": "Text"
+        },
+        {
+          "name": "subject",
+          "ordinal": 1,
+          "type_info": "Text"
+        },
+        {
+          "name": "body",
+          "ordinal": 2,
+          "type_info": "Text"
+        },
+        {
+          "name": "redirect_to",
+          "ordinal": 3,
+          "type_info": "Text"
+        },
+        {
+          "name": "project_id",
+          "ordinal": 4,
+          "type_info": "Uuid"
+        }
+      ],
+      "nullable": [
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          "Text"
+        ]
+      }
+    },
+    "query": "select template_data.from_name\r\n     , template_data.subject\r\n     , templates.body\r\n     , template_data.redirect_to\r\n     , templates.project_id\r\n  from templates\r\n  join template_data on template_data.template_id = templates.id\r\n where templates.project_id = $1\r\n   and templates.name = $2"
   },
   "ad59477d047a43c656c74ff11dad2460a64eae7c9a7431772997dfb57ab75d57": {
     "describe": {
@@ -1794,18 +1739,6 @@
       }
     },
     "query": "select flags\r\n  from projects\r\n where id = $1 "
-  },
-  "bc6897214dee78cfc70ebe9a2e14a45852ba1831940f502874738f38c68c1789": {
-    "describe": {
-      "columns": [],
-      "nullable": [],
-      "parameters": {
-        "Left": [
-          "Jsonb"
-        ]
-      }
-    },
-    "query": "with raw_template_data as (\r\n    select *\r\n     from jsonb_to_recordset($1)\r\n      as x(\r\n          id uuid\r\n        , body text\r\n        , project_id uuid\r\n        , template_type text\r\n        , name text\r\n      )\r\n)\r\ninsert into templates\r\nselect raw_template_data.id\r\n     , raw_template_data.body\r\n     , raw_template_data.name\r\n     , raw_template_data.template_type as of_type\r\n     , raw_template_data.project_id\r\n  from raw_template_data"
   },
   "bed443c787a51803daba01709cc8dff67a446770bb86010cf490d3ff841e3eed": {
     "describe": {
@@ -2284,7 +2217,7 @@
         false,
         false,
         false,
-        false,
+        true,
         false,
         false,
         false,

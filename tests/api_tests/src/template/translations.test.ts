@@ -12,11 +12,13 @@ const codes = Object.keys(Languages).slice(0, 5)
 const TEMPLATE = `<h1>{{t.headline}}</h1>
 <p>{{t.text}}</p>
 
-{{> button label=t.label href=ctx.href }}
+<button>
+	{{t.label }}
+</button>
 
 <p>
-	<a href="{{ctx.href}}" target="_blank" >
-		{{ ctx.href }}
+	<a href="{{props.href}}" target="_blank" >
+		{{ props.href }}
 	</a>
 </p>
 
@@ -26,8 +28,8 @@ const TRANSLATION = {
 	"subject": "Confirm Email Change",
 	"headline": "Confirm Email Change",
 	"label": "Confirm Email Change",
-	"text": "Click on the link below to verify your changed email address from {{ctx.old}} to {{ctx.new}}.",
-	"expire": "The link is valid for <span class=\"bold\">{{ctx.expire_in}} minutes</span> and can only be used once"
+	"text": "Click on the link below to verify your changed email address from {{props.old_email}} to {{props.new_email}}.",
+	"expire": "The link is valid for <span class=\"bold\">{{props.expire_in}} minutes</span> and can only be used once"
 }
 
 beforeAll(async () => {
@@ -40,8 +42,8 @@ beforeAll(async () => {
 	})
 
 	await Db.query(`
-		insert into templates(id, name, body, of_type, project_id)
-		values($1, 'test_translations', $2, 'test', $3)
+		insert into templates(id, name, body, project_id)
+		values($1, 'test_translations', $2, $3)
 	`, [TEMPLATE_ID, TEMPLATE, PROJECT_ID])
 
 	await Db.query(`
@@ -157,13 +159,13 @@ describe("Translations", () => {
 			"subject": "Changed",
 			"headline": "Changed",
 			"label": "Changed",
-			"text": "Click on the link below to verify your changed email address from {{ctx.old}} to {{ctx.new}}.",
-			"expire": "The link is valid for <span class=\"bold\">{{ctx.expire_in}} minutes</span> and can only be used once"
+			"text": "Click on the link below to verify your changed email address from {{props.old_email}} to {{props.new_email}}.",
+			"expire": "The link is valid for <span class=\"bold\">{{props.expire_in}} minutes</span> and can only be used once"
 		}
 
 		let payload = {
 			project: PROJECT_ID,
-			template: 'test_translations' ,
+			template: 'test_translations',
 			language: codes[0],
 			content: change,
 		}

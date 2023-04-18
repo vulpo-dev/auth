@@ -1,5 +1,5 @@
-# ADMIN
-FROM node:16.10.0 as build_admin
+# Assets
+FROM node:16.10.0 as build_assets
 
 ARG version
 ENV VulpoAuthVersion=$version
@@ -14,6 +14,9 @@ RUN npx lerna bootstrap
 WORKDIR /usr/src/admin
 RUN npm run build
 
+WORKDIR /usr/src/packages/email-templates
+RUN npm run build
+
 
 # SERVER
 FROM clux/muslrust:1.68.2 AS build
@@ -24,7 +27,8 @@ ENV VulpoAuthVersion=$version
 WORKDIR /usr/src
 
 COPY . ./
-COPY --from=build_admin /usr/src/admin/dist /usr/src/admin/dist
+COPY --from=build_assets /usr/src/admin/dist /usr/src/admin/dist
+COPY --from=build_assets /usr/src/packages/email-templates/build /usr/src/packages/email-templates/build
 
 RUN cargo build -p vulpo_server --release
 

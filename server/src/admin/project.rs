@@ -1,7 +1,6 @@
 use crate::admin::data::{Admin, NewProject, PartialProject};
 use crate::config::Secrets;
 use crate::keys::data::ProjectKeys;
-use crate::template::Template;
 
 use rocket::serde::json::Json;
 use rocket::State;
@@ -53,7 +52,6 @@ pub async fn create_admin_project(
     // todo: transaction
     let id = Admin::create_project(&pool, &project, &keys).await?;
     Admin::set_admin(&pool, &id).await?;
-    Template::insert_defaults(&pool, &id).await?;
 
     Ok(id)
 }
@@ -67,7 +65,6 @@ pub async fn create_project(
 
     // todo: transaction
     let id = Admin::create_project(&pool, &project, &keys).await?;
-    Template::insert_defaults(&pool, &id).await?;
     Ok(id)
 }
 

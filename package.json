@@ -4,6 +4,7 @@
   "description": "",
   "workspaces": [
     "packages/test-helper",
+    "packages/email-templates",
     "packages/web/*",
     "admin",
     "example",

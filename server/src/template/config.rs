@@ -20,12 +20,6 @@ pub enum Templates {
 
     #[serde(rename = "verify_email")]
     VerifyEmail,
-
-    #[serde(rename = "index")]
-    Index,
-
-    #[serde(rename = "button")]
-    Button,
 }
 
 impl Templates {
@@ -35,8 +29,6 @@ impl Templates {
             "password_reset" => Some(Templates::PasswordReset),
             "passwordless" => Some(Templates::Passwordless),
             "verify_email" => Some(Templates::VerifyEmail),
-            "index" => Some(Templates::Index),
-            "button" => Some(Templates::Button),
             "confirm_email_change" => Some(Templates::ConfirmEmailChange),
             _ => None,
         }
@@ -50,8 +42,6 @@ impl ToString for Templates {
             Templates::PasswordReset => String::from("password_reset"),
             Templates::Passwordless => String::from("passwordless"),
             Templates::VerifyEmail => String::from("verify_email"),
-            Templates::Index => String::from("index"),
-            Templates::Button => String::from("button"),
             Templates::PasswordChanged => String::from("password_changed"),
             Templates::ConfirmEmailChange => String::from("confirm_email_change"),
         }
@@ -64,6 +54,7 @@ pub enum DefaultRedirect {
     VerifyEmail,
     ChangeEmail,
     ConfirmEmailChange,
+    PasswordChanged,
 }
 
 impl ToString for DefaultRedirect {
@@ -71,6 +62,7 @@ impl ToString for DefaultRedirect {
         let url = match self {
             DefaultRedirect::Passwordless => "/auth/signin/link/confirm",
             DefaultRedirect::PasswordReset => "/auth/forgot-password/set-password",
+            DefaultRedirect::PasswordChanged => "/auth/forgot-password",
             DefaultRedirect::VerifyEmail => "/auth/verify-email",
             DefaultRedirect::ChangeEmail => "/auth/user/change-email/reset",
             DefaultRedirect::ConfirmEmailChange => "/auth/user/change-email/confirm",
@@ -88,7 +80,7 @@ impl DefaultRedirect {
             Templates::VerifyEmail => DefaultRedirect::VerifyEmail.to_string(),
             Templates::ChangeEmail => DefaultRedirect::ChangeEmail.to_string(),
             Templates::ConfirmEmailChange => DefaultRedirect::ConfirmEmailChange.to_string(),
-            _ => String::from(""),
+            Templates::PasswordChanged => DefaultRedirect::PasswordChanged.to_string(),
         }
     }
 }
@@ -126,7 +118,6 @@ impl DefaultSubject {
             Templates::ChangeEmail => DefaultSubject::ChangeEmail.to_string(),
             Templates::PasswordChanged => DefaultSubject::PasswordChanged.to_string(),
             Templates::ConfirmEmailChange => DefaultSubject::ConfirmEmailChange.to_string(),
-            _ => String::from(""),
         }
     }
 }

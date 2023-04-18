@@ -84,21 +84,17 @@ exports.seed = async function(knex: Knex) {
       return {
         id: t.id,
         body: t.body ?? "",
-        of_type: t.template_type,
-        name: t.of_type,
+        name: t.name,
         project_id: t.project_id,
       }
     })
   )
 
   await knex('template_data').insert(
-    templates.filter(t => t.template_type === 'view').map(t => {
+    templates.map(t => {
       return {
         template_id: t.id,
-        from_name: t.from_name,
-        subject: t.subject,
-        redirect_to: t.redirect_to,
-        of_type: t.of_type,
+        redirect_to: t.data.redirect_to,
         project_id: t.project_id,
       }
     })
@@ -106,13 +102,15 @@ exports.seed = async function(knex: Knex) {
 
   console.log('Insert Translations')
   await knex('template_translations').insert(
-    templates.filter(t => t.template_type === 'view').map(t => {
-      return {
-        template_id: t.id,
-        language: 'en',
-        content: t.translation,
-        project_id: t.project_id,
-      }
+    templates.flatMap(t => {
+      return t.translations.map(translation => {
+        return {
+          template_id: t.id,
+          language: translation.language,
+          content: translation.content,
+          project_id: t.project_id,
+        }
+      })
     })
   )
 };

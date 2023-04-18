@@ -1,8 +1,0 @@
-
-{
-	"subject": "Confirm Email Change",
-	"headline": "Confirm Email Change",
-	"label": "Confirm Email Change",
-	"text": "Click on the link below to verify your changed email address from {{ctx.old_email}} to {{ctx.new_new}}.",
-	"expire": "The link is valid for <span class=\"bold\">{{ctx.expire_in}} minutes</span> and can only be used once"
-}

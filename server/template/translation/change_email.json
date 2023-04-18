@@ -1,7 +1,0 @@
-
-{
-	"subject": "Email Change Requested",
-	"headline": "Email Change Requested",
-	"label": "Reset Email",
-	"text": "A new email address ({{ctx.new_email}}) has been requested for your {{ctx.project}} account. If you haven't requested the change, you can reset you email by clicking on the link below, otherwise you can ignore this email."
-}

@@ -10,6 +10,8 @@ if ($SkipAdmin -eq $false) {
     echo "Skip Admin"
 }
 
+Import-Module -Name $PSScriptRoot\templates.ps1
+
 $Env:SQLX_OFFLINE="true"
 cross build --target x86_64-unknown-linux-musl --release
 

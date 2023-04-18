@@ -34,11 +34,10 @@ pub async fn get_template(
         None => {
             let body = Template::get_body(template);
             TemplateResponse {
-                from_name: String::from(""),
-                subject: DefaultSubject::from_template(template),
+                from_name: Some(String::from("")),
+                subject: Some(DefaultSubject::from_template(template)),
                 body: body.to_string(),
                 redirect_to: DefaultRedirect::from_template(template),
-                of_type: template,
                 project_id,
             }
         }

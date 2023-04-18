@@ -35,7 +35,7 @@ use werkbank::clap::{get_config_dir, run_migration, run_server};
 use werkbank::otel;
 
 const ADMIN_CLIENT: Dir = include_dir!("$CARGO_MANIFEST_DIR/../admin/dist");
-const TEMPLATE: Dir = include_dir!("$CARGO_MANIFEST_DIR/template");
+const TEMPLATE: Dir = include_dir!("$CARGO_MANIFEST_DIR/../packages/email-templates/build");
 
 #[rocket::main]
 async fn main() {

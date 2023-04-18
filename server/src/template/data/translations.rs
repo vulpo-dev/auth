@@ -4,6 +4,8 @@ use std::collections::HashMap;
 use uuid::Uuid;
 use vulpo_auth_types::error::ApiError;
 
+use crate::TEMPLATE;
+
 #[derive(Deserialize)]
 pub struct SetTranslation {
     pub project: Uuid,
@@ -78,15 +80,29 @@ impl Translations {
     pub async fn get_by_user(
         pool: &PgPool,
         user_id: &Uuid,
-        name: &str,
+        template_name: &str,
     ) -> Result<HashMap<String, String>, ApiError> {
-        let translation =
-            sqlx::query_file!("src/template/sql/get_user_translation.sql", user_id, name)
-                .fetch_one(pool)
-                .await
-                .map_err(|_| ApiError::InternalServerError)?;
+        let row = sqlx::query_file!(
+            "src/template/sql/get_user_translation.sql",
+            user_id,
+            template_name
+        )
+        .fetch_optional(pool)
+        .await?;
 
-        serde_json::from_value(translation.content).map_err(|_| ApiError::InternalServerError)
+        if let Some(translation) = row {
+            return serde_json::from_value(translation.content)
+                .map_err(|_| ApiError::InternalServerError);
+        }
+
+        let path = format!("{}/translations/en.hbs", template_name);
+
+        let translation = TEMPLATE
+            .get_file(path)
+            .and_then(|file| file.contents_utf8())
+            .unwrap_or("");
+
+        serde_json::from_str(translation).map_err(|_| ApiError::InternalServerError)
     }
 
     pub async fn get_by_languages(

@@ -94,7 +94,7 @@ pub async fn request_passwordless(
 
     let translations = Template::translate(&translations, &ctx);
     let subject = Template::render_subject(&settings.subject, &translations)?;
-    let content = Template::render(&pool, &settings.body, &ctx, &translations).await?;
+    let content = Template::render(&settings.body, &ctx, &translations).await?;
 
     let email = Email {
         to_email: request.email.to_owned(),
