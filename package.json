@@ -5,6 +5,7 @@
   "workspaces": [
     "packages/test-helper",
     "packages/email-templates",
+    "packages/admin",
     "packages/web/*",
     "admin",
     "example",
@@ -19,14 +20,15 @@
   "scripts": {
     "bootstrap": "lerna bootstrap --hoist",
     "clean:modules": "rimraf **/node_modules/",
-    "clean:lib": "rimraf **/lib/",
+    "clean:lib": "rimraf packages/**/lib/",
     "clean": "npm run clean:lib && npm run clean:modules",
     "build:admin": "powershell scripts/build/admin.ps1",
     "build:linux-musl": "powershell scripts/build/linux-musl.ps1",
     "build:docker": "powershell scripts/build/docker.ps1",
     "build:website": "powershell scripts/build/website.ps1",
     "build:docs-web": "powershell scripts/build/docs-web.ps1",
-    "build:packages": "parcel build ./packages/web/*"
+    "build:packages": "parcel build ./packages/web/*",
+    "postinstall": "lerna run build"
   },
   "keywords": [],
   "author": "Michael Riezler <michael@riezler.co> (https://riezler.co)",
@@ -43,10 +45,10 @@
     "babel-plugin-styled-components": "^1.12.0",
     "core-js": "^3.9.0",
     "eslint-plugin-react": "7.31.1",
-    "lerna": "^3.22.1",
+    "lerna": "6.6.1",
     "parcel": "^2.8.3",
     "process": "^0.11.10",
-    "rimraf": "^3.0.2",
+    "rimraf": "^4.1.2",
     "ts-loader": "^8.0.17",
     "typescript": "4.7.4"
   },

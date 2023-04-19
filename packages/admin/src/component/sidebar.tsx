@@ -1,8 +1,8 @@
 import styled from "@emotion/styled";
 import ContentLoader from "react-content-loader";
-import { NavLink, useNavigate } from "react-router-dom";
-import { Gear, CaretDown, Users, Key, Plus } from "@phosphor-icons/react";
-import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { CaretDown, Plus } from "@phosphor-icons/react";
+import { ReactNode, useState } from "react";
 
 import {
 	useMenu,
@@ -13,13 +13,15 @@ import {
 } from "werkbank/component/menu";
 import { Dialog } from "werkbank/component/dialog";
 
-import adminApi, { useGetProjectsQuery } from "../data/admin_api";
+import { useGetProjectsQuery } from "../data/admin_api";
 import { useActiveProject } from "../data/project";
 import CreateProject from "./create_project";
-import { usePrefetchSettings } from "../pages/settings/settings";
-import { usePrefetchAuthMethods } from "../pages/methods/methods";
 
-let Sidebar = () => {
+type SidebarProps = {
+	children: ReactNode;
+};
+
+let Sidebar = ({ children }: SidebarProps) => {
 	let currentProject = useActiveProject();
 	let { data: projects } = useGetProjectsQuery([]);
 	let project = projects?.find((p) => p.id === currentProject);
@@ -69,7 +71,7 @@ let Sidebar = () => {
 						<LoadingTitle />
 					)}
 				</Header>
-				<Nav />
+				{children}
 			</Wrapper>
 
 			<Dialog open={createDialog} onClose={() => setCreateDialog(false)}>
@@ -143,61 +145,4 @@ let Title = styled.button`
 	svg {
 		flex-shrink: 0;
 	}
-`;
-
-let Nav = () => {
-	let project = useActiveProject();
-	let prefetchUsers = adminApi.usePrefetch("getUsers");
-	let prefetchAuthMethods = usePrefetchAuthMethods();
-	let prefetchSettings = usePrefetchSettings();
-
-	return (
-		<Ul>
-			<li onMouseEnter={() => prefetchUsers([{ project }])}>
-				<NavItem to="users">
-					<Users size="1.2em" />
-					<span>Users</span>
-				</NavItem>
-			</li>
-			<li onMouseEnter={() => prefetchAuthMethods(project)}>
-				<NavItem to="auth-methods">
-					<Key size="1.2em" />
-					<span>Auth Methods</span>
-				</NavItem>
-			</li>
-			<li onMouseEnter={() => prefetchSettings(project)}>
-				<NavItem to="settings">
-					<Gear size="1.2em" />
-					<span>Settings</span>
-				</NavItem>
-			</li>
-		</Ul>
-	);
-};
-
-let Ul = styled.ul`
-	margin: 0;
-	list-style-type: none;
-	padding: 0;
-`;
-
-let NavItem = styled(NavLink)`
-	display: flex;
-	align-items: center;
-	gap: var(--size-3);
-	color: var(--text-color);
-	text-decoration: none;
-	padding: var(--size-1) var(--_spacing-inline);
-	font-weight: 700;
-
-	&:hover {
-		color: #fff;
-		background: var(--brand--dark);
-	}
-
-	&.active {
-		color: #fff;
-		background: #000;
-	}
-
 `;

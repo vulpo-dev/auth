@@ -1,7 +1,7 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { setupListeners } from "@reduxjs/toolkit/dist/query";
 
-import { adminApi } from "../lib/data/admin_api";
+import { adminApi } from "@vulpo-dev/auth-admin-dashboard-core/data/admin_api";
 
 export const Store = configureStore({
 	reducer: {

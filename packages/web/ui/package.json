@@ -52,7 +52,9 @@
   },
   "dependencies": {
     "@vulpo-dev/auth-react": "0.0.14",
-    "@vulpo-dev/auth-sdk": "0.0.14",
+    "@vulpo-dev/auth-sdk": "0.0.14"
+  },
+  "peerDependencies": {
     "react": "16.8 - 18.x",
     "react-router-dom": "6.x"
   },

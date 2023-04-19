@@ -8,8 +8,9 @@ import { Auth } from "@vulpo-dev/auth-react";
 import { Provider } from "react-redux";
 
 import { Router } from "./app/router";
-import { AuthClient } from "./app/auth";
 import { Store } from "./app/store";
+
+import { AuthClient } from "@vulpo-dev/auth-admin-dashboard-core/utils/auth";
 
 function main() {
 	let container = document.getElementById("root");

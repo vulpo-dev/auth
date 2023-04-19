@@ -27,6 +27,7 @@ import { useMatchedUserId } from "../../utils";
 import { UserForm } from "./component/user_form";
 import { Actions, Container, Header } from "./component/layout";
 import { DateTime } from "../../component/date";
+import EmptyUser from "./empty";
 
 type UserDetailsProps = {
 	userId: string;
@@ -240,20 +241,6 @@ let UserActions = ({ userId }: UserDetailsProps) => {
 				<ActionLabel>Delete</ActionLabel>
 			</ActionItem>
 		</ActionsContainer>
-	);
-};
-
-let StyledEmptyUser = styled.div`
-	display: flex;
-	justify-content: center;
-	padding-top: var(--size-5);
-`;
-
-export let EmptyUser = () => {
-	return (
-		<StyledEmptyUser>
-			<h3>No user selected</h3>
-		</StyledEmptyUser>
 	);
 };
 

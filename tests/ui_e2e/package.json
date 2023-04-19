@@ -23,7 +23,7 @@
     "bcryptjs": "^2.4.3",
     "dotenv": "^10.0.0",
     "pg": "^8.7.1",
-    "uuid": "^8.3.2"
+    "uuid": "^9.0.0"
   },
   "gitHead": "66f4c8adf32c325739fbdac41dbbe9d189aaba05"
 }

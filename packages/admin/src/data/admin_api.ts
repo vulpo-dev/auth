@@ -6,7 +6,7 @@ import AdminSDK, {
 	UnauthenticatedError,
 } from "@vulpo-dev/auth-sdk-admin";
 
-import { AuthClient } from "../../app/auth";
+import { AuthClient } from "../utils/auth";
 
 let api = new AdminSDK({
 	accessToken: () => AuthClient.getToken(),
@@ -33,7 +33,10 @@ let toQueryFn = <Fn extends (...args: Array<any>) => Promise<any>>(
 
 			return { data };
 		} catch (error) {
-			console.log({ error });
+			if (process.env.NODE_ENV === "development") {
+				console.log({ error });
+			}
+
 			if (error instanceof UnauthenticatedError) {
 				return { error: { type: "unauthenticated" } };
 			}

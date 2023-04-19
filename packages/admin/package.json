@@ -1,0 +1,48 @@
+{
+	"name": "@vulpo-dev/auth-admin-dashboard-core",
+	"version": "22.7.3",
+	"scripts": {
+		"types": "tsc --emitDeclarationOnly --declarationDir ./",
+		"build:ts": "swc ./src -d ./",
+		"build": "npm run clean && npm run build:ts && npm run types",
+		"clean": "node ./scripts/clean.mjs",
+		"fmt": "rome format ./src --write",
+		"check": "rome check ./src && tsc --noEmit"
+	},
+	"files": [
+	  "/component",
+	  "/data",
+	  "/pages",
+	  "/utils"
+	],
+	"dependencies": {
+		"@emotion/styled": "^11.10.5",
+		"@phosphor-icons/react": "^2.0.6",
+		"@reduxjs/toolkit": "^1.9.1",
+		"@types/react": "^18.0.27",
+		"@types/react-dom": "^18.0.10",
+		"@types/uuid": "^9.0.1",
+		"@vulpo-dev/auth-react": "^0.0.14",
+		"@vulpo-dev/auth-sdk": "^0.0.14",
+		"@vulpo-dev/auth-sdk-admin": "^0.0.14",
+		"@vulpo-dev/auth-ui": "^0.0.20",
+		"ky": "^0.33.2",
+		"ky-universal": "^0.11.0",
+		"open-props": "^1.5.5",
+		"react": "^18.2.0",
+		"react-content-loader": "^6.2.1",
+		"react-dom": "^18.2.0",
+		"react-redux": "^8.0.5",
+		"react-router-dom": "^6.7.0",
+		"redux-thunk": "^2.4.2",
+		"swc": "^1.0.11",
+		"uuid": "^9.0.0",
+		"werkbank": "^0.4.4"
+	},
+	"devDependencies": {
+		"rimraf": "^4.1.2",
+		"rome": "^12.0.0",
+		"typescript": "^4.7.4"
+	},
+	"gitHead": "665c05a3e189973d103e5019864bbabfb57fedc4"
+}

@@ -1,4 +1,3 @@
-import React from "react";
 import { FormEvent } from "react";
 import { Project, ProjectSettings } from "@vulpo-dev/auth-sdk-admin";
 
